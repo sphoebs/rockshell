@@ -1,4 +1,5 @@
 from google.appengine.ext import ndb
+import logging
 
 
 class GFUser(ndb.Model):
@@ -37,9 +38,9 @@ class GFUser(ndb.Model):
     def get_all_users():
         return GFUser.query()
 
-    @staticmethod
-    def get_by_user_id(user_id):
-        return GFUser.query(GFUser.user_id == user_id).get()
+#     @staticmethod
+#     def get_by_user_id(user_id):
+#         return GFUser.get_by_id(user_id)
 
     @staticmethod
     def add_or_get_user(user_response, access_token, provider, update=False):
@@ -63,8 +64,10 @@ class GFUser(ndb.Model):
                 return user, ['FB_user_exists']
 
             if not user:
-                user = GFUser()
-                user.user_id = "FB_" + user_response['id']
+                user_id = "FB_" + user_response['id']
+                key = ndb.Key('GFUser', user_id)
+                user = GFUser(key=key)
+                user.user_id = user_id
                 user.first_name = user_response['first_name']
                 user.last_name = user_response['last_name']
                 user.email = user_response['email']
@@ -99,8 +102,10 @@ class GFUser(ndb.Model):
                 return user, ['google_user_exists']
 
             if not user:
-                user = GFUser()
-                user.user_id = "google_" + user_response['id']
+                user_id = "google_" + user_response['id']
+                key = ndb.Key('GFUser', user_id)
+                user = GFUser(key=key)
+                user.user_id = user_id
                 user.first_name = user_response['given_name']
                 user.last_name = user_response['family_name']
                 user.email = user_response['email']
@@ -115,8 +120,10 @@ class GFUser(ndb.Model):
             user.google_first_name = user_response['given_name']
             user.google_last_name = user_response['family_name']
             user.google_email = user_response['email']
-            user.google_profile = user_response['profile']
-            user.google_picture = user_response['picture']
+            if 'profile' in user_response.keys():
+                user.google_profile = user_response['profile']
+            if 'picture' in user_response.keys():
+                user.google_picture = user_response['picture']
             user.google_locale = user_response['locale']
             user.google_name = user_response['name']
             user.google_access_token = access_token

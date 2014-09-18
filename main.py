@@ -31,8 +31,8 @@ from models import PFuser
 # sys.path.append('data/')
 
 # these imports are fine
-import social_login 
-# from GFuser import GFUser
+import social_login
+from GFuser import GFUser
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -47,9 +47,9 @@ def get_current_user(request, cookie_name):
 
     if user_id:
         logging.error("\n USER ID COOKIE DETECTED \n")
-        logging.error('::get_current_user:: returning user' + user_id)
-        user = PFuser.get_by_user_id(user_id)
-        logging.error('\n ::user object:: returning user' + str(user))
+        logging.error('::get_current_user:: returning user ' + user_id)
+        user = GFUser.get_by_id(user_id)
+        logging.error('\n ::user object:: returning user ' + str(user))
         return user
 
 
@@ -88,14 +88,14 @@ class LoginHandler(BaseRequestHandler):
             oauth_user_dictionary, access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'facebook')
 
-            user, result = PFuser.add_or_get_user(
+            user, result = GFUser.add_or_get_user(
                 oauth_user_dictionary, access_token, 'facebook')
 
         elif '/google/oauth_callback' in self.request.url:
             oauth_user_dictionary, access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'google')
 
-            user, result = PFuser.add_or_get_user(
+            user, result = GFUser.add_or_get_user(
                 oauth_user_dictionary, access_token, 'google')
             # set cookie
             # redirect
@@ -103,9 +103,38 @@ class LoginHandler(BaseRequestHandler):
         else:
             logging.error('illegal callback invocation')
 
-        social_login.set_cookie(self.response, "user", str(
-            user.user_id), expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
-        self.redirect('/profile')
+        social_login.set_cookie(self.response, "user",
+            user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
+        if 'user_added' in result:
+            self.redirect('/user')
+        else:
+            # TODO: get user location
+            self.redirect('/letsgo')
+
+
+class UserHandler(BaseRequestHandler):
+
+    def get(self):
+
+        user = get_current_user(self.request, 'user')
+        if user:
+            self.render(
+                'profile.html',
+                {'email': user.email, 'full_name': user.full_name}
+            )
+        else:
+            self.redirect('/')
+
+    def post(self):
+        # TODO: update user data
+        pass
+
+
+class LetsgoHandler(BaseRequestHandler):
+
+    def get(self):
+        # TODO: use cookie to get user info
+        self.render('letsgo.html', {})
 
 
 class MainHandler(BaseRequestHandler):
@@ -119,5 +148,8 @@ class MainHandler(BaseRequestHandler):
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/fb/oauth_callback/?', LoginHandler),
-    ('/google/oauth_callback/?', LoginHandler)
+    ('/google/oauth_callback/?', LoginHandler),
+    ('/user', UserHandler),
+    ('/letsgo', LetsgoHandler)
+
 ], debug=True)
