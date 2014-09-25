@@ -1,0 +1,60 @@
+{% extends "base.html" %} 
+
+{% block main %}
+
+<h3>Please, fill in your profile with some personal infromation:</h3>
+
+<form action="/user" method="post">
+	<div>
+		<label>Name: </label><input type="text" name="name" value="{{full_name}}">
+	</div>
+	<div>
+		<label>Email: </label><input type="text" name="email" value="{{email}}">
+	</div>
+	<div>
+		<label>Gender: </label> <label class="radio-inline"> <input
+			type="radio" name="gender" value="M"> M
+		</label> <label class="radio-inline"> <input type="radio"
+			name="gender" value="F"> F
+		</label>
+	</div>
+	<br />
+	<div>
+		<label>Age: </label>
+		<div class="radio">
+			<label> <input type="radio" name="age" value="<18">
+				Less than 18 years old
+			</label>
+		</div>
+		<div class="radio">
+			<label> <input type="radio" name="age" value="18-25">
+				18 - 25 years old
+			</label>
+		</div>
+		<div class="radio">
+			<label> <input type="radio" name="age" value="26-35">
+				26 - 35 years old
+			</label>
+		</div>
+		<div class="radio">
+			<label> <input type="radio" name="age" value="36-55">
+				36 - 55 years old
+			</label>
+		</div>
+		<div class="radio">
+			<label> <input type="radio" name="age" value=">55">
+				More than 55 years old
+			</label>
+		</div>
+
+	</div>
+	<div>
+		<label>Home city: </label><input type="text" name="city">
+	</div>
+
+	<div>
+		<input type="submit" value="Save">
+	</div>
+</form>
+
+{% endblock %}
