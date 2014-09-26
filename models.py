@@ -6,6 +6,7 @@ Created on Sep 15, 2014
 from google.appengine.ext import ndb
 # this is fine, the file is loaded after
 from GFuser import GFUser
+import logging
 
 
 class Address(ndb.Model):
@@ -96,8 +97,29 @@ class PFuser(GFUser):
 #     ext_id_google = ndb.StringProperty()
         
     @staticmethod
+    def add_or_get_user(user_response, access_token, provider, update=False):
+        user, status = GFUser.add_or_get_user(user_response, access_token, provider, False)
+        dict = user.to_dict()
+        del dict['class_']
+        pfu = PFuser(id = dict['user_id'], **dict)
+        if 'user_added' in status:
+            logging.warning("USER ADDED, pfuser turn now")
+            if pfu.google_picture:
+                pfu.picture = pfu.google_picture
+            if pfu.fb_gender and (pfu.fb_gender[0] == 'f' or pfu.fb_gender[0] == 'F'):
+                pfu.gender = 'F'
+            elif pfu.fb_gender and (pfu.fb_gender[0] == 'm' or pfu.fb_gender[0] == 'M'):
+                pfu.gender = 'M'
+        pfu.put()
+        return pfu, status
+        
+        
+    @staticmethod
     def make_key(uid):
         return ndb.Key(PFuser, uid)
 
     def to_json(self):
-        return dict(self.to_dict(), **dict(id=self.key.id()))
+        tmp = self.to_dict()
+        del tmp['created']
+        del tmp['updated']
+        return dict(tmp, **dict(id=self.key.id()))

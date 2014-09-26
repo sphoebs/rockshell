@@ -1,8 +1,9 @@
 from google.appengine.ext import ndb
+from google.appengine.ext.ndb import polymodel
 import logging
 
 
-class GFUser(ndb.Model):
+class GFUser(polymodel.PolyModel):
     user_id = ndb.StringProperty(required=True)
 
     created = ndb.DateTimeProperty(auto_now_add=True)
@@ -128,7 +129,7 @@ class GFUser(ndb.Model):
             user.google_name = user_response['name']
             user.google_access_token = access_token
 
-        user.put()
+#         user.put()
         return user, status
 
     '''

@@ -32,13 +32,23 @@ class MainHandler(webapp2.RequestHandler):
 
 class UserHandler(webapp2.RequestHandler):
 
-    def get(self):
-        # not needed!
-        self.response.set_status(405)
-# 
-#     def post(self):
-#         # not needed! Users are created when they login the first time
-#         self.response.set_status(405)
+    #     def get(self): # not needed!
+    #         self.response.set_status(405)
+    #
+
+    def post(self):
+        # Saves/retrieves user when he/she logs in
+        post_data = json.loads(self.request.body)
+        if post_data is None:
+            self.response.set_status(400)
+            self.response.write('Missing body')
+        user, result = PFuser.add_or_get_user(
+            post_data['oauth_user_dictionary'], post_data['access_token'], post_data['service'])
+        res = user.to_json()
+        if 'user_added' in result:
+            res['is_new'] = True
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(res))
 
     def put(self):
         jdata = json.loads(cgi.escape(self.request.body))
@@ -50,7 +60,7 @@ class UserHandler(webapp2.RequestHandler):
         self.response.write(json.dumps(user.to_json()))
 
 #     def delete(self):
-#         # not needed!
+# not needed!
 #         self.response.set_status(405)
 
 
@@ -61,7 +71,8 @@ class PlaceListHandler(webapp2.RequestHandler):
         # TODO: filter places according to get_values
         dblist = Place.query()
         # executes query only once and store the results
-        # Never use fetch()! [even though I think that this does the same as fetch()]
+        # Never use fetch()! [even though I think that this does the same as
+        # fetch()]
         dblist = list(dblist)
         # TODO: add user-related data to each place ??
         self.response.headers['Content-Type'] = 'application/json'
@@ -70,16 +81,17 @@ class PlaceListHandler(webapp2.RequestHandler):
     def post(self):
         logging.info("Received new place to save: " + self.request.body)
         body = json.loads(self.request.body)
-        # TODO: check input data! 
-        
+        # TODO: check input data!
+
         if body['address']['lat'] and body['address']['lon']:
-            body['address']['location'] = GeoPt(body['address']['lat'], body['address']['lon'])
+            body['address']['location'] = GeoPt(
+                body['address']['lat'], body['address']['lon'])
             del body['address']['lat']
             del body['address']['lon']
-        
+
         place = Place()
         place.populate(**body)
-        
+
         place.put()
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(place.to_json()))
@@ -108,7 +120,8 @@ class PlaceHandler(webapp2.RequestHandler):
             if res:
                 body = json.loads(self.request.body)
                 if body['address']['lat'] and body['address']['lon']:
-                    body['address']['location'] = GeoPt(body['address']['lat'], body['address']['lon'])
+                    body['address']['location'] = GeoPt(
+                        body['address']['lat'], body['address']['lon'])
                     del body['address']['lat']
                     del body['address']['lon']
                 res.populate(**body)
@@ -128,6 +141,7 @@ class PlaceHandler(webapp2.RequestHandler):
 
 
 class RatingHandler(webapp2.RequestHandler):
+
     def post(self):
         pass
 
@@ -141,5 +155,3 @@ app = webapp2.WSGIApplication([
 ],
     debug=True
 )
-
-
