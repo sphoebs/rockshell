@@ -165,7 +165,7 @@ app = webapp2.WSGIApplication([
     ('/fb/oauth_callback/?', LoginHandler),
     ('/google/oauth_callback/?', LoginHandler),
     ('/user', UserHandler),
-    ('/letsgo', LetsgoHandler)
+    ('/letsgo', LetsgoHandler),
     ('/error', ErrorHandler)
 
 ], debug=True)
