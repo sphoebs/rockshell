@@ -88,22 +88,23 @@ class LoginHandler(BaseRequestHandler):
         if '/fb/oauth_callback' in self.request.url:
             logging.error("\n \n FB request: " + str(self.request.url))
 
-            oauth_user_dictionary, access_token, errors = social_login.LoginManager.handle_oauth_callback(
+            access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'facebook')
-            body = json.dumps({"oauth_user_dictionary": oauth_user_dictionary, "access_token": access_token, "service":"facebook"})
+            body = json.dumps({"token": access_token, "service":"facebook"})
 
         elif '/google/oauth_callback' in self.request.url:
-            oauth_user_dictionary, access_token, errors = social_login.LoginManager.handle_oauth_callback(
+            access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'google')
-            body = json.dumps({"oauth_user_dictionary": oauth_user_dictionary, "access_token": access_token, "service":"google"})
+            body = json.dumps({"token": access_token, "service":"google"})
         else:
             logging.error('illegal callback invocation')
             self.redirect('/error')
         # execute post to API
         try:
             req = urllib2.Request(config.BASEURL + '/api/user', data=body, headers={'Content-Type': 'application/json'});
-            resp = urllib2.urlopen(req).read()
-            user = json.loads(resp)
+            resp = urllib2.urlopen(req)
+            # The response contains the user in the body, and the session in the cookies
+            user = json.loads(resp.read())
         except URLError, e:
             logging.error(e.code)
             self.redirect('/error')
@@ -112,8 +113,7 @@ class LoginHandler(BaseRequestHandler):
             self.redirect('/error')    
             
 #         logging.warning("USER: " + str(user))
-        social_login.set_cookie(self.response, "user",
-            user['user_id'], expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
+        self.response.headers.add_header("Set-Cookie", resp.info().getheader('Set-Cookie'))
         if user.get('is_new', False) == True:
             # goto profile page
             self.redirect('/user')

@@ -23,6 +23,13 @@ from __builtin__ import list
 import logging
 from google.appengine.api.datastore_types import GeoPt
 
+from google.appengine.api import urlfetch
+from urllib import urlencode
+import urllib2
+import social_login
+import time
+import config
+
 
 class MainHandler(webapp2.RequestHandler):
 
@@ -32,7 +39,7 @@ class MainHandler(webapp2.RequestHandler):
 
 class UserHandler(webapp2.RequestHandler):
 
-    #     def get(self): # not needed!
+    # def get(self): # not needed!
     #         self.response.set_status(405)
     #
 
@@ -42,11 +49,31 @@ class UserHandler(webapp2.RequestHandler):
         if post_data is None:
             self.response.set_status(400)
             self.response.write('Missing body')
+
+        token = post_data['token']
+        service = post_data['service']
+
+        if service == 'facebook':
+            url = "https://graph.facebook.com/me?access_token=" + \
+                token
+            user_data = json.loads(urllib2.urlopen(url).read())
+        elif service == 'google':
+            GOOGLE_GET_INFO_URI = 'https://www.googleapis.com/oauth2/v3/userinfo?{0}'
+            target_url = GOOGLE_GET_INFO_URI.format(
+                urlencode({'access_token': token}))
+            resp = urlfetch.fetch(target_url).content
+            user_data = json.loads(resp)
+            if 'id' not in user_data and 'sub' in user_data:
+                user_data['id'] = user_data['sub']
+
         user, result = PFuser.add_or_get_user(
-            post_data['oauth_user_dictionary'], post_data['access_token'], post_data['service'])
+            user_data, token, service)
         res = user.to_json()
         if 'user_added' in result:
             res['is_new'] = True
+            
+        social_login.set_cookie(self.response, "user",
+            res['user_id'], expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(res))
 
@@ -95,6 +122,17 @@ class PlaceListHandler(webapp2.RequestHandler):
         place.put()
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(place.to_json()))
+
+
+class PlaceListLoader(webapp2.RequestHandler):
+
+    def get(self):
+        # NO -- Load data about restaurants from cat_db (postgres on localhost:5432)
+        # Load restaurants from CAT_API (using http requests)
+
+        # GET http://localhost/CAT
+
+        pass
 
 
 class PlaceHandler(webapp2.RequestHandler):
@@ -150,6 +188,7 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/', handler=MainHandler),
     webapp2.Route(r'/api/user', handler=UserHandler),
     webapp2.Route(r'/api/place', handler=PlaceListHandler),
+    webapp2.Route(r'/api/place/load', handler=PlaceListLoader),
     webapp2.Route(r'/api/place/<pid>', handler=PlaceHandler),
     webapp2.Route(r'/api/rating', handler=RatingHandler)
 ],

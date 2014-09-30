@@ -125,11 +125,12 @@ class LoginManager():
             if result:
                 access_token, expiration = result.lstrip(
                     "access_token=").split("&expires=")
-                url = "https://graph.facebook.com/me?access_token=" + \
-                    access_token
-                return json.loads(urllib2.urlopen(url).read()), access_token, None
+#                 url = "https://graph.facebook.com/me?access_token=" + \
+#                     access_token
+#                 return json.loads(urllib2.urlopen(url).read()), access_token, None
+                return access_token, None
             else:
-                return None, None, 'No Result'
+                return None, 'No Result'
 
         elif provider == 'google':
             payload = {
@@ -155,14 +156,14 @@ class LoginManager():
             access_token = auth_info['access_token']
 
 #             url = 'https://www.googleapis.com/oauth2/v3/userinfo?{0}'
-            target_url = GOOGLE_GET_INFO_URI.format(
-                urlencode({'access_token': auth_info['access_token']}))
-            resp = urlfetch.fetch(target_url).content
-            user_data = json.loads(resp)
-            if 'id' not in user_data and 'sub' in user_data:
-                user_data['id'] = user_data['sub']
+#             target_url = GOOGLE_GET_INFO_URI.format(
+#                 urlencode({'access_token': auth_info['access_token']}))
+#             resp = urlfetch.fetch(target_url).content
+#             user_data = json.loads(resp)
+#             if 'id' not in user_data and 'sub' in user_data:
+#                 user_data['id'] = user_data['sub']
 
-            return user_data, access_token, None
+            return access_token, None
 
         else:
-            return None, None, 'invalid provider'
+            return None, 'invalid provider'
