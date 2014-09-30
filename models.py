@@ -99,9 +99,9 @@ class PFuser(GFUser):
     @staticmethod
     def add_or_get_user(user_response, access_token, provider, update=False):
         user, status = GFUser.add_or_get_user(user_response, access_token, provider, False)
-        dict = user.to_dict()
-        del dict['class_']
-        pfu = PFuser(id = dict['user_id'], **dict)
+        data = user.to_dict()
+        del data['class_']
+        pfu = PFuser(id = data['user_id'], **data)
         if 'user_added' in status:
             logging.warning("USER ADDED, pfuser turn now")
             if pfu.google_picture:
@@ -123,3 +123,13 @@ class PFuser(GFUser):
         del tmp['created']
         del tmp['updated']
         return dict(tmp, **dict(id=self.key.id()))
+    
+    def update(self, data):
+#         TODO: improve update!!
+        self.full_name = data['full_name']
+        self.gender = data['gender']
+        self.age = data['age']
+        self.home = Address()
+        self.home.city = data['home']['city']
+        self.home.country = data['home']['country']
+        

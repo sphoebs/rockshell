@@ -107,7 +107,7 @@ class LoginManager():
         error = request.get('error')
 
         if error:
-            logging.error(error)
+            logging.debug(error)
             return None, None, error
 
         # verify csrf state
@@ -141,7 +141,7 @@ class LoginManager():
                 'grant_type': 'authorization_code'
             }
             # get access token from the request token
-            #        logging.error('uri for'+self.uri_for('ciao', _full=True))
+            #        logging.debug('uri for'+self.uri_for('ciao', _full=True))
             resp = urlfetch.fetch(
                 url=GOOGLE_GET_TOKEN_URI,
                 payload=urlencode(payload),
@@ -151,8 +151,8 @@ class LoginManager():
             # get user data using access token
 
             auth_info = json.loads(resp.content)
-            logging.error('auth_info')
-            logging.error(auth_info)
+            logging.debug('auth_info')
+            logging.debug(auth_info)
             access_token = auth_info['access_token']
 
 #             url = 'https://www.googleapis.com/oauth2/v3/userinfo?{0}'

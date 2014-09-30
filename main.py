@@ -26,7 +26,7 @@ from google.appengine.ext import ndb
 
 
 # import sys
-from models import PFuser
+from models import PFuser, Address
 # sys.path.append('flib/')
 # sys.path.append('data/')
 
@@ -43,18 +43,18 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     # extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-
 def get_current_user(request, cookie_name):
+    #TODO: is it correct that the frontend access directly the datastore to get the current user?
+    
     user_id = social_login.parse_cookie(
         request.cookies.get(cookie_name), config.LOGIN_COOKIE_DURATION)
 
     if user_id:
-        logging.error("\n USER ID COOKIE DETECTED \n")
-        logging.error('::get_current_user:: returning user ' + user_id)
-        user = GFUser.get_by_id(user_id)
-        logging.error('\n ::user object:: returning user ' + str(user))
+        logging.debug("\n USER ID COOKIE DETECTED \n")
+        logging.debug('::get_current_user:: returning user ' + user_id)
+        user = PFuser.get_by_id(user_id)
+        logging.debug('\n ::user object:: returning user ' + str(user))
         return user
-
 
 class BaseRequestHandler(webapp2.RequestHandler):
 
@@ -73,11 +73,11 @@ class BaseRequestHandler(webapp2.RequestHandler):
 
     def dispatch(self):
         self.pars = {}
-        user = get_current_user(self.request, 'user_id')
-        self.pars.update({'user': user})
-        # get user
-
-        logging.error("\n self.pars" + str(self.pars))
+#         user = get_current_user(self.request, 'user_id')
+#         self.pars.update({'user': user})
+#         # get user
+# 
+#         logging.debug("\n self.pars" + str(self.pars))
         webapp2.RequestHandler.dispatch(self)
 
 
@@ -86,40 +86,45 @@ class LoginHandler(BaseRequestHandler):
     def get(self):
 
         if '/fb/oauth_callback' in self.request.url:
-            logging.error("\n \n FB request: " + str(self.request.url))
+            logging.debug("\n \n FB request: " + str(self.request.url))
 
             access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'facebook')
-            body = json.dumps({"token": access_token, "service":"facebook"})
+            body = json.dumps({"token": access_token, "service": "facebook"})
 
         elif '/google/oauth_callback' in self.request.url:
             access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'google')
-            body = json.dumps({"token": access_token, "service":"google"})
+            body = json.dumps({"token": access_token, "service": "google"})
         else:
             logging.error('illegal callback invocation')
             self.redirect('/error')
         # execute post to API
         try:
-            req = urllib2.Request(config.BASEURL + '/api/user', data=body, headers={'Content-Type': 'application/json'});
+            req = urllib2.Request(
+                config.BASEURL + '/api/user/login', data=body, headers={'Content-Type': 'application/json'})
             resp = urllib2.urlopen(req)
-            # The response contains the user in the body, and the session in the cookies
+            # The response contains the user in the body, and the session in
+            # the cookies
             user = json.loads(resp.read())
+            self.response.headers.add_header(
+                "Set-Cookie", resp.info().getheader('Set-Cookie'))
+            #         logging.warning("USER: " + str(user))
+
+            if user.get('is_new', False) == True:
+                # goto profile page
+                self.redirect('/user')
+            else:
+                # TODO: get user location
+                self.redirect('/letsgo')
+
+            # TODO: handle errors better
         except URLError, e:
             logging.error(e.code)
             self.redirect('/error')
         except HTTPError, e:
             logging.error(e.reason)
-            self.redirect('/error')    
-            
-#         logging.warning("USER: " + str(user))
-        self.response.headers.add_header("Set-Cookie", resp.info().getheader('Set-Cookie'))
-        if user.get('is_new', False) == True:
-            # goto profile page
-            self.redirect('/user')
-        else:
-            # TODO: get user location
-            self.redirect('/letsgo')
+            self.redirect('/error')
 
 
 class UserHandler(BaseRequestHandler):
@@ -136,18 +141,55 @@ class UserHandler(BaseRequestHandler):
             self.redirect('/')
 
     def post(self):
-        # TODO: update user data
+        # this method updates user information (from profile page)
+        # request body contain the form values
+        data = self.request
+        # 1. transform data into user json
+
+        user = get_current_user(self.request, 'user')
+        user.age = data.get('age')
+        user.gender = data.get('gender')
+        user.home = Address()
+        user.home.city = data.get('city')
+        user.home.country = data.get('country')
+        user.full_name = data.get('name')
+        user.home = user.home.to_dict()
+        body = json.dumps(user.to_json())
+
+        # 2. make user-update request to api
+        try:
+            # with urllib2 only POST and GET are possible
+#             logging.info("MAIN COOKIE: " + self.request.cookies.get('user'))
+            req = urllib2.Request(
+                config.BASEURL + '/api/user', data=body, headers={'Content-Type': 'application/json'})
+            req.add_header('Auth', self.request.cookies.get('user'))
+            resp = urllib2.urlopen(req)
+            # The response contains the user in the body, and the session in
+            # the cookies
+            user = json.loads(resp.read())
+        except URLError, e:
+            logging.error(e.code)
+            self.redirect('/error')
+        except HTTPError, e:
+            logging.error(e.reason)
+            self.redirect('/error')
+
+        # 3. handle errors
+
+        # 4. render/redirect to next profile page
+        self.redirect('/letsgo')
         pass
 
 
 class LetsgoHandler(BaseRequestHandler):
 
     def get(self):
-        # TODO: use cookie to get user info
+        user = get_current_user(self.request, 'user')
         self.render('letsgo.html', {})
-        
+
+
 class ErrorHandler(BaseRequestHandler):
-    
+
     def get(self):
         self.write('Error')
 

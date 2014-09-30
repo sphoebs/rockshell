@@ -31,6 +31,20 @@ import time
 import config
 
 
+
+def get_current_user(request, cookie_name):
+    logging.info('COOKIE: ' + str(request.headers.get(cookie_name)))
+    user_id = social_login.parse_cookie(
+        request.headers.get(cookie_name), config.LOGIN_COOKIE_DURATION)
+    
+    if user_id:
+        logging.info("\n USER ID COOKIE DETECTED \n")
+        logging.info('::get_current_user:: returning user ' + user_id)
+        user = PFuser.get_by_id(user_id)
+        logging.info('\n ::user object:: returning user ' + str(user))
+        return user
+
+
 class MainHandler(webapp2.RequestHandler):
 
     def get(self):
@@ -50,41 +64,73 @@ class UserHandler(webapp2.RequestHandler):
             self.response.set_status(400)
             self.response.write('Missing body')
 
-        token = post_data['token']
-        service = post_data['service']
-
-        if service == 'facebook':
-            url = "https://graph.facebook.com/me?access_token=" + \
-                token
-            user_data = json.loads(urllib2.urlopen(url).read())
-        elif service == 'google':
-            GOOGLE_GET_INFO_URI = 'https://www.googleapis.com/oauth2/v3/userinfo?{0}'
-            target_url = GOOGLE_GET_INFO_URI.format(
-                urlencode({'access_token': token}))
-            resp = urlfetch.fetch(target_url).content
-            user_data = json.loads(resp)
-            if 'id' not in user_data and 'sub' in user_data:
-                user_data['id'] = user_data['sub']
-
-        user, result = PFuser.add_or_get_user(
-            user_data, token, service)
-        res = user.to_json()
-        if 'user_added' in result:
-            res['is_new'] = True
+        elif 'full_name' in post_data or 'email' in post_data :
+            #1. get user from session
+            user = get_current_user(self.request, 'Auth')
+#             logging.warning("USER from cookie: " + str(user))
+#             self.response.write('')
             
-        social_login.set_cookie(self.response, "user",
-            res['user_id'], expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.write(json.dumps(res))
+            #2. update user fields with body data
+            user.update(post_data)
+        
+            #3. save and return user
+            user.put()
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps(user.to_json()))
+            
+        else :
+            self.response.set_status(400)
+            self.response.write('Wrong body content')
+            
+#     def put(self):
+#         jdata = json.dumps(cgi.escape(self.request.body))
+       
 
-    def put(self):
-        jdata = json.loads(cgi.escape(self.request.body))
-        # get user key from session
-        user = PFuser()
-        user.populate(jdata)
-        user.put()
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.write(json.dumps(user.to_json()))
+#     def delete(self):
+# not needed!
+#         self.response.set_status(405)
+
+class UserLoginHandler(webapp2.RequestHandler):
+
+    # def get(self): # not needed!
+    #         self.response.set_status(405)
+    #
+
+    def post(self):
+        # Saves/retrieves user when he/she logs in
+        post_data = json.loads(self.request.body)
+        if post_data is None:
+            self.response.set_status(400)
+            self.response.write('Missing body')
+        elif 'token' in post_data and 'service' in post_data :
+            token = post_data['token']
+            service = post_data['service']
+
+            if service == 'facebook':
+                url = "https://graph.facebook.com/me?access_token=" + token
+                user_data = json.loads(urllib2.urlopen(url).read())
+            elif service == 'google':
+                GOOGLE_GET_INFO_URI = 'https://www.googleapis.com/oauth2/v3/userinfo?{0}'
+                target_url = GOOGLE_GET_INFO_URI.format(
+                    urlencode({'access_token': token}))
+                resp = urlfetch.fetch(target_url).content
+                user_data = json.loads(resp)
+                if 'id' not in user_data and 'sub' in user_data:
+                    user_data['id'] = user_data['sub']
+
+            user, result = PFuser.add_or_get_user(
+                user_data, token, service)
+            res = user.to_json()
+            if 'user_added' in result:
+                res['is_new'] = True
+
+            social_login.set_cookie(self.response, 'user',
+                                    res['user_id'], expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps(res))
+        else :
+            self.response.set_status(400)
+            self.response.write('Wrong body content')
 
 #     def delete(self):
 # not needed!
@@ -130,7 +176,7 @@ class PlaceListLoader(webapp2.RequestHandler):
         # NO -- Load data about restaurants from cat_db (postgres on localhost:5432)
         # Load restaurants from CAT_API (using http requests)
 
-        # GET http://localhost/CAT
+        # GET http://localhost/CAT_API/place?...  NOT WORKING NOW!!
 
         pass
 
@@ -151,7 +197,7 @@ class PlaceHandler(webapp2.RequestHandler):
             self.response.set_status(400)
             self.response.write("Invalid place id, it must be a number")
 
-    def put(self, pid):
+    def post(self, pid):
         if pid.isdigit():
             l_pid = long(pid)
             res = Place.get_by_id(l_pid)
@@ -172,10 +218,10 @@ class PlaceHandler(webapp2.RequestHandler):
             self.response.set_status(400)
             self.response.write("Invalid place id, it must be a number")
 
-    def delete(self, pid):
-        l_pid = long(pid)
-        place_key = Place.make_key(l_pid)
-        place_key.delete()
+#     def delete(self, pid):
+#         l_pid = long(pid)
+#         place_key = Place.make_key(l_pid)
+#         place_key.delete()
 
 
 class RatingHandler(webapp2.RequestHandler):
@@ -187,6 +233,7 @@ class RatingHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/', handler=MainHandler),
     webapp2.Route(r'/api/user', handler=UserHandler),
+    webapp2.Route(r'/api/user/login', handler=UserLoginHandler),
     webapp2.Route(r'/api/place', handler=PlaceListHandler),
     webapp2.Route(r'/api/place/load', handler=PlaceListLoader),
     webapp2.Route(r'/api/place/<pid>', handler=PlaceHandler),
