@@ -14,11 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import fix_path
 import webapp2
 import json
 import cgi
 
-from models import PFuser, Place
+from models import PFuser, Place, Address, Rating
 from __builtin__ import list
 import logging
 from google.appengine.api.datastore_types import GeoPt
@@ -31,12 +32,11 @@ import time
 import config
 
 
-
 def get_current_user(request, cookie_name):
     logging.info('COOKIE: ' + str(request.headers.get(cookie_name)))
     user_id = social_login.parse_cookie(
         request.headers.get(cookie_name), config.LOGIN_COOKIE_DURATION)
-    
+
     if user_id:
         logging.info("\n USER ID COOKIE DETECTED \n")
         logging.info('::get_current_user:: returning user ' + user_id)
@@ -53,9 +53,10 @@ class MainHandler(webapp2.RequestHandler):
 
 class UserHandler(webapp2.RequestHandler):
 
-    # def get(self): # not needed!
-    #         self.response.set_status(405)
-    #
+    def get(self):  # not needed!
+        user = get_current_user(self.request, 'Auth')
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(user.to_json()))
 
     def post(self):
         # Saves/retrieves user when he/she logs in
@@ -64,27 +65,27 @@ class UserHandler(webapp2.RequestHandler):
             self.response.set_status(400)
             self.response.write('Missing body')
 
-        elif 'full_name' in post_data or 'email' in post_data :
-            #1. get user from session
+        elif 'full_name' in post_data or 'email' in post_data:
+            # 1. get user from session
             user = get_current_user(self.request, 'Auth')
 #             logging.warning("USER from cookie: " + str(user))
 #             self.response.write('')
-            
-            #2. update user fields with body data
+
+            # 2. update user fields with body data
             user.update(post_data)
-        
-            #3. save and return user
+
+            # 3. save and return user
             user.put()
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps(user.to_json()))
-            
-        else :
+
+        else:
             self.response.set_status(400)
             self.response.write('Wrong body content')
-            
+
 #     def put(self):
 #         jdata = json.dumps(cgi.escape(self.request.body))
-       
+
 
 #     def delete(self):
 # not needed!
@@ -102,7 +103,7 @@ class UserLoginHandler(webapp2.RequestHandler):
         if post_data is None:
             self.response.set_status(400)
             self.response.write('Missing body')
-        elif 'token' in post_data and 'service' in post_data :
+        elif 'token' in post_data and 'service' in post_data:
             token = post_data['token']
             service = post_data['service']
 
@@ -128,7 +129,7 @@ class UserLoginHandler(webapp2.RequestHandler):
                                     res['user_id'], expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps(res))
-        else :
+        else:
             self.response.set_status(400)
             self.response.write('Wrong body content')
 
@@ -142,7 +143,12 @@ class PlaceListHandler(webapp2.RequestHandler):
     def get(self):
         get_values = self.request.GET
         # TODO: filter places according to get_values
+        
+        
         dblist = Place.query()
+        
+        if get_values['city'] is not None:
+            dblist = dblist.filter(Place.address.city == get_values['city'])
         # executes query only once and store the results
         # Never use fetch()! [even though I think that this does the same as
         # fetch()]
@@ -168,17 +174,6 @@ class PlaceListHandler(webapp2.RequestHandler):
         place.put()
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(place.to_json()))
-
-
-class PlaceListLoader(webapp2.RequestHandler):
-
-    def get(self):
-        # NO -- Load data about restaurants from cat_db (postgres on localhost:5432)
-        # Load restaurants from CAT_API (using http requests)
-
-        # GET http://localhost/CAT_API/place?...  NOT WORKING NOW!!
-
-        pass
 
 
 class PlaceHandler(webapp2.RequestHandler):
@@ -227,15 +222,25 @@ class PlaceHandler(webapp2.RequestHandler):
 class RatingHandler(webapp2.RequestHandler):
 
     def post(self):
-        pass
-
+        #TODO: check input data
+        user = get_current_user(self.request, 'Auth')
+        body = json.loads(self.request.body)
+        
+        rating = Rating()
+        rating.place = Place.make_key(long(body.get('place_id')))
+        rating.value = float(body.get('value'))
+        rating.purpose = body.get('purpose')
+        user.rating.append(rating)
+        user.put()
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(rating.to_json()))
+        
 
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/', handler=MainHandler),
     webapp2.Route(r'/api/user', handler=UserHandler),
     webapp2.Route(r'/api/user/login', handler=UserLoginHandler),
     webapp2.Route(r'/api/place', handler=PlaceListHandler),
-    webapp2.Route(r'/api/place/load', handler=PlaceListLoader),
     webapp2.Route(r'/api/place/<pid>', handler=PlaceHandler),
     webapp2.Route(r'/api/rating', handler=RatingHandler)
 ],

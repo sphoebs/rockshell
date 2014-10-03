@@ -3,6 +3,7 @@ Created on Sep 15, 2014
 
 @author: beatricevaleri
 '''
+import fix_path
 from google.appengine.ext import ndb
 # this is fine, the file is loaded after
 from GFuser import GFUser
@@ -69,6 +70,13 @@ class Rating(ndb.Model):
     value = ndb.FloatProperty(required=True, default=0)
     not_known = ndb.BooleanProperty(required=True, default=False)
     creation_time = ndb.DateTimeProperty(auto_now=True)
+    
+    def to_json(self):
+        tmp = self.to_dict()
+        tmp['place_id'] = self.place.id()
+        del tmp['place']
+        del tmp['creation_time']
+        return dict(tmp)
 
 
 class PFuser(GFUser):
@@ -120,8 +128,10 @@ class PFuser(GFUser):
 
     def to_json(self):
         tmp = self.to_dict()
+        logging.info("USER DICT: " + str(tmp))
         del tmp['created']
         del tmp['updated']
+        del tmp['rating']
         return dict(tmp, **dict(id=self.key.id()))
     
     def update(self, data):
@@ -131,5 +141,5 @@ class PFuser(GFUser):
         self.age = data['age']
         self.home = Address()
         self.home.city = data['home']['city']
-        self.home.country = data['home']['country']
+        
         

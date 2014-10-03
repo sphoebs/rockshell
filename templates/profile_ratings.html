@@ -1,0 +1,104 @@
+{% extends "base.html" %} {% block main %}
+
+<h3>Please, rate at least 5 restaurants in {{city}}:</h3>
+
+<p class="error">{{error}}</p>
+
+
+<!-- TODO: addfilter -->
+
+<div>TODO: Filter</div>
+
+<div>TODO: Map</div>
+
+<div>
+	<button id="next">Continue</button>
+</div>
+<ul>
+	{% for rest in list %}
+	<li>
+
+		<div>
+			<p>{{rest.name}}</p>
+			<p>{{rest.address.street}}, {{rest.address.city}}</p>
+		</div>
+		<div>
+			<button class="rating" place_id="{{rest.id}}" value="1"
+				purpose="dinner with tourists">Not like</button>
+			<button class="rating" place_id="{{rest.id}}" value="3"
+				purpose="dinner with tourists">Neutral</button>
+			<button class="rating" place_id="{{rest.id}}" value="5"
+				purpose="dinner with tourists">Like</button>
+		</div>
+
+	</li> {% endfor %}
+</ul>
+
+<div>
+	<button id="next">Continue</button>
+</div>
+
+
+
+{% endblock %} {% block scripts %}
+
+<script type="text/javascript">
+	$(window).load(function() {
+
+		var ratingsAdded = 0;
+
+		function getCookie(cname) {
+			var name = cname + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ')
+					c = c.substring(1);
+				if (c.indexOf(name) != -1)
+					return c.substring(name.length, c.length);
+			}
+			return "";
+		}
+
+		function saveRating(e) {
+			var self = this;
+			var btn = $(e.target);
+			var rating = {
+				'place_id' : $(btn).attr('place_id'),
+				'purpose' : $(btn).attr('purpose'),
+				'value' : $(btn).attr('value')
+			};
+			$.ajax({
+				type : 'POST',
+				url : '/api/rating',
+				data : JSON.stringify(rating),
+				dataType : 'json',
+				success : function() {
+					$(btn).addClass('pressed');
+				},
+				error : function(resp) {
+					if (resp.status == 200) {
+						$(btn).addClass('pressed');
+					} else {
+						console.log(resp);
+						alert("Error" + resp.status);
+					}
+				},
+				headers : {
+					Auth : getCookie('user')
+				}
+			});
+		}
+
+		function next() {
+
+		}
+
+		$('.rating').click(saveRating);
+
+	});
+</script>
+
+
+{% endblock %}
+

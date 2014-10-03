@@ -43,18 +43,23 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     # extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-def get_current_user(request, cookie_name):
-    #TODO: is it correct that the frontend access directly the datastore to get the current user?
-    
-    user_id = social_login.parse_cookie(
-        request.cookies.get(cookie_name), config.LOGIN_COOKIE_DURATION)
 
-    if user_id:
-        logging.debug("\n USER ID COOKIE DETECTED \n")
-        logging.debug('::get_current_user:: returning user ' + user_id)
-        user = PFuser.get_by_id(user_id)
-        logging.debug('\n ::user object:: returning user ' + str(user))
+def get_current_user(request):
+    try:
+        req = urllib2.Request(
+            config.BASEURL + '/api/user')
+        req.add_header('Auth', request.cookies.get('user'))
+        resp = urllib2.urlopen(req)
+
+        user = json.loads(resp.read())
         return user
+    except URLError, e:
+        logging.error(e.code)
+
+    except HTTPError, e:
+        logging.error(e.reason)
+    return None
+
 
 class BaseRequestHandler(webapp2.RequestHandler):
 
@@ -73,10 +78,10 @@ class BaseRequestHandler(webapp2.RequestHandler):
 
     def dispatch(self):
         self.pars = {}
-#         user = get_current_user(self.request, 'user_id')
+#         user = get_current_user(self.request)
 #         self.pars.update({'user': user})
-#         # get user
-# 
+# get user
+#
 #         logging.debug("\n self.pars" + str(self.pars))
         webapp2.RequestHandler.dispatch(self)
 
@@ -116,7 +121,8 @@ class LoginHandler(BaseRequestHandler):
                 self.redirect('/user')
             else:
                 # TODO: get user location
-                self.redirect('/letsgo')
+                #                 self.redirect('/letsgo')
+                self.redirect('/user')
 
             # TODO: handle errors better
         except URLError, e:
@@ -131,11 +137,12 @@ class UserHandler(BaseRequestHandler):
 
     def get(self):
 
-        user = get_current_user(self.request, 'user')
+        user = get_current_user(self.request)
         if user:
             self.render(
                 'profile.html',
-                {'email': user.email, 'full_name': user.full_name}
+                {'email': user.get(
+                    'email'), 'full_name': user.get('full_name')}
             )
         else:
             self.redirect('/')
@@ -145,21 +152,21 @@ class UserHandler(BaseRequestHandler):
         # request body contain the form values
         data = self.request
         # 1. transform data into user json
+        
+        #TODO: verify that all needed data are present!!
 
-        user = get_current_user(self.request, 'user')
-        user.age = data.get('age')
-        user.gender = data.get('gender')
-        user.home = Address()
-        user.home.city = data.get('city')
-        user.home.country = data.get('country')
-        user.full_name = data.get('name')
-        user.home = user.home.to_dict()
-        body = json.dumps(user.to_json())
-
+        user = get_current_user(self.request)
+        user['age'] = data.get('age')
+        user['gender'] = data.get('gender')
+        user['home'] = {'city': data.get('locality'), 'province': data.get(
+            'administrative_area_level_1'), 'country': data.get('country')}
+        user['full_name'] = data.get('name')
+        body = json.dumps(user)
+        
         # 2. make user-update request to api
         try:
             # with urllib2 only POST and GET are possible
-#             logging.info("MAIN COOKIE: " + self.request.cookies.get('user'))
+            #             logging.info("MAIN COOKIE: " + self.request.cookies.get('user'))
             req = urllib2.Request(
                 config.BASEURL + '/api/user', data=body, headers={'Content-Type': 'application/json'})
             req.add_header('Auth', self.request.cookies.get('user'))
@@ -177,14 +184,49 @@ class UserHandler(BaseRequestHandler):
         # 3. handle errors
 
         # 4. render/redirect to next profile page
-        self.redirect('/letsgo')
+        self.redirect('/user/ratings')
+        pass
+
+
+class UserRatingsHandler(BaseRequestHandler):
+
+    def get(self):
+        user = get_current_user(self.request)
+        if user:
+#             logging.info('USER: ' + str(user))
+            plist = []
+
+            try:
+                # with urllib2 only POST and GET are possible
+                #             logging.info("MAIN COOKIE: " + self.request.cookies.get('user'))
+                req = urllib2.Request(
+                    config.BASEURL + '/api/place?city=' + user['home']['city'])
+                req.add_header('Auth', self.request.cookies.get('user'))
+                resp = urllib2.urlopen(req)
+                # The response contains the user in the body, and the session in
+                # the cookies
+                plist = json.loads(resp.read())
+
+            except URLError, e:
+                logging.error(e.code)
+                self.redirect('/error')
+            except HTTPError, e:
+                logging.error(e.reason)
+                self.redirect('/error')
+
+            self.render(
+                'profile_ratings.html',
+                {'list': plist, 'city':user['home']['city']}
+            )
+        else:
+            self.redirect('/')
         pass
 
 
 class LetsgoHandler(BaseRequestHandler):
 
     def get(self):
-        user = get_current_user(self.request, 'user')
+        user = get_current_user(self.request)
         self.render('letsgo.html', {})
 
 
@@ -207,6 +249,7 @@ app = webapp2.WSGIApplication([
     ('/fb/oauth_callback/?', LoginHandler),
     ('/google/oauth_callback/?', LoginHandler),
     ('/user', UserHandler),
+    ('/user/ratings', UserRatingsHandler),
     ('/letsgo', LetsgoHandler),
     ('/error', ErrorHandler)
 

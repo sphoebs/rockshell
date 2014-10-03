@@ -1,6 +1,4 @@
-{% extends "base.html" %} 
-
-{% block main %}
+{% extends "base.html" %} {% block main %}
 
 <h3>Please, fill in your profile with some personal infromation:</h3>
 
@@ -8,10 +6,12 @@
 
 <form action="/user" method="post">
 	<div>
-		<label>Name: </label><input type="text" name="name" value="{{full_name}}">
+		<label>Name: </label><input type="text" name="name"
+			value="{{full_name}}">
 	</div>
 	<div>
-		<label>Email: </label><input type="text" disable name="email" value="{{email}}">
+		<label>Email: </label><input type="text" disabled name="email"
+			value="{{email}}">
 	</div>
 	<div>
 		<label>Gender: </label> <label class="radio-inline"> <input
@@ -51,14 +51,64 @@
 
 	</div>
 	<div>
-		<label>Home city: </label>
-		<label> Country: <input type="text" name="country"> </label>
-		<label> City: <input type="text" name="city"> </label>
+		<label>Home city: <input type="text" name="auto-city"
+			id="city">
+		</label>
 	</div>
+	<input type="hidden" name="locality" id="locality" /> <input type="hidden"
+		name="administrative_area_level_1" id="administrative_area_level_1" /> <input type="hidden" name="country" id="country"/>
 
 	<div>
-		<input type="submit" value="Save"/>
+		<input type="submit" value="Save" />
 	</div>
 </form>
+
+{% endblock %} {% block scripts %}
+<script type="text/javascript"
+	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+<script type="text/javascript">
+	$(window)
+			.load(
+					function() {
+
+						var input = document.getElementById('city');
+						var options = {
+							types : [ '(cities)' ]
+						};
+						var autocomplete = new google.maps.places.Autocomplete(
+								input, options);
+
+						var componentForm = {
+							locality : 'long_name',
+							administrative_area_level_1 : 'short_name',
+							country : 'short_name',
+						};
+
+						google.maps.event.addListener(autocomplete,
+								'place_changed', function() {
+									fillInAddress();
+								});
+
+						function fillInAddress() {
+							// Get the place details from the autocomplete object.
+							var place = autocomplete.getPlace();
+							
+							/* for ( var component in componentForm) {
+								document.getElementById(component).value = '';
+								document.getElementById(component).disabled = false;
+							}
+ */
+							// Get each component of the address from the place details
+							// and fill the corresponding field on the form.
+							for (var i = 0; i < place.address_components.length; i++) {
+								var addressType = place.address_components[i].types[0];
+								if (componentForm[addressType]) {
+									var val = place.address_components[i][componentForm[addressType]];
+									document.getElementById(addressType).value = val;
+								}
+							}
+						}
+					});
+</script>
 
 {% endblock %}
