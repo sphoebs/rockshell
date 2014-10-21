@@ -6,7 +6,6 @@ Created on Sep 15, 2014
 import fix_path
 from google.appengine.ext import ndb
 # this is fine, the file is loaded after
-from GFuser import GFUser
 import logging
 
 
@@ -36,6 +35,7 @@ class Hours(ndb.Model):
 
 
 class Place(ndb.Model):
+
     """Represents a place"""
     name = ndb.StringProperty()
     description = ndb.TextProperty(indexed=False)
@@ -70,7 +70,7 @@ class Rating(ndb.Model):
     value = ndb.FloatProperty(required=True, default=0)
     not_known = ndb.BooleanProperty(required=True, default=False)
     creation_time = ndb.DateTimeProperty(auto_now=True)
-    
+
     def to_json(self):
         tmp = self.to_dict()
         tmp['place_id'] = self.place.id()
@@ -79,13 +79,30 @@ class Rating(ndb.Model):
         return dict(tmp)
 
 
-class PFuser(GFUser):
+class PFuser(ndb.Model):
+
     """Represents a user, with full profile
-    
-    Extends the user defined by the social_login lib
+
     """
-#     name = ndb.StringProperty(indexed=False)
-#     email = ndb.StringProperty()
+
+    user_id = ndb.StringProperty(required=True)
+
+    fb_user_id = ndb.StringProperty()
+    fb_access_token = ndb.StringProperty()
+
+    google_user_id = ndb.StringProperty()
+    google_access_token = ndb.StringProperty()
+
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    updated = ndb.DateTimeProperty(auto_now=True)
+
+    first_name = ndb.StringProperty(required=True)
+    last_name = ndb.StringProperty(required=True)
+    full_name = ndb.StringProperty(required=True)
+    email = ndb.StringProperty(required=True)
+    locale = ndb.StringProperty()
+
+    profile = ndb.StringProperty(indexed=False)
     picture = ndb.TextProperty(indexed=False)
     age = ndb.StringProperty(indexed=False)
     gender = ndb.StringProperty(indexed=False)
@@ -103,25 +120,90 @@ class PFuser(GFUser):
 #     first_login = ndb.DateTimeProperty(auto_now_add=True)
 #     ext_id_facebook = ndb.StringProperty()
 #     ext_id_google = ndb.StringProperty()
-        
+
     @staticmethod
     def add_or_get_user(user_response, access_token, provider, update=False):
-        user, status = GFUser.add_or_get_user(user_response, access_token, provider, False)
-        data = user.to_dict()
-        del data['class_']
-        pfu = PFuser(id = data['user_id'], **data)
-        if 'user_added' in status:
-            logging.warning("USER ADDED, pfuser turn now")
-            if pfu.google_picture:
-                pfu.picture = pfu.google_picture
-            if pfu.fb_gender and (pfu.fb_gender[0] == 'f' or pfu.fb_gender[0] == 'F'):
-                pfu.gender = 'F'
-            elif pfu.fb_gender and (pfu.fb_gender[0] == 'm' or pfu.fb_gender[0] == 'M'):
-                pfu.gender = 'M'
-        pfu.put()
-        return pfu, status
-        
-        
+        '''
+        Adds the user, if new, and returns it,  else just returns the user.
+        '''
+        # update is never used!
+        status = []
+
+        if provider == 'facebook':
+            user_query = PFuser.query(
+                ndb.OR(
+                    PFuser.fb_user_id == user_response['id'],
+                    PFuser.email == user_response['email'].lower()
+                )
+            )
+            user = user_query.get()
+            if user and user.fb_user_id:
+
+                user.fb_access_token = access_token
+                return user, ['FB_user_exists']
+
+            if not user:
+                user_id = "FB_" + user_response['id']
+                key = ndb.Key('PFuser', user_id)
+                user = PFuser(key=key)
+                user.user_id = user_id
+                user.first_name = user_response['first_name']
+                user.last_name = user_response['last_name']
+                user.email = user_response['email']
+                user.full_name = user_response['name']
+                user.locale = user_response['locale']
+                status.append('user_added')
+
+            else:
+                status.append('FB_user_data_added')
+
+            # add FB details
+            user.fb_user_id = user_response['id']
+            user.profile = user_response['link']
+            if user_response['gender'] and (user_response['gender'][0] == 'f' or user_response['gender'][0] == 'F'):
+                user.gender = 'F'
+            elif user_response['gender'] and (user_response['gender'][0] == 'm' or user_response['gender'][0] == 'M'):
+                user.gender = 'M'
+            user.fb_access_token = access_token
+
+        elif provider == 'google':
+            user_query = PFuser.query(ndb.OR(
+                PFuser.fb_user_id == user_response['id'],
+                PFuser.email == user_response['email'].lower()
+            )
+            )
+            user = user_query.get()
+            if user and user.google_user_id:
+
+                user.google_access_token = access_token
+                return user, ['google_user_exists']
+
+            if not user:
+                user_id = "google_" + user_response['id']
+                key = ndb.Key('PFuser', user_id)
+                user = PFuser(key=key)
+                user.user_id = user_id
+                user.first_name = user_response['given_name']
+                user.last_name = user_response['family_name']
+                user.email = user_response['email']
+                user.full_name = user_response['name']
+                user.locale = user_response['locale']
+                status.append('user_added')
+
+            else:
+                status.append('google_user_data_added')
+
+            # add FB details
+            user.google_user_id = user_response['id']
+            if 'profile' in user_response.keys():
+                user.profile = user_response['profile']
+            if 'picture' in user_response.keys():
+                user.picture = user_response['picture']
+            user.google_access_token = access_token
+
+        user.put()
+        return user, status
+
     @staticmethod
     def make_key(uid):
         return ndb.Key(PFuser, uid)
@@ -133,13 +215,11 @@ class PFuser(GFUser):
         del tmp['updated']
         del tmp['rating']
         return dict(tmp, **dict(id=self.key.id()))
-    
+
     def update(self, data):
-#         TODO: improve update!!
+        #         TODO: improve update!!
         self.full_name = data['full_name']
         self.gender = data['gender']
         self.age = data['age']
         self.home = Address()
         self.home.city = data['home']['city']
-        
-        

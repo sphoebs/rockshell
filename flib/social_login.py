@@ -9,7 +9,6 @@ from urllib import urlencode
 import json
 import secrets
 
-# from GFuser import GFUser
 
 import time
 import base64
