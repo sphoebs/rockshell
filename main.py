@@ -22,17 +22,14 @@ import jinja2
 import os
 import logging
 import time
-from google.appengine.ext import ndb
-import api
+import logic
 
+from models import PFuser
 
-# import sys
-from models import PFuser, Address
-# sys.path.append('flib/')
-# sys.path.append('data/')
 
 # these imports are fine
 import social_login
+
 
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -55,7 +52,8 @@ class BaseRequestHandler(webapp2.RequestHandler):
             self.write(template.render(**values))
         except:
             logging.error("Rendering Exception for " + template_name)
-            self.abort(404)
+#             self.abort(404)
+            self.redirect('/error')
 
     def dispatch(self):
         self.pars = {}
@@ -75,19 +73,19 @@ class LoginHandler(BaseRequestHandler):
             access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'facebook')
             service = "facebook"
-            logging.error("FB request token: " + type(access_token).__name__)
+            logging.info("FB request token: " + type(access_token).__name__)
 
         elif '/google/oauth_callback' in self.request.url:
             access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'google')
             service = "google"
-            logging.error("GOOGLE request token: " + access_token)
+            logging.info("GOOGLE request token: " + access_token)
         else:
             logging.error('illegal callback invocation')
             self.redirect('/error')
 
-        user, is_new, status = api.user_create(access_token, service)
-        logging.error("user created: " + status)
+        user, is_new, status = logic.user_login(access_token, service)
+        logging.info("user created: " + status)
         if status == "OK":
             social_login.set_cookie(self.response, 'user',
                                     user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
@@ -105,8 +103,8 @@ class UserHandler(BaseRequestHandler):
 
     def get(self):
 
-        user_id = api.get_current_userid(self.request, 'user', None)
-        user, status = api.user_get(user_id)
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        user, status = logic.user_get(user_id, None)
         if status == "OK":
             self.render(
                 'profile.html',
@@ -120,19 +118,18 @@ class UserHandler(BaseRequestHandler):
         # request body contain the form values
         data = self.request
 
-        # TODO: verify that all needed data are present!!
-
-        user_id = api.get_current_userid(self.request, 'user', None)
-        user, status = api.user_get(user_id)
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect("/error")
 
-        user['age'] = data.get('age')
-        user['gender'] = data.get('gender')
-        user['home'] = {'city': data.get('locality'), 'province': data.get(
+        user.age = data.get('age')
+        user.gender = data.get('gender')
+        user.home = {'city': data.get('locality'), 'province': data.get(
             'administrative_area_level_1'), 'country': data.get('country')}
-        user['full_name'] = data.get('name')
-        user, status = api.user_update(user, user_id)
+        user.full_name = data.get('name')
+        
+        user, status = logic.user_update(user, user_id, None)
         if status != "OK":
             self.redirect("/error")
 
@@ -142,31 +139,72 @@ class UserHandler(BaseRequestHandler):
 class UserRatingsHandler(BaseRequestHandler):
 
     def get(self):
-        user_id = api.get_current_userid(self.request, 'user', None)
-        user, status = api.user_get(user_id)
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
 
 #             logging.info('USER: ' + str(user))
-        city = user['home']['city']
-        plist, status = api.place_list_get({'city': city})
+        filters = {}
+        if user is not None and user.home is not None and user.home.city is not None:
+            province = 'null'
+            if user.home.province is not None:
+                province = user.home.province
+            state = 'null'
+            if user.home.state is not None:
+                state = user.home.state
+            country = 'null'
+            if user.home.country is not None:
+                country = user.home.country
+            filters['city'] = user.home.city + "!" + province + "!" + state + "!" + country 
+        
+        plist, status = logic.place_list_get(filters)
+        
+        filters['list'] = plist
+#         logging.info("HERE!!!")
         if status == "OK":
             self.render(
                 'profile_ratings.html',
-                {'list': plist, 'city': user['home']['city']}
+                filters
             )
         else:
+            logging.error(status)
             self.redirect('/error')
 
 
 class LetsgoHandler(BaseRequestHandler):
 
     def get(self):
-        user_id = api.get_current_userid(self.request, 'user', None)
-        user, status = api.user_get(user_id)
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
-        self.render('letsgo.html', {})
+            
+        filters = {}
+        if user is not None and user.home is not None and user.home.city is not None:
+            province = 'null'
+            if user.home.province is not None:
+                province = user.home.province
+            state = 'null'
+            if user.home.state is not None:
+                state = user.home.state
+            country = 'null'
+            if user.home.country is not None:
+                country = user.home.country
+            filters['city'] = user.home.city + "!" + province + "!" + state + "!" + country 
+        places, status = logic.place_list_get(filters)
+        
+        if status != "OK":
+            self.render('letsgo.html', {})
+            
+        for p in places:
+            ratings, status = logic.rating_list_get({'purpose': 'dinner with tourists', 'place': p.key.id()})
+            if status == 'OK':
+                p.ratings = ratings
+        
+#         TODO: use place list to compute recommendations
+        
+        self.render('letsgo.html', {'list': places})
 
 
 class ErrorHandler(BaseRequestHandler):

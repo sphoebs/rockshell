@@ -10,7 +10,7 @@ handlers:
   upload: favicon\.ico
 
 - url: /api/.*
-  script: api.app
+  script: json_api.app
   
 - url: /recommender/.*
   script: recommender.app

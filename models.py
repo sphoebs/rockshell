@@ -4,14 +4,181 @@ Created on Sep 15, 2014
 @author: beatricevaleri
 '''
 import fix_path
+import types
+from datetime import datetime
 from google.appengine.ext import ndb
-# this is fine, the file is loaded after
+from google.appengine.api.datastore_types import GeoPt
 import logging
 
 
-class Address(ndb.Model):
+class PFmodel(ndb.Model):
 
-    """Represents the address of a place."""
+    @staticmethod
+    def to_json(obj, obj_type, allowed, hidden):
+        """ 
+        It transforms the object in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of PFmodel or subclass to convert.
+        - obj_type: the specific class of the object.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        if not isinstance(obj_type, types.ClassType) and not isinstance(obj, obj_type):
+            return None
+
+        res = obj.to_dict()
+        res['key'] = obj.key.urlsafe()
+
+        for k in res.keys():
+            if hidden is not None and len(hidden) > 0 and k in hidden:
+                del res[k]
+            elif allowed is not None and len(allowed) > 0 and k not in allowed:
+                del res[k]
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into an object.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: object of this class.
+
+        It is empty in the parent class.
+        """
+        pass
+
+    @staticmethod
+    def make_key(obj_id, url_encoded, class_name):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+        - class_name: the name of the class representing the object type; 
+          it is used in combination with obj_id, while url_encoded alrady contain such information.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        if obj_id is not None:
+            if not isinstance(obj_id, (str, unicode, long)):
+                return None
+            else:
+                if class_name is None or not isinstance(class_name, str):
+                    return None
+                return ndb.Key(class_name, obj_id)
+
+        if url_encoded is not None:
+            if not isinstance(obj_id, (str, unicode, long)):
+                return None
+            else:
+                return ndb.Key(urlsafe=url_encoded)
+
+        return None
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+
+        It is empty in the parent class.
+        """
+        pass
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the object, according to presence and validity of the key.
+
+        Parameters:
+        - obj: it containes the object data to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+
+        Return value: object of this class
+
+        It is empty in the parent class.
+        """
+        pass
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the object by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: object of this class.
+
+        """
+        if not isinstance(key, ndb.Key):
+            return None
+
+        return key.get()
+
+    @staticmethod
+    def get_list(filters):
+        """
+        It retrieves a list of objects satisfying the characteristics described in filter.
+
+        Parameters:
+        - filters: a dict containing the characteristics the objects in the resulting list should have.
+
+        Return value: list of objects of this class.
+
+        It is empty in the parent class.
+        """
+        pass
+
+    @staticmethod
+    def delete(key):
+        """
+        It deletes the object referenced by the key.
+
+        Parameters:
+        - key: the ndb.Key that identifies the object to delete (both kind and id needed).
+
+        Return value: boolean.
+
+        It returns True if the object has been deleted, False if delete is not allowed.
+        """
+        if not isinstance(key, ndb.Key):
+            return None
+
+        delete_allowed = ('Place')
+        kind = key.kind()
+        if kind in delete_allowed:
+            key.delete()
+            return True
+        return False
+
+
+class Address(PFmodel):
+
+    """
+    Represents an address.
+
+    It can be partially defined, but if a property is defined also all the more generic ones have to be set.
+    For example, if city is set, also province, state and country should be set. Only state can be empty, 
+    since some countries are not divided in states.
+
+    """
     street = ndb.StringProperty()
     city = ndb.StringProperty()
     province = ndb.StringProperty()
@@ -19,22 +186,405 @@ class Address(ndb.Model):
     country = ndb.StringProperty()
     location = ndb.GeoPtProperty()
 
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Address in a dict, that can be easily converted to a json.
 
-class Hours(ndb.Model):
+        Parameters:
+        - obj: the instance of Address to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        res = PFmodel.to_json(obj, Address, allowed, hidden)
+        if res is not None and 'location' in res.keys():
+            res['lat'] = obj.location.lat
+            res['lon'] = obj.location.lon
+            del res['location']
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Address.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Address or None if the input dict contains wrong data.
+
+        """
+        if not isinstance(json_dict, dict):
+            return None
+
+        if 'lat' in json_dict.keys() and 'lon' in json_dict.keys():
+            json_dict['location'] = GeoPt(
+                json_dict['lat'], json_dict['lon'])
+            del json_dict['lat']
+            del json_dict['lon']
+
+        res = Address()
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Address from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Address')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of False, [] means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Address):
+            return False, wrong_list
+
+#         if obj.street is not None and not isinstance(obj.street, (str, unicode)):
+#             wrong_list.append("street")
+#         if obj.city is not None and not isinstance(obj.city, (str, unicode)):
+#             wrong_list.append("city")
+#         if obj.province is not None and not isinstance(obj.province, (str, unicode)):
+#             wrong_list.append("province")
+#         if obj.state is not None and not isinstance(obj.state, (str, unicode)):
+#             wrong_list.append("state")
+#         if obj.country is not None and not isinstance(obj.country, (str, unicode)):
+#             wrong_list.append("country")
+#         if obj.location is not None and not isinstance(obj.location, GeoPt):
+#             wrong_list.append("location")
+
+        if obj.city is not None and (obj.province is None or obj.country is None):
+            # if the city is set, also province and country must be set, to
+            # distinguish between cities with the same name
+            wrong_list.append("province")
+            wrong_list.append('country')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the address, according to presence and validity of the key.
+
+        Parameters:
+        - obj: the address to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+
+        Return value: Address
+        """
+        if not isinstance(obj, Address):
+            return None
+
+        valid, wrong_list = Address.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Address') > -1:
+            # key is valid --> update
+            db_obj = key.get()
+            if db_obj is None:
+                return None
+
+            db_obj.update(obj.to_dict())
+            db_obj.put()
+            return db_obj
+
+        else:
+            # key is not valid --> create
+            obj.put()
+            return obj
+
+
+#     @staticmethod
+#     def get_by_key(key):
+#         """
+#         It retrieves the object by key.
+#
+#         Parameters:
+#         - key: the ndb key identifying the object to retrieve.
+#
+#         Return value: object of this class.
+#
+#         """
+#         if key is not None and isinstance(key, ndb.Key) and key.kind().find('Address') > -1:
+#             return key.get()
+#         else:
+#             return None
+
+#     @staticmethod
+#     def get_list(filters):
+#         """
+#         It retrieves a list of Addresses satisfying the characteristics described in filter.
+#
+#         Parameters:
+#         - filters: a dict containing the characteristics the objects in the resulting list should have.
+#
+#         Return value: list of Address.
+#         """
+#         return None
+
+
+class Hours(PFmodel):
 
     """Information about the weekly hours of a place."""
     # CANNOT USE REPEATED = TRUE because Hours is already repeated in its
     # container
+
+    # weekday 1 = monday, in line with ISO format
     weekday = ndb.StringProperty(
-        choices=["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"])
+        choices=['1', '2', '3', '4', '5', '6', '7'])
 
     open1 = ndb.TimeProperty()
     close1 = ndb.TimeProperty()
     open2 = ndb.TimeProperty()
     close2 = ndb.TimeProperty()
 
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Hours in a dict, that can be easily converted to a json.
 
-class Place(ndb.Model):
+        Parameters:
+        - obj: the instance of Hours to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        res = PFmodel.to_json(obj, Hours, allowed, hidden)
+
+        if 'open1' in res.keys():
+            res['open1'] = res['open1'].strftime('%H:%M')
+        if 'close1' in res.keys():
+            res['close1'] = res['close1'].strftime('%H:%M')
+        if 'open2' in res.keys():
+            res['open2'] = res['open2'].strftime('%H:%M')
+        if 'close2' in res.keys():
+            res['close2'] = res['close2'].strftime('%H:%M')
+
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Hours object.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Hours or None if the input dict contains wrong data.
+
+        """
+        if not isinstance(json_dict, dict):
+            return None
+
+        res = Hours()
+
+        if 'open1' in json_dict.keys():
+            try:
+                json_dict['open1'] = datetime.strptime(
+                    json_dict['open1'], '%H:%M').time()
+            except ValueError:
+                del json_dict['open1']
+        if 'close1' in json_dict.keys():
+            try:
+                json_dict['close1'] = datetime.strptime(
+                    json_dict['close1'], '%H:%M').time()
+            except ValueError:
+                del json_dict['close1']
+        if 'open2' in json_dict.keys():
+            try:
+                json_dict['open2'] = datetime.strptime(
+                    json_dict['open2'], '%H:%M').time()
+            except ValueError:
+                del json_dict['open2']
+        if 'close2' in json_dict.keys():
+            try:
+                json_dict['close2'] = datetime.strptime(
+                    json_dict['close2'], '%H:%M').time()
+            except ValueError:
+                del json_dict['close2']
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Hours from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Hours')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of False, [] means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Hours):
+            return False, wrong_list
+
+        # check that open1, close1, open2 and close2 dfines two consecutive
+        # perods in a day
+        if obj.open1 is None:
+            # if the first time interval does not start, it does not end and
+            # the second time interval cannot be defined
+            if obj.close1 is not None:
+                wrong_list.appen('close1')
+            if obj.open2 is not None:
+                wrong_list.appen('open2')
+            if obj.close2 is not None:
+                wrong_list.appen('close2')
+        else:
+            # open1 is set
+            if obj.close1 is None:
+                wrong_list.appen('close1')
+            else:
+                if obj.close1 < obj.open1:
+                    # close1 is defined and is before open1
+                    wrong_list.appen('close1')
+
+            if obj.open2 is not None:
+                if obj.close2 is None:
+                    wrong_list.appen('close2')
+                else:
+                    if obj.close2 < obj.open2:
+                        # close2 is defined and is before open2
+                        wrong_list.appen('close2')
+
+                if obj.open2 < obj.close1:
+                    # the second time interval starts before the end of the
+                    # first one
+                    wrong_list.appen('open2')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the Hours object, according to presence and validity of the key.
+
+        Parameters:
+        - obj: the Hours object to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+
+        Return value: Hours
+        """
+        if not isinstance(obj, Hours):
+            return None
+
+        valid, wrong_list = Hours.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Hours') > -1:
+            # key is valid --> update
+            db_obj = key.get()
+            if db_obj is None:
+                return None
+
+            db_obj.update(obj.to_dict())
+            db_obj.put()
+            return db_obj
+
+        else:
+            # key is not valid --> create
+            obj.put()
+            return obj
+
+
+#     @staticmethod
+#     def get_by_key(key):
+#         """
+#         It retrieves the object by key.
+#
+#         Parameters:
+#         - key: the ndb key identifying the object to retrieve.
+#
+#         Return value: object of this class.
+#
+#         """
+#         if key is not None and isinstance(key, ndb.Key) and key.kind().find('Address') > -1:
+#             return key.get()
+#         else:
+#             return None
+
+#     @staticmethod
+#     def get_list(filters):
+#         """
+#         It retrieves a list of Addresses satisfying the characteristics described in filter.
+#
+#         Parameters:
+#         - filters: a dict containing the characteristics the objects in the resulting list should have.
+#
+#         Return value: list of Address.
+#         """
+#         return None
+
+
+class Place(PFmodel):
 
     """Represents a place"""
     name = ndb.StringProperty()
@@ -49,37 +599,238 @@ class Place(ndb.Model):
     hours = ndb.StructuredProperty(Hours, repeated=True)
     days_closed = ndb.DateProperty(repeated=True)
 
+#     @staticmethod
+#     def make_key(pid):
+#         return ndb.Key(Place, pid)
+#
+#     def to_json(self):
+#
+#         res = dict(self.to_dict(), **dict(id=self.key.id()))
+#         if self.address.location:
+#             res['address']['lat'] = self.address.location.lat
+#             res['address']['lon'] = self.address.location.lon
+#             del res['address']['location']
+#         return res
+
     @staticmethod
-    def make_key(pid):
-        return ndb.Key(Place, pid)
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Place in a dict, that can be easily converted to a json.
 
-    def to_json(self):
+        Parameters:
+        - obj: the instance of Place to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
 
-        res = dict(self.to_dict(), **dict(id=self.key.id()))
-        if self.address.location:
-            res['address']['lat'] = self.address.location.lat
-            res['address']['lon'] = self.address.location.lon
-            del res['address']['location']
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        res = PFmodel.to_json(obj, Place, allowed, hidden)
+
+        if 'address' in res.keys():
+            res['address'] = Address.to_json(res['address'], allowed, hidden)
+        if 'hours' in res.keys():
+            for hours in res['hours']:
+                hours = Hours.to_json(hours, allowed, hidden)
+        if 'days_closed' in res.keys():
+            for day in res['days_closed']:
+                day = day.strftime('%Y%m%d')
+
         return res
 
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Place.
 
-class Rating(ndb.Model):
-    place = ndb.KeyProperty(Place)
-    purpose = ndb.StringProperty(choices=[
-                                 "dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"])
-    value = ndb.FloatProperty(required=True, default=0)
-    not_known = ndb.BooleanProperty(required=True, default=False)
-    creation_time = ndb.DateTimeProperty(auto_now=True)
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
 
-    def to_json(self):
-        tmp = self.to_dict()
-        tmp['place_id'] = self.place.id()
-        del tmp['place']
-        del tmp['creation_time']
-        return dict(tmp)
+        Return value: Place or None if the input dict contains wrong data.
+
+        """
+        if not isinstance(json_dict, dict):
+            return None
+
+        res = Place()
+
+        if 'address' in json_dict.keys():
+            json_dict['address'] = Address.from_json(json_dict['address'])
+        if 'hours' in json_dict.keys():
+            for hours in json_dict['hours']:
+                hours = Hours.from_json(hours)
+        if 'days_closed' in json_dict.keys():
+            for day in json_dict['days_closed']:
+                try:
+                    day = datetime.strptime(day, '%Y%m%d').date()
+                except ValueError:
+                    # TODO: handle error
+                    del day
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Place from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Place')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of False, [] means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Place):
+            return False, wrong_list
+
+        if obj.address is not None:
+            valid, wrong_addr = Address.is_valid(obj.address)
+            if not valid:
+                for p in wrong_addr:
+                    wrong_list.append('address.' + p)
+#             del valid, wrong_addr
+
+        if obj.hours is not None:
+            valid, wrong_h = Hours.is_valid(obj.hours)
+            if not valid:
+                for p in wrong_h:
+                    wrong_list.append('hours.' + p)
+#             del valid, wrong_h
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the Place, according to presence and validity of the key.
+
+        Parameters:
+        - obj: the Place to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+
+        Return value: Place
+        """
+        if not isinstance(obj, Place):
+            return None
+
+        valid, wrong_list = Place.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
+            # key is valid --> update
+            db_obj = key.get()
+            if db_obj is None:
+                return None
+
+            db_obj.update(obj.to_dict())
+            db_obj.put()
+            return db_obj
+
+        else:
+            # key is not valid --> create
+            obj.put()
+            return obj
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the Place by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: Place
+
+        """
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
+            return key.get()
+        else:
+            return None
+
+    @staticmethod
+    def get_list(filters):
+        """
+        It retrieves a list of Places satisfying the characteristics described in filter.
+
+        Parameters:
+        - filters: a dict containing the characteristics the objects in the resulting list should have.
+
+        Available filters:
+        - 'city': 'city!province!state!country'
+            The 'city' filter contains the full description of the city, with values separated with a '!'. 
+            This string is split and used to retrieve only the places that are in the specified city. 
+            'null' is used if part of the full city description is not available [example: 'Trento!TN!null!Italy'
+            or if a bigger reagion is considered [example: 'null!TN!null!Italy' retrieves all places in the province of Trento]
+
+        Return value: list of Places.
+        """
+
+        if filters is not None and not isinstance(filters, dict):
+            return None
+
+        dblist = Place.query()
+
+        if 'city' in filters.keys() and isinstance(filters['city'], str):
+            pieces = filters['city'].split(str="!")
+            if len(pieces) == 4:
+                # apply filter only if its content is valid
+                gql_str = 'WHERE '
+                if pieces[0] != 'null':
+                    gql_str += 'address.city = ' + pieces[0]
+                if pieces[1] != 'null':
+                    if not gql_str.endswith('WHERE '):
+                        gql_str += ' AND '
+                    gql_str += ' address.province = ' + pieces[1]
+                if pieces[2] != 'null':
+                    if not gql_str.endswith('WHERE '):
+                        gql_str += ' AND '
+                    gql_str += ' address.state = ' + pieces[2]
+                if pieces[4] != 'null':
+                    if not gql_str.endswith('WHERE '):
+                        gql_str += ' AND '
+                    gql_str += ' address.country = ' + pieces[3]
+
+                dblist = Place.gql(gql_str)
+
+        # executes query only once and store the results
+        # Never use fetch()!
+        dblist = list(dblist)
+
+        return dblist
 
 
-class PFuser(ndb.Model):
+class PFuser(PFmodel):
 
     """Represents a user, with full profile
 
@@ -115,14 +866,15 @@ class PFuser(ndb.Model):
     # defined, as before
     visited_city = ndb.StructuredProperty(Address, repeated=True)
 
-    rating = ndb.StructuredProperty(Rating, repeated=True)
+#     rating = ndb.StructuredProperty(Rating, repeated=True)
 
 #     first_login = ndb.DateTimeProperty(auto_now_add=True)
 #     ext_id_facebook = ndb.StringProperty()
 #     ext_id_google = ndb.StringProperty()
 
+#     def add_or_get_user(user_response, access_token, provider, update=False):
     @staticmethod
-    def add_or_get_user(user_response, access_token, provider, update=False):
+    def login(user_response, access_token, provider, update=False):
         '''
         Adds the user, if new, and returns it,  else just returns the user.
         '''
@@ -204,22 +956,461 @@ class PFuser(ndb.Model):
         user.put()
         return user, status
 
+#     @staticmethod
+#     def make_key(uid):
+#         return ndb.Key(PFuser, uid)
+#
+#     def to_json(self):
+#         tmp = self.to_dict()
+#         logging.info("USER DICT: " + str(tmp))
+#         del tmp['created']
+#         del tmp['updated']
+#         del tmp['rating']
+#         return dict(tmp, **dict(id=self.key.id()))
+#
+#     def update(self, data):
+# TODO: improve update!!
+#         self.full_name = data['full_name']
+#         self.gender = data['gender']
+#         self.age = data['age']
+#         self.home = Address()
+#         self.home.city = data['home']['city']
+
     @staticmethod
-    def make_key(uid):
-        return ndb.Key(PFuser, uid)
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the PFuser in a dict, that can be easily converted to a json.
 
-    def to_json(self):
-        tmp = self.to_dict()
-        logging.info("USER DICT: " + str(tmp))
-        del tmp['created']
-        del tmp['updated']
-        del tmp['rating']
-        return dict(tmp, **dict(id=self.key.id()))
+        Parameters:
+        - obj: the instance of PFuser to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
 
-    def update(self, data):
-        #         TODO: improve update!!
-        self.full_name = data['full_name']
-        self.gender = data['gender']
-        self.age = data['age']
-        self.home = Address()
-        self.home.city = data['home']['city']
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        # add to hidden those properties that we never want to show
+        hidden.extend(('fb_user_id', 'fb_access_token', 'google_user_id',
+                       'google_access_token', 'created', 'updated', 'email'))
+        res = PFmodel.to_json(obj, PFuser, allowed, hidden)
+
+        if 'home' in res.keys():
+            res['home'] = Address.to_json(res['home'], allowed, hidden)
+        if 'visited_city' in res.keys():
+            for city in res['visited_city']:
+                city = Address.to_json(city, allowed, hidden)
+
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a PFuser.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: PFuser or None if the input dict contains wrong data.
+
+        """
+        if not isinstance(json_dict, dict):
+            return None
+
+        res = PFuser()
+
+        if 'home' in json_dict.keys():
+            json_dict['home'] = Address.from_json(json_dict['home'])
+        if 'visited_city' in json_dict.keys():
+            for city in json_dict['visited_city']:
+                city = Address.from_json(city)
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating PFuser from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'PFuser')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of False, [] means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, PFuser):
+            return False, wrong_list
+
+        if obj.home is not None:
+            valid, wrong_home = Address.is_valid(obj.home)
+            if not valid:
+                for p in wrong_home:
+                    wrong_list.append('home.' + p)
+
+        if obj.visited_city is not None:
+            for city in obj.visited_city:
+                valid, wrong_city = Address.is_valid(city)
+                if not valid:
+                    for p in wrong_city:
+                        wrong_list.append('visited_city.' + p)
+
+        if obj.age is not None:
+            if obj.age < 0 or obj.age > 120:
+                wrong_list.append('age')
+
+        if obj.gender is not None:
+            if obj.gender != 'M' and obj.gender != 'F':
+                if obj.gender.upper()[0] == 'M':
+                    obj.gender = 'M'
+                elif obj.gender.upper()[0] == 'F':
+                    obj.gender = 'F'
+                else:
+                    wrong_list.append('gender')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It updates the PFuser: PFusers can be created only at login. In this case the key is mandatory!
+
+        Parameters:
+        - obj: the PFuser to store
+        - key: key of the user to update
+
+        Return value: PFuser
+        """
+        if not isinstance(obj, PFuser):
+            return None
+
+        valid, wrong_list = PFuser.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1:
+            # key is valid --> update
+            db_obj = key.get()
+            if db_obj is None:
+                return None
+            objdict = obj.to_dict()
+            # remove properties that cannot be changed
+            if 'user_id' in objdict.keys():
+                del objdict['user_id']
+            if 'fb_user_id' in objdict.keys():
+                del objdict['fb_user_id']
+            if 'fb_access_token' in objdict.keys():
+                del objdict['fb_access_token']
+            if 'google_user_id' in objdict.keys():
+                del objdict['google_user_id']
+            if 'google_access_token' in objdict.keys():
+                del objdict['google_access_token']
+            if 'created' in objdict.keys():
+                del objdict['created']
+            if 'updated' in objdict.keys():
+                del objdict['updated']
+            if 'email' in objdict.keys():
+                del objdict['email']
+
+            db_obj.update(objdict)
+            db_obj.put()
+            return db_obj
+
+        else:
+            # key is not valid --> create is not allowed!
+            return None
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the PFuser by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: PFuser
+
+        """
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1:
+            return key.get()
+        else:
+            return None
+
+#     @staticmethod
+#     def get_list(filters):
+#         """
+#         It retrieves a list of PFusers satisfying the characteristics described in filter.
+#
+#         Parameters:
+#         - filters: a dict containing the characteristics the objects in the resulting list should have.
+#
+#         Return value: list of PFusers.
+#         """
+#         return None
+
+
+class Rating(PFmodel):
+    user = ndb.KeyProperty(PFuser)
+    place = ndb.KeyProperty(Place)
+    purpose = ndb.StringProperty(choices=[
+                                 "dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"])
+    value = ndb.FloatProperty(required=True, default=0)
+    not_known = ndb.BooleanProperty(required=True, default=False)
+    creation_time = ndb.DateTimeProperty(auto_now=True)
+
+    __valid_ratings = [1.0, 3.0, 5.0]
+
+#     def to_json(self):
+#         tmp = self.to_dict()
+#         tmp['place_id'] = self.place.id()
+#         tmp['user_id'] = self.user.id()
+#         del tmp['place']
+#         del tmp['user']
+#         del tmp['creation_time']
+#         return dict(tmp)
+
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Rating in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of Rating to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        # TODO: add to hidden those properties that we never want to show
+        res = PFmodel.to_json(obj, Rating, allowed, hidden)
+
+        if 'user' in res.keys():
+            res['user'] = res['user'].urlsafe()
+        if 'place' in res.keys():
+            res['place'] = res['place'].urlsafe()
+        if 'creation_time' in res.keys():
+            res['creation_time'] = res[
+                'creation_time'].strftime('%Y%m%d %H:%M')
+        
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Place.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Place or None if the input dict contains wrong data.
+
+        """
+        if not isinstance(json_dict, dict):
+            return None
+
+        res = Rating()
+
+        if 'user' in json_dict.keys():
+            json_dict['user'] = PFuser.make_key(None, json_dict['user'])
+        if 'place_id' in json_dict.keys():
+            json_dict['place'] = Place.make_key(long(json_dict['place_id']), None)
+            del json_dict['place_id']
+        elif 'place' in json_dict.keys():
+            json_dict['place'] = Place.make_key(None, json_dict['place'])
+        if 'value' in json_dict.keys():
+            if isinstance(json_dict['value'], (str, unicode)):
+                json_dict['value'] = long(json_dict['value'])
+        if 'creation_time' in json_dict.keys():
+            try:
+                json_dict['creation_time'] = datetime.strptime(
+                    json_dict['creation_time'], '%Y%m%d %H:%M')
+            except ValueError:
+                del json_dict['creation_time']
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Rating from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Rating')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of False, [] means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Rating):
+            return False, wrong_list
+
+        # check value and not_known
+        if obj.value in obj.__valid_ratings:
+            # value valid
+            if obj.not_known == True:
+                wrong_list.append('not_known')
+        else:
+            if obj.value != 0:
+                wrong_list.append('value')
+            else:
+                # value indicates that this is a "I don't know" rating
+                if obj.not_known == False:
+                    wrong_list.append('not_known')
+
+        # check user is in datastore?
+        if obj.user is None or not isinstance(obj.user, ndb.Key):
+            wrong_list.append('user')
+        else :
+            user = obj.user.get()
+            if user is None:
+                wrong_list.append('user')
+
+        # check place is in datastore?
+        if obj.place is None or not isinstance(obj.place, ndb.Key):
+            wrong_list.append('place')
+        else :
+            place = obj.place.get()
+            if place is None:
+                wrong_list.append('place')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the Rating, according to its presence in the datastore
+
+        Parameters:
+        - obj: the Rating to store
+        - key: key is not used here
+
+        Return value: Rating
+        """
+        if not isinstance(obj, Rating):
+            return None
+
+        valid, wrong_list = Rating.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+
+        rlist = Rating.get_list(
+            {'user': obj.user.id(), 'place': obj.place.id(), 'purpose': obj.purpose})
+        if len(rlist) == 1:
+            rlist[0].value = obj.value()
+            rlist[0].not_known = obj.not_known
+            rlist[0].creation_time = datetime.now()
+            obj = rlist[0]
+        obj.put()
+        return obj
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the Rating by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: Rating
+
+        """
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Rating') > -1:
+            return key.get()
+        else:
+            return None
+
+    @staticmethod
+    def get_list(filters):
+        """
+        It retrieves a list of Ratings satisfying the characteristics described in filter.
+
+        Parameters:
+        - filters: a dict containing the characteristics the objects in the resulting list should have.
+
+        Available filters:
+        - 'user': the user key in string format
+            setting only 'user', the function retrieves all the ratings of this user
+        - 'place': the place key is string format
+            setting only 'place', the function retrieves all the ratings of this place
+        - 'purpose': the purpose
+            setting only 'purpose', the function retrieves all the ratings added to any place by any user about this purpose
+            usually it is used in combination with other filters
+
+        Return value: list of Ratings.
+        """
+
+        if filters is not None and not isinstance(filters, dict):
+            return None
+
+        dblist = Rating.query()
+
+        if 'user' in filters:
+            dblist = dblist.filter(Rating.user == PFuser.make_key(None, filters['user']))
+        if 'place' in filters:
+            dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
+        if 'purpose' in filters:
+            dblist = dblist.filter(Rating.purpose == filters['purpose'])
+
+        # executes query only once and stores the results
+        # Never use fetch()!
+        dblist = list(dblist)
+
+        return dblist

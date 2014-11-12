@@ -3,4 +3,28 @@
 {% block main %}
 <h3>Welcome!!</h3>
 
+<p>The following restaurant are recommended to you for a dinner with tourists</p>
+
+<ul>
+	{% for rest in list %}
+	<li>
+
+		<div>
+			<p>{{rest.name}}</p>
+			<p>{{rest.address.street}}, {{rest.address.city}}</p>
+		</div>
+		<ul>
+			{% for rating in rest.ratings %}
+			<li>
+				User {{rating.user.id()}} rated {{rating.value}} for purpose {{rating.purpose}}
+			</li>
+			
+			{% endfor %}
+		</ul>
+
+	</li> {% endfor %}
+</ul>
+
+
+
 {% endblock %}
