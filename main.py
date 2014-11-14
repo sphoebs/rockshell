@@ -119,14 +119,17 @@ class UserHandler(BaseRequestHandler):
         data = self.request
 
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
-        user, status = logic.user_get(user_id, None)
-        if status != "OK":
-            self.redirect("/error")
+#         user, status = logic.user_get(user_id, None)
+#         if status != "OK":
+#             self.redirect("/error")
 
-        user.age = data.get('age')
-        user.gender = data.get('gender')
+        user = PFuser()
+        if data.get('age') != '':
+            user.age = data.get('age')
+        if data.get('gender') != '':
+            user.gender = data.get('gender')
         user.home = {'city': data.get('locality'), 'province': data.get(
-            'administrative_area_level_1'), 'country': data.get('country')}
+            'administrative_area_level_2'), 'country': data.get('country')}
         user.full_name = data.get('name')
         
         user, status = logic.user_update(user, user_id, None)
@@ -144,7 +147,7 @@ class UserRatingsHandler(BaseRequestHandler):
         if status != "OK":
             self.redirect('/')
 
-#             logging.info('USER: ' + str(user))
+        logging.info('USER: ' + str(user))
         filters = {}
         if user is not None and user.home is not None and user.home.city is not None:
             province = 'null'
@@ -158,8 +161,12 @@ class UserRatingsHandler(BaseRequestHandler):
                 country = user.home.country
             filters['city'] = user.home.city + "!" + province + "!" + state + "!" + country 
         
-        plist, status = logic.place_list_get(filters)
+        logging.info("Getting places with filters: " + str(filters))
         
+        plist, status = logic.place_list_get(filters) 
+        
+        if 'city' in filters.keys():
+            filters['city'] = user.home.city + ', ' + user.home.province
         filters['list'] = plist
 #         logging.info("HERE!!!")
         if status == "OK":

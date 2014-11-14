@@ -108,7 +108,7 @@ def user_update(user, user_id, user_key_str):
     - the status (a string indicating whether an error occurred)
     """
     res = PFuser.store(
-        user, PFuser.get_by_key(PFuser.make_key(user_id, user_key_str)))
+        user, PFuser.make_key(user_id, user_key_str))
     if res is None:
         return None, "ERROR: wrong input data"
 

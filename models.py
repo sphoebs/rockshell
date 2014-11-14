@@ -9,6 +9,7 @@ from datetime import datetime
 from google.appengine.ext import ndb
 from google.appengine.api.datastore_types import GeoPt
 import logging
+from _ast import Num
 
 
 class PFmodel(ndb.Model):
@@ -319,7 +320,20 @@ class Address(PFmodel):
             if db_obj is None:
                 return None
 
-            db_obj.update(obj.to_dict())
+            objdict = obj.to_dict()
+            if 'street' in objdict.keys():
+                db_obj.street = objdict['street']
+            if 'city' in objdict.keys():
+                db_obj.city = objdict['city']
+            if 'province' in objdict.keys():
+                db_obj.province = objdict['province']
+            if 'state' in objdict.keys():
+                db_obj.state = objdict['state']
+            if 'country' in objdict.keys():
+                db_obj.country = objdict['country']
+            if 'location' in objdict.keys():
+                db_obj.location = objdict['location']
+                
             db_obj.put()
             return db_obj
 
@@ -545,7 +559,18 @@ class Hours(PFmodel):
             if db_obj is None:
                 return None
 
-            db_obj.update(obj.to_dict())
+            objdict = obj.to_dict()
+                
+            if 'weekday' in objdict.keys():
+                db_obj.weekday = objdict['weekday']
+            if 'open1' in objdict.keys():
+                db_obj.open1 = objdict['open1']
+            if 'close1' in objdict.keys():
+                db_obj.close1 = objdict['close1']
+            if 'open2' in objdict.keys():
+                db_obj.open2 = objdict['open2']
+            if 'close2' in objdict.keys():
+                db_obj.close2 = objdict['close2']
             db_obj.put()
             return db_obj
 
@@ -753,7 +778,27 @@ class Place(PFmodel):
             if db_obj is None:
                 return None
 
-            db_obj.update(obj.to_dict())
+            objdict = obj.to_dict()
+            
+            if 'name' in objdict.keys():
+                db_obj.name = objdict['name']
+            if 'description' in objdict.keys():
+                db_obj.description = objdict['description']
+            if 'picture' in objdict.keys():
+                db_obj.picture = objdict['picture']
+            if 'phone' in objdict.keys():
+                db_obj.phone = objdict['phone']
+            if 'price_avg' in objdict.keys():
+                db_obj.price_avg = objdict['price_avg']
+            if 'service' in objdict.keys():
+                db_obj.service = objdict['service']
+            if 'address' in objdict.keys():
+                db_obj.address = objdict['address']
+            if 'hours' in objdict.keys():
+                db_obj.hours = objdict['hours']
+            if 'days_closed' in objdict.keys():
+                db_obj.days_closed = objdict['days_closed']
+
             db_obj.put()
             return db_obj
 
@@ -797,31 +842,43 @@ class Place(PFmodel):
         """
 
         if filters is not None and not isinstance(filters, dict):
+            logging.error('Filters MUST be stored in a dictionary!! The received filters are wrong!!')
             return None
 
         dblist = Place.query()
 
-        if 'city' in filters.keys() and isinstance(filters['city'], str):
-            pieces = filters['city'].split(str="!")
+        if 'city' in filters.keys() and isinstance(filters['city'], (str, unicode)):
+            pieces = filters['city'].split("!")
             if len(pieces) == 4:
                 # apply filter only if its content is valid
                 gql_str = 'WHERE '
+                params = []
+                num = 1
                 if pieces[0] != 'null':
-                    gql_str += 'address.city = ' + pieces[0]
+                    gql_str += 'address.city = :' + str(num)
+                    num = num+1
+                    params.append(pieces[0]) 
                 if pieces[1] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
-                    gql_str += ' address.province = ' + pieces[1]
+                    gql_str += ' address.province = :' + str(num)
+                    num = num+1
+                    params.append(pieces[1])
                 if pieces[2] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
-                    gql_str += ' address.state = ' + pieces[2]
-                if pieces[4] != 'null':
+                    gql_str += ' address.state = :' + str(num)
+                    num = num+1
+                    params.append(pieces[2])
+                if pieces[3] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
-                    gql_str += ' address.country = ' + pieces[3]
+                    gql_str += ' address.country = :' + str(num)
+                    params.append(pieces[3])
 
-                dblist = Place.gql(gql_str)
+                logging.info('Getting places with query: ' + gql_str)
+
+                dblist = Place.gql(gql_str, *params)
 
         # executes query only once and store the results
         # Never use fetch()!
@@ -956,26 +1013,6 @@ class PFuser(PFmodel):
         user.put()
         return user, status
 
-#     @staticmethod
-#     def make_key(uid):
-#         return ndb.Key(PFuser, uid)
-#
-#     def to_json(self):
-#         tmp = self.to_dict()
-#         logging.info("USER DICT: " + str(tmp))
-#         del tmp['created']
-#         del tmp['updated']
-#         del tmp['rating']
-#         return dict(tmp, **dict(id=self.key.id()))
-#
-#     def update(self, data):
-# TODO: improve update!!
-#         self.full_name = data['full_name']
-#         self.gender = data['gender']
-#         self.age = data['age']
-#         self.home = Address()
-#         self.home.city = data['home']['city']
-
     @staticmethod
     def to_json(obj, allowed, hidden):
         """ 
@@ -1079,11 +1116,7 @@ class PFuser(PFmodel):
                     for p in wrong_city:
                         wrong_list.append('visited_city.' + p)
 
-        if obj.age is not None:
-            if obj.age < 0 or obj.age > 120:
-                wrong_list.append('age')
-
-        if obj.gender is not None:
+        if obj.gender is not None and isinstance(obj.gender, (str, unicode)) and len(obj.gender) > 0:
             if obj.gender != 'M' and obj.gender != 'F':
                 if obj.gender.upper()[0] == 'M':
                     obj.gender = 'M'
@@ -1116,32 +1149,48 @@ class PFuser(PFmodel):
             logging.error("Invalid input data: " + str(wrong_list))
             return None
 
+        logging.info('Storing user of kind ' + str(key.kind()))
         if key is not None and isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1:
+            logging.info('key is valid!!')
+            
             # key is valid --> update
             db_obj = key.get()
             if db_obj is None:
                 return None
             objdict = obj.to_dict()
             # remove properties that cannot be changed
-            if 'user_id' in objdict.keys():
-                del objdict['user_id']
-            if 'fb_user_id' in objdict.keys():
-                del objdict['fb_user_id']
-            if 'fb_access_token' in objdict.keys():
-                del objdict['fb_access_token']
-            if 'google_user_id' in objdict.keys():
-                del objdict['google_user_id']
-            if 'google_access_token' in objdict.keys():
-                del objdict['google_access_token']
-            if 'created' in objdict.keys():
-                del objdict['created']
-            if 'updated' in objdict.keys():
-                del objdict['updated']
-            if 'email' in objdict.keys():
-                del objdict['email']
+#             if 'user_id' in objdict.keys():
+#                 del objdict['user_id']
+#             if 'fb_user_id' in objdict.keys():
+#                 del objdict['fb_user_id']
+#             if 'fb_access_token' in objdict.keys():
+#                 del objdict['fb_access_token']
+#             if 'google_user_id' in objdict.keys():
+#                 del objdict['google_user_id']
+#             if 'google_access_token' in objdict.keys():
+#                 del objdict['google_access_token']
+#             if 'created' in objdict.keys():
+#                 del objdict['created']
+#             if 'updated' in objdict.keys():
+#                 del objdict['updated']
+#             if 'email' in objdict.keys():
+#                 del objdict['email']
 
-            db_obj.update(objdict)
+            if 'full_name' in objdict.keys():
+                db_obj.full_name = objdict['full_name']
+            if 'age' in objdict.keys():
+                db_obj.age = objdict['age']
+            if 'gender' in objdict.keys():
+                db_obj.gender = objdict['gender']
+            if 'picture' in objdict.keys():
+                db_obj.picture = objdict['picture']
+            if 'home' in objdict.keys():
+                db_obj.home = objdict['home']
+            if 'visited_city' in objdict.keys():
+                db_obj.visited_city = objdict['visited_city']
+
             db_obj.put()
+            logging.info('object stored correctly!!')
             return db_obj
 
         else:
