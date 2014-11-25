@@ -286,11 +286,15 @@ def rating_list_get(filters):
     - 'purpose': the purpose
         setting only 'purpose', the function retrieves all the ratings added to any place by any user about this purpose
         usually it is used in combination with other filters
+    - 'lat', latitude of user's position
+    - 'lon', longitude of user's position
+    - 'max_dist', maximum distance from user's position in meters
 
     It returns a tuple: 
     - the list of Ratings that satisfy the filters (or None in case of errors in the input),
     - the status (a string indicating whether an error occurred)
     """
+    #TODO: add filter per city!!
     res = Rating.get_list(filters)
     if res is None:
         return None, "ERROR: filters are wrongly defined"

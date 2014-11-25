@@ -7,10 +7,13 @@ import fix_path
 import types
 from datetime import datetime
 from google.appengine.ext import ndb
+from google.appengine.api import search
 from google.appengine.api.datastore_types import GeoPt
 import logging
 from _ast import Num
 
+
+index = search.Index(name='places')
 
 class PFmodel(ndb.Model):
 
@@ -34,7 +37,8 @@ class PFmodel(ndb.Model):
             return None
 
         res = obj.to_dict()
-        res['key'] = obj.key.urlsafe()
+        if obj.key is not None:
+            res['key'] = obj.key.urlsafe()
 
         for k in res.keys():
             if hidden is not None and len(hidden) > 0 and k in hidden:
@@ -81,7 +85,7 @@ class PFmodel(ndb.Model):
                 return ndb.Key(class_name, obj_id)
 
         if url_encoded is not None:
-            if not isinstance(obj_id, (str, unicode, long)):
+            if not isinstance(url_encoded, (str, unicode)):
                 return None
             else:
                 return ndb.Key(urlsafe=url_encoded)
@@ -655,13 +659,13 @@ class Place(PFmodel):
         res = PFmodel.to_json(obj, Place, allowed, hidden)
 
         if 'address' in res.keys():
-            res['address'] = Address.to_json(res['address'], allowed, hidden)
+            res['address'] = Address.to_json(obj.address, None, None)
         if 'hours' in res.keys():
-            for hours in res['hours']:
-                hours = Hours.to_json(hours, allowed, hidden)
+            for hours in obj.hours:
+                hours = Hours.to_json(hours, None, None)
         if 'days_closed' in res.keys():
             for day in res['days_closed']:
-                day = day.strftime('%Y%m%d')
+                day = day.strftime('%Y-%m-%d')
 
         return res
 
@@ -800,11 +804,18 @@ class Place(PFmodel):
                 db_obj.days_closed = objdict['days_closed']
 
             db_obj.put()
+            
             return db_obj
 
         else:
             # key is not valid --> create
             obj.put()
+            if obj.address is not None:
+                geopoint = search.GeoPoint(obj.address.location.lat, obj.address.location.lon)
+                fields = [search.GeoField(name='location', value=geopoint)]
+                d = search.Document(doc_id=obj.key.urlsafe(), fields=fields)
+                search.Index(name='places').put(d)
+            
             return obj
 
     @staticmethod
@@ -845,7 +856,21 @@ class Place(PFmodel):
             logging.error('Filters MUST be stored in a dictionary!! The received filters are wrong!!')
             return None
 
-        dblist = Place.query()
+        
+        
+        if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
+            #the three parameters must come all together
+            
+            #map all place fields to document and add all other filters here.
+            index = search.Index(name="places")
+            query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
+            result = index.search(query)
+            places = [ Place.make_key(None, d.doc_id) for d in result.results]
+            
+            dblist = Place.query(Place.key.IN(places))
+            
+        else :
+            dblist = Place.query()
 
         if 'city' in filters.keys() and isinstance(filters['city'], (str, unicode)):
             pieces = filters['city'].split("!")
@@ -886,6 +911,12 @@ class Place(PFmodel):
 
         return dblist
 
+    @staticmethod
+    def get_list_by_keys(keys):
+        
+        dblist = Place.query(Place.key.IN(keys))
+        return list(dblist)
+    
 
 class PFuser(PFmodel):
 
@@ -1442,22 +1473,40 @@ class Rating(PFmodel):
         - 'purpose': the purpose
             setting only 'purpose', the function retrieves all the ratings added to any place by any user about this purpose
             usually it is used in combination with other filters
-
+        - 'lat', latitude of user's position
+        - 'lon', longitude of user's position
+        - 'max_dist', maximum distance from user's position in meters
         Return value: list of Ratings.
         """
-
+        #TODO: add filter per location!!
         if filters is not None and not isinstance(filters, dict):
             return None
 
-        dblist = Rating.query()
-
-        if 'user' in filters:
-            dblist = dblist.filter(Rating.user == PFuser.make_key(None, filters['user']))
-        if 'place' in filters:
-            dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
-        if 'purpose' in filters:
-            dblist = dblist.filter(Rating.purpose == filters['purpose'])
-
+        
+        
+        if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
+            #the three parameters must come all together
+            
+            #map all place fields to document and add all other filters here.
+            index = search.Index(name="places")
+            query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
+            result = index.search(query)
+            places = [ Place.make_key(None, d.doc_id) for d in result.results]
+            
+            dblist = Rating.query(Rating.place.IN(places))
+            
+            if 'purpose' in filters:
+                dblist = dblist.filter(Rating.purpose == filters['purpose'])
+            
+        else :
+            dblist = Rating.query()
+            if 'user' in filters:
+                dblist = dblist.filter(Rating.user == PFuser.make_key(None, filters['user']))
+            if 'place' in filters:
+                dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
+            if 'purpose' in filters:
+                dblist = dblist.filter(Rating.purpose == filters['purpose'])
+        
         # executes query only once and stores the results
         # Never use fetch()!
         dblist = list(dblist)

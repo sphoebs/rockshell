@@ -66,10 +66,6 @@ class UserHandler(webapp2.RequestHandler):
 
 class UserLoginHandler(webapp2.RequestHandler):
 
-    # def get(self): # not needed!
-    #         self.response.set_status(405)
-    #
-
     def post(self):
         # Saves/retrieves user when he/she logs in
         post_data = json.loads(self.request.body)
@@ -94,6 +90,16 @@ class UserLoginHandler(webapp2.RequestHandler):
         else:
             self.response.set_status(400)
             self.response.write('Wrong body content')
+
+    def delete(self):
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        set_cookie(self.response, 'user', user_id, expires=0, encrypt=True)
+        self.response.write()
+                
 
 
 class PlaceListHandler(webapp2.RequestHandler):
@@ -143,28 +149,24 @@ class PlaceHandler(webapp2.RequestHandler):
 
     def put(self, pid):
 
-        if pid.isdigit():
-            l_pid = long(pid)
-            body = json.loads(self.request.body)
-            place = Place.from_json(body)
-            place, status = logic.place_update(place, l_pid, None)
-            if status == "OK":
-                self.response.headers['Content-Type'] = 'application/json'
-                self.response.write(json.dumps(Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[])))
-            else:
-                self.response.set_status(404)
-                self.response.write(status)
+        body = json.loads(self.request.body)
+        place = Place.from_json(body)
+        place, status = logic.place_update(place, None, pid)
+        if status == "OK":
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps(Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[])))
         else:
-            self.response.set_status(400)
-            self.response.write("Invalid place id, it must be a number")
+            self.response.set_status(404)
+            self.response.write(status)
+
 
     def delete(self, pid):
-        if pid.isdigit():
-            l_pid = long(pid)
-            Place.delete(Place.make_key(l_pid, None))
+        res = Place.delete(Place.make_key(None, pid))
+        if res == True:
+            self.response.write("The place " + pid + " has been deleted successfully")
         else:
             self.response.set_status(400)
-            self.response.write("Invalid place id, it must be a number")
+            self.response.write("this place cannot be deleted")
         
 
 
