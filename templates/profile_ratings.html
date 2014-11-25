@@ -71,7 +71,6 @@
 				type : 'POST',
 				url : '/api/rating',
 				data : JSON.stringify(rating),
-				dataType : 'json',
 				success : function() {
 					$(btn).addClass('pressed');
 				},
@@ -84,7 +83,7 @@
 					}
 				},
 				headers : {
-					Auth : getCookie('user')
+					Authorization : getCookie('user')
 				}
 			});
 		}

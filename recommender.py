@@ -233,8 +233,7 @@ def cluster_based(ratings, user, purpose='10000', np=5):
     return scores[0:np]
 
 
-def recommend(user, filters, purpose='dinner with tourists', n=5):
-
+def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     
     ratings = load_data(filters)
     places, status = logic.place_list_get(filters)
@@ -246,13 +245,13 @@ def recommend(user, filters, purpose='dinner with tourists', n=5):
         return None
     
     if len(ratings) > 5:
-        scores = cluster_based(ratings, user, purpose, n)
+        scores = cluster_based(ratings, user_id, purpose, n)
         
     else:
         #non-personalized recommendations
         items = {}
         for other in ratings:
-            if other != user:
+            if other != user_id:
                 for item in ratings[other]:
                     if purpose in ratings[other][item]:
                         if item not in items.keys():
@@ -270,7 +269,6 @@ def recommend(user, filters, purpose='dinner with tourists', n=5):
 #         return item_keys
     places_scores = []
     for p in places:
-        logging.info('HERE Place: ' + str(p))
         found = False
         for (score, item) in scores:
             if item == p.key:
@@ -283,7 +281,7 @@ def recommend(user, filters, purpose='dinner with tourists', n=5):
     places_scores.reverse()
     places_scores = places_scores[0:n]
     items = [place for (score, place) in places_scores]
-    logging.info("items: " + str(items))
+    logging.info("Recommended items: " + str(items))
     return items
 
 

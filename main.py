@@ -23,6 +23,7 @@ import os
 import logging
 import time
 import logic
+import recommender
 
 from models import PFuser
 
@@ -183,33 +184,27 @@ class LetsgoHandler(BaseRequestHandler):
 
     def get(self):
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
-        user, status = logic.user_get(user_id, None)
-        if status != "OK":
-            self.redirect('/')
+        places = []
+#         user, status = logic.user_get(user_id, None)
+#         if status != "OK":
+#             self.redirect('/')
             
-        filters = {}
-        if user is not None and user.home is not None and user.home.city is not None:
-            province = 'null'
-            if user.home.province is not None:
-                province = user.home.province
-            state = 'null'
-            if user.home.state is not None:
-                state = user.home.state
-            country = 'null'
-            if user.home.country is not None:
-                country = user.home.country
-            filters['city'] = user.home.city + "!" + province + "!" + state + "!" + country 
-        places, status = logic.place_list_get(filters)
+#         filters = {}
+#         
+#         
+#         
+#         filters['lat'] = 0
+#         filters['lon'] = 0
+#         filters['max_dist'] = config.MAX_DIST
+#         places = recommender.recommend(user_id, filters) 
         
-        if status != "OK":
-            self.render('letsgo.html', {})
+#         if status != "OK":
+#             self.render('letsgo.html', {})
             
-        for p in places:
-            ratings, status = logic.rating_list_get({'purpose': 'dinner with tourists', 'place': p.key.id()})
-            if status == 'OK':
-                p.ratings = ratings
-        
-#         TODO: use place list to compute recommendations
+#         for p in places:
+#             ratings, status = logic.rating_list_get({'purpose': 'dinner with tourists', 'place': p.key.id()})
+#             if status == 'OK':
+#                 p.ratings = ratings
         
         self.render('letsgo.html', {'list': places})
 

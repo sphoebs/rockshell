@@ -1,14 +1,17 @@
-{% extends "base.html" %} 
-
-{% block main %}
+{% extends "base.html" %} {% block main %}
 <h3>Welcome!!</h3>
 
-<p>Recommendations will be provided soon.</p>
+<p>Recommendations will become more accurate as we will collect more and more opinions.</p>
 
-<p>These restaurants are available in your city:</p>
+<p>These restaurants are the best ones within 1 km from your position:</p>
 
 
-<ul>
+<ul id="places">
+
+	{% if not list %}
+	<p>Loading...</p>
+	{% endif %}
+	
 	{% for rest in list %}
 	<li>
 
@@ -18,16 +21,46 @@
 		</div>
 		<ul>
 			{% for rating in rest.ratings %}
-			<li>
-				User {{rating.user.id()}} rated {{rating.value}} for purpose {{rating.purpose}}
-			</li>
-			
-			{% endfor %}
+			<li>User {{rating.user.id()}} rated {{rating.value}} for purpose
+				{{rating.purpose}}</li> {% endfor %}
 		</ul>
 
 	</li> {% endfor %}
 </ul>
 
 
+
+{% endblock %} {% block scripts %}
+
+<script type="text/javascript">
+$(window).load(function() {
+	if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showRecommendations);
+    } else { 
+        alert("Geolocation is not supported by this browser.");
+    }
+	
+	function showRecommendations(position) {
+		url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + '&max_dist=1000';
+	    $.ajax({
+			type : 'GET',
+			url : url,
+			success : function(places) {
+				console.log("Places loaded");
+				places_str = '';
+				for(var i=0; i< places.length; i++){
+					p = places[i];
+					places_str += '<li><div><p>' + p.name + '</p><p>'+ p.address.street + ', ' + p.address.city + '</p></div></li>';
+				}
+				$('#places').html(places_str); 
+			},
+			error : function(resp) {
+				console.log(resp);
+				alert("Error" + resp.status);
+			}
+		}); 
+	}
+});
+</script>
 
 {% endblock %}
