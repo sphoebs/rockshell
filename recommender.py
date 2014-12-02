@@ -24,11 +24,16 @@ import json
 # incremental clustering is used, so clusters should be always available
 # and recomputed only when needed
 clusters = {}
-user2clusters_map = {}
+user2cluster_map = {}
+next_clusterid = 1
 
 # configuration of cluster algorithm
 cluster_threshold = None
 num_clusters = 5
+
+#count the number of updates and recompute the clusters every 20 new ratings (each one ending in an update of clusters)
+num_changes = 0
+max_changes = 20
 
 
 def load_data(filters):
@@ -49,8 +54,8 @@ def load_data(filters):
     data = {}
     for rating in ratings:
         if rating.not_known is False and rating.value > 0:
-            user = rating.user.urlsafe()
-            place = rating.place.urlsafe()
+            user = rating.user.id()
+            place = rating.place.id()
             if user not in data:
                 data[user] = {}
             if place not in data[user]:
@@ -67,12 +72,16 @@ def euclidean_distance(ratings, person1, person2):
     Formula: 1/(1+ (sqrt(sum(pow(x-y, 2))))/sqrt(n))
 
     """
+    if person1 not in ratings or person2 not in ratings:
+        #one of the two has no ratings
+        return 0
+    
     si = {}
     for item in ratings[person1]:
         if item in ratings[person2]:
             for purpose in ratings[person1][item]:
                 if purpose in ratings[person2][item]:
-                    si[item + purpose] = 1
+                    si[str(item) + str(purpose)] = 1
 
     # if they have no ratings in common, return 0
     if len(si) == 0:
@@ -136,6 +145,7 @@ def cluster_similarity(ratings, cluster1, cluster2, similarity=euclidean_distanc
     Computes the complete-link similarity between two clusters
     """
     max_dist = 0.0
+    sim = 0
     for user1 in cluster1:
         for user2 in cluster2:
             sim = euclidean_distance(ratings, user1, user2)
@@ -153,7 +163,6 @@ def find_nearest_clusters(ratings, clusters):
 
 
 def find_clusters(ratings, clusters, next_clusterid):
-
     if cluster_threshold is not None:
         cluster1, cluster2, sim = find_nearest_clusters(ratings, clusters)
         logging.info(
@@ -179,12 +188,14 @@ def find_clusters(ratings, clusters, next_clusterid):
 
 
 def build_clusters(ratings):
-
+    global clusters
+    global user2cluster_map
+    global next_clusterid
+    
     num = len(ratings)
     if num == 0:
         return None, None
     clusters = {}
-    next_clusterid = 1
     # init clusters: each user in a singleton cluster
     for user in ratings:
         clusters[next_clusterid] = [user]
@@ -202,15 +213,47 @@ def build_clusters(ratings):
     return clusters, user2cluster_map
 
 
+def update_clusters(user):
+    global num_changes
+    global clusters
+    global user2cluster_map
+    global next_clusterid
+    
+    ratings = load_data(None)
+    if num_changes > max_changes:
+        clusters, user2cluster_map = build_clusters(ratings)
+        num_changes = 0
+    else:    
+        if user in user2cluster_map:
+            user_cluster = clusters[user2cluster_map[user]]
+            i = user_cluster.index(user)
+            del user_cluster[i]
+        clusters[next_clusterid] = [user]
+        next_clusterid += 1
+        # run another step of hierarchical clustering
+        clusters, next_clusterid = find_clusters(
+            ratings, clusters, next_clusterid)
+        num_changes += 1
+        user2cluster_map = {}
+        for cid in clusters:
+            for user in clusters[cid]:
+                user2cluster_map[user] = cid
+    
+
 def cluster_based(ratings, user, purpose='10000', np=5):
+    global clusters
+    global user2cluster_map
 
-    #     if len(clusters) == 0:
-    clusters, user2cluster_map = build_clusters(ratings)
-#     elif is time to recompute:
-#         TODO
+#     if len(clusters) == 0:
+#         #clusters have never been computed
+#         clusters, user2cluster_map = build_clusters(ratings)
+#     elif num_changes > max_changes: 
+#         #it is time to recompute clusters
+#         clusters, user2cluster_map = build_clusters(ratings)
 #     else :
-#         update user in clusters
 
+
+    # clusters have already been computed.
     logging.info("clusters: " + str(clusters))
 
     user_cluster = clusters[user2cluster_map[user]]
@@ -244,29 +287,23 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     if ratings is None:
         return None
     
-    if len(ratings) > 5:
-        scores = cluster_based(ratings, user_id, purpose, n)
+#     if len(ratings) > 5:
+    scores = cluster_based(ratings, user_id, purpose, n)
         
-    else:
-        #non-personalized recommendations
-        items = {}
-        for other in ratings:
-            if other != user_id:
-                for item in ratings[other]:
-                    if purpose in ratings[other][item]:
-                        if item not in items.keys():
-                            items[item] = []
-                        items[item].append(ratings[other][item][purpose])
+#     else:
+#         #non-personalized recommendations
+#         items = {}
+#         for other in ratings:
+#             if other != user_id:
+#                 for item in ratings[other]:
+#                     if purpose in ratings[other][item]:
+#                         if item not in items.keys():
+#                             items[item] = []
+#                         items[item].append(ratings[other][item][purpose])
+# 
+#         scores = [(sum(items[item]) / len(items[item]), item)
+#               for item in items]
 
-        scores = [(sum(items[item]) / len(items[item]), item)
-              for item in items]
-#         logging.info("scores: " + str(scores))
-#         scores.sort()
-#         scores.reverse()
-#         scores = scores[0:n]
-#         item_keys = [item for (score, item) in scores]
-#         logging.info("items: " + str(item_keys))
-#         return item_keys
     places_scores = []
     for p in places:
         found = False
@@ -287,6 +324,14 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
 
 # The following is for publishing the recommender via rest api
 class RecommenderHandler(webapp2.RequestHandler):
+    
+    def initialize(self, *a, **kw):
+        webapp2.RequestHandler.initialize(self, *a, **kw)
+        global clusters
+        global user2cluster_map
+        ratings = load_data(None)
+        clusters, user2cluster_map = build_clusters(ratings)
+        
 
     def get(self):
         auth = self.request.headers.get("Authorization")
@@ -314,3 +359,4 @@ class RecommenderHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/recommender/', RecommenderHandler)
 ], debug=True)
+

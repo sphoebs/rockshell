@@ -16,7 +16,7 @@ import urllib2
 # import time
 import config
 import social_login
-
+from recommender import update_clusters
 
 def get_current_userid(cripted_data):
     """
@@ -247,6 +247,7 @@ def rating_create(rating, user_id, user_key_str):
     res = Rating.store(rating, None)
     if res == None:
         return None, "ERROR: invalid input data"
+    update_clusters(res.user.id())
     return res, "OK"
 
 

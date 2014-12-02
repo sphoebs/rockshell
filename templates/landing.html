@@ -1,10 +1,7 @@
-{% extends "base.html" %}
-
-{% block main %}
-<aside>
+{% extends "base.html" %} {% block main %}
+  <aside>
 	<h3>Login</h3>
 	<p>
-		<!-- <a href="https://accounts.google.com/o/oauth2/auth?response_type=code&client_id= &redirect_uri= " class="btn">Google</a> -->
 		<a href="{{google}}" class="btn">Google</a>
 	</p>
 	<p>
@@ -21,4 +18,36 @@
 			semper consequat est, eu porta velit mollis nec.</p>
 	</section>
 </article>
+
+<!-- <div class="site-wrapper">
+
+	<div class="site-wrapper-inner home"></div>
+
+	<div class="home-container">
+
+		<span class="centerer"></span>
+		<div class="centered">
+			<img class="home-logo" src="../static/images/home_logo.png"></img>
+			<div class="login">
+				<h4>Login</h4>
+				<div class="login-buttons">
+					<a class="img-btn google-btn" href="{{google}}"><img
+						src="../static/images/social_google_box.png"></img></a> <a
+						class="img-btn fb-btn" href="{{facebook}}"><img
+						src="../static/images/social_facebook_box_blue.png"></img></a>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="logo-bg centered"></div>
+
+
+	</div>
+
+</div> -->
+
+
+
+
 {% endblock %}

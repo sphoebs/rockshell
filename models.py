@@ -13,6 +13,7 @@ import logging
 from _ast import Num
 
 
+
 index = search.Index(name='places')
 
 class PFmodel(ndb.Model):
@@ -1484,7 +1485,7 @@ class Rating(PFmodel):
 
         
         
-        if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
+        if filters is not None and 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
             #the three parameters must come all together
             
             #map all place fields to document and add all other filters here.
@@ -1500,11 +1501,11 @@ class Rating(PFmodel):
             
         else :
             dblist = Rating.query()
-            if 'user' in filters:
-                dblist = dblist.filter(Rating.user == PFuser.make_key(None, filters['user']))
-            if 'place' in filters:
+            if filters is not None and 'user' in filters:
+                dblist = dblist.filter(Rating.user == PFuser.make_key(filters['user'], None))
+            if filters is not None and 'place' in filters:
                 dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
-            if 'purpose' in filters:
+            if filters is not None and 'purpose' in filters:
                 dblist = dblist.filter(Rating.purpose == filters['purpose'])
         
         # executes query only once and stores the results
