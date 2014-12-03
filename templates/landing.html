@@ -1,53 +1,18 @@
+
 {% extends "base.html" %} {% block main %}
-  <aside>
-	<h3>Login</h3>
-	<p>
-		<a href="{{google}}" class="btn">Google</a>
-	</p>
-	<p>
-		<a href="{{facebook}}" class="btn">Facebook</a>
-	</p>
-</aside>
 
-<article>
-	<section>
-		<h1>Welcome to PlanFree</h1>
-		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-			Aliquam sodales urna non odio egestas tempor. Nunc vel vehicula ante.
-			Etiam bibendum iaculis libero, eget molestie nisl pharetra in. In
-			semper consequat est, eu porta velit mollis nec.</p>
-	</section>
-</article>
-
-<!-- <div class="site-wrapper">
-
-	<div class="site-wrapper-inner home"></div>
+<div class="home-background">
 
 	<div class="home-container">
-
-		<span class="centerer"></span>
-		<div class="centered">
-			<img class="home-logo" src="../static/images/home_logo.png"></img>
-			<div class="login">
-				<h4>Login</h4>
-				<div class="login-buttons">
-					<a class="img-btn google-btn" href="{{google}}"><img
-						src="../static/images/social_google_box.png"></img></a> <a
-						class="img-btn fb-btn" href="{{facebook}}"><img
-						src="../static/images/social_facebook_box_blue.png"></img></a>
-				</div>
-
-			</div>
+		<div class="home-logo"></div>
+		<div class="home-logo-bg"></div>
+		<div class="login">
+			<h4>Login</h4>
+			<a class="img-btn" href="{{google}}"><div class="google-btn"></div></a> 
+			<a class="img-btn" href="{{facebook}}"><div class="fb-btn"></div></a>
 		</div>
-
-		<div class="logo-bg centered"></div>
-
-
 	</div>
-
-</div> -->
-
-
+</div>
 
 
 {% endblock %}
