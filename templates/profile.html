@@ -1,67 +1,80 @@
 {% extends "base.html" %} {% block main %}
 
-<h3>Please, fill in your profile with some personal infromation:</h3>
+<div class="full-background profile">
 
-<p class="error">{{error}}</p>
+	<div class="profile-container">
+		<div class="step text-100">step 1/3</div>
+		<div class="profile-logo"></div>
+		
+		<div class="scrollable gray-skin">	
+			<div class="text-100 red-text center-text"> Hey there!! To offer you a personalized experience we need to know some information about you.</div>
+	
+			<form action="/user" method="post">
+				<div>
+					<label class="form-label text-300 red-text">Name: </label>
+					<div class="form-input"><input type="text" name="name"
+						value="{{full_name}}">
+					</div>
+				</div>
+				<div>
+					<label class="form-label text-300 red-text">Gender: </label> 
+					<div class="form-input" style="margin-top: 20px;padding-left: 10px;">
+						<label class="radio-inline"> <input
+							type="radio" name="gender" value="M"> M
+						</label> 
+						<label class="radio-inline"> <input type="radio"
+							name="gender" value="F"> F
+						</label>
+					</div>
+				</div>
+				<div>
+					<label class="form-label text-300 red-text">Age: </label>
+					<div class="form-input">
+						<div class="radio">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="<18">
+								Less than 18 years old
+							</label>
+						</div>
+						<div class="radio">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="18-25">
+							18 - 25 years old
+							</label>
+						</div>
+						<div class="radio">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="26-35">
+								26 - 35 years old
+							</label>	
+						</div>
+						<div class="radio">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="36-55">
+								36 - 55 years old
+							</label>
+						</div>
+						<div class="radio">
+							<label class="text-100 red-text"> <input type="radio" name="age" value=">55">
+								More than 55 years old
+							</label>
+						</div>
+					</div>
+				</div>
+				<div>
+					<label class="form-label text-300 red-text">Home city: </label>
+					<div class="form-input">
+						<input type="text" name="auto-city"
+							id="city">
+					</div>
+				</div>
+				<input type="hidden" name="locality" id="locality" /> 
+				<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
+				<input type="hidden" name="country" id="country"/>
+				<br/>
+				<input type="submit" class="img-btn red-button text-100" value="Save" />
+			</form>
+		</div>
+	</div>
 
-<form action="/user" method="post">
-	<div>
-		<label>Name: </label><input type="text" name="name"
-			value="{{full_name}}">
-	</div>
-	<!-- <div>
-		<label>Email: </label><input type="text" disabled name="email"
-			value="{{email}}">
-	</div> -->
-	<div>
-		<label>Gender: </label> <label class="radio-inline"> <input
-			type="radio" name="gender" value="M"> M
-		</label> <label class="radio-inline"> <input type="radio"
-			name="gender" value="F"> F
-		</label>
-	</div>
-	<br />
-	<div>
-		<label>Age: </label>
-		<div class="radio">
-			<label> <input type="radio" name="age" value="<18">
-				Less than 18 years old
-			</label>
-		</div>
-		<div class="radio">
-			<label> <input type="radio" name="age" value="18-25">
-				18 - 25 years old
-			</label>
-		</div>
-		<div class="radio">
-			<label> <input type="radio" name="age" value="26-35">
-				26 - 35 years old
-			</label>
-		</div>
-		<div class="radio">
-			<label> <input type="radio" name="age" value="36-55">
-				36 - 55 years old
-			</label>
-		</div>
-		<div class="radio">
-			<label> <input type="radio" name="age" value=">55">
-				More than 55 years old
-			</label>
-		</div>
+</div>
 
-	</div>
-	<div>
-		<label>Home city: <input type="text" name="auto-city"
-			id="city">
-		</label>
-	</div>
-	<input type="hidden" name="locality" id="locality" /> <input type="hidden" 
-		name="administrative_area_level_2" id="administrative_area_level_2" /> <input type="hidden" name="country" id="country"/>
-
-	<div>
-		<input type="submit" value="Save" />
-	</div>
-</form>
 
 {% endblock %} {% block scripts %}
 <script type="text/javascript"
@@ -70,7 +83,13 @@
 	$(window)
 			.load(
 					function() {
-
+						
+						$('.scrollable').enscroll({
+						    showOnHover: false,
+						    verticalTrackClass: 'track3',
+						    verticalHandleClass: 'handle3'
+						});
+						
 						var input = document.getElementById('city');
 						var options = {
 							types : [ '(cities)' ]
@@ -107,3 +126,4 @@
 </script>
 
 {% endblock %}
+

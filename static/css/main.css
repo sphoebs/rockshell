@@ -1,11 +1,14 @@
 
-/* HOME PAGE */
+body {
+	font-size: 13pt;
+	font-family: "Lato";
+	color: #DC3D3D;
+}
 
-.home-background {
+.full-background {
 	position: fixed;
 	width: 100%;
 	height: 100%;
-	background-image: url(../images/home_background.png);
 	background-repeat: no-repeat;
 	background-position: center center;
 	-webkit-background-size: cover;
@@ -13,6 +16,109 @@
   	-o-background-size: cover;
   	background-size: cover;
   	z-index: -1;
+}
+
+.text-100 {
+	font-family: "Lato";
+	font-weight: 100;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.text-300 {
+	font-family: "Lato";
+	font-weight: 300;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.red-text {
+	color: #DC3D3D;
+}
+
+.center-text {
+	text-align: center;
+}
+
+form {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.img-btn:hover {
+	-webkit-filter: brightness(120%);
+    -moz-filter: brightness(120%);
+}
+
+.img-btn:active {
+	-webkit-filter: brightness(70%);
+    -moz-filter: brightness(70%);
+    
+}
+
+button, inupt, input[type=button], input[type=submit]{
+	outline: 0;
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+
+	background-image: url(../images/btn.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+  	-moz-background-size: contain;
+  	-o-background-size: contain;
+  	background-size: contain;
+  	
+  	-webkit-appearance: button;
+  	
+  	color: white;
+}
+
+input[type=text] {
+	outline: 0;
+	border: 0;
+	border-bottom: solid 2px #DC3D3D;
+	box-shadow: none;
+	background-color: rgba(255,255,255,0.6);
+}
+
+
+.track3 {
+    width: 10px;
+    background: rgba(220, 61, 61, 0);
+    margin-right: 2px;
+    border-radius: 10px;
+    -webkit-transition: background 250ms linear;
+    transition: background 250ms linear;
+}
+
+.track3:hover,
+.track3.dragging {
+    background: #DC3D3D; 
+    background: rgba(220, 61, 61, 0.15);
+}
+
+.handle3 {
+    width: 7px;
+    right: 0;
+    background: #DC3D3D;
+    background: rgba(220, 61, 61, 0.4);
+    border-radius: 7px;
+    -webkit-transition: width 250ms;
+    transition: width 250ms;
+}
+
+.track3:hover .handle3,
+.track3.dragging .handle3 {
+    width: 10px;
+}
+
+
+/* HOME PAGE */
+
+.full-background.home {
+	background-image: url(../images/home_background.png);
 }
 
 .home-container {
@@ -77,21 +183,9 @@
 }
 
 .login h4 {
-	font: Arial, Helvetica, sans-serif;
-	color: #FF3B3B;
-	font-weight: 200;
+	color: #DC3D3D;
 	font-size: 24pt;
-	margin: 5px;
 }
-
-/* .login .img-btn {
-	width: 64px;
-	height: 64px;
-	max-width: 40%;
-	max-height: 40%; 
-	border: 0;
-	
-} */
 
 .login .google-btn {
 	display: inline-block;
@@ -125,16 +219,114 @@
   	background-size: contain;
 }
 
-.login .img-btn:hover {
-	-webkit-filter: brightness(120%);
-    -moz-filter: brightness(120%);
-}
 
-.login .img-btn:active {
-	-webkit-filter: brightness(70%);
-    -moz-filter: brightness(70%);
-    
-}
 
 /* HOME PAGE END */
+
+
+/* PROFILE PAGE */
+.full-background.profile {
+	background-image: url(../images/home_background.png);
+	/* background-color: #F7F8CD; */
+}
+
+.profile-container {
+	position: fixed;
+	top: 10%;
+	left: 5%;
+	right: 5%;
+	bottom: 5%;
+	
+	background-color: #F7F8CD;
+	z-index: 1;
+	
+}
+
+.profile-logo {
+	width: 370px;
+	height: 130px;
+	max-width: 60%;
+	max-height: 30%;
+	
+	background-image: url(../images/logo_02.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+  	-moz-background-size: contain;
+  	-o-background-size: contain;
+  	background-size: contain;
+  	
+  	margin-left: auto;
+  	margin-right: auto;
+  	margin-top: -50px;
+  	margin-bottom: 20px;
+  	
+}
+
+.step {
+	position: absolute;
+	right: 5px;
+	margin: 5px;
+	padding: 5px;
+	
+	width: 64px;
+	height: 64px;
+	
+	font-size: 16pt;
+	color: white;
+	text-align: center;
+	
+	background-image: url(../images/red_circle.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+  	-moz-background-size: contain;
+  	-o-background-size: contain;
+  	background-size: contain;
+	
+}
+
+.form-label {
+	width: 25%;
+	text-align: right;
+	display: inline-block;
+	padding-right: 10px;
+	vertical-align: top;
+	margin-top: 20px;
+}
+
+.form-input {
+	width: 70%;
+	text-align: left;
+	padding-left: 10px;
+	display: inline-block;
+	vertical-align: top;
+	margin-top: 10px;
+}
+
+.form-input .radio-inline {
+	position: relative;
+}
+
+.scrollable {
+	max-height: 77%;	
+	overflow: hidden;
+}
+
+
+.red-button {
+	width: 130px;
+	height: 40px;
+  	
+  	text-align: center;
+  	margin-top: 20px;
+	margin-left: 50%;
+	-webkit-transform: translate(-50%, 0);
+  	transform: translate(-50%, 0);
+	
+}
+
+
+
+/* PROFILE PAGE END */
 
