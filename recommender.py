@@ -35,15 +35,20 @@ num_clusters = 5
 num_changes = 0
 max_changes = 20
 
+user_sim_matrix = {}
+cluster_sim_matrix = {}
+
 
 def load_data(filters):
     """
     It loads data from datastore.
     
     Filters:
-    -lat: latitude, current user position
-    -lon: longitude, current user position
-    -max_dist: measured in meters
+    - users: array of user ids (the users within user cluster)
+    - places: array of palce ids (the places that satisfy user's location parameters)
+    - purpose: the purpose we are interested in
+    
+    if filters is None --> it loads all ratings in the datastore
     """
     
     ratings, status = logic.rating_list_get(filters)
@@ -139,24 +144,76 @@ def pearson_similarity(ratings, person1, person2):
     logging.info('pearson - denominator: ' + str(denominator))
     return pSum / denominator
 
+def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
+    global user_sim_matrix
+    for u1 in ratings:
+        for u2 in ratings:
+            if u1 not in user_sim_matrix:
+                user_sim_matrix[u1] = {}
+            if u2 not in user_sim_matrix:
+                user_sim_matrix[u2] = {}
+            if u2 not in user_sim_matrix[u1]:
+                user_sim_matrix[u1][u2] = None
+            if u1 not in user_sim_matrix[u2]:
+                user_sim_matrix[u2][u1] = None
+            if user_sim_matrix[u1][u2] is None:
+                if u1 == u2 :
+                    user_sim_matrix[u1][u1] = 1
+                else:
+                    sim = similarity(ratings, u1, u2)
+                    user_sim_matrix[u1][u2] = sim
+                    user_sim_matrix[u2][u1] = sim
+    
+def update_user_sim_matrix(ratings, user, similarity=euclidean_distance):
+    global user_sim_matrix
+    if user in ratings:
+        for u2 in ratings:
+            if user not in user_sim_matrix:
+                user_sim_matrix[user] = {}
+            if u2 not in user_sim_matrix:
+                user_sim_matrix[u2] = {}
+            if u2 not in user_sim_matrix[user]:
+                user_sim_matrix[user][u2] = None
+            if user not in user_sim_matrix[u2]:
+                user_sim_matrix[u2][user] = None
+            if user == u2 :
+                user_sim_matrix[user][user] = 1
+            else:
+                sim = similarity(ratings, user, u2)
+                user_sim_matrix[user][u2] = sim
+                user_sim_matrix[u2][user] = sim
 
-def cluster_similarity(ratings, cluster1, cluster2, similarity=euclidean_distance):
+def cluster_similarity(ratings, cluster1_id, cluster2_id, similarity=euclidean_distance, recompute=False):
     """
     Computes the complete-link similarity between two clusters
     """
-    max_dist = 0.0
-    sim = 0
-    for user1 in cluster1:
-        for user2 in cluster2:
-            sim = euclidean_distance(ratings, user1, user2)
-            if sim > max_dist:
-                max_dist = sim
-    return sim
+    global cluster_sim_matrix
+    
+    if cluster1_id in cluster_sim_matrix and cluster2_id in cluster_sim_matrix[cluster1_id] and not recompute:
+        return cluster_sim_matrix[cluster1_id][cluster2_id]
+    else:
+        cluster1 = clusters[cluster1_id]
+        cluster2 = clusters[cluster2_id]
+        max_dist = 0.0
+        sim = 0
+        for user1 in cluster1:
+            for user2 in cluster2:
+                sim = similarity(ratings, user1, user2)
+                if sim > max_dist:
+                    max_dist = sim
+        if cluster1_id not in cluster_sim_matrix:
+            cluster_sim_matrix[cluster1_id] = {}
+        if cluster2_id not in cluster_sim_matrix:
+            cluster_sim_matrix[cluster2_id] = {}
+        cluster_sim_matrix[cluster1_id][cluster2_id] = sim
+        cluster_sim_matrix[cluster2_id][cluster1_id] = sim
+        
+        return sim
 
 
 def find_nearest_clusters(ratings, clusters):
-    pairs = [(cluster1, cluster2, cluster_similarity(ratings, clusters[cluster1], clusters[
-              cluster2])) for cluster1 in clusters for cluster2 in clusters if cluster2 != cluster1]
+    pairs = [(cluster1, cluster2, cluster_similarity(ratings, cluster1, 
+              cluster2)) for cluster1 in clusters for cluster2 in clusters if cluster2 != cluster1]
     pairs.sort()
     pairs.reverse()
     return pairs[0]
@@ -213,24 +270,42 @@ def build_clusters(ratings):
     return clusters, user2cluster_map
 
 
-def update_clusters(user):
+def update_clusters(users):
     global num_changes
     global clusters
     global user2cluster_map
     global next_clusterid
+    global cluster_sim_matrix
     
-    ratings = load_data(None)
+    ratings = load_data(None) 
     if num_changes > max_changes:
+        compute_user_sim_matrix(ratings)
         clusters, user2cluster_map = build_clusters(ratings)
         num_changes = 0
-    else:    
-        if user in user2cluster_map:
-            user_cluster = clusters[user2cluster_map[user]]
-            i = user_cluster.index(user)
-            del user_cluster[i]
-        clusters[next_clusterid] = [user]
-        next_clusterid += 1
-        # run another step of hierarchical clustering
+    else: 
+        for user in users:   
+            if user in user2cluster_map:
+                cluster_id = user2cluster_map[user]
+                user_cluster = clusters[cluster_id]
+                i = user_cluster.index(user)
+                del user_cluster[i]
+                #update similarity of this cluster (1 row and 1 column)
+                for cluster2_id in clusters:
+                    if cluster_id not in cluster_sim_matrix:
+                        cluster_sim_matrix[cluster_id] = {}
+                    if cluster2_id not in cluster_sim_matrix:
+                        cluster_sim_matrix[cluster2_id] = {}
+                    cluster_sim_matrix[cluster_id][cluster2_id] = cluster_similarity(ratings, cluster_id, cluster2_id)
+                    cluster_sim_matrix[cluster2_id][cluster_id] = cluster_sim_matrix[cluster_id][cluster2_id]
+            
+            
+            # update user_sim_matrix for this user (1 row and 1 column)
+            update_user_sim_matrix(ratings, user)
+            
+            clusters[next_clusterid] = [user]
+            next_clusterid += 1
+                    
+        # run other steps of hierarchical clustering
         clusters, next_clusterid = find_clusters(
             ratings, clusters, next_clusterid)
         num_changes += 1
@@ -240,7 +315,7 @@ def update_clusters(user):
                 user2cluster_map[user] = cid
     
 
-def cluster_based(ratings, user, purpose='10000', np=5):
+def cluster_based(user, places, purpose='dinner with tourists', np=5):
     global clusters
     global user2cluster_map
 
@@ -255,8 +330,16 @@ def cluster_based(ratings, user, purpose='10000', np=5):
 
     # clusters have already been computed.
     logging.info("clusters: " + str(clusters))
-
+    
     user_cluster = clusters[user2cluster_map[user]]
+    
+    filters = {}
+    filters['users'] = user_cluster
+    if places is not None:
+        filters['places'] = [place.key.id() for place in places]
+    filters['purpose'] = purpose
+    
+    ratings = load_data(filters)
 
     # prediction formula = average
     items = {}
@@ -278,18 +361,18 @@ def cluster_based(ratings, user, purpose='10000', np=5):
 
 def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     
-    ratings = load_data(filters)
+#     ratings = load_data(filters)
     places, status = logic.place_list_get(filters)
     if status != "OK":
         #TODO: handle errors
         pass
     
-    if ratings is None:
-        return None
-    
+#     if ratings is None:
+#         return None
+#     
 #     if len(ratings) > 5:
-    scores = cluster_based(ratings, user_id, purpose, n)
-        
+    scores = cluster_based(user_id, places, purpose, n)
+         
 #     else:
 #         #non-personalized recommendations
 #         items = {}
@@ -330,6 +413,7 @@ class RecommenderHandler(webapp2.RequestHandler):
         global clusters
         global user2cluster_map
         ratings = load_data(None)
+        compute_user_sim_matrix(ratings)
         clusters, user2cluster_map = build_clusters(ratings)
         
 

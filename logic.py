@@ -247,7 +247,7 @@ def rating_create(rating, user_id, user_key_str):
     res = Rating.store(rating, None)
     if res == None:
         return None, "ERROR: invalid input data"
-    update_clusters(res.user.id())
+    update_clusters([res.user.id()])
     return res, "OK"
 
 
@@ -287,9 +287,11 @@ def rating_list_get(filters):
     - 'purpose': the purpose
         setting only 'purpose', the function retrieves all the ratings added to any place by any user about this purpose
         usually it is used in combination with other filters
-    - 'lat', latitude of user's position
-    - 'lon', longitude of user's position
-    - 'max_dist', maximum distance from user's position in meters
+    //- 'lat', latitude of user's position  REMOVED
+    //- 'lon', longitude of user's position  REMOVED
+    //- 'max_dist', maximum distance from user's position in meters  REMOVED
+    - 'users' : list of user ids we are interested in
+    - 'places' : list of place ids we are interested in
 
     It returns a tuple: 
     - the list of Ratings that satisfy the filters (or None in case of errors in the input),

@@ -1474,39 +1474,46 @@ class Rating(PFmodel):
         - 'purpose': the purpose
             setting only 'purpose', the function retrieves all the ratings added to any place by any user about this purpose
             usually it is used in combination with other filters
-        - 'lat', latitude of user's position
-        - 'lon', longitude of user's position
-        - 'max_dist', maximum distance from user's position in meters
+        //- 'lat', latitude of user's position  REMOVED
+        //- 'lon', longitude of user's position  REMOVED
+        //- 'max_dist', maximum distance from user's position in meters  REMOVED
+        - 'users' : list of user ids we are interested in
+        - 'places' : list of place ids we are interested in
         Return value: list of Ratings.
         """
-        #TODO: add filter per location!!
+        #TODO: TEST NEW FILTERS!!
         if filters is not None and not isinstance(filters, dict):
             return None
 
         
         
-        if filters is not None and 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
-            #the three parameters must come all together
+#         if filters is not None and 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
+#             #the three parameters must come all together
+#             
+#             #map all place fields to document and add all other filters here.
+#             index = search.Index(name="places")
+#             query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
+#             result = index.search(query)
+#             places = [ Place.make_key(None, d.doc_id) for d in result.results]
+#             
+#             dblist = Rating.query(Rating.place.IN(places))
+#             
+#             if 'purpose' in filters:
+#                 dblist = dblist.filter(Rating.purpose == filters['purpose'])
+#             
+#         else :
+        dblist = Rating.query()
+        if filters is not None and 'user' in filters:
+            dblist = dblist.filter(Rating.user == PFuser.make_key(filters['user'], None))
+        if filters is not None and 'place' in filters:
+            dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
+        if filters is not None and 'purpose' in filters:
+            dblist = dblist.filter(Rating.purpose == filters['purpose'])
+        if filters is not None and 'users' in filters:
+            dblist = dblist.filter(Rating.user.IN([PFuser.make_key(user, None) for user in filters['users']]))
+        if filters is not None and 'places' in filters:
+            dblist = dblist.filter(Rating.place.IN([Place.make_key(place, None) for place in filters['places']]))
             
-            #map all place fields to document and add all other filters here.
-            index = search.Index(name="places")
-            query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
-            result = index.search(query)
-            places = [ Place.make_key(None, d.doc_id) for d in result.results]
-            
-            dblist = Rating.query(Rating.place.IN(places))
-            
-            if 'purpose' in filters:
-                dblist = dblist.filter(Rating.purpose == filters['purpose'])
-            
-        else :
-            dblist = Rating.query()
-            if filters is not None and 'user' in filters:
-                dblist = dblist.filter(Rating.user == PFuser.make_key(filters['user'], None))
-            if filters is not None and 'place' in filters:
-                dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
-            if filters is not None and 'purpose' in filters:
-                dblist = dblist.filter(Rating.purpose == filters['purpose'])
         
         # executes query only once and stores the results
         # Never use fetch()!
