@@ -1,41 +1,84 @@
 {% extends "base.html" %} {% block main %}
 
-<h3>Please, rate at least 5 restaurants in {{city}}:</h3>
+<div class="full-background profile">
 
-<p class="error">{{error}}</p>
+	<div class="profile-container">
+		<div class="step text-100">step 2/3</div>
+		<div class="profile-logo"></div>
+		
+		<div class="scrollable">	
+			<div class="text-100 red-text center-text"> These are the places we found for: <span class="text-300">Trento (IT)</span></div>
+			<div class="text-100 red-text center-text"> Tell us about your favourite hometown restaurants:</div>
+			<div class="text-100 red-text center-text"><small>This feedback would help people that visit your hometown!! No one knows better than a local :)</small></div>
+			<div class="text-100 red-text center-text banner"> "THE MORE YOU RATE, THE BETTER YOU EAT"</div>
+	
+	
+	
+			<ul class="rest-list">
+				{% for rest in list %}
+				<li class="rest-item">
+					<div class="rest-details">
+						<div class="text-100 red-text name">{{rest.name}}</div>
+						<div class="text-100 red-text address"><small>{{rest.address.street}}, {{rest.address.city}}</small></div>
+						
+						<img class="rest-image" src="{{rest.picture}}"/>
+					</div>
+					<div class="rest-ratings">
+						<div class="text-100 red-text"><small>For a dinner with visitors</small></div>
+						<div class="purpose-buttons">
+							<img class="purpose-icon" src="/static/images/ratings/guest_selected.png">
+							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+						</div>
+						
+						
+						<small class="text-100 red-text">For a romantic dinner with the partner</small>
+						<div class="purpose-buttons">
+							<img class="purpose-icon" src="/static/images/ratings/romantic_selected.png">
+							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+						</div>
+						
+						<small class="text-100 red-text">For a dinner with friends</small>
+						<div class="purpose-buttons">
+							<img class="purpose-icon" src="/static/images/ratings/friends_selected.png">
+							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+						</div>
+						
+						<small class="text-100 red-text">For a lunch break</small>
+						<div class="purpose-buttons">
+							<img class="purpose-icon" src="/static/images/ratings/lunch_selected.png">
+							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+						</div>
+						
+					</div>
 
-
-<!-- TODO: addfilter -->
-
-<div>TODO: Filter</div>
-
-<div>TODO: Map</div>
-
-<div>
-	<button id="next" onclick="window.location = '/letsgo'">Continue</button>
-</div>
-<ul>
-	{% for rest in list %}
-	<li>
-		<div>
-			<p>{{rest.name}}</p>
-			<p>{{rest.address.street}}, {{rest.address.city}}</p>
+				</li> 
+			
+				{% endfor %}
+			
+			</ul>
+			
+			<div class="navigation-buttons">
+				<button class="prev">Prev</button>
+				<button class="next">Next</button>
+				<button class="img-btn continue" onclick="window.location = '/letsgo'">Continue</button>
+			</div>
+	
 		</div>
-		<div>
-			<button class="rating" place_id="{{rest.key.id()}}" value="1"
-				purpose="dinner with tourists">Not like</button>
-			<button class="rating" place_id="{{rest.key.id()}}" value="3"
-				purpose="dinner with tourists">Neutral</button>
-			<button class="rating" place_id="{{rest.key.id()}}" value="5"
-				purpose="dinner with tourists">Like</button>
-		</div>
-
-	</li> {% endfor %}
-</ul>
-
-<div>
-	<button id="next" onclick="window.location = '/letsgo'">Continue</button>
+	</div>
 </div>
+
 
 
 
@@ -44,6 +87,12 @@
 <script type="text/javascript">
 	$(window).load(function() {
 
+		$('.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalTrackClass: 'track3',
+		    verticalHandleClass: 'handle3'
+		});
+		
 		var ratingsAdded = 0;
 
 		function getCookie(cname) {
@@ -72,7 +121,8 @@
 				url : '/api/rating',
 				data : JSON.stringify(rating),
 				success : function() {
-					$(btn).addClass('pressed');
+					$(btn).parent().find('button').removeClass('selected');				
+					$(btn).addClass('selected');
 				},
 				error : function(resp) {
 					if (resp.status == 200) {
@@ -91,6 +141,7 @@
 		function next() {
 
 		}
+		$('.rating' ).tooltip();
 
 		$('.rating').click(saveRating);
 

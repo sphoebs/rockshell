@@ -62,7 +62,9 @@ button, inupt, input[type=button], input[type=submit]{
 	box-shadow: none;
 	background: transparent;
 
-	background-image: url(../images/btn.png);
+	-webkit-appearance: button;
+  	
+  	background-image: url(../images/btn.png);
 	background-repeat: no-repeat;
 	background-position: center;
 	-webkit-background-size: contain;
@@ -70,9 +72,8 @@ button, inupt, input[type=button], input[type=submit]{
   	-o-background-size: contain;
   	background-size: contain;
   	
-  	-webkit-appearance: button;
-  	
   	color: white;
+  	
 }
 
 input[type=text] {
@@ -237,7 +238,8 @@ input[type=text] {
 	right: 5%;
 	bottom: 5%;
 	
-	background-color: #F7F8CD;
+	background-color: rgba(247,248,205,0.95);
+	
 	z-index: 1;
 	
 }
@@ -292,7 +294,7 @@ input[type=text] {
 	display: inline-block;
 	padding-right: 10px;
 	vertical-align: top;
-	margin-top: 20px;
+	margin-top: 15px;
 }
 
 .form-input {
@@ -301,7 +303,7 @@ input[type=text] {
 	padding-left: 10px;
 	display: inline-block;
 	vertical-align: top;
-	margin-top: 10px;
+	margin-top: 7px;
 }
 
 .form-input .radio-inline {
@@ -314,12 +316,12 @@ input[type=text] {
 }
 
 
-.red-button {
+form .save {
 	width: 130px;
 	height: 40px;
   	
   	text-align: center;
-  	margin-top: 20px;
+  	margin-top: 10px;
 	margin-left: 50%;
 	-webkit-transform: translate(-50%, 0);
   	transform: translate(-50%, 0);
@@ -327,6 +329,220 @@ input[type=text] {
 }
 
 
-
 /* PROFILE PAGE END */
+
+/* PROFILE RATINGS */
+
+ul.rest-list{
+	list-style: none;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+li.rest-item {
+	padding-bottom: 5px;
+	padding-top: 5px;
+	border-bottom: solid 2px #DC3D3D;
+}
+
+div.rest-details {
+	display: inline-block;
+	width: 45%;
+	vertical-align: top;
+	margin-top: 10px;
+}
+
+.rest-details .name{
+	font-size: 20pt;
+	margin-bottom: 0;
+}
+
+.rest-details .address{
+	margin: 0;
+}
+
+.rest-details .rest-image {
+	max-height: 230px;
+	width: 90%;
+	height: auto; 
+}
+
+div.rest-ratings {
+	display:inline-block;
+	width: 45%;
+	margin-left: 10px;
+	margin-top: 15px;
+}
+
+.purpose-buttons {
+	margin-bottom: 10px;
+	margin-left: 10px;
+}
+
+.purpose-icon {
+	width: 32px;
+	height: 32px;
+	vertical-align: top;
+	margin-right: 20px;
+}
+
+button.rating-btn {
+	width: 32px;
+	height: 32px;
+	margin-right: 5px;
+}
+
+.rating-btn.noidea{
+	background-image: url(../images/ratings/noidea.png);
+
+}
+
+.rating-btn.noidea.selected{
+	background-image: url(../images/ratings/noidea_selected.png);
+
+}
+
+.rating-btn.noidea:hover{
+	background-image: url(../images/ratings/noidea_selected.png);
+}
+
+.rating-btn.noidea:active{
+	background-image: url(../images/ratings/noidea_selected.png);
+	-webkit-filter: brightness(70%);
+    -moz-filter: brightness(70%);
+}
+
+.rating-btn.bad{
+	background-image: url(../images/ratings/bad.png);
+}
+
+.rating-btn.bad.selected{
+	background-image: url(../images/ratings/bad_selected.png);
+}
+
+.rating-btn.bad:hover{
+	background-image: url(../images/ratings/bad_selected.png);
+}
+
+.rating-btn.bad:active{
+	background-image: url(../images/ratings/bad_selected.png);
+	-webkit-filter: brightness(70%);
+    -moz-filter: brightness(70%);
+}
+
+.rating-btn.neutral{
+	background-image: url(../images/ratings/neutral.png);
+}
+
+.rating-btn.neutral.selected{
+	background-image: url(../images/ratings/neutral_selected.png);
+}
+
+.rating-btn.neutral:hover{
+	background-image: url(../images/ratings/neutral_selected.png);
+}
+
+.rating-btn.neutral:active{
+	background-image: url(../images/ratings/neutral_selected.png);
+	-webkit-filter: brightness(70%);
+    -moz-filter: brightness(70%);
+}
+
+.rating-btn.happy{
+	background-image: url(../images/ratings/happy.png);
+}
+
+.rating-btn.happy.selected{
+	background-image: url(../images/ratings/happy_selected.png);
+}
+
+.rating-btn.happy:hover{
+	background-image: url(../images/ratings/happy_selected.png);
+}
+
+.rating-btn.happy:active{
+	background-image: url(../images/ratings/happy_selected.png);
+	-webkit-filter: brightness(70%);
+    -moz-filter: brightness(70%);
+}
+
+
+.navigation-buttons .continue{
+	width: 130px;
+	height: 32px;
+	display: block;
+  	
+  	text-align: center;
+  	margin-top: 10px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.navigation-buttons .next{
+	width: 80px;
+	height: 32px;
+	float: right;
+	display: block;
+  	
+  	color: #DC3D3D;
+  	text-align: left;
+  	margin-top: 10px;
+  	margin-right: 20px;
+  	
+  	background-image: url(../images/arrows/arrow_right.png);
+	background-repeat: no-repeat;
+	background-position: right;
+	-webkit-background-size: contain;
+  	-moz-background-size: contain;
+  	-o-background-size: contain;
+  	background-size: contain;
+ 
+}
+
+.navigation-buttons .prev{
+	width: 80px;
+	height: 32px;
+	float: left;
+	display: block;
+  	
+  	color: #DC3D3D;
+  	text-align: right;
+  	margin-top: 10px;
+  	margin-left: 20px;
+  	
+  	background-image: url(../images/arrows/arrow_left.png);
+	background-repeat: no-repeat;
+	background-position: left;
+	-webkit-background-size: contain;
+  	-moz-background-size: contain;
+  	-o-background-size: contain;
+  	background-size: contain;
+ 
+}
+
+.navigation-buttons .next:hover{
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_right_hover.png);
+}
+
+.navigation-buttons .prev:hover {
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_left_hover.png);
+}
+
+.navigation-buttons .next:active{
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_right_hover.png);
+	-webkit-filter: brightness(70%);
+    -moz-filter: brightness(70%);
+}
+
+.navigation-buttons .prev:active {
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_left_hover.png);
+	-webkit-filter: brightness(70%);
+    -moz-filter: brightness(70%);
+}
+/* PROFILE RATINGS END */
+
 
