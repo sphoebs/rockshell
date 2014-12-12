@@ -6,7 +6,7 @@
 		<div class="step text-100">step 1/3</div>
 		<div class="profile-logo"></div>
 		
-		<div class="scrollable gray-skin">	
+		<div class="scrollable">	
 			<div class="text-100 red-text center-text"> Hey there!! To offer you a personalized experience we need to know some information about you.</div>
 	
 			<form action="/user" method="post">
@@ -17,8 +17,19 @@
 					</div>
 				</div>
 				<div>
+					<label class="form-label text-300 red-text">Home city: </label>
+					<div class="form-input">
+						<input type="text" name="auto-city"
+							id="city">
+						<input type="hidden" name="locality" id="locality" /> 
+						<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
+						<input type="hidden" name="country" id="country"/>
+					</div>
+				</div>
+				
+				<div>
 					<label class="form-label text-300 red-text">Gender: </label> 
-					<div class="form-input" style="margin-top: 20px;padding-left: 10px;">
+					<div class="form-input" style="margin-left: 10px;">
 						<label class="radio-inline"> <input
 							type="radio" name="gender" value="M"> M
 						</label> 
@@ -57,17 +68,6 @@
 						</div>
 					</div>
 				</div>
-				<div>
-					<label class="form-label text-300 red-text">Home city: </label>
-					<div class="form-input">
-						<input type="text" name="auto-city"
-							id="city">
-					</div>
-				</div>
-				<input type="hidden" name="locality" id="locality" /> 
-				<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
-				<input type="hidden" name="country" id="country"/>
-				
 				<input type="submit" class="img-btn save text-100" value="Save" />
 			</form>
 		</div>
@@ -86,8 +86,11 @@
 						
 						$('.scrollable').enscroll({
 						    showOnHover: false,
-						    verticalTrackClass: 'track3',
-						    verticalHandleClass: 'handle3'
+						    verticalScrolling: true,
+							horizontalScrolling: false,
+							zIndex: 100,
+						    verticalTrackClass: 'track-red',
+						    verticalHandleClass: 'handle-red'
 						});
 						
 						var input = document.getElementById('city');

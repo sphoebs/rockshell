@@ -5,76 +5,143 @@
 	<div class="profile-container">
 		<div class="step text-100">step 2/3</div>
 		<div class="profile-logo"></div>
-		
-		<div class="scrollable">	
-			<div class="text-100 red-text center-text"> These are the places we found for: <span class="text-300">Trento (IT)</span></div>
-			<div class="text-100 red-text center-text"> Tell us about your favourite hometown restaurants:</div>
-			<div class="text-100 red-text center-text"><small>This feedback would help people that visit your hometown!! No one knows better than a local :)</small></div>
-			<div class="text-100 red-text center-text banner"> "THE MORE YOU RATE, THE BETTER YOU EAT"</div>
-	
-	
-	
+
+		<div class="scrollable">
+			<div class="text-100 red-text center-text">
+				These are the places we found for: <span class="text-300">Trento
+					(IT)</span>
+			</div>
+			<div class="text-100 red-text center-text">Tell us about your
+				favourite hometown restaurants:</div>
+			<div class="text-100 red-text center-text">
+				<small>This feedback would help people that visit your
+					hometown!! No one knows better than a local :)</small>
+			</div>
+			<div class="text-100 red-text center-text banner">"THE MORE YOU
+				RATE, THE BETTER YOU EAT"</div>
+
+
+
 			<ul class="rest-list">
 				{% for rest in list %}
 				<li class="rest-item">
 					<div class="rest-details">
 						<div class="text-100 red-text name">{{rest.name}}</div>
-						<div class="text-100 red-text address"><small>{{rest.address.street}}, {{rest.address.city}}</small></div>
-						
-						<img class="rest-image" src="{{rest.picture}}"/>
+						<div class="text-100 red-text address">
+							<small>{{rest.address.street}}, {{rest.address.city}}</small>
+						</div>
+
+						{% if rest.picture and rest.picture|length > 0 and rest.picture !=
+						'null' %} <img class="rest-image" src="{{rest.picture}}" /> {%
+						else %} <img class="rest-image"
+							src="/static/images/empty_small.png" /> {% endif %}
 					</div>
 					<div class="rest-ratings">
-						<div class="text-100 red-text"><small>For a dinner with visitors</small></div>
-						<div class="purpose-buttons">
-							<img class="purpose-icon" src="/static/images/ratings/guest_selected.png">
-							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="dinner with tourists" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+						<div class="text-100 red-text">
+							<small>For a dinner with visitors</small>
 						</div>
-						
-						
-						<small class="text-100 red-text">For a romantic dinner with the partner</small>
 						<div class="purpose-buttons">
-							<img class="purpose-icon" src="/static/images/ratings/romantic_selected.png">
-							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="romantic dinner" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+							<img class="purpose-icon"
+								src="/static/images/ratings/guest_selected.png">
+							<button class="rating rating-btn noidea"
+								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad"
+								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral"
+								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy"
+								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
+								data-toggle="tooltip" data-placement="bottom" title="I like it"
+								value="5"></button>
 						</div>
-						
+
+
+						<small class="text-100 red-text">For a romantic dinner
+							with the partner</small>
+						<div class="purpose-buttons">
+							<img class="purpose-icon"
+								src="/static/images/ratings/romantic_selected.png">
+							<button class="rating rating-btn noidea"
+								place_id="{{rest.key.id()}}" purpose="romantic dinner"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad"
+								place_id="{{rest.key.id()}}" purpose="romantic dinner"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral"
+								place_id="{{rest.key.id()}}" purpose="romantic dinner"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy"
+								place_id="{{rest.key.id()}}" purpose="romantic dinner"
+								data-toggle="tooltip" data-placement="bottom" title="I like it"
+								value="5"></button>
+						</div>
+
 						<small class="text-100 red-text">For a dinner with friends</small>
 						<div class="purpose-buttons">
-							<img class="purpose-icon" src="/static/images/ratings/friends_selected.png">
-							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="dinner with friends" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+							<img class="purpose-icon"
+								src="/static/images/ratings/friends_selected.png">
+							<button class="rating rating-btn noidea"
+								place_id="{{rest.key.id()}}" purpose="dinner with friends"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad"
+								place_id="{{rest.key.id()}}" purpose="dinner with friends"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral"
+								place_id="{{rest.key.id()}}" purpose="dinner with friends"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy"
+								place_id="{{rest.key.id()}}" purpose="dinner with friends"
+								data-toggle="tooltip" data-placement="bottom" title="I like it"
+								value="5"></button>
 						</div>
-						
+
 						<small class="text-100 red-text">For a lunch break</small>
 						<div class="purpose-buttons">
-							<img class="purpose-icon" src="/static/images/ratings/lunch_selected.png">
-							<button class="rating rating-btn noidea" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy" place_id="{{rest.key.id()}}" purpose="best price/quality ratio" data-toggle="tooltip" data-placement="bottom" title="I like it" value="5"></button>
+							<img class="purpose-icon"
+								src="/static/images/ratings/lunch_selected.png">
+							<button class="rating rating-btn noidea"
+								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I've never been here for this purpose" value="0"></button>
+							<button class="rating rating-btn bad"
+								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I don't like it" value="1"></button>
+							<button class="rating rating-btn neutral"
+								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
+								data-toggle="tooltip" data-placement="bottom"
+								title="I'm neutral" value="3"></button>
+							<button class="rating rating-btn happy"
+								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
+								data-toggle="tooltip" data-placement="bottom" title="I like it"
+								value="5"></button>
 						</div>
-						
+
 					</div>
 
-				</li> 
-			
-				{% endfor %}
-			
+				</li> {% endfor %}
+
 			</ul>
-			
+
 			<div class="navigation-buttons">
 				<button class="prev">Prev</button>
 				<button class="next">Next</button>
-				<button class="img-btn continue" onclick="window.location = '/letsgo'">Continue</button>
+				<button class="img-btn continue"
+					onclick="window.location = '/letsgo'">Continue</button>
 			</div>
-	
+
 		</div>
 	</div>
 </div>
@@ -86,11 +153,18 @@
 
 <script type="text/javascript">
 	$(window).load(function() {
-
+		
+		$('.rating' ).tooltip({
+			tooltipClass: 'my-tooltip'
+		});
+		
 		$('.scrollable').enscroll({
 		    showOnHover: false,
-		    verticalTrackClass: 'track3',
-		    verticalHandleClass: 'handle3'
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-red',
+		    verticalHandleClass: 'handle-red'
 		});
 		
 		var ratingsAdded = 0;
@@ -106,16 +180,24 @@
 					return c.substring(name.length, c.length);
 			}
 			return "";
-		}
+		};
 
 		function saveRating(e) {
 			var self = this;
 			var btn = $(e.target);
+			var value = $(btn).attr('value');
+			var not_known = false;
+			
+			if (value == 0){
+				not_known = true;
+			}
 			var rating = {
 				'place_id' : $(btn).attr('place_id'),
 				'purpose' : $(btn).attr('purpose'),
-				'value' : $(btn).attr('value')
+				'value' : value,
+				'not_known' : not_known,
 			};
+			
 			$.ajax({
 				type : 'POST',
 				url : '/api/rating',
@@ -136,14 +218,11 @@
 					Authorization : getCookie('user')
 				}
 			});
-		}
+		};
 
-		function next() {
-
-		}
-		$('.rating' ).tooltip();
 
 		$('.rating').click(saveRating);
+
 
 	});
 </script>

@@ -185,9 +185,9 @@ class LetsgoHandler(BaseRequestHandler):
     def get(self):
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
         places = []
-#         user, status = logic.user_get(user_id, None)
-#         if status != "OK":
-#             self.redirect('/')
+        user, status = logic.user_get(user_id, None)
+        if status != "OK":
+            self.redirect('/')
             
 #         filters = {}
 #         
@@ -206,7 +206,7 @@ class LetsgoHandler(BaseRequestHandler):
 #             if status == 'OK':
 #                 p.ratings = ratings
         
-        self.render('letsgo.html', {'list': places})
+        self.render('letsgo.html', {'list': places, 'user': user})
 
 
 class ErrorHandler(BaseRequestHandler):
