@@ -22,7 +22,7 @@
 			<p class="text-100 red-text center-text first">In this picture</p>
 			<p class="text-100 red-text name">Restaurant name</p>
 			<p class="text-100 red-text address">address</p>
-			<p class="text-100 red-text distance">Distance: 100 m</p>
+			<!-- <p class="text-100 red-text distance">Distance: 100 m</p> -->
 		</div>
 		<button class="img-btn next"></button>
 	</div>
@@ -85,10 +85,21 @@ $(window).load(function() {
     }
 	
 	var places = [];
+	var pos = 0;
 	
 	function renderPlace(pos){
 		if(window.console){
 			console.log("Showing place " + pos + " of " + places.length);
+		}
+		//enable prev and next buttons
+		$('.rest-details .prev').removeClass('disabled');
+		$('.rest-details .next').removeClass('disabled');
+		if(pos >= places.length-1){
+			//disable next button
+			$('.rest-details .next').addClass('disabled');
+		} else if(pos == 0){
+			//disable prev button
+			$('.rest-details .prev').addClass('disabled');
 		}
 		
 		if(places.length-1 < pos){
@@ -105,6 +116,28 @@ $(window).load(function() {
 		$('.letsgo').css('background-image', 'url(' + picture + ')');
 	}
 	
+	function onNext(){
+		if(pos < places.length-1){
+			pos += 1;
+			renderPlace(pos);
+		} else {
+			//there are no more places after the one already shown
+			//do nothing
+		}
+	}
+	
+	function onPrev(){
+		if(pos > 0 ){
+			pos -= 1;
+			renderPlace(pos);
+		} else {
+			//there are no places before the one already shown
+			//do nothing
+		}
+	}
+	
+	$('.rest-details .next').click(onNext);
+	$('.rest-details .prev').click(onPrev);
 	
 	function showRecommendations(position) {
 		url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + '&max_dist=1000';
@@ -114,7 +147,7 @@ $(window).load(function() {
 			success : function(data) {
 				$('.loading').hide();
 				places = data;
-				renderPlace(0);
+				renderPlace(pos);
 					
 				/* places_str = '';
 				for(var i=0; i< places.length; i++){
@@ -129,6 +162,8 @@ $(window).load(function() {
 			}
 		}); 
 	}
+	
+	
 	
 	
 	$('.left-menu').hide();

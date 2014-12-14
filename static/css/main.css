@@ -45,14 +45,16 @@ form {
 	margin-bottom: 20px;
 }
 
-.img-btn:hover {
+.img-btn:not(.disabled):hover {
 	-webkit-filter: brightness(120%);
 	-moz-filter: brightness(120%);
+	filter: brightness(120%);
 }
 
-.img-btn:active {
+.img-btn:not(.disabled):active {
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
 
 button, inupt, input[type=button], input[type=submit] {
@@ -81,6 +83,12 @@ input[type=text] {
 	border-bottom: solid 2px #DC3D3D;
 	box-shadow: none;
 	background-color: rgba(255, 255, 255, 0.6);
+}
+
+button.disabled {
+	-webkit-filter: grayscale(100%);
+	-moz-filter: grayscale(100%);
+	filter: grayscale(100%);
 }
 
 /* SCROLL BAR */
@@ -345,7 +353,7 @@ input[type=text] {
 }
 
 .scrollable {
-	max-height: 78%;
+	max-height: 75%;
 	overflow: hidden;
 	margin-bottom: 10px;
 }
@@ -438,6 +446,7 @@ li.rest-item {
 	background-image: url(../images/ratings/noidea_selected.png);
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
 
 .rest-item .rating-btn.bad {
@@ -456,6 +465,7 @@ li.rest-item {
 	background-image: url(../images/ratings/bad_selected.png);
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
 
 .rest-item .rating-btn.neutral {
@@ -474,6 +484,7 @@ li.rest-item {
 	background-image: url(../images/ratings/neutral_selected.png);
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
 
 .rest-item .rating-btn.happy {
@@ -492,6 +503,7 @@ li.rest-item {
 	background-image: url(../images/ratings/happy_selected.png);
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
 
 .navigation-buttons .continue {
@@ -511,7 +523,7 @@ li.rest-item {
 	display: block;
 	color: #DC3D3D;
 	text-align: left;
-	margin-top: 10px;
+	/* margin-top: 10px; */
 	margin-right: 20px;
 	background-image: url(../images/arrows/arrow_right.png);
 	background-repeat: no-repeat;
@@ -529,7 +541,7 @@ li.rest-item {
 	display: block;
 	color: #DC3D3D;
 	text-align: right;
-	margin-top: 10px;
+	/* margin-top: 10px; */
 	margin-left: 20px;
 	background-image: url(../images/arrows/arrow_left.png);
 	background-repeat: no-repeat;
@@ -540,29 +552,36 @@ li.rest-item {
 	background-size: contain;
 }
 
-.navigation-buttons .next:hover {
+.navigation-buttons .next:not(.disabled):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 }
 
-.navigation-buttons .prev:hover {
+.navigation-buttons .prev:not(.disabled):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 }
 
-.navigation-buttons .next:active {
+.navigation-buttons .next:not(.disabled):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
 
-.navigation-buttons .prev:active {
+.navigation-buttons .prev:not(.disabled):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
+
+/* .navigation-buttons button.disabled:hover{
+	text-decoration: none;
+} */
+
 /* PROFILE RATINGS END */
 
 /* LETS GO */

@@ -1325,7 +1325,10 @@ class Rating(PFmodel):
         if 'user' in json_dict.keys():
             json_dict['user'] = PFuser.make_key(None, json_dict['user'])
         if 'place_id' in json_dict.keys():
-            json_dict['place'] = Place.make_key(long(json_dict['place_id']), None)
+            if json_dict['place_id'].isdigit():
+                json_dict['place'] = Place.make_key(long(json_dict['place_id']), None)
+            else :
+                json_dict['place'] = Place.make_key(None, json_dict['place_id'])
             del json_dict['place_id']
         elif 'place' in json_dict.keys():
             json_dict['place'] = Place.make_key(None, json_dict['place'])

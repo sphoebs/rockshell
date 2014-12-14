@@ -13,14 +13,14 @@
 				<div>
 					<label class="form-label text-300 red-text">Name: </label>
 					<div class="form-input"><input type="text" name="name"
-						value="{{full_name}}">
+						value="{{user.full_name|e}}">
 					</div>
 				</div>
 				<div>
 					<label class="form-label text-300 red-text">Home city: </label>
 					<div class="form-input">
 						<input type="text" name="auto-city"
-							id="city">
+							id="city" >
 						<input type="hidden" name="locality" id="locality" /> 
 						<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
 						<input type="hidden" name="country" id="country"/>
@@ -31,10 +31,10 @@
 					<label class="form-label text-300 red-text">Gender: </label> 
 					<div class="form-input" style="margin-left: 10px;">
 						<label class="radio-inline"> <input
-							type="radio" name="gender" value="M"> M
+							type="radio" name="gender" value="M" {{"checked" if user.gender and user.gender == 'M' else ""}} > M
 						</label> 
 						<label class="radio-inline"> <input type="radio"
-							name="gender" value="F"> F
+							name="gender" value="F" {{"checked" if user.gender and user.gender == 'F' else ""}}> F
 						</label>
 					</div>
 				</div>
@@ -42,27 +42,27 @@
 					<label class="form-label text-300 red-text">Age: </label>
 					<div class="form-input">
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="<18">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="<18" {{"checked" if user.age and user.age == "<18" else ""}} >
 								Less than 18 years old
 							</label>
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="18-25">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="18-25" {{"checked" if user.age and user.age == "18-25" else ""}} >
 							18 - 25 years old
 							</label>
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="26-35">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="26-35" {{"checked" if user.age and user.age == "26-35" else ""}}>
 								26 - 35 years old
 							</label>	
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="36-55">
+							<label class="text-100 red-text"> <input type="radio" name="age" value="36-55" {{"checked" if user.age and user.age == "36-55" else ""}}>
 								36 - 55 years old
 							</label>
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value=">55">
+							<label class="text-100 red-text"> <input type="radio" name="age" value=">55" {{"checked" if user.age and user.age == ">55" else ""}}>
 								More than 55 years old
 							</label>
 						</div>

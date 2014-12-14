@@ -24,8 +24,9 @@ import logging
 import time
 import logic
 import recommender
+import json
 
-from models import PFuser
+from models import PFuser, Place
 
 
 # these imports are fine
@@ -51,10 +52,10 @@ class BaseRequestHandler(webapp2.RequestHandler):
         try:
             template = JINJA_ENVIRONMENT.get_template(template_name)
             self.write(template.render(**values))
-        except:
-            logging.error("Rendering Exception for " + template_name)
-#             self.abort(404)
-            self.redirect('/error')
+        except Exception, e:
+            logging.error("Rendering Exception for " + template_name + " -- " + str(e))
+            self.abort(500)
+#             self.redirect('/error')
 
     def dispatch(self):
         self.pars = {}
@@ -109,7 +110,7 @@ class UserHandler(BaseRequestHandler):
         if status == "OK":
             self.render(
                 'profile.html',
-                {'email': user.email, 'full_name': user.full_name}
+                {'user': user}
             )
         else:
             self.redirect('/')
@@ -166,9 +167,11 @@ class UserRatingsHandler(BaseRequestHandler):
         
         plist, status = logic.place_list_get(filters) 
         
+        json_list = json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[]) for p in plist])
+#         logging.info(str(json_list))
         if 'city' in filters.keys():
             filters['city'] = user.home.city + ', ' + user.home.province
-        filters['list'] = plist
+        filters['list'] = json_list
 #         logging.info("HERE!!!")
         if status == "OK":
             self.render(
@@ -205,7 +208,8 @@ class LetsgoHandler(BaseRequestHandler):
 #             ratings, status = logic.rating_list_get({'purpose': 'dinner with tourists', 'place': p.key.id()})
 #             if status == 'OK':
 #                 p.ratings = ratings
-        
+#         json_list = json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[]) for p in places])
+#         logging.info(str(json_list))
         self.render('letsgo.html', {'list': places, 'user': user})
 
 

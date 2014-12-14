@@ -8,8 +8,7 @@
 
 		<div class="scrollable">
 			<div class="text-100 red-text center-text">
-				These are the places we found for: <span class="text-300">Trento
-					(IT)</span>
+				These are the places we found for: <span class="text-300">{{city}}</span>
 			</div>
 			<div class="text-100 red-text center-text">Tell us about your
 				favourite hometown restaurants:</div>
@@ -23,116 +22,7 @@
 
 
 			<ul class="rest-list">
-				{% for rest in list %}
-				<li class="rest-item">
-					<div class="rest-details">
-						<div class="text-100 red-text name">{{rest.name}}</div>
-						<div class="text-100 red-text address">
-							<small>{{rest.address.street}}, {{rest.address.city}}</small>
-						</div>
-
-						{% if rest.picture and rest.picture|length > 0 and rest.picture !=
-						'null' %} <img class="rest-image" src="{{rest.picture}}" /> {%
-						else %} <img class="rest-image"
-							src="/static/images/empty_small.png" /> {% endif %}
-					</div>
-					<div class="rest-ratings">
-						<div class="text-100 red-text">
-							<small>For a dinner with visitors</small>
-						</div>
-						<div class="purpose-buttons">
-							<img class="purpose-icon"
-								src="/static/images/ratings/guest_selected.png">
-							<button class="rating rating-btn noidea"
-								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad"
-								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral"
-								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy"
-								place_id="{{rest.key.id()}}" purpose="dinner with tourists"
-								data-toggle="tooltip" data-placement="bottom" title="I like it"
-								value="5"></button>
-						</div>
-
-
-						<small class="text-100 red-text">For a romantic dinner
-							with the partner</small>
-						<div class="purpose-buttons">
-							<img class="purpose-icon"
-								src="/static/images/ratings/romantic_selected.png">
-							<button class="rating rating-btn noidea"
-								place_id="{{rest.key.id()}}" purpose="romantic dinner"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad"
-								place_id="{{rest.key.id()}}" purpose="romantic dinner"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral"
-								place_id="{{rest.key.id()}}" purpose="romantic dinner"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy"
-								place_id="{{rest.key.id()}}" purpose="romantic dinner"
-								data-toggle="tooltip" data-placement="bottom" title="I like it"
-								value="5"></button>
-						</div>
-
-						<small class="text-100 red-text">For a dinner with friends</small>
-						<div class="purpose-buttons">
-							<img class="purpose-icon"
-								src="/static/images/ratings/friends_selected.png">
-							<button class="rating rating-btn noidea"
-								place_id="{{rest.key.id()}}" purpose="dinner with friends"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad"
-								place_id="{{rest.key.id()}}" purpose="dinner with friends"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral"
-								place_id="{{rest.key.id()}}" purpose="dinner with friends"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy"
-								place_id="{{rest.key.id()}}" purpose="dinner with friends"
-								data-toggle="tooltip" data-placement="bottom" title="I like it"
-								value="5"></button>
-						</div>
-
-						<small class="text-100 red-text">For a lunch break</small>
-						<div class="purpose-buttons">
-							<img class="purpose-icon"
-								src="/static/images/ratings/lunch_selected.png">
-							<button class="rating rating-btn noidea"
-								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I've never been here for this purpose" value="0"></button>
-							<button class="rating rating-btn bad"
-								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I don't like it" value="1"></button>
-							<button class="rating rating-btn neutral"
-								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
-								data-toggle="tooltip" data-placement="bottom"
-								title="I'm neutral" value="3"></button>
-							<button class="rating rating-btn happy"
-								place_id="{{rest.key.id()}}" purpose="best price/quality ratio"
-								data-toggle="tooltip" data-placement="bottom" title="I like it"
-								value="5"></button>
-						</div>
-
-					</div>
-
-				</li> {% endfor %}
-
+				
 			</ul>
 
 			<div class="navigation-buttons">
@@ -154,6 +44,8 @@
 <script type="text/javascript">
 	$(window).load(function() {
 		
+		var pageSize= 5;
+		
 		$('.rating' ).tooltip({
 			tooltipClass: 'my-tooltip'
 		});
@@ -168,6 +60,43 @@
 		});
 		
 		var ratingsAdded = 0;
+		
+		var list = {{list|safe}};
+		var last_pos = 0;
+		
+		function displayPlaces(start){
+			$('.rest-list').html('');
+			
+			//enable prev and next buttons
+			$('.navigation-buttons .prev').removeClass('disabled');
+			$('.navigation-buttons .next').removeClass('disabled');
+			if(start == 0){
+				//diable prev button
+				$('.navigation-buttons .prev').addClass('disabled');
+			} else if(start + pageSize > list.length){
+				//disable next button
+				$('.navigation-buttons .next').addClass('disabled');
+			}
+			
+			for(var i=0; start+i<list.length && i<pageSize; i++){
+				var rest = list[start+i];
+				
+				//load underscore template
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.open("GET","/static/js_templates/rest_rating.ejs",false);
+				xmlhttp.send(null);
+				var template = xmlhttp.responseText;
+				var compiled = _.template(template);
+				var html = compiled({
+					rest : rest
+				});
+				$('.rest-list').append(html);
+				$('.rating').click(saveRating);
+				$('.scrollable').scrollTop(0);
+				
+			}
+			
+		}
 
 		function getCookie(cname) {
 			var name = cname + "=";
@@ -220,10 +149,31 @@
 			});
 		};
 
+		function onNext(){
+			if(last_pos + pageSize < list.length ){
+				last_pos += pageSize;
+				displayPlaces(last_pos);
+			} else {
+				//there are no more places after the ones already shown
+				//do nothing
+			}
+		}
+		
+		function onPrev(){
+			if(last_pos > 0 ){
+				last_pos -= pageSize;
+				displayPlaces(last_pos);
+			} else {
+				//there are no places before the ones already shown
+				//do nothing
+			}
+		}
 
 		$('.rating').click(saveRating);
+		$('.navigation-buttons .next').click(onNext);
+		$('.navigation-buttons .prev').click(onPrev);
 
-
+		displayPlaces(last_pos);
 	});
 </script>
 
