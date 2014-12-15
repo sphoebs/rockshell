@@ -16,20 +16,16 @@
 				<small>This feedback would help people that visit your
 					hometown!! No one knows better than a local :)</small>
 			</div>
-			<div class="text-100 red-text center-text banner">"THE MORE YOU
-				RATE, THE BETTER YOU EAT"</div>
-
-
 
 			<ul class="rest-list">
-				
+				<p>Sorry, we do not know any restaurant in your city.</p>
 			</ul>
 
 			<div class="navigation-buttons">
 				<button class="prev">Prev</button>
 				<button class="next">Next</button>
 				<button class="img-btn continue"
-					onclick="window.location = '/letsgo'">Continue</button>
+					onclick="window.location = '/profile/3'">Continue</button>
 			</div>
 
 		</div>
@@ -73,7 +69,8 @@
 			if(start == 0){
 				//diable prev button
 				$('.navigation-buttons .prev').addClass('disabled');
-			} else if(start + pageSize > list.length){
+			}
+			if(start + pageSize > list.length){
 				//disable next button
 				$('.navigation-buttons .next').addClass('disabled');
 			}
@@ -137,7 +134,8 @@
 				},
 				error : function(resp) {
 					if (resp.status == 200) {
-						$(btn).addClass('pressed');
+						$(btn).parent().find('button').removeClass('selected');				
+						$(btn).addClass('selected');
 					} else {
 						console.log(resp);
 						alert("Error" + resp.status);

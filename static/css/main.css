@@ -45,13 +45,13 @@ form {
 	margin-bottom: 20px;
 }
 
-.img-btn:not(.disabled):hover {
+.img-btn:not(.disabled ):hover {
 	-webkit-filter: brightness(120%);
 	-moz-filter: brightness(120%);
 	filter: brightness(120%);
 }
 
-.img-btn:not(.disabled):active {
+.img-btn:not(.disabled ):active {
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
@@ -143,7 +143,6 @@ button.disabled {
 /* SCROLL BAR END */
 
 /* TOOLTIP */
-
 .my-tooltip {
 	padding: 10px 20px;
 	color: white;
@@ -151,28 +150,23 @@ button.disabled {
 	max-width: 150px;
 	font-size: 10pt;
 	border: 0;
-	
 }
 
 /* TOOLTIP END */
 
 /* LOADING */
-
 .loading {
 	position: fixed;
-	top:0;
-	left:0;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
-	
 	background-color: rgba(220, 220, 220, 0.7);
 	background-image: url(../images/ajax-loader.gif);
 	background-position: center center;
 	background-repeat: no-repeat;
-	
 	z-index: 200;
 }
-
 
 /* LOADING END */
 
@@ -339,7 +333,7 @@ button.disabled {
 }
 
 .form-input {
-	width: 70%;
+	width: 60%;
 	text-align: left;
 	padding-left: 10px;
 	display: inline-block;
@@ -371,7 +365,7 @@ form .save {
 /* PROFILE PAGE END */
 
 /* PROFILE RATINGS */
-ul.rest-list {
+ul.rest-list, ul.rest-create-list {
 	list-style: none;
 	padding-left: 20px;
 	padding-right: 20px;
@@ -552,17 +546,17 @@ li.rest-item {
 	background-size: contain;
 }
 
-.navigation-buttons .next:not(.disabled):hover {
+.navigation-buttons .next:not(.disabled ):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 }
 
-.navigation-buttons .prev:not(.disabled):hover {
+.navigation-buttons .prev:not(.disabled ):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 }
 
-.navigation-buttons .next:not(.disabled):active {
+.navigation-buttons .next:not(.disabled ):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 	-webkit-filter: brightness(70%);
@@ -570,19 +564,36 @@ li.rest-item {
 	filter: brightness(70%);
 }
 
-.navigation-buttons .prev:not(.disabled):active {
+.navigation-buttons .prev:not(.disabled ):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
 }
-
-/* .navigation-buttons button.disabled:hover{
-	text-decoration: none;
-} */
 
 /* PROFILE RATINGS END */
+
+/* PROFILE OTHER RATINGS */
+
+.my-input-text {
+	margin-bottom: 10px;
+	width: 400px;
+	max-width: 80%;
+}
+
+.save-buttons{
+	float: right;
+}
+
+.save-buttons button{
+	width: 130px;
+	height: 32px;
+	max-width: 40%;
+	margin-right: 10px;
+}
+
+/* PROFILE OTHER RATINGS END */
 
 /* LETS GO */
 .full-background.letsgo {
@@ -677,7 +688,8 @@ li.rest-item {
 }
 
 .letsgo .rest-details {
-	width: 300px;
+	width: 280px;
+	max-width: 60%;
 	padding-left: 25px;
 	padding-right: 25px;
 	background-image: url(../images/rest_back_white.png);
@@ -788,3 +800,50 @@ li.rest-item {
 }
 
 /* LETS GO END */
+
+/* MOBILE */
+@media screen and (min-width: 0px) and (max-width: 500px) {
+	.full-background.profile {
+		background-image: none;
+		background-color: #F7F8CD;
+	}
+
+	/* profile */
+	.profile-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.step {
+		margin-top: 25px;
+	}
+	.profile-logo {
+		width: 370px;
+		height: 130px;
+		max-width: 60%;
+		max-height: 30%;
+		background-image: url(../images/logo_02.png);
+		background-repeat: no-repeat;
+		background-position: center;
+		-webkit-background-size: contain;
+		-moz-background-size: contain;
+		-o-background-size: contain;
+		background-size: contain;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 5px;
+		margin-bottom: 10px;
+	}
+
+	/* profile step 2 - ratings */
+	.rest-item div.rest-details {
+		display: block;
+		width: 100%;
+	}
+	.rest-item div.rest-ratings {
+		display: block;
+		width: 100%;
+	}
+}

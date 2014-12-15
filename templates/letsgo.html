@@ -97,14 +97,12 @@ $(window).load(function() {
 		if(pos >= places.length-1){
 			//disable next button
 			$('.rest-details .next').addClass('disabled');
-		} else if(pos == 0){
+		}
+		if(pos == 0){
 			//disable prev button
 			$('.rest-details .prev').addClass('disabled');
 		}
 		
-		if(places.length-1 < pos){
-			alert("No more places are available.");
-		}
 		var p = places[pos];
 		$('.rest-details .name').html(p.name);
 		$('.rest-details .address').html(p.address.street + ', ' + p.address.city);
@@ -147,6 +145,11 @@ $(window).load(function() {
 			success : function(data) {
 				$('.loading').hide();
 				places = data;
+				
+				if(places == null || places.length < 1){
+					alert('We are sorry, we found no places around your current position.');
+				}
+				
 				renderPlace(pos);
 					
 				/* places_str = '';
@@ -158,7 +161,7 @@ $(window).load(function() {
 			},
 			error : function(resp) {
 				console.log(resp);
-				alert("Error" + resp.status);
+				alert("Error " + resp.status);
 			}
 		}); 
 	}
@@ -193,7 +196,7 @@ $(window).load(function() {
 	});
 	
 	
-	var userpic = String({{user.picture if user.picture != None else ''}});
+	var userpic = String("{{user.picture if user.picture != None else ''}}");
 	if(userpic != undefined && userpic.length > 0){	
 		$('.user-picture').css('background-image', 'url(' + userpic + ')');
 	}

@@ -287,8 +287,9 @@ def update_clusters(users):
             if user in user2cluster_map:
                 cluster_id = user2cluster_map[user]
                 user_cluster = clusters[cluster_id]
-                i = user_cluster.index(user)
-                del user_cluster[i]
+                if user_cluster is not None:
+                    i = user_cluster.index(user)
+                    del user_cluster[i]
                 #update similarity of this cluster (1 row and 1 column)
                 for cluster2_id in clusters:
                     if cluster_id not in cluster_sim_matrix:
@@ -363,9 +364,10 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     
 #     ratings = load_data(filters)
     places, status = logic.place_list_get(filters)
-    if status != "OK":
+    if status != "OK" or places is None or len(places)<1:
         #TODO: handle errors
-        pass
+        return None;
+        
     
 #     if ratings is None:
 #         return None
@@ -386,16 +388,20 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
 # 
 #         scores = [(sum(items[item]) / len(items[item]), item)
 #               for item in items]
-
     places_scores = []
-    for p in places:
-        found = False
-        for (score, item) in scores:
-            if item == p.key:
-                places_scores.append((score, p))
-                found = True
-        if not found:
+    if scores is None or len(scores)<1:
+        #no predictions are available, just show places in random order.
+        for p in places:
             places_scores.append((0, p))
+    else:
+        for p in places:
+            found = False
+            for (score, item) in scores:
+                if item == p.key:
+                    places_scores.append((score, p))
+                    found = True
+                    if not found:
+                        places_scores.append((0, p))
         
     places_scores.sort()
     places_scores.reverse()
@@ -435,6 +441,11 @@ class RecommenderHandler(webapp2.RequestHandler):
              'max_dist': float(self.request.GET.get('max_dist'))      
         }
         places = recommend(user_id, filters)
+        
+        if places is None or len(places) == 0:
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps([]))
+        
         json_list = [Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for place in places]
         logging.info(str(json_list))
         self.response.headers['Content-Type'] = 'application/json'

@@ -1,0 +1,238 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="full-background profile">
+
+	<div class="profile-container">
+		<div class="step text-100">step 3/3</div>
+		<div class="profile-logo"></div>
+
+		<div class="scrollable">
+			<div class="text-100 red-text center-text">
+				You are about to enjoy the best offers in the best restaurants
+			</div>
+			<div class="text-100 red-text center-text">Tell us a town you visited recently and the best place to eat!</div>
+
+			<div>TODO: let the user rate the restaurant we already know. This means we should provide search functionalities, maybe map-based</div>
+
+			<ul class="rest-create-list">
+				
+			</ul>
+
+			<div class="save-buttons">
+				<button class="img-btn more" >Rate more</button>
+				<button class="img-btn continue">I'm done</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %} {% block scripts %}
+<script type="text/javascript"
+	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+<script type="text/javascript">
+	$(window).load(function() {
+		
+		var wait_save_place = 0;
+		var wait_save_rating = 0;
+		
+		
+		//TODO: it does not work with many addresses in the same page
+		var input, options, autocomplete, componentForm;
+
+
+		function fillInAddress() {
+			// Get the place details from the autocomplete object.
+			var place = autocomplete.getPlace();
+			
+			// Get each component of the address from the place details
+			// and fill the corresponding field on the form.
+			for (var i = 0; i < place.address_components.length; i++) {
+				var addressType = place.address_components[i].types[0];
+				if (componentForm[addressType]) {
+					var val = place.address_components[i][componentForm[addressType]];
+					document.getElementById(addressType).value = val;
+				}
+			}
+			// save latitude and longitude
+			if(place.geometry.location){
+				/* alert(JSON.stringify(place.geometry.location)); */
+				document.getElementById('lat').value = place.geometry.location.k;
+				document.getElementById('lon').value = place.geometry.location.D;
+			}
+		}
+		
+		function getCookie(cname) {
+			var name = cname + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ')
+					c = c.substring(1);
+				if (c.indexOf(name) != -1)
+					return c.substring(name.length, c.length);
+			}
+			return "";
+		};
+		
+		var auth = getCookie('user');
+		
+		
+		function savePlace(){
+			var self = this;
+			var name = $(this).find('#rest-name').val();
+			
+			var street = $(this).find('#route').val() + " " + $(this).find('#street_number').val();
+			var city = $(this).find('#locality').val();
+			var province = $(this).find('#administrative_area_level_2').val();
+			var country = $(this).find('#country').val();
+			var latitude = $(this).find('#lat').val();
+			var longitude = $(this).find('#lon').val();
+			
+			var picture = $(this).find('#rest-picture').val();
+			
+			var place = {
+				'name': name,
+				'address' : {
+					'street' : street,
+					'city' : city,
+					'province' : province,
+					'country': country,
+					'lat' : latitude,
+					'lon': longitude
+				},
+				'picture' : picture,
+				'service' : ['restaurant']
+			};
+			wait_save_place++;
+			$.ajax({
+				type : 'POST',
+				url : '/api/place',
+				data : JSON.stringify(place),
+				success : function(place) {
+					$(self).find('.rating.selected').each(function(){
+						saveRating(place.key, this);
+					});
+					wait_save_place--;
+					
+				},
+				error : function(resp) {
+					if (resp.status == 200) {
+						$(self).find('.rating.selected').each(saveRating(place.key))
+						wait_save_place--;
+					} else {
+						console.log(resp);
+						alert("Error" + resp.status);
+					}
+				},
+				headers : {
+					Authorization : auth
+				}
+			});
+			
+		}
+		
+		function saveRating(place, div) {
+			var btn = $(div);
+			var value = $(btn).attr('value');
+			var not_known = false;
+			
+			if (value == 0){
+				not_known = true;
+			}
+			var rating = {
+				'place_id' : place,
+				'purpose' : $(btn).attr('purpose'),
+				'value' : value,
+				'not_known' : not_known,
+			};
+			wait_save_rating++;
+			$.ajax({
+				type : 'POST',
+				url : '/api/rating',
+				data : JSON.stringify(rating),
+				success : function() {
+					/* $(btn).parent().find('button').removeClass('selected');				
+					$(btn).addClass('selected'); */
+					wait_save_rating--;
+					if(wait_save_place == 0 && wait_save_rating == 0){
+						//done, go to next page
+						window.location = '/letsgo';
+					}
+				},
+				error : function(resp) {
+					if (resp.status == 200) {
+						$(btn).parent().find('button').removeClass('selected');				
+						$(btn).addClass('selected');
+					} else {
+						console.log(resp);
+						alert("Error" + resp.status);
+					}
+				},
+				headers : {
+					Authorization : auth
+				}
+			});
+		};
+
+		function saveAll(){
+			$('.rest-create-list .rest-item').each(savePlace);
+			
+		}
+		
+		function addPlaces(){
+			
+			//load underscore template
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/rest_rating_form.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({});
+			$('.rest-create-list').append(html);
+			
+			$('.scrollable').enscroll({
+			    showOnHover: false,
+			    verticalScrolling: true,
+				horizontalScrolling: false,
+				zIndex: 100,
+			    verticalTrackClass: 'track-red',
+			    verticalHandleClass: 'handle-red'
+			});
+			
+			$('#rest-picture').change(function(){
+				$(this).parent().find('.rest-image').attr('src', this.value);
+			});
+			
+			input = document.getElementById('rest-address');
+
+			autocomplete = new google.maps.places.Autocomplete(
+					input);
+
+			componentForm = {
+				street_number: 'short_name',
+				route: 'long_name',
+				locality : 'long_name',
+				administrative_area_level_2 : 'short_name',
+				country : 'short_name',
+			};
+			
+			google.maps.event.addListener(autocomplete,
+					'place_changed', function() {
+						fillInAddress();
+					});
+			
+			$('.rating').click(function(){
+				$(this).parent().find('button').removeClass('selected');				
+				$(this).addClass('selected');
+			});
+		}
+		
+		addPlaces();
+		$('.continue').click(saveAll);
+		$('.more').click(addPlaces);
+	});
+</script>
+
+
+{% endblock %}

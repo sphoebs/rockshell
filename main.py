@@ -33,7 +33,6 @@ from models import PFuser, Place
 import social_login
 
 
-
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir),
@@ -53,7 +52,8 @@ class BaseRequestHandler(webapp2.RequestHandler):
             template = JINJA_ENVIRONMENT.get_template(template_name)
             self.write(template.render(**values))
         except Exception, e:
-            logging.error("Rendering Exception for " + template_name + " -- " + str(e))
+            logging.error(
+                "Rendering Exception for " + template_name + " -- " + str(e))
             self.abort(500)
 #             self.redirect('/error')
 
@@ -70,7 +70,7 @@ class BaseRequestHandler(webapp2.RequestHandler):
 class LoginHandler(BaseRequestHandler):
 
     def get(self):
-        
+
         if '/fb/oauth_callback' in self.request.url:
             access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'facebook')
@@ -93,7 +93,7 @@ class LoginHandler(BaseRequestHandler):
                                     user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
             if is_new == True:
                 # goto profile page
-                self.redirect('/user')
+                self.redirect('/profile/1')
             else:
                 # TODO: get user location
                 self.redirect('/letsgo')
@@ -133,12 +133,12 @@ class UserHandler(BaseRequestHandler):
         user.home = {'city': data.get('locality'), 'province': data.get(
             'administrative_area_level_2'), 'country': data.get('country')}
         user.full_name = data.get('name')
-        
+
         user, status = logic.user_update(user, user_id, None)
         if status != "OK":
             self.redirect("/error")
 
-        self.redirect('/user/ratings')
+        self.redirect('/profile/2')
 
 
 class UserRatingsHandler(BaseRequestHandler):
@@ -161,13 +161,15 @@ class UserRatingsHandler(BaseRequestHandler):
             country = 'null'
             if user.home.country is not None:
                 country = user.home.country
-            filters['city'] = user.home.city + "!" + province + "!" + state + "!" + country 
-        
+            filters['city'] = user.home.city + "!" + \
+                province + "!" + state + "!" + country
+
         logging.info("Getting places with filters: " + str(filters))
-        
-        plist, status = logic.place_list_get(filters) 
-        
-        json_list = json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[]) for p in plist])
+
+        plist, status = logic.place_list_get(filters)
+
+        json_list = json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture',
+                                                  'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for p in plist])
 #         logging.info(str(json_list))
         if 'city' in filters.keys():
             filters['city'] = user.home.city + ', ' + user.home.province
@@ -183,6 +185,12 @@ class UserRatingsHandler(BaseRequestHandler):
             self.redirect('/error')
 
 
+class UserRatingsOtherHandler(BaseRequestHandler):
+
+    def get(self):
+        self.render('profile_ratings_other.html')
+
+
 class LetsgoHandler(BaseRequestHandler):
 
     def get(self):
@@ -191,19 +199,19 @@ class LetsgoHandler(BaseRequestHandler):
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
-            
+
 #         filters = {}
-#         
-#         
-#         
+#
+#
+#
 #         filters['lat'] = 0
 #         filters['lon'] = 0
 #         filters['max_dist'] = config.MAX_DIST
-#         places = recommender.recommend(user_id, filters) 
-        
+#         places = recommender.recommend(user_id, filters)
+
 #         if status != "OK":
 #             self.render('letsgo.html', {})
-            
+
 #         for p in places:
 #             ratings, status = logic.rating_list_get({'purpose': 'dinner with tourists', 'place': p.key.id()})
 #             if status == 'OK':
@@ -231,8 +239,9 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/fb/oauth_callback/?', LoginHandler),
     ('/google/oauth_callback/?', LoginHandler),
-    ('/user', UserHandler),
-    ('/user/ratings', UserRatingsHandler),
+    ('/profile/1', UserHandler),
+    ('/profile/2', UserRatingsHandler),
+    ('/profile/3', UserRatingsOtherHandler),
     ('/letsgo', LetsgoHandler),
     ('/error', ErrorHandler)
 
