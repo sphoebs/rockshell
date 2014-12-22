@@ -872,15 +872,17 @@ class Place(PFmodel):
             logging.info("Place.get_list -- getting places with query " + str(query))
             result = index.search(query)
             places = [ Place.make_key(None, d.doc_id) for d in result.results]
+            logging.info("Place.get_list -- found places " + str(len(places)))
             num = 0
             max_dist = float(filters['max_dist'])
-            while places is None or len(places) < 1 or num < 5:
+            while len(places) < 1 and num < 5:
                 # no places within that area, try to get something by extending area of max_dist for maximum 5 times.
                 max_dist += max_dist
                 query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], max_dist)
                 logging.info("Place.get_list -- getting places with query " + str(query))
                 result = index.search(query)
                 places = [ Place.make_key(None, d.doc_id) for d in result.results]
+                logging.info("Place.get_list -- found places " + str(len(places)))
                 num  += 1
                 
             if places is None or len(places) < 1:
@@ -1014,6 +1016,7 @@ class PFuser(PFmodel):
                 user.email = user_response['email']
                 user.full_name = user_response['name']
                 user.locale = user_response['locale']
+                user.picture = 'http://graph.facebook.com/{0}/picture'.format(user_response['id'])
                 status.append('user_added')
 
             else:
@@ -1055,12 +1058,14 @@ class PFuser(PFmodel):
             else:
                 status.append('google_user_data_added')
 
-            # add FB details
+            # add Google details
             user.google_user_id = user_response['id']
             if 'profile' in user_response.keys():
                 user.profile = user_response['profile']
             if 'picture' in user_response.keys():
                 user.picture = user_response['picture']
+            if 'image' in user_response.keys():
+                user.picture = user_response['image'].geT('url')
             user.google_access_token = access_token
 
         user.put()

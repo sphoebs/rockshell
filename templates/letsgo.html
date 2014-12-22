@@ -22,7 +22,7 @@
 			<p class="text-100 red-text center-text first">In this picture</p>
 			<p class="text-100 red-text name">Restaurant name</p>
 			<p class="text-100 red-text address">address</p>
-			<!-- <p class="text-100 red-text distance">Distance: 100 m</p> -->
+			<p class="text-100 red-text distance">Distance: 100 m</p>
 		</div>
 		<button class="img-btn next"></button>
 	</div>
@@ -106,6 +106,21 @@ $(window).load(function() {
 		var p = places[pos];
 		$('.rest-details .name').html(p.name);
 		$('.rest-details .address').html(p.address.street + ', ' + p.address.city);
+		if(p.distance){
+			
+			var meters = Math.round(p.distance);
+			var text = 'Distance: '
+			if(meters < 1000){
+				text += meters + ' m';
+			} else {
+				km = meters / 1000;
+				text += km.toFixed(2) + ' km';
+			}
+			$('.rest-details .distance').html(text);
+			$('.rest-details .distance').show();
+		} else {
+			$('.rest-details .distance').hide();
+		}
 		
 		var picture = p.picture;
 		if(picture == undefined || picture == '' || picture == 'null'){

@@ -91,6 +91,11 @@
 			
 			var picture = $(this).find('#rest-picture').val();
 			
+			if(name == undefined || name == ''){
+				// name is missing!!
+				return 
+			}
+			
 			var place = {
 				'name': name,
 				'address' : {
@@ -177,6 +182,10 @@
 
 		function saveAll(){
 			$('.rest-create-list .rest-item').each(savePlace);
+			if(wait_save_place == 0 && wait_save_rating == 0){
+				//done, go to next page
+				window.location = '/letsgo';
+			}
 			
 		}
 		

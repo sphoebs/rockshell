@@ -88,10 +88,11 @@
 					rest : rest
 				});
 				$('.rest-list').append(html);
-				$('.rating').click(saveRating);
-				$('.scrollable').scrollTop(0);
+				
 				
 			}
+			$('.rating').click(saveRating);
+			$('.scrollable').scrollTop(0);
 			
 		}
 
@@ -109,11 +110,11 @@
 		};
 
 		function saveRating(e) {
-			var self = this;
+			
 			var btn = $(e.target);
 			var value = $(btn).attr('value');
-			var not_known = false;
 			
+			var not_known = false;
 			if (value == 0){
 				not_known = true;
 			}

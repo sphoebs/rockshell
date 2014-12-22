@@ -39,6 +39,25 @@ max_changes = 20
 user_sim_matrix = {}
 cluster_sim_matrix = {}
 
+from math import radians, cos, sin, asin, sqrt
+
+def distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great circle distance between two points 
+    on the earth (specified in decimal degrees), using the haversine formula
+    
+    Returns distance in meters
+    """
+    # convert decimal degrees to radians 
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula 
+    dlon = lon2 - lon1 
+    dlat = lat2 - lat1 
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a)) 
+    meters = 6367000 * c
+    return meters
+
 
 def load_data(filters):
     """
@@ -497,13 +516,14 @@ def update_clusters(users):
             if user in user2cluster_map:
                 cluster_id = user2cluster_map[user]
                 user_cluster = clusters[cluster_id]
+                logging.info("User cluster: " + str(user_cluster))
                 # remove user from his current cluster
                 if user_cluster is not None:
                     i = user_cluster.index(user)
                     del user_cluster[i]
                     # update similarity of this cluster, since now it has one
                     # user less (1 row and 1 column)
-                    update_cluster_sim_matrix(ratings, user_cluster)
+                    update_cluster_sim_matrix(ratings, cluster_id)
 
             # update user_sim_matrix for this user (1 row and 1 column of the
             # matrix)
@@ -740,6 +760,12 @@ class RecommenderHandler(webapp2.RequestHandler):
 
         json_list = [Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone',
                                            'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for place in places]
+        
+        # add distance to user for each place
+        if 'lat' in filters and 'lon' in filters:
+            for item in json_list:
+                item['distance'] = distance(item['address']['lat'], item['address']['lon'], filters['lat'], filters['lon'])
+    
         logging.info(str(json_list))
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(json_list))
