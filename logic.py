@@ -90,6 +90,12 @@ def user_login(token, service):
         is_new = True
     return user, is_new, "OK"
 
+def user_create(user):
+    res = PFuser.create(user)
+    if res is None:
+        return None, "ERROR: wrong input data"
+
+    return res, "OK"
 
 def user_update(user, user_id, user_key_str):
     """
@@ -212,7 +218,8 @@ def place_list_get(filters):
             This string is split and used to retrieve only the places that are in the specified city. 
             'null' is used if part of the full city description is not available [example: 'Trento!TN!null!Italy'
             or if a bigger reagion is considered [example: 'null!TN!null!Italy' retrieves all places in the province of Trento]
-
+        - 'lat', 'lon' and 'max_dist': lat and lon indicates the user position, while max_dist is a measure expressed in meters 
+            and represnt the radius of the circular region the user is interested in. 
     
     Returns a tuple:
     - list of Places that satisfy the filters
@@ -242,7 +249,10 @@ def rating_create(rating, user_id, user_key_str):
     - the stored/updated rating (or None in case of errors in the input),
     - the status (a string indicating whether an error occurred)
     """
-    rating.user = PFuser.make_key(user_id, user_key_str)
+    if user_id is not None or user_key_str is not None:
+        rating.user = PFuser.make_key(user_id, user_key_str)
+
+    logging.error("RAting user: " + str(rating.user))
 
     res = Rating.store(rating, None)
     if res == None:

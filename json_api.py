@@ -41,6 +41,23 @@ class UserHandler(webapp2.RequestHandler):
         else:
             self.response.set_status(400)
             self.response.write(status)
+            
+    def post(self):
+        post_data = json.loads(self.request.body)
+        if post_data is None:
+            self.response.set_status(400)
+            self.response.write('Missing body')
+        
+#         logging.warn('POST DATA: ' + str(post_data))
+        user = PFuser.from_json(post_data)
+        user, status = logic.user_create(user)
+        if status == "OK":
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+        else:
+            self.response.set_status(400)
+            self.response.write(status)
+        
 
     def put(self):
         auth = self.request.headers.get("Authorization")
@@ -176,11 +193,18 @@ class RatingHandler(webapp2.RequestHandler):
         auth = self.request.headers.get("Authorization")
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
-        user_id = logic.get_current_userid(auth)
+        if auth is None:
+            user_id = None
+        else:
+            user_id = logic.get_current_userid(auth)
         body = json.loads(self.request.body)
 
         rating = Rating.from_json(body)
-        rating, status = logic.rating_create(rating, user_id, None)
+        if user_id is not None:
+            rating, status = logic.rating_create(rating, user_id, None)
+        else :
+            rating, status = logic.rating_create(rating, None, None)
+        logging.error(status)
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps(Rating.to_json(rating, ['key', 'user', 'place', 'purpose', 'value', 'not_known'], ['creation_time'])))

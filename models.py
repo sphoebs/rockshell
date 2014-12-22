@@ -694,7 +694,7 @@ class Place(PFmodel):
         if 'days_closed' in json_dict.keys():
             for day in json_dict['days_closed']:
                 try:
-                    day = datetime.strptime(day, '%Y%m%d').date()
+                    day = datetime.strptime(day, '%Y-%m-%d').date()
                 except ValueError:
                     # TODO: handle error
                     del day
@@ -849,9 +849,13 @@ class Place(PFmodel):
             This string is split and used to retrieve only the places that are in the specified city. 
             'null' is used if part of the full city description is not available [example: 'Trento!TN!null!Italy'
             or if a bigger reagion is considered [example: 'null!TN!null!Italy' retrieves all places in the province of Trento]
-
+        - 'lat', 'lon' and 'max_dist': lat and lon indicates the user position, while max_dist is a measure expressed in meters 
+            and represnt the radius of the circular region the user is interested in. 
+            
         Return value: list of Places.
         """
+
+        logging.info('Place.get_list -- getting places with filters: ' + str(filters))
 
         if filters is not None and not isinstance(filters, dict):
             logging.error('Filters MUST be stored in a dictionary!! The received filters are wrong!!')
@@ -865,8 +869,23 @@ class Place(PFmodel):
             #map all place fields to document and add all other filters here.
             index = search.Index(name="places")
             query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
+            logging.info("Place.get_list -- getting places with query " + str(query))
             result = index.search(query)
             places = [ Place.make_key(None, d.doc_id) for d in result.results]
+            num = 0
+            max_dist = float(filters['max_dist'])
+            while places is None or len(places) < 1 or num < 5:
+                # no places within that area, try to get something by extending area of max_dist for maximum 5 times.
+                max_dist += max_dist
+                query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], max_dist)
+                logging.info("Place.get_list -- getting places with query " + str(query))
+                result = index.search(query)
+                places = [ Place.make_key(None, d.doc_id) for d in result.results]
+                num  += 1
+                
+            if places is None or len(places) < 1:
+                #even extending the area did not work
+                return None
             
             dblist = Place.query(Place.key.IN(places))
             
@@ -905,6 +924,8 @@ class Place(PFmodel):
                 logging.info('Getting places with query: ' + gql_str)
 
                 dblist = Place.gql(gql_str, *params)
+
+        
 
         # executes query only once and store the results
         # Never use fetch()!
@@ -1163,6 +1184,36 @@ class PFuser(PFmodel):
             return True, None
 
     @staticmethod
+    def create(obj):
+        """
+        It creates a new PFuser, needed only to upload testing data and initial expert data
+        
+        Parameters:
+        - obj: the PFuser to store
+        
+        Return value: PFuser
+        """
+        if not isinstance(obj, PFuser):
+            return None
+
+        valid, wrong_list = PFuser.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+        user_id = "CA_" + obj.user_id
+        key = ndb.Key('PFuser', user_id)
+        user = PFuser(key=key)
+        user.user_id = user_id
+        user.first_name = 'expert'
+        user.last_name = 'expert'
+        user.full_name = 'expert'
+        user.email = obj.email
+        user.gender = obj.gender
+        user.age = obj.age
+        user.put()
+        return user
+
+    @staticmethod
     def store(obj, key):
         """
         It updates the PFuser: PFusers can be created only at login. In this case the key is mandatory!
@@ -1302,7 +1353,7 @@ class Rating(PFmodel):
             res['place'] = res['place'].urlsafe()
         if 'creation_time' in res.keys():
             res['creation_time'] = res[
-                'creation_time'].strftime('%Y%m%d %H:%M')
+                'creation_time'].strftime('%Y-%m-%d %H:%M')
         
         return res
 
@@ -1338,7 +1389,7 @@ class Rating(PFmodel):
         if 'creation_time' in json_dict.keys():
             try:
                 json_dict['creation_time'] = datetime.strptime(
-                    json_dict['creation_time'], '%Y%m%d %H:%M')
+                    json_dict['creation_time'], '%Y-%m-%d %H:%M')
             except ValueError:
                 del json_dict['creation_time']
 
