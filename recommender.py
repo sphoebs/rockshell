@@ -28,8 +28,8 @@ user2cluster_map = {}
 next_clusterid = 1
 
 # configuration of cluster algorithm
-cluster_threshold = None
-num_clusters = 5
+cluster_threshold = 0.5
+num_clusters = None
 
 # count the number of updates and recompute the clusters every 20 new
 # ratings (each one ending in an update of clusters)
@@ -565,9 +565,14 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5):
     logging.info("CLUSTER BASED start")
 
     if clusters is None or len(clusters) < 1:
-        # there are no clusters, no personalized recommendation can be computed
-        logging.info("CLUSTER BASED end -- no clusters ")
-        return None
+        # there are no clusters, try to build them
+        ratings = load_data(None)
+        compute_user_sim_matrix(ratings)
+        build_clusters(ratings)
+        if clusters is None or len(clusters) < 1:
+            # no clusters can be built, no personalized recommendation can be computed
+            logging.info("CLUSTER BASED end -- no clusters ")
+            return None
 
     if user2cluster_map is None or len(user2cluster_map) < 1:
         # we know that clusters are defined, but for some reason
@@ -650,7 +655,13 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         return None
 
     scores = cluster_based(user_id, places, purpose, n)
-    logging.info("RECOMMEND scores from cluster-based : " + str(len(scores)))
+    
+    log_text = "RECOMMEND scores from cluster-based : "
+    if scores is None:
+        log_text += "None"
+    else : 
+        log_text += str(len(scores))
+    logging.info(log_text)
     
     if scores is None or len(scores) < n:
         # cluster-based recommendation failed
@@ -687,7 +698,12 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
                     break
         else:
             scores = avg_scores[0:n]
-        logging.info("RECOMMEND scores from average-based : " + str(len(scores)))
+        log_text = "RECOMMEND scores from average-based : "
+        if scores is None:
+            log_text += "None"
+        else : 
+            log_text += str(len(scores))
+        logging.info(log_text)
 
     if scores is None or len(scores) < n:
         # cluster-based and average recommendations both failed to fill the recommendation list
@@ -703,7 +719,12 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
             if len(scores) >= n:
                 # we have enough recommended places
                 break
-    logging.info("RECOMMEND final scores: " + str(len(scores)))
+    log_text = "RECOMMEND final scores : "
+    if scores is None:
+        log_text += "None"
+    else : 
+        log_text += str(len(scores))
+    logging.info(log_text)
 
     places_scores = []
     for p in places:
@@ -719,7 +740,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     places_scores.reverse()
     places_scores = places_scores[0:n]
     items = [place for (score, place) in places_scores]
-    logging.info("Recommended items: " + str(items))
+#     logging.info("Recommended items: " + str(items))
     logging.info("RECOMMEND --end ")
     return items
 
@@ -727,8 +748,15 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
 # The following is for publishing the recommender via rest api
 class RecommenderHandler(webapp2.RequestHandler):
 
-    def initialize(self, *a, **kw):
-        webapp2.RequestHandler.initialize(self, *a, **kw)
+#     def initialize(self, *a, **kw):
+#         webapp2.RequestHandler.initialize(self, *a, **kw)
+#         global clusters
+#         global user2cluster_map
+#         ratings = load_data(None)
+#         compute_user_sim_matrix(ratings)
+#         build_clusters(ratings)
+
+    def main(self):
         global clusters
         global user2cluster_map
         ratings = load_data(None)
@@ -766,7 +794,7 @@ class RecommenderHandler(webapp2.RequestHandler):
             for item in json_list:
                 item['distance'] = distance(item['address']['lat'], item['address']['lon'], filters['lat'], filters['lon'])
     
-        logging.info(str(json_list))
+#         logging.info(str(json_list))
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(json_list))
 
