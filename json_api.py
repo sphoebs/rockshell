@@ -37,7 +37,7 @@ class UserHandler(webapp2.RequestHandler):
         user, status = logic.user_get(user_id, None)
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
         else:
             self.response.set_status(400)
             self.response.write(status)
@@ -53,7 +53,7 @@ class UserHandler(webapp2.RequestHandler):
         user, status = logic.user_create(user)
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
         else:
             self.response.set_status(400)
             self.response.write(status)
@@ -75,7 +75,7 @@ class UserHandler(webapp2.RequestHandler):
 
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
         else:
             self.response.set_status(400)
             self.response.write(status)
@@ -98,7 +98,7 @@ class UserLoginHandler(webapp2.RequestHandler):
                 set_cookie(self.response, 'user',
                                         user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
                 self.response.headers['Content-Type'] = 'application/json'
-                tmp = json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender']))
+                tmp = json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender']))
                 tmp['is_new'] = is_new
                 self.response.write(tmp)
             else:
@@ -115,7 +115,7 @@ class UserLoginHandler(webapp2.RequestHandler):
         user_id = logic.get_current_userid(auth)
         
         set_cookie(self.response, 'user', user_id, expires=0, encrypt=True)
-        self.response.write()
+        self.response.write('ok')
                 
 
 

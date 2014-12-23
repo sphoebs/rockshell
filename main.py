@@ -26,7 +26,7 @@ import logic
 import recommender
 import json
 
-from models import PFuser, Place
+from models import PFuser, Place, Settings
 
 
 # these imports are fine
@@ -218,7 +218,44 @@ class LetsgoHandler(BaseRequestHandler):
 #                 p.ratings = ratings
 #         json_list = json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[]) for p in places])
 #         logging.info(str(json_list))
-        self.render('letsgo.html', {'list': places, 'user': user})
+
+        logging.info("USER: " + str(user))
+        json_user = json.dumps(PFuser.to_json(user,
+                                              ['key', 'first_name', 'last_name', 'full_name',
+                                                  'picture', 'home', 'visited_city', 'settings'],
+                                              ['user_id', 'fb_user_id', 'fb_access_token', 'google_user_id', 'google_access_token', 
+                                               'created', 'updated,' 'email', 'profile', 'age', 'gender']))
+        logging.info("USER JSON: " + str(json_user))
+        self.render('letsgo.html', {'list': places, 'user': json_user})
+
+
+class SettingsHandler(BaseRequestHandler):
+
+    def post(self):
+        # this method updates user information (from profile page)
+        # request body contain the form values
+        data = self.request
+
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+#         user, status = logic.user_get(user_id, None)
+#         if status != "OK":
+#             self.redirect("/error")
+
+        user = PFuser()
+        if user.settings is None:
+            user.settings = Settings()
+        if data.get('purpose') != '':
+            user.settings.purpose = data.get('purpose')
+        if data.get('max_distance') > 0:
+            user.settings.max_distance = int(data.get('max_distance'))
+        if data.get('num_places') > 0:
+            user.settings.num_places = int(data.get('num_places'))
+
+        user, status = logic.user_update(user, user_id, None)
+        if status != "OK":
+            self.redirect("/error")
+
+        self.redirect('/letsgo')
 
 
 class ErrorHandler(BaseRequestHandler):
@@ -243,6 +280,7 @@ app = webapp2.WSGIApplication([
     ('/profile/2', UserRatingsHandler),
     ('/profile/3', UserRatingsOtherHandler),
     ('/letsgo', LetsgoHandler),
+    ('/settings', SettingsHandler),
     ('/error', ErrorHandler)
 
 ], debug=True)

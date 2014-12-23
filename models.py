@@ -40,11 +40,13 @@ class PFmodel(ndb.Model):
         res = obj.to_dict()
         if obj.key is not None:
             res['key'] = obj.key.urlsafe()
-
         for k in res.keys():
             if hidden is not None and len(hidden) > 0 and k in hidden:
                 del res[k]
             elif allowed is not None and len(allowed) > 0 and k not in allowed:
+                del res[k]
+        for k in res.keys():
+            if res[k] is None:
                 del res[k]
         return res
 
@@ -875,7 +877,8 @@ class Place(PFmodel):
             logging.info("Place.get_list -- found places " + str(len(places)))
             num = 0
             max_dist = float(filters['max_dist'])
-            while len(places) < 1 and num < 5:
+            # TODO: correct cycle is: while len(places) < 1 and num < 5:
+            while len(places) < 5 and num < 5:
                 # no places within that area, try to get something by extending area of max_dist for maximum 5 times.
                 max_dist += max_dist
                 query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], max_dist)
@@ -942,6 +945,199 @@ class Place(PFmodel):
         return list(dblist)
     
 
+class Settings(PFmodel):
+    """
+    Collects user's settings for recommendations.
+    
+    """
+    purpose = ndb.StringProperty(choices=[
+                                 "dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"], indexed = False)
+    max_distance = ndb.IntegerProperty(indexed = False)
+    num_places = ndb.IntegerProperty(indexed = False)
+    
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    updated = ndb.DateTimeProperty(auto_now=True)
+    
+    @staticmethod
+    def to_json(obj):
+        """ 
+        It transforms the object in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of Settings to convert.
+
+        Return value: dict representation of the object containing all its fields.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        res = PFmodel.to_json(obj, Settings, ['purpose', 'max_distance', 'num_places'], ['created','updated'])
+
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into an object.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: object of this class.
+        """
+        if not isinstance(json_dict, dict):
+            return None
+
+        res = Settings()
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Settings from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded, class_name):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+        - class_name: the name of the class representing the object type; 
+          it is used in combination with obj_id, while url_encoded alrady contain such information.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Settings')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+
+        """
+        wrong_list = []
+        if not isinstance(obj, Settings):
+            return False, wrong_list
+
+        if obj.max_distance is not None and obj.max_distance < 100:
+            wrong_list.append('max_distance')
+            
+        if obj.num_places is not None and obj.num_places < 1:
+            wrong_list.append('num_places')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the settings, according to presence and validity of the key.
+
+        Parameters:
+        - obj: the settings to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+
+        Return value: Settings
+        """
+        if not isinstance(obj, Settings):
+            return None
+
+        valid, wrong_list = Settings.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Settings') > -1:
+            # key is valid --> update
+            db_obj = key.get()
+            if db_obj is None:
+                return None
+
+            objdict = obj.to_dict()
+            if 'purpose' in objdict.keys():
+                db_obj.purpose = objdict['purpose']
+            if 'max_distance' in objdict.keys():
+                db_obj.max_distance = objdict['max_distance']
+            if 'num_places' in objdict.keys():
+                db_obj.num_places = objdict['num_places']
+            
+            db_obj.put()
+            return db_obj
+
+        else:
+            # key is not valid --> create
+            obj.put()
+            return obj
+
+#     @staticmethod
+#     def get_by_key(key):
+#         """
+#         It retrieves the object by key.
+# 
+#         Parameters:
+#         - key: the ndb key identifying the object to retrieve.
+# 
+#         Return value: object of this class.
+# 
+#         """
+#         if not isinstance(key, ndb.Key):
+#             return None
+# 
+#         return key.get()
+# 
+#     @staticmethod
+#     def get_list(filters):
+#         """
+#         It retrieves a list of objects satisfying the characteristics described in filter.
+# 
+#         Parameters:
+#         - filters: a dict containing the characteristics the objects in the resulting list should have.
+# 
+#         Return value: list of objects of this class.
+# 
+#         It is empty in the parent class.
+#         """
+#         pass
+# 
+#     @staticmethod
+#     def delete(key):
+#         """
+#         It deletes the object referenced by the key.
+# 
+#         Parameters:
+#         - key: the ndb.Key that identifies the object to delete (both kind and id needed).
+# 
+#         Return value: boolean.
+# 
+#         It returns True if the object has been deleted, False if delete is not allowed.
+#         """
+#         if not isinstance(key, ndb.Key):
+#             return None
+# 
+#         delete_allowed = ('Place')
+#         kind = key.kind()
+#         if kind in delete_allowed:
+#             key.delete()
+#             return True
+#         return False
+
+
+    
 class PFuser(PFmodel):
 
     """Represents a user, with full profile
@@ -959,9 +1155,9 @@ class PFuser(PFmodel):
     created = ndb.DateTimeProperty(auto_now_add=True)
     updated = ndb.DateTimeProperty(auto_now=True)
 
-    first_name = ndb.StringProperty(required=True)
-    last_name = ndb.StringProperty(required=True)
-    full_name = ndb.StringProperty(required=True)
+    first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    full_name = ndb.StringProperty()
     email = ndb.StringProperty(required=True)
     locale = ndb.StringProperty()
 
@@ -977,6 +1173,7 @@ class PFuser(PFmodel):
     # list of cities visited in the last year, address is only partialluy
     # defined, as before
     visited_city = ndb.StructuredProperty(Address, repeated=True)
+    settings = ndb.StructuredProperty(Settings, indexed = False)
 
 #     rating = ndb.StructuredProperty(Rating, repeated=True)
 
@@ -1092,10 +1289,12 @@ class PFuser(PFmodel):
         res = PFmodel.to_json(obj, PFuser, allowed, hidden)
 
         if 'home' in res.keys():
-            res['home'] = Address.to_json(res['home'], allowed, hidden)
+            res['home'] = Address.to_json(Address.from_json(res['home']), allowed, hidden)
         if 'visited_city' in res.keys():
             for city in res['visited_city']:
-                city = Address.to_json(city, allowed, hidden)
+                city = Address.to_json(Address.from_json(city), allowed, hidden)
+        if 'settings' in res.keys():
+            res['settings'] = Settings.to_json(Settings.from_json(res['settings']))
 
         return res
 
@@ -1120,6 +1319,8 @@ class PFuser(PFmodel):
         if 'visited_city' in json_dict.keys():
             for city in json_dict['visited_city']:
                 city = Address.from_json(city)
+        if 'settings' in json_dict.keys():
+            json_dict['settings'] = Settings.from_json(json_dict['settings'])
 
         try:
             # populate raises exceptions if the keys and values in json_dict
@@ -1182,6 +1383,12 @@ class PFuser(PFmodel):
                     obj.gender = 'F'
                 else:
                     wrong_list.append('gender')
+                    
+        if obj.settings is not None:
+            valid, wrong_settings = Settings.is_valid(obj.settings)
+            if not valid:
+                for p in wrong_settings:
+                    wrong_list.append('settings.' + p)
 
         if len(wrong_list) > 0:
             return False, wrong_list
@@ -1276,6 +1483,12 @@ class PFuser(PFmodel):
                 db_obj.home = objdict['home']
             if 'visited_city' in objdict.keys():
                 db_obj.visited_city = objdict['visited_city']
+            if 'settings' in objdict.keys() and objdict['settings'] is not None:
+                settings = Settings()
+                settings.populate(**objdict['settings'])
+                logging.info("UPDATED user SETTINGS: " + str(settings) + " -- " + str(objdict['settings']))
+                db_obj.settings = settings
+                
 
             db_obj.put()
             logging.info('object stored correctly!!')
@@ -1540,7 +1753,7 @@ class Rating(PFmodel):
         - 'places' : list of place ids we are interested in
         Return value: list of Ratings.
         """
-        #TODO: TEST NEW FILTERS!!
+        
         if filters is not None and not isinstance(filters, dict):
             return None
 

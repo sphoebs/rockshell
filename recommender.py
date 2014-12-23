@@ -28,7 +28,7 @@ user2cluster_map = {}
 next_clusterid = 1
 
 # configuration of cluster algorithm
-cluster_threshold = 0.5
+cluster_threshold = 0.2
 num_clusters = None
 
 # count the number of updates and recompute the clusters every 20 new
@@ -75,6 +75,7 @@ def load_data(filters):
     if status != "OK":
         return None
 
+    logging.info("Loaded " + str(len(ratings)) + " ratings")
     # map: user - place - purpose --> value
     data = {}
     for rating in ratings:
@@ -515,15 +516,21 @@ def update_clusters(users):
         for user in users:
             if user in user2cluster_map:
                 cluster_id = user2cluster_map[user]
-                user_cluster = clusters[cluster_id]
-                logging.info("User cluster: " + str(user_cluster))
-                # remove user from his current cluster
-                if user_cluster is not None:
-                    i = user_cluster.index(user)
-                    del user_cluster[i]
-                    # update similarity of this cluster, since now it has one
-                    # user less (1 row and 1 column)
-                    update_cluster_sim_matrix(ratings, cluster_id)
+                if cluster_id in clusters: 
+                    user_cluster = clusters[cluster_id]
+                    logging.info("User cluster: " + str(user_cluster))
+                    # remove user from his current cluster
+                    if user_cluster is not None:
+                        i = user_cluster.index(user)
+                        del user_cluster[i]
+                        if len(user_cluster) == 0:
+                            # the cluster is empty, remove it
+                            remove_cluster_sim_matrix([cluster_id])
+                            del clusters[cluster_id]
+                        else :
+                            # update similarity of this cluster, since now it has one
+                            # user less (1 row and 1 column)
+                            update_cluster_sim_matrix(ratings, cluster_id)
 
             # update user_sim_matrix for this user (1 row and 1 column of the
             # matrix)
@@ -605,11 +612,12 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5):
     items = {}
     for other in user_cluster:
         if other != user:
-            for item in ratings[other]:
-                if purpose in ratings[other][item]:
-                    if item not in items.keys():
-                        items[item] = []
-                    items[item].append(ratings[other][item][purpose])
+            if other in ratings:
+                for item in ratings[other]:
+                    if purpose in ratings[other][item]:
+                        if item not in items.keys():
+                            items[item] = []
+                        items[item].append(ratings[other][item][purpose])
 
     scores = [(sum(items[item]) / len(items[item]), item)
               for item in items]
@@ -647,7 +655,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     """
     logging.info("RECOMMEND start")
     places, status = logic.place_list_get(filters)
-    logging.info("RECOMMEND places loaded")
+    logging.info("RECOMMEND places loaded ")
     
     if status != "OK" or places is None or len(places) < 1:
         # the system do not know any place within these filters
@@ -663,7 +671,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         log_text += str(len(scores))
     logging.info(log_text)
     
-    if scores is None or len(scores) < n:
+    if scores is None or (len(scores) < n and len(scores) < len(places)):
         # cluster-based recommendation failed
         # non-personalized recommendation
         rating_filters = {}
@@ -705,7 +713,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
             log_text += str(len(scores))
         logging.info(log_text)
 
-    if scores is None or len(scores) < n:
+    if scores is None or (len(scores) < n and len(scores) < len(places)):
         # cluster-based and average recommendations both failed to fill the recommendation list
         # just add some other places
         for p in places:
@@ -780,11 +788,16 @@ class RecommenderHandler(webapp2.RequestHandler):
             'lon': float(self.request.GET.get('lon')),
             'max_dist': float(self.request.GET.get('max_dist'))
         }
-        places = recommend(user_id, filters)
+        
+        purpose = self.request.GET.get('purpose')
+        num = int(self.request.GET.get('n'))
+        
+        places = recommend(user_id, filters, purpose = purpose, n= num)
 
         if places is None or len(places) == 0:
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps([]))
+            return
 
         json_list = [Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone',
                                            'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for place in places]

@@ -35,17 +35,19 @@
 		<br/>
 		
 		<ul class="menu-items">
-			<li><button class="img-btn">Rate more places</button></li>
-			<li><button class="img-btn selected">Near me</button></li>
-			<li><button class="img-btn">Discounts</button></li>
-			<li><button class="img-btn">Inspire me</button></li>
-			<li><button class="img-btn">Search settings</button></li>
-			<li><button class="img-btn">Log out</button></li>
+			<li><button class="img-btn" id="rate-more">Rate more places</button></li>
+			<li><button class="img-btn selected" id="near-me">Near me</button></li>
+			<li><button class="img-btn" id="discounts">Discounts</button></li>
+			<li><button class="img-btn" id="inspire-me">Inspire me</button></li>
+			<li><button class="img-btn" id="settings">Search settings</button></li>
+			<li><button class="img-btn" id="logout">Log out</button></li>
 		</ul>
 	
 	</div>
 
 </div>
+
+<div class="popup-area"></div>
 
 
 
@@ -153,7 +155,25 @@ $(window).load(function() {
 	$('.rest-details .prev').click(onPrev);
 	
 	function showRecommendations(position) {
-		url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + '&max_dist=1000';
+		var user = {{user|safe}};
+		var settings =user.settings; 
+		if(settings == undefined){
+			settings = {purpose: 'dinner with tourists', max_distance: 1000, num_places: 5};
+		} else {
+			if (settings.purpose == undefined){
+				settings.purpose = 'dinner with tourists';
+			}
+			if (settings.max_distance == undefined){
+				settings.max_distance = 1000;
+			}
+			if(settings.num_places == undefined){
+				settings.num_places = 5
+			}
+		}
+		
+		
+		url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + 
+				'&max_dist='+ settings.max_distance+'&purpose=' + settings.purpose + '&n=' + settings.num_places;
 	    $.ajax({
 			type : 'GET',
 			url : url,
@@ -215,6 +235,68 @@ $(window).load(function() {
 	if(userpic != undefined && userpic.length > 0){	
 		$('.user-picture').css('background-image', 'url(' + userpic + ')');
 	}
+	
+	$('.user-menu, .user-menu-small').click(function(){
+		window.location = '/profile/1';
+	});
+	
+	$('#logout').click(function(){
+		$.ajax({
+			type : 'DELETE',
+			url : '/api/user/login',
+			success : function() {
+				window.location = '/';
+			},
+			error : function(resp) {
+				console.log(resp);
+				alert("Error " + resp.status);
+			}
+		});
+	});
+
+	$('#discounts').click(function(){
+		alert("Coming soon.")
+	});
+	
+	$('#inspire-me').click(function(){
+		alert("Coming soon.")
+	});
+	
+	$('#settings').click(function(){
+		
+		// var settings ={{(user.settings|e) if user.settings is not none else 'undefined'}}; 
+		var user = {{user|safe}};
+		var settings =user.settings; 
+		if(settings == undefined){
+			settings = {purpose: 'dinner with tourists', max_distance: 1000, num_places: 5};
+		}
+		
+		//load underscore template
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET","/static/js_templates/settings_popup.ejs",false);
+		xmlhttp.send(null);
+		var template = xmlhttp.responseText;
+		var compiled = _.template(template);
+		var html = compiled({settings: settings});
+		$('.popup-area').html(html);
+		
+		$('.popup-area').show();
+		
+		$('.popup-scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 320,
+		    verticalTrackClass: 'track-red',
+		    verticalHandleClass: 'handle-red'
+		});
+		
+		$('.close-popup').click(function(){
+			$('.popup-area').hide();
+		})
+	});
+	
+	
 	
 	
 });

@@ -45,13 +45,13 @@ form {
 	margin-bottom: 20px;
 }
 
-.img-btn:not(.disabled ):hover {
+.img-btn:not (.disabled ):hover {
 	-webkit-filter: brightness(120%);
 	-moz-filter: brightness(120%);
 	filter: brightness(120%);
 }
 
-.img-btn:not(.disabled ):active {
+.img-btn:not (.disabled ):active {
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
@@ -75,7 +75,7 @@ button, inupt, input[type=button], input[type=submit] {
 	line-height: 1.3em;
 }
 
-input[type=text] {
+input[type=text], input[type=number] {
 	outline: 0;
 	border: 0;
 	font-size: 13pt;
@@ -92,6 +92,13 @@ button.disabled {
 }
 
 /* SCROLL BAR */
+
+.scrollable, .popup-scrollable {
+	max-height: 75%;
+	overflow: hidden;
+	margin-bottom: 10px;
+}
+
 .track-red {
 	width: 7px;
 	background: rgba(220, 61, 61, 0.15);
@@ -153,6 +160,44 @@ button.disabled {
 }
 
 /* TOOLTIP END */
+
+/* POPUP */
+.popup-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(220, 220, 220, 0.7);
+	z-index: 300;
+}
+
+.popup-foreground {
+	position: fixed;
+	top: 10%;
+	bottom: 10%;
+	left: 10%;
+	right: 10%;
+	background-color: #F7F8CD;
+	z-index: 310;
+	border: solid 2px #DC3D3D;
+	/* border-radius: 24px; */
+	padding: 15px;
+}
+
+.popup-foreground h3 {
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.close {
+	background-image: url(../images/close.png);
+	float: right;
+	width: 32px;
+	height: 32px;
+}
+
+/* POPUP END */
 
 /* LOADING */
 .loading {
@@ -344,12 +389,6 @@ button.disabled {
 
 .form-input .radio-inline {
 	position: relative;
-}
-
-.scrollable {
-	max-height: 75%;
-	overflow: hidden;
-	margin-bottom: 10px;
 }
 
 form .save {
@@ -546,17 +585,17 @@ li.rest-item {
 	background-size: contain;
 }
 
-.navigation-buttons .next:not(.disabled ):hover {
+.navigation-buttons .next:not (.disabled ):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 }
 
-.navigation-buttons .prev:not(.disabled ):hover {
+.navigation-buttons .prev:not (.disabled ):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 }
 
-.navigation-buttons .next:not(.disabled ):active {
+.navigation-buttons .next:not (.disabled ):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 	-webkit-filter: brightness(70%);
@@ -564,7 +603,7 @@ li.rest-item {
 	filter: brightness(70%);
 }
 
-.navigation-buttons .prev:not(.disabled ):active {
+.navigation-buttons .prev:not (.disabled ):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 	-webkit-filter: brightness(70%);
@@ -575,18 +614,17 @@ li.rest-item {
 /* PROFILE RATINGS END */
 
 /* PROFILE OTHER RATINGS */
-
 .my-input-text {
 	margin-bottom: 10px;
 	width: 400px;
 	max-width: 80%;
 }
 
-.save-buttons{
+.save-buttons {
 	float: right;
 }
 
-.save-buttons button{
+.save-buttons button {
 	width: 130px;
 	height: 32px;
 	max-width: 40%;
@@ -836,7 +874,14 @@ li.rest-item {
 		margin-top: 5px;
 		margin-bottom: 10px;
 	}
-
+	.form-label, .form-input {
+		width: 100%;
+		text-align: left;
+		display: block;
+		padding-left: 10px;
+		margin-top: 15px;
+	}
+	
 	/* profile step 2 - ratings */
 	.rest-item div.rest-details {
 		display: block;

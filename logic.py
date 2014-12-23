@@ -16,7 +16,7 @@ import urllib2
 # import time
 import config
 import social_login
-from recommender import update_clusters
+
 
 def get_current_userid(cripted_data):
     """
@@ -249,6 +249,7 @@ def rating_create(rating, user_id, user_key_str):
     - the stored/updated rating (or None in case of errors in the input),
     - the status (a string indicating whether an error occurred)
     """
+    from recommender import update_clusters
     if user_id is not None or user_key_str is not None:
         rating.user = PFuser.make_key(user_id, user_key_str)
 

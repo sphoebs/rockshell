@@ -1,0 +1,36 @@
+<div class="popup-background settings-popup">
+	<div class="popup-foreground popup-scrollable">
+		<button class="img-btn close" id="close-popup"></button>
+		<h3>Search settings</h3>
+		
+		<form action="/settings" method="post">
+		
+			<div>
+				<label class="form-label text-300 red-text">Purpose: </label>
+				<div class="form-input">
+					<select name="purpose" required>
+						<option value="dinner with tourists" <%= settings.purpose == 'dinner with tourists' ? 'selected' : '' %> > Dinner with visitors </option>
+						<option value="romantic dinner" <%= settings.purpose == 'romantic dinner' ? 'selected' : '' %>> Romantic dinner with the partner </option>
+						<option value="dinner with friends" <%= settings.purpose == 'dinner with friends' ? 'selected' : '' %>> Dinner with friends </option>
+						<option value="best price/quality ratio" <%= settings.purpose == 'best price/quality ratio' ? 'selected' : '' %>> Lunch break </option>
+					</select>
+				</div>
+			</div>
+		
+			<div>
+				<label class="form-label text-300 red-text">Maximum distance from current position, in meters: </label>
+				<div class="form-input"><input type="number" name="max_distance"
+					value="<%= settings.max_distance %>">
+				</div>
+			</div>
+			
+			<div>
+				<label class="form-label text-300 red-text">Number of places recommended: </label>
+				<div class="form-input"><input type="number" name="num_places"
+					value="<%= settings.num_places %>">
+				</div>
+			</div>
+			<input type="submit" class="img-btn save text-100" value="Save &amp; reload" />
+		</form>
+	</div>
+</div>
