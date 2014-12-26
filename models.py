@@ -231,8 +231,10 @@ class Address(PFmodel):
             return None
 
         if 'lat' in json_dict.keys() and 'lon' in json_dict.keys():
+            lat = float(json_dict['lat'])
+            lon = float(json_dict['lon'])
             json_dict['location'] = GeoPt(
-                json_dict['lat'], json_dict['lon'])
+                lat, lon)
             del json_dict['lat']
             del json_dict['lon']
 
@@ -813,7 +815,7 @@ class Place(PFmodel):
         else:
             # key is not valid --> create
             obj.put()
-            if obj.address is not None:
+            if obj.address is not None and obj.address.location is not None:
                 geopoint = search.GeoPoint(obj.address.location.lat, obj.address.location.lon)
                 fields = [search.GeoField(name='location', value=geopoint)]
                 d = search.Document(doc_id=obj.key.urlsafe(), fields=fields)

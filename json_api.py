@@ -123,8 +123,13 @@ class PlaceListHandler(webapp2.RequestHandler):
 
     def get(self):
         get_values = self.request.GET
-
-        plist, status = logic.place_list_get(get_values)
+        logging.info("GET PLACES filters: " + str(get_values))
+        if not get_values:
+            get_values = None
+        else:
+            filters = {}
+            filters['city'] = get_values.get('city')
+        plist, status = logic.place_list_get(filters)
 
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'

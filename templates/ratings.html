@@ -1,0 +1,468 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="full-background profile">
+
+	<div class="profile-container ratings">
+		{{ '<div class="step text-100">step 2/3</div>' if profile else ''}}
+		<div class="profile-logo"></div>
+		
+		<div class="scrollable">
+			<h3> Rate some restaurants and let us understand better your tastes!!</h3>
+			<div class="city-search">
+				<label class="text-300 red-text">Please, select a city you visited: </label>
+				<div class="input">
+					<input type="text" name="auto-city" id="city" >
+					<input type="hidden" name="locality" id="locality" /> 
+					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
+					<input type="hidden" name="country" id="country"/>
+				</div>
+			</div>
+			
+			<div>
+				<p class="no-places">We are sorry, we don't know places for the selected city. Create your favourite places!!</p>
+				<button class="img-btn new-place">Add place</button>
+				<div class="new-place-form"></div>
+			</div>
+			
+			<div class="filters">
+			
+				<div class="ui-widget">
+  					<label for="name-input">Search by name: </label>
+  					<input type="text" name="name-input" id="name-input">
+  					<button class="img-btn search-name">Filter</button>
+				</div>
+				
+				<div class="map-search">
+				</div>
+			</div>
+
+			<ul class="rest-list scrollable">
+				
+			</ul>
+
+			<div class="navigation-buttons">
+				<button class="prev">Prev</button>
+				<button class="next">Next</button>
+				<button class="img-btn continue"
+					onclick="window.location = '/letsgo'">I'm done</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+
+
+{% endblock %} {% block scripts %}
+<script type="text/javascript"
+	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+<script type="text/javascript">
+	$(window).load(function() {
+		var pageSize = 5;
+		var all_places = [];
+		var filtered_places = [];
+		var placesNames = [];
+		var last_pos = 0;
+		
+		function getCookie(cname) {
+			var name = cname + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ')
+					c = c.substring(1);
+				if (c.indexOf(name) != -1)
+					return c.substring(name.length, c.length);
+			}
+			return "";
+		};
+		
+		var auth = getCookie('user');
+		
+		$('.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-red',
+		    verticalHandleClass: 'handle-red'
+		});
+		
+		var input = document.getElementById('city');
+		var options = {
+			types : [ '(cities)' ]
+		};
+		var autocomplete = new google.maps.places.Autocomplete(
+				input, options);
+
+		var componentForm = {
+			locality : 'long_name',
+			administrative_area_level_2 : 'short_name',
+			country : 'short_name',
+		};
+	
+
+		google.maps.event.addListener(autocomplete,
+				'place_changed', function() {
+					fillInAddress();
+				});
+
+		function fillInAddress() {
+			// Get the place details from the autocomplete object.
+			var place = autocomplete.getPlace();
+			
+			// Get each component of the address from the place details
+			// and fill the corresponding field on the form.
+			for (var i = 0; i < place.address_components.length; i++) {
+				var addressType = place.address_components[i].types[0];
+				if (componentForm[addressType]) {
+					var val = place.address_components[i][componentForm[addressType]];
+					$('#'+addressType).val(val);
+				}
+			}
+			
+			loadPlaces();
+		}
+		
+		function loadPlaces(){
+			
+			var city = $('#locality').val();
+			if(city == undefined || city == ''){
+				alert("The city must be set!!");
+				return;
+			}
+			var province = $('#administrative_area_level_2').val();
+			if(province == undefined || province == ''){
+				province = 'null';
+			}
+			var state = 'null';
+			var country = $('#country').val();
+			if(country == undefined || country == ''){
+				country = 'null';
+			}
+			
+			var city_filter = city + '!' + province + '!' + state + '!' + country;
+			
+			$.ajax({
+				type : 'GET',
+				url : '/api/place?city=' + city_filter,
+				success : function(data) {
+					
+					if(data.length <1){
+						$('.no-places').show();
+					} else {
+						$('.no-places').hide();
+						all_places = data;
+						filtered_places = data;
+						for(var i=0; i< all_places.length; i++){
+							var p = all_places[i];
+							placesNames.push(p.name);						
+						}
+					
+						last_pos = 0;
+						displayPlaces(last_pos);
+					}
+				},
+				error : function(resp) {
+					console.log(resp);
+					alert("Error" + resp.status);
+					
+				},
+				headers : {
+					Authorization : getCookie('user')
+				}
+			});
+			
+		}
+		
+		function displayPlaces(start){
+			$('.rest-list').html('');
+			
+			//enable prev and next buttons
+			$('.navigation-buttons .prev').removeClass('disabled');
+			$('.navigation-buttons .next').removeClass('disabled');
+			if(start == 0){
+				//diable prev button
+				$('.navigation-buttons .prev').addClass('disabled');
+			}
+			if(start + pageSize > filtered_places.length){
+				//disable next button
+				$('.navigation-buttons .next').addClass('disabled');
+			}
+			
+			for(var i=0; start+i<filtered_places.length && i<pageSize; i++){
+				var rest = filtered_places[start+i];
+				
+				//load underscore template
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.open("GET","/static/js_templates/rest_rating.ejs",false);
+				xmlhttp.send(null);
+				var template = xmlhttp.responseText;
+				var compiled = _.template(template);
+				var html = compiled({
+					rest : rest
+				});
+				$('.rest-list').append(html);
+				
+				
+			}
+			$('.rating').click(saveRating);
+			$('.scrollable').scrollTop(0);
+			$('.navigation-buttons').show();
+			initFilters();
+			
+		}
+		
+		function initFilters(){
+			//TODO: add autocomplete to name search
+			$( "#name-input" ).autocomplete({
+      			source: placesNames
+    		});
+			
+			//TODO: show places in map
+			
+			$('.filters').show();
+		}
+		
+		function addPlace(){
+			
+			//load underscore template
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/rest_rating_form.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({});
+			$('.new-place-form').html(html);
+			
+			$('.scrollable').enscroll({
+			    showOnHover: false,
+			    verticalScrolling: true,
+				horizontalScrolling: false,
+				zIndex: 100,
+			    verticalTrackClass: 'track-red',
+			    verticalHandleClass: 'handle-red'
+			});
+			
+			$('#rest-picture').change(function(){
+				$(this).parent().find('.rest-image').attr('src', this.value);
+			});
+			
+			var input2 = document.getElementById('rest-address');
+
+			var autocomplete2 = new google.maps.places.Autocomplete(
+					input2);
+
+			var componentForm2 = {
+				street_number: 'short_name',
+				route: 'long_name',
+				locality : 'long_name',
+				administrative_area_level_2 : 'short_name',
+				country : 'short_name',
+			};
+			
+			google.maps.event.addListener(autocomplete2,
+					'place_changed', function() {
+						// Get the place details from the autocomplete object.
+				var place = autocomplete2.getPlace();
+				
+				// Get each component of the address from the place details
+				// and fill the corresponding field on the form.
+				for (var i = 0; i < place.address_components.length; i++) {
+					var addressType = place.address_components[i].types[0];
+					if (componentForm2[addressType]) {
+						var val = place.address_components[i][componentForm2[addressType]];
+						document.getElementById(addressType).value = val;
+					}
+				}
+				// save latitude and longitude
+				if(place.geometry.location){
+					/* alert(JSON.stringify(place.geometry.location)); */
+					document.getElementById('lat').value = place.geometry.location.k;
+					document.getElementById('lon').value = place.geometry.location.D;
+				}
+			});
+			
+			$('.rating').click(function(){
+				$(this).parent().find('button').removeClass('selected');				
+				$(this).addClass('selected');
+			});
+			
+			$('.save').click(function(){
+				var self = this;
+				var name = $('#rest-name').val();
+				
+				var street = $('#route').val() + " " + $(this).find('#street_number').val();
+				var city = $('#locality').val();
+				var province = $('#administrative_area_level_2').val();
+				var country = $('#country').val();
+				var latitude = $('#lat').val() != "" ? $('#lat').val() : undefined;
+				var longitude = $('#lon').val() != "" ? $('#lon').val() : undefined;
+				
+				var picture = $('#rest-picture').val();
+				
+				if(name == undefined || name == ''){
+					// name is missing!!
+					return 
+				}
+				
+				var place = {
+					'name': name,
+					'address' : {
+						'street' : street,
+						'city' : city,
+						'province' : province,
+						'country': country,
+						'lat' : latitude,
+						'lon': longitude
+					},
+					'picture' : picture,
+					'service' : ['restaurant']
+				};
+				$.ajax({
+					type : 'POST',
+					url : '/api/place',
+					data : JSON.stringify(place),
+					success : function(place) {
+						$('.rating.selected').each(function(){
+							saveNewPlaceRating(place.key, this);
+						});
+						
+					},
+					error : function(resp) {
+						if (resp.status == 200) {
+							$(self).find('.rating.selected').each(saveRating(place.key))
+							wait_save_place--;
+						} else {
+							console.log(resp);
+							alert("Error" + resp.status);
+						}
+					},
+					headers : {
+						Authorization : auth
+					}
+				});
+			});
+		}
+		
+		function saveNewPlaceRating(place, div) {
+			var btn = $(div);
+			var value = $(btn).attr('value');
+			var not_known = false;
+			
+			if (value == 0){
+				not_known = true;
+			}
+			var rating = {
+				'place_id' : place,
+				'purpose' : $(btn).attr('purpose'),
+				'value' : value,
+				'not_known' : not_known,
+			};
+			$.ajax({
+				type : 'POST',
+				url : '/api/rating',
+				data : JSON.stringify(rating),
+				success : function() {
+				},
+				error : function(resp) {
+					
+					console.log(resp);
+					alert("Error" + resp.status);
+				},
+				headers : {
+					Authorization : auth
+				}
+			});
+			$('.new-place-form').html('');
+		};
+		
+		function saveRating(e) {
+			
+			var btn = $(e.target);
+			var value = $(btn).attr('value');
+			
+			var not_known = false;
+			if (value == 0){
+				not_known = true;
+			}
+			var rating = {
+				'place_id' : $(btn).attr('place_id'),
+				'purpose' : $(btn).attr('purpose'),
+				'value' : value,
+				'not_known' : not_known,
+			};
+			
+			$.ajax({
+				type : 'POST',
+				url : '/api/rating',
+				data : JSON.stringify(rating),
+				success : function() {
+					$(btn).parent().find('button').removeClass('selected');				
+					$(btn).addClass('selected');
+				},
+				error : function(resp) {
+					if (resp.status == 200) {
+						$(btn).parent().find('button').removeClass('selected');				
+						$(btn).addClass('selected');
+					} else {
+						console.log(resp);
+						alert("Error" + resp.status);
+					}
+				},
+				headers : {
+					Authorization : auth
+				}
+			});
+		};
+
+		function onNext(){
+			if(last_pos + pageSize < filtered_places.length ){
+				last_pos += pageSize;
+				displayPlaces(last_pos);
+			} else {
+				//there are no more places after the ones already shown
+				//do nothing
+			}
+		}
+		
+		function onPrev(){
+			if(last_pos > 0 ){
+				last_pos -= pageSize;
+				displayPlaces(last_pos);
+			} else {
+				//there are no places before the ones already shown
+				//do nothing
+			}
+		}
+		
+		$('.rating').click(saveRating);
+		$('.navigation-buttons .next').click(onNext);
+		$('.navigation-buttons .prev').click(onPrev);
+		$('.navigation-buttons').hide();
+		$('.filters').hide();
+		$('.no-places').hide();
+		$('.search-name').click(function(){
+			var text = $('#name-input').val().toLowerCase();
+			filtered_places = [];
+			for(var i=0; i< all_places.length; i++){
+				var p = all_places[i];
+				if(p.name.toLowerCase().indexOf(text) > -1){
+					filtered_places.push(p);
+				}
+			}
+			last_pos = 0;
+			displayPlaces(last_pos);
+		});
+		
+		$('.new-place').click(function(){
+			addPlace();
+		});
+
+	});
+</script>
+
+
+{% endblock %}
+		

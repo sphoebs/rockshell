@@ -391,7 +391,7 @@ button.disabled {
 	position: relative;
 }
 
-form .save {
+.save {
 	width: 130px;
 	height: 40px;
 	text-align: center;
@@ -838,6 +838,58 @@ li.rest-item {
 }
 
 /* LETS GO END */
+
+/* RATINGS */
+
+.city-search label{
+	width: 45%;
+	display: inline-block;
+	text-align: right;
+	padding-right: 10px;
+	paddint-left: 10px;
+}
+
+.city-search .input{
+	width: 45%;
+	display: inline-block;
+	text-align: left;
+	padding-right: 10px;
+	paddint-left: 10px;
+}
+
+.ratings .filters {
+	display: inline-block;
+	width: 30%;
+	padding: 10px;
+	vertical-align: top;
+}
+
+.ratings .rest-list {
+	display: inline-block;
+	width: 60%;
+	padding: 10px;
+	vertical-align: top;
+}
+
+.new-place, .search-name {
+	width: 130px;
+	height: 40px;
+}
+
+.ui-autocomplete {
+    max-height: 150px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+  }
+  /* IE 6 doesn't support max-height
+   * we use height instead, but this forces the menu to always be this tall
+   */
+  * html .ui-autocomplete {
+    height: 150px;
+  }
+
+/* RATINGS END */
 
 /* MOBILE */
 @media screen and (min-width: 0px) and (max-width: 500px) {

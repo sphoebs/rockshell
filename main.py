@@ -188,7 +188,12 @@ class UserRatingsHandler(BaseRequestHandler):
 class UserRatingsOtherHandler(BaseRequestHandler):
 
     def get(self):
-        self.render('profile_ratings_other.html')
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        user, status = logic.user_get(user_id, None)
+        if status != "OK":
+            self.redirect('/')
+        self.render('ratings.html', {'profile': False, 'user': user})
+        #self.render('profile_ratings_other.html')
 
 
 class LetsgoHandler(BaseRequestHandler):
@@ -199,25 +204,6 @@ class LetsgoHandler(BaseRequestHandler):
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
-
-#         filters = {}
-#
-#
-#
-#         filters['lat'] = 0
-#         filters['lon'] = 0
-#         filters['max_dist'] = config.MAX_DIST
-#         places = recommender.recommend(user_id, filters)
-
-#         if status != "OK":
-#             self.render('letsgo.html', {})
-
-#         for p in places:
-#             ratings, status = logic.rating_list_get({'purpose': 'dinner with tourists', 'place': p.key.id()})
-#             if status == 'OK':
-#                 p.ratings = ratings
-#         json_list = json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[]) for p in places])
-#         logging.info(str(json_list))
 
         logging.info("USER: " + str(user))
         json_user = json.dumps(PFuser.to_json(user,
@@ -257,6 +243,15 @@ class SettingsHandler(BaseRequestHandler):
 
         self.redirect('/letsgo')
 
+class RatingsPageHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        user, status = logic.user_get(user_id, None)
+        if status != "OK":
+            self.redirect('/')
+        self.render('ratings.html', {'profile': False, 'user': user})
+        
 
 class ErrorHandler(BaseRequestHandler):
 
@@ -281,6 +276,7 @@ app = webapp2.WSGIApplication([
     ('/profile/3', UserRatingsOtherHandler),
     ('/letsgo', LetsgoHandler),
     ('/settings', SettingsHandler),
+    ('/ratings', RatingsPageHandler),
     ('/error', ErrorHandler)
 
 ], debug=True)
