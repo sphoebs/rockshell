@@ -3,7 +3,7 @@
 <div class="full-background profile">
 
 	<div class="profile-container ratings">
-		<div class="step text-100" {{ 'style="display:none;"' if profile else ""}} >{{ lang['step']}} 3/3</div>
+		<div class="step text-100" {{ 'style=display:none;' if not profile else ""}} >{{ lang['step']}} 3/3</div>
 		<div class="profile-logo"></div>
 		
 		<div class="scrollable">

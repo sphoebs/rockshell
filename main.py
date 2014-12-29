@@ -284,7 +284,7 @@ class RatingsPageHandler(BaseRequestHandler):
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
-        self.render('ratings.html', {'profile': False, 'user': user, 'lang' : LANG })
+        self.render('ratings.html', {'user': user, 'lang' : LANG })
         
 
 class ErrorHandler(BaseRequestHandler):
