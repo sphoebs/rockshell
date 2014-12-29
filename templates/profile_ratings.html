@@ -3,29 +3,27 @@
 <div class="full-background profile">
 
 	<div class="profile-container">
-		<div class="step text-100">step 2/3</div>
+		<div class="step text-100">{{ lang['step']}} 2/3</div>
 		<div class="profile-logo"></div>
 
 		<div class="scrollable">
 			<div class="text-100 red-text center-text">
-				These are the places we found for: <span class="text-300">{{city}}</span>
+				{{ lang['profile2_text1']}}: <span class="text-300">{{city}}</span>
 			</div>
-			<div class="text-100 red-text center-text">Tell us about your
-				favourite hometown restaurants:</div>
+			<div class="text-100 red-text center-text">{{ lang['profile2_text2']}}:</div>
 			<div class="text-100 red-text center-text">
-				<small>This feedback would help people that visit your
-					hometown!! No one knows better than a local :)</small>
+				<small>{{ lang['profile_feedback']}}</small>
 			</div>
 
 			<ul class="rest-list">
-				<p>Sorry, we do not know any restaurant in your city.</p>
+				<p>{{ lang['no_places_city']}}</p>
 			</ul>
 
 			<div class="navigation-buttons">
-				<button class="prev">Prev</button>
-				<button class="next">Next</button>
+				<button class="prev">{{ lang['prev']}}</button>
+				<button class="next">{{ lang['next']}}</button>
 				<button class="img-btn continue"
-					onclick="window.location = '/profile/3'">Continue</button>
+					onclick="window.location = '/profile/3'">{{ lang['continue']}}</button>
 			</div>
 
 		</div>
@@ -42,9 +40,9 @@
 		
 		var pageSize= 5;
 		
-		$('.rating' ).tooltip({
+		/* $('.rating' ).tooltip({
 			tooltipClass: 'my-tooltip'
-		});
+		}); */
 		
 		$('.scrollable').enscroll({
 		    showOnHover: false,
@@ -85,7 +83,8 @@
 				var template = xmlhttp.responseText;
 				var compiled = _.template(template);
 				var html = compiled({
-					rest : rest
+					rest : rest,
+					strings: {{ lang['rating_purposes']|safe }}
 				});
 				$('.rest-list').append(html);
 				
@@ -93,6 +92,9 @@
 			}
 			$('.rating').click(saveRating);
 			$('.scrollable').scrollTop(0);
+			$('.rating' ).tooltip({
+				tooltipClass: 'my-tooltip'
+			});
 			
 		}
 
@@ -138,7 +140,9 @@
 						$(btn).parent().find('button').removeClass('selected');				
 						$(btn).addClass('selected');
 					} else {
-						console.log(resp);
+						if(window.console){
+							console.log(resp);
+						}
 						alert("Error" + resp.status);
 					}
 				},

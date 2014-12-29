@@ -3,36 +3,41 @@
 <div class="full-background profile">
 
 	<div class="profile-container ratings">
-		{{ '<div class="step text-100">step 2/3</div>' if profile else ''}}
+		<div class="step text-100" {{ 'style="display:none;"' if profile else ""}} >{{ lang['step']}} 3/3</div>
 		<div class="profile-logo"></div>
 		
 		<div class="scrollable">
-			<h3> Rate some restaurants and let us understand better your tastes!!</h3>
+			<div class="text-100 center-text"> {{lang['ratings_text1']}}</div>
 			<div class="city-search">
-				<label class="text-300 red-text">Please, select a city you visited: </label>
+				<label class="text-300 red-text">{{lang['city_select']}}: </label>
 				<div class="input">
 					<input type="text" name="auto-city" id="city" >
 					<input type="hidden" name="locality" id="locality" /> 
 					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
 					<input type="hidden" name="country" id="country"/>
+					<input type="hidden" name="city-lat" id="city-lat"/> <!-- To center map -->
+					<input type="hidden" name="city-lon" id="city-lon"/> <!-- To center map -->
 				</div>
 			</div>
-			
+			<br/>
 			<div>
-				<p class="no-places">We are sorry, we don't know places for the selected city. Create your favourite places!!</p>
-				<button class="img-btn new-place">Add place</button>
-				<div class="new-place-form"></div>
+				<div class="text-100 no-places">{{lang['no_places_selected']}}</div>
+				<span class="text-100">{{lang['create_place_button']}}</span>
+				<button class="img-btn new-place">{{lang['add_place']}}</button>
+				<div class="new-place-form popup-area"></div>
 			</div>
 			
 			<div class="filters">
 			
 				<div class="ui-widget">
-  					<label for="name-input">Search by name: </label>
+  					<label class="text-100" for="name-input">{{lang['search_name']}}: </label>
   					<input type="text" name="name-input" id="name-input">
-  					<button class="img-btn search-name">Filter</button>
+  					<button class="img-btn search-name"></button>
 				</div>
 				
-				<div class="map-search">
+				<label class="text-100">{{lang['map_search']}}: </label>
+				<input id="pac-input" class="controls" type="text" placeholder="Search Box">
+				<div class="map-search" id="map-search">
 				</div>
 			</div>
 
@@ -41,10 +46,10 @@
 			</ul>
 
 			<div class="navigation-buttons">
-				<button class="prev">Prev</button>
-				<button class="next">Next</button>
+				<button class="prev">{{ lang['prev']}}</button>
+				<button class="next">{{ lang['next']}}</button>
 				<button class="img-btn continue"
-					onclick="window.location = '/letsgo'">I'm done</button>
+					onclick="window.location = '/letsgo'">{{ lang['done']}}</button>
 			</div>
 
 		</div>
@@ -56,7 +61,7 @@
 
 {% endblock %} {% block scripts %}
 <script type="text/javascript"
-	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+	src="http://maps.googleapis.com/maps/api/js?libraries=places&language=en"></script>
 <script type="text/javascript">
 	$(window).load(function() {
 		var pageSize = 5;
@@ -121,6 +126,11 @@
 					$('#'+addressType).val(val);
 				}
 			}
+			if(place.geometry.location){
+				/* alert(JSON.stringify(place.geometry.location)); */
+				document.getElementById('city-lat').value = place.geometry.location.k;
+				document.getElementById('city-lon').value = place.geometry.location.D;
+			}
 			
 			loadPlaces();
 		}
@@ -129,7 +139,7 @@
 			
 			var city = $('#locality').val();
 			if(city == undefined || city == ''){
-				alert("The city must be set!!");
+				alert("{{lang['city_mandatory']}}");
 				return;
 			}
 			var province = $('#administrative_area_level_2').val();
@@ -165,7 +175,9 @@
 					}
 				},
 				error : function(resp) {
-					console.log(resp);
+					if(window.console){
+						console.log(resp);
+					}
 					alert("Error" + resp.status);
 					
 				},
@@ -201,7 +213,7 @@
 				var template = xmlhttp.responseText;
 				var compiled = _.template(template);
 				var html = compiled({
-					rest : rest
+					rest : rest, strings: {{lang['rating_purposes']|safe}}
 				});
 				$('.rest-list').append(html);
 				
@@ -215,26 +227,38 @@
 		}
 		
 		function initFilters(){
-			//TODO: add autocomplete to name search
-			$( "#name-input" ).autocomplete({
-      			source: placesNames
-    		});
+			if($('.filters').is(":visible")){
+				//filters are already active
+			} else {
+				//autocomplete for name search
+				$( "#name-input" ).autocomplete({
+      				source: placesNames
+    			});
 			
-			//TODO: show places in map
+				//show places in map
+				initializeMap();
 			
-			$('.filters').show();
+				$('.filters').show();
+			}
 		}
 		
 		function addPlace(){
 			
 			//load underscore template
 			var xmlhttp = new XMLHttpRequest();
-			xmlhttp.open("GET","/static/js_templates/rest_rating_form.ejs",false);
+			xmlhttp.open("GET","/static/js_templates/new_rest_rating_popup.ejs",false);
 			xmlhttp.send(null);
 			var template = xmlhttp.responseText;
 			var compiled = _.template(template);
-			var html = compiled({});
+			var html = compiled({ 
+				strings: {{lang['new_rest_rating_popup']|safe}}, 
+				purpose: {{lang['rating_purposes']|safe}} 
+			});
 			$('.new-place-form').html(html);
+			
+			$('#close-popup').click(function(){
+				$('.popup-area').html('');
+			});
 			
 			$('.scrollable').enscroll({
 			    showOnHover: false,
@@ -335,7 +359,9 @@
 							$(self).find('.rating.selected').each(saveRating(place.key))
 							wait_save_place--;
 						} else {
-							console.log(resp);
+							if(window.console){
+								console.log(resp);
+							}
 							alert("Error" + resp.status);
 						}
 					},
@@ -367,8 +393,9 @@
 				success : function() {
 				},
 				error : function(resp) {
-					
-					console.log(resp);
+					if(window.console){
+						console.log(resp);
+					}
 					alert("Error" + resp.status);
 				},
 				headers : {
@@ -403,13 +430,12 @@
 					$(btn).addClass('selected');
 				},
 				error : function(resp) {
-					if (resp.status == 200) {
-						$(btn).parent().find('button').removeClass('selected');				
-						$(btn).addClass('selected');
-					} else {
+					
+					if(window.console){
 						console.log(resp);
-						alert("Error" + resp.status);
 					}
+					alert("Error" + resp.status);
+					
 				},
 				headers : {
 					Authorization : auth
@@ -436,6 +462,56 @@
 				//do nothing
 			}
 		}
+		
+		function initializeMap() {
+			var lat = $('#city-lat').val();
+			var lon = $('#city-lon').val();
+			
+			var myLatlng = new google.maps.LatLng(lat, lon);
+			var mapOptions = {
+				zoom: 12,
+			    center: myLatlng
+			}
+			var map = new google.maps.Map(document.getElementById('map-search'), mapOptions);
+			
+			// Create the search box and link it to the UI element.
+			var input = /** @type {HTMLInputElement} */(
+			    document.getElementById('pac-input'));
+			map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+			var searchBox = new google.maps.places.SearchBox(
+			    /** @type {HTMLInputElement} */(input));
+			
+			// Listen for the event fired when the user selects an item from the
+			// pick list. Retrieve the matching places for that item.
+			google.maps.event.addListener(searchBox, 'places_changed', function() {
+			    var places = searchBox.getPlaces();
+			    if(places != undefined && places.length>0){
+			    	map.setCenter(places[i].geometry.location);
+			    }
+			});
+
+			for(var i=0; i< all_places.length; i++){
+				var p = all_places[i];
+				var marker = new google.maps.Marker({
+				    position: new google.maps.LatLng(p.address.lat, p.address.lon),
+				    map: map,
+				    title: p.name,
+				    myplace : p
+				});
+				
+				google.maps.event.addListener(marker, 'click', function() {
+				    marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+				    var place = marker.myplace;
+				    filtered_places = [place];
+				    last_pos = 0;
+				    displayPlaces(last_pos);
+				  });
+			}
+			
+			
+		}
+
 		
 		$('.rating').click(saveRating);
 		$('.navigation-buttons .next').click(onNext);

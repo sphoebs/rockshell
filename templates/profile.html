@@ -3,21 +3,21 @@
 <div class="full-background profile">
 
 	<div class="profile-container">
-		<div class="step text-100">step 1/3</div>
+		<div class="step">{{ lang['step']}} 1/3</div>
 		<div class="profile-logo"></div>
 		
 		<div class="scrollable">	
-			<div class="text-100 red-text center-text"> Hey there!! To offer you a personalized experience we need to know some information about you.</div>
+			<div class="center-text">{{ lang['profile_intro']}} </div>
 	
 			<form action="/profile/1" method="post">
 				<div>
-					<label class="form-label text-300 red-text">Name: </label>
+					<label class="form-label">{{ lang['name']}}: </label>
 					<div class="form-input"><input type="text" name="name"
 						value="{{user.full_name|e}}">
 					</div>
 				</div>
 				<div>
-					<label class="form-label text-300 red-text">Home city: </label>
+					<label class="form-label">{{ lang['home_city']}}: </label>
 					<div class="form-input">
 						<input type="text" name="auto-city"
 							id="city" >
@@ -28,7 +28,7 @@
 				</div>
 				
 				<div>
-					<label class="form-label text-300 red-text">Gender: </label> 
+					<label class="form-label">{{ lang['gender']}}: </label> 
 					<div class="form-input" style="margin-left: 10px;">
 						<label class="radio-inline"> <input
 							type="radio" name="gender" value="M" {{"checked" if user.gender and user.gender == 'M' else ""}} > M
@@ -39,36 +39,36 @@
 					</div>
 				</div>
 				<div>
-					<label class="form-label text-300 red-text">Age: </label>
+					<label class="form-label">{{ lang['age']}}: </label>
 					<div class="form-input">
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="<18" {{"checked" if user.age and user.age == "<18" else ""}} >
-								Less than 18 years old
+							<label> <input type="radio" name="age" value="<18" {{"checked" if user.age and user.age == "<18" else ""}} >
+								{{ lang['<18_years']}}
 							</label>
 						</div>
 						<div class="radio">
 							<label class="text-100 red-text"> <input type="radio" name="age" value="18-25" {{"checked" if user.age and user.age == "18-25" else ""}} >
-							18 - 25 years old
+								18 - 25 {{ lang['years_old']}}
 							</label>
 						</div>
 						<div class="radio">
 							<label class="text-100 red-text"> <input type="radio" name="age" value="26-35" {{"checked" if user.age and user.age == "26-35" else ""}}>
-								26 - 35 years old
+								26 - 35 {{ lang['years_old']}}
 							</label>	
 						</div>
 						<div class="radio">
 							<label class="text-100 red-text"> <input type="radio" name="age" value="36-55" {{"checked" if user.age and user.age == "36-55" else ""}}>
-								36 - 55 years old
+								36 - 55 {{ lang['years_old']}}
 							</label>
 						</div>
 						<div class="radio">
 							<label class="text-100 red-text"> <input type="radio" name="age" value=">55" {{"checked" if user.age and user.age == ">55" else ""}}>
-								More than 55 years old
+								{{ lang['>55_years']}}
 							</label>
 						</div>
 					</div>
 				</div>
-				<input type="submit" class="img-btn save text-100" value="Save" />
+				<input type="submit" class="img-btn save text-100" value="{{ lang['save']}}" />
 			</form>
 		</div>
 	</div>

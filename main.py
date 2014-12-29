@@ -25,6 +25,7 @@ import time
 import logic
 import recommender
 import json
+import languages
 
 from models import PFuser, Place, Settings
 
@@ -39,8 +40,41 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     # extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
+# AVAILABLE_LOCALES = ['en', 'it']
+LANG = languages.en
+
 
 class BaseRequestHandler(webapp2.RequestHandler):
+    
+    def __init__(self, request, response):
+        """ Override the initialiser in order to set the language.
+        """
+        self.initialize(request, response)
+        global LANG
+        
+        # first, try and set locale from cookie
+        locale = request.cookies.get('locale')
+        if locale is None: 
+            # if that failed, try and set locale from accept language header
+            header = request.headers.get('Accept-Language', '')  # e.g. en-gb,en;q=0.8,es-es;q=0.5,eu;q=0.3
+            locales = [locale.split(';')[0] for locale in header.split(',')]
+            for locale in locales:
+                if 'en' in locale.lower():
+                    LANG = languages.en
+                    break
+                elif 'it' in locale.lower():
+                    LANG = languages.it
+                    break
+            else:
+                # if still no locale set, use the first available one
+                LANG = languages.en
+        else:
+            if 'en' in locale.lower():
+                LANG = languages.en
+            elif 'it' in locale.lower():
+                LANG = languages.it
+        
+            
 
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -95,7 +129,6 @@ class LoginHandler(BaseRequestHandler):
                 # goto profile page
                 self.redirect('/profile/1')
             else:
-                # TODO: get user location
                 self.redirect('/letsgo')
         else:
             self.redirect('/error')
@@ -110,7 +143,7 @@ class UserHandler(BaseRequestHandler):
         if status == "OK":
             self.render(
                 'profile.html',
-                {'user': user}
+                {'user': user, 'lang' : LANG}
             )
         else:
             self.redirect('/')
@@ -174,6 +207,7 @@ class UserRatingsHandler(BaseRequestHandler):
         if 'city' in filters.keys():
             filters['city'] = user.home.city + ', ' + user.home.province
         filters['list'] = json_list
+        filters['lang'] = LANG
 #         logging.info("HERE!!!")
         if status == "OK":
             self.render(
@@ -192,7 +226,7 @@ class UserRatingsOtherHandler(BaseRequestHandler):
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
-        self.render('ratings.html', {'profile': False, 'user': user})
+        self.render('ratings.html', {'profile': True, 'user': user, 'lang' : LANG})
         #self.render('profile_ratings_other.html')
 
 
@@ -212,7 +246,7 @@ class LetsgoHandler(BaseRequestHandler):
                                               ['user_id', 'fb_user_id', 'fb_access_token', 'google_user_id', 'google_access_token', 
                                                'created', 'updated,' 'email', 'profile', 'age', 'gender']))
         logging.info("USER JSON: " + str(json_user))
-        self.render('letsgo.html', {'list': places, 'user': json_user})
+        self.render('letsgo.html', {'list': places, 'user': json_user, 'lang' : LANG})
 
 
 class SettingsHandler(BaseRequestHandler):
@@ -250,7 +284,7 @@ class RatingsPageHandler(BaseRequestHandler):
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
-        self.render('ratings.html', {'profile': False, 'user': user})
+        self.render('ratings.html', {'profile': False, 'user': user, 'lang' : LANG })
         
 
 class ErrorHandler(BaseRequestHandler):

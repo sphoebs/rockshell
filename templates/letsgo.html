@@ -10,7 +10,7 @@
 			<button class="img-btn"></button>
 			<div class="user-menu-small">
 				<div class="user-picture"></div>
-				<div class="text-300 user-name">Welcome <br/> {{user.first_name}}</div>
+				<div class="text-300 user-name">{{ lang['welcome']}} <br/> {{user.first_name}}</div>
 			</div>
 		</div>
 		<div class="logo"></div>
@@ -19,10 +19,10 @@
 	<div class="rest-details">
 		<button class="img-btn prev"></button>
 		<div class="main">
-			<p class="text-100 red-text center-text first">In this picture</p>
-			<p class="text-100 red-text name">Restaurant name</p>
-			<p class="text-100 red-text address">address</p>
-			<p class="text-100 red-text distance">Distance: 100 m</p>
+			<p class="text-100 red-text center-text first">{{ lang['in_this_picture']}}</p>
+			<p class="text-100 red-text name">{{ lang['restaurant_name']}}</p>
+			<p class="text-100 red-text address">{{ lang['address']}}</p>
+			<p class="text-100 red-text distance">{{ lang['distance']}}: 100 m</p>
 		</div>
 		<button class="img-btn next"></button>
 	</div>
@@ -30,17 +30,17 @@
 	<div class="left-menu scrollable">
 		<div class="user-menu">
 			<div class="user-picture"></div>
-			<h2 class="text-300 user-name">Welcome {{user.first_name}}</h2>
+			<h2 class="text-300 user-name">{{ lang['welcome']}} {{user.first_name}}</h2>
 		</div>
 		<br/>
 		
 		<ul class="menu-items">
-			<li><button class="img-btn" id="rate-more">Rate more places</button></li>
-			<li><button class="img-btn selected" id="near-me">Near me</button></li>
-			<li><button class="img-btn" id="discounts">Discounts</button></li>
-			<li><button class="img-btn" id="inspire-me">Inspire me</button></li>
-			<li><button class="img-btn" id="settings">Search settings</button></li>
-			<li><button class="img-btn" id="logout">Log out</button></li>
+			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+			<li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li>
+			<li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li>
+			<li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li>
+			<li><button class="img-btn" id="settings">{{ lang['search_settings']}}</button></li>
+			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 		</ul>
 	
 	</div>
@@ -83,7 +83,7 @@ $(window).load(function() {
 	if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showRecommendations);
     } else { 
-        alert("Geolocation is not supported by this browser.");
+        alert('{{ lang['no_geolocation']}}');
     }
 	
 	var places = [];
@@ -111,7 +111,7 @@ $(window).load(function() {
 		if(p.distance){
 			
 			var meters = Math.round(p.distance);
-			var text = 'Distance: '
+			var text = '{{ lang['distance']}}' + ': ';
 			if(meters < 1000){
 				text += meters + ' m';
 			} else {
@@ -182,7 +182,7 @@ $(window).load(function() {
 				places = data;
 				
 				if(places == null || places.length < 1){
-					alert('We are sorry, we found no places around your current position.');
+					alert('{{ lang['no_places_position']}}');
 				}
 				
 				renderPlace(pos);
@@ -195,7 +195,9 @@ $(window).load(function() {
 				$('#places').html(places_str);  */
 			},
 			error : function(resp) {
-				console.log(resp);
+				if(window.console){
+					console.log(resp);
+				}
 				alert("Error " + resp.status);
 			}
 		}); 
@@ -248,18 +250,20 @@ $(window).load(function() {
 				window.location = '/';
 			},
 			error : function(resp) {
-				console.log(resp);
+				if(window.console){
+					console.log(resp);
+				}
 				alert("Error " + resp.status);
 			}
 		});
 	});
 
 	$('#discounts').click(function(){
-		alert("Coming soon.")
+		alert('{{ lang['coming_soon']}}')
 	});
 	
 	$('#inspire-me').click(function(){
-		alert("Coming soon.")
+		alert('{{ lang['coming_soon']}}')
 	});
 	
 	$('#settings').click(function(){
@@ -277,7 +281,7 @@ $(window).load(function() {
 		xmlhttp.send(null);
 		var template = xmlhttp.responseText;
 		var compiled = _.template(template);
-		var html = compiled({settings: settings});
+		var html = compiled({settings: settings, strings: {{lang['search_settings_popup']|safe}} });
 		$('.popup-area').html(html);
 		
 		$('.popup-area').show();
@@ -291,9 +295,9 @@ $(window).load(function() {
 		    verticalHandleClass: 'handle-red'
 		});
 		
-		$('.close-popup').click(function(){
-			$('.popup-area').hide();
-		})
+		$('#close-popup').click(function(){
+			$('.popup-area').html('');
+		});
 	});
 	
 	$('#rate-more').click(function(){

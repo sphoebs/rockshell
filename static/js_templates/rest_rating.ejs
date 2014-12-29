@@ -13,7 +13,7 @@
 		</div>
 		<div class="rest-ratings">
 			<div class="text-100 red-text">
-				<small>For a dinner with visitors</small>
+				<small><%= strings.tourists %></small>
 			</div>
 			<div class="purpose-buttons">
 				<img class="purpose-icon"
@@ -21,86 +21,85 @@
 				<button class="rating rating-btn noidea"
 					place_id="<%= rest.key %>" purpose="dinner with tourists"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I have never been here for this purpose" value="0"></button>
+					title="<%= strings.tips_notknow %>" value="0"></button>
 				<button class="rating rating-btn bad"
 					place_id="<%= rest.key %>" purpose="dinner with tourists"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I do not like it" value="1"></button>
+					title="<%= strings.tips_notlike %>" value="1"></button>
 				<button class="rating rating-btn neutral"
 					place_id="<%= rest.key %>" purpose="dinner with tourists"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I am neutral" value="3"></button>
+					title="<%= strings.tips_neutral %>" value="3"></button>
 				<button class="rating rating-btn happy"
 					place_id="<%= rest.key %>" purpose="dinner with tourists"
-					data-toggle="tooltip" data-placement="bottom" title="I like it"
+					data-toggle="tooltip" data-placement="bottom" title="<%= strings.tips_like %>"
 					value="5"></button>
 			</div>
 
 
-			<small class="text-100 red-text">For a romantic dinner
-				with the partner</small>
+			<small class="text-100 red-text"><%= strings.partner %></small>
 			<div class="purpose-buttons">
 				<img class="purpose-icon"
 					src="/static/images/ratings/romantic_selected.png">
 				<button class="rating rating-btn noidea"
 					place_id="<%= rest.key %>" purpose="romantic dinner"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I have never been here for this purpose" value="0"></button>
+					title="<%= strings.tips_notknow %>" value="0"></button>
 				<button class="rating rating-btn bad"
 					place_id="<%= rest.key %>" purpose="romantic dinner"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I do not like it" value="1"></button>
+					title="<%= strings.tips_notlike %>" value="1"></button>
 				<button class="rating rating-btn neutral"
 					place_id="<%= rest.key %>" purpose="romantic dinner"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I am neutral" value="3"></button>
+					title="<%= strings.tips_neutral %>" value="3"></button>
 				<button class="rating rating-btn happy"
 					place_id="<%= rest.key %>" purpose="romantic dinner"
-					data-toggle="tooltip" data-placement="bottom" title="I like it"
+					data-toggle="tooltip" data-placement="bottom" title="<%= strings.tips_like %>"
 					value="5"></button>
 			</div>
 
-			<small class="text-100 red-text">For a dinner with friends</small>
+			<small class="text-100 red-text"><%= strings.friends %></small>
 			<div class="purpose-buttons">
 				<img class="purpose-icon"
 					src="/static/images/ratings/friends_selected.png">
 				<button class="rating rating-btn noidea"
 					place_id="<%= rest.key %>" purpose="dinner with friends"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I have never been here for this purpose" value="0"></button>
+					title="<%= strings.tips_notknow %>" value="0"></button>
 				<button class="rating rating-btn bad"
 					place_id="<%= rest.key %>" purpose="dinner with friends"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I do not like it" value="1"></button>
+					title="<%= strings.tips_notlike %>" value="1"></button>
 				<button class="rating rating-btn neutral"
 					place_id="<%= rest.key %>" purpose="dinner with friends"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I am neutral" value="3"></button>
+					title="<%= strings.tips_neutral %>" value="3"></button>
 				<button class="rating rating-btn happy"
 					place_id="<%= rest.key %>" purpose="dinner with friends"
-					data-toggle="tooltip" data-placement="bottom" title="I like it"
+					data-toggle="tooltip" data-placement="bottom" title="<%= strings.tips_like %>"
 					value="5"></button>
 			</div>
 
-			<small class="text-100 red-text">For a lunch break</small>
+			<small class="text-100 red-text"><%= strings.price_quality %></small>
 			<div class="purpose-buttons">
 				<img class="purpose-icon"
 					src="/static/images/ratings/lunch_selected.png">
 				<button class="rating rating-btn noidea"
 					place_id="<%= rest.key %>" purpose="best price/quality ratio"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I have never been here for this purpose" value="0"></button>
+					title="<%= strings.tips_notknow %>" value="0"></button>
 				<button class="rating rating-btn bad"
 					place_id="<%= rest.key %>" purpose="best price/quality ratio"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I do not like it" value="1"></button>
+					title="<%= strings.tips_notlike %>" value="1"></button>
 				<button class="rating rating-btn neutral"
 					place_id="<%= rest.key %>" purpose="best price/quality ratio"
 					data-toggle="tooltip" data-placement="bottom"
-					title="I am neutral" value="3"></button>
+					title="<%= strings.tips_neutral %>" value="3"></button>
 				<button class="rating rating-btn happy"
 					place_id="<%= rest.key %>" purpose="best price/quality ratio"
-					data-toggle="tooltip" data-placement="bottom" title="I like it"
+					data-toggle="tooltip" data-placement="bottom" title="<%= strings.tips_like %>"
 					value="5"></button>
 			</div>
 
