@@ -10,7 +10,7 @@
 			<button class="img-btn"></button>
 			<div class="user-menu-small">
 				<div class="user-picture"></div>
-				<div class="text-300 user-name">{{ lang['welcome']}} <br/> {{user.first_name}}</div>
+				<div class="text-300 user-name">{{ lang['welcome']}} <br/> </div>
 			</div>
 		</div>
 		<div class="logo"></div>
@@ -30,7 +30,7 @@
 	<div class="left-menu scrollable">
 		<div class="user-menu">
 			<div class="user-picture"></div>
-			<h2 class="text-300 user-name">{{ lang['welcome']}} {{user.first_name}}</h2>
+			<h2 class="text-300 user-name">{{ lang['welcome']}}</h2>
 		</div>
 		<br/>
 		
@@ -85,6 +85,9 @@ $(window).load(function() {
     } else { 
         alert('{{ lang['no_geolocation']}}');
     }
+	var user = {{user|safe}};
+	$('.user-name').append(' '+user.first_name);
+	
 	
 	var places = [];
 	var pos = 0;
@@ -155,7 +158,7 @@ $(window).load(function() {
 	$('.rest-details .prev').click(onPrev);
 	
 	function showRecommendations(position) {
-		var user = {{user|safe}};
+		
 		var settings =user.settings; 
 		if(settings == undefined){
 			settings = {purpose: 'dinner with tourists', max_distance: 1000, num_places: 5};
@@ -213,6 +216,14 @@ $(window).load(function() {
 			//odd time --> open left menu
 			$('.left-menu').show();
 			$('.user-menu-small').hide();
+			$('.scrollable').enscroll({
+			    showOnHover: false,
+			    verticalScrolling: true,
+				horizontalScrolling: false,
+				zIndex: 100,
+			    verticalTrackClass: 'track-white',
+			    verticalHandleClass: 'handle-white'
+			});
 			count++;
 		} else {
 			//even time --> close left menu
@@ -222,16 +233,6 @@ $(window).load(function() {
 		}
 		
 	});
-	
-	$('.scrollable').enscroll({
-	    showOnHover: false,
-	    verticalScrolling: true,
-		horizontalScrolling: false,
-		zIndex: 100,
-	    verticalTrackClass: 'track-white',
-	    verticalHandleClass: 'handle-white'
-	});
-	
 	
 	var userpic = String("{{user.picture if user.picture != None else ''}}");
 	if(userpic != undefined && userpic.length > 0){	

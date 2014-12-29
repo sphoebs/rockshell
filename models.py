@@ -1473,6 +1473,10 @@ class PFuser(PFmodel):
 #             if 'email' in objdict.keys():
 #                 del objdict['email']
 
+            if 'first_name' in objdict.keys():
+                db_obj.first_name = objdict['first_name']
+            if 'last_name' in objdict.keys():
+                db_obj.last_name = objdict['last_name']
             if 'full_name' in objdict.keys():
                 db_obj.full_name = objdict['full_name']
             if 'age' in objdict.keys():

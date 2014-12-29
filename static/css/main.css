@@ -58,13 +58,12 @@ form {
 	filter: brightness(70%);
 }
 
-button, inupt, input[type=button], input[type=submit] {
+button {
 	outline: 0;
 	border: 0;
 	box-shadow: none;
 	background: transparent;
 	-webkit-appearance: button;
-	background-image: url(../images/btn.png);
 	background-repeat: no-repeat;
 	background-position: center;
 	-webkit-background-size: contain;
@@ -72,9 +71,35 @@ button, inupt, input[type=button], input[type=submit] {
 	-o-background-size: contain;
 	background-size: contain;
 	color: white;
+	background-color: #DC3D3D;
+	line-height: 1.3em;
+	font-size: 13pt;
+}
+
+input[type=button], input[type=submit] {
+	outline: 0;
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+	-webkit-appearance: button;
+	/* background-image: url(../images/btn.png); */
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	background-color: #DC3D3D;
+	border-right: solid 1px #842525;
+	border-bottom: solid 2px #842525;
+	color: white;
 	font-size: 13pt;
 	line-height: 1.3em;
+	padding-left: 10px;
+	padding-right: 10px;
 }
+
+
 
 input[type=text], input[type=number], select {
 	outline: 0;
@@ -192,6 +217,7 @@ button.disabled {
 }
 
 .close {
+	background-color: transparent;
 	background-image: url(../images/close.png);
 	float: right;
 	width: 32px;
@@ -393,8 +419,8 @@ button.disabled {
 }
 
 .save {
-	width: 130px;
-	height: 40px;
+/* 	width: 130px;
+	height: 40px; */
 	text-align: center;
 	margin-top: 10px;
 	margin-left: 50%;
@@ -462,6 +488,7 @@ li.rest-item {
 	width: 32px;
 	height: 32px;
 	margin-right: 5px;
+	background-color: transparent;
 }
 
 .rest-item .rating-btn.noidea {
@@ -541,13 +568,16 @@ li.rest-item {
 }
 
 .navigation-buttons .continue {
-	width: 130px;
-	height: 32px;
+/* 	width: 130px;
+	height: 32px; */
 	display: block;
 	text-align: center;
 	margin-top: 10px;
 	margin-left: auto;
 	margin-right: auto;
+	background-color: #DC3D3D;
+	border-right: solid 1px #842525;
+	border-bottom: solid 2px #842525;
 }
 
 .navigation-buttons .next {
@@ -560,6 +590,7 @@ li.rest-item {
 	/* margin-top: 10px; */
 	margin-right: 20px;
 	padding-right: 45px;
+	background-color: transparent;
 	background-image: url(../images/arrows/arrow_right.png);
 	background-repeat: no-repeat;
 	background-position: right;
@@ -579,6 +610,7 @@ li.rest-item {
 	/* margin-top: 10px; */
 	margin-left: 20px;
 	padding-left: 45px;
+	background-color: transparent;
 	background-image: url(../images/arrows/arrow_left.png);
 	background-repeat: no-repeat;
 	background-position: left;
@@ -628,8 +660,8 @@ li.rest-item {
 }
 
 .save-buttons button {
-	width: 130px;
-	height: 32px;
+/* 	width: 130px;
+	height: 32px; */
 	max-width: 40%;
 	margin-right: 10px;
 }
@@ -786,7 +818,7 @@ li.rest-item {
 .letsgo .left-menu {
 	width: 250px;
 	max-width: 80%;
-	max-height: 95%;
+	/* max-height: 95%; */
 	color: white;
 	background: rgba(220, 61, 61, 1);
 	position: absolute;
@@ -820,7 +852,7 @@ li.rest-item {
 
 .letsgo .menu-items li button {
 	width: 100%;
-	height: 50px;
+	/* height: 50px; */
 	text-align: left;
 	font-size: 16pt;
 	background: rgba(220, 61, 61, 1);
@@ -874,8 +906,11 @@ li.rest-item {
 }
 
 .new-place {
-	width: 180px;
-	height: 40px;
+	/* width: 180px;
+	height: 40px; */
+	background-color: #DC3D3D;
+	border-right: solid 1px #842525;
+	border-bottom: solid 2px #842525;
 }
 
 .ui-autocomplete {
@@ -893,6 +928,8 @@ li.rest-item {
 
 .search-name {
 	background-color: #DC3D3D;
+	border-right: solid 1px #842525;
+	border-bottom: solid 2px #842525;
 	background-image: url(../images/search.png);
 	width: 32px;
 	height: 32px;

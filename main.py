@@ -159,14 +159,18 @@ class UserHandler(BaseRequestHandler):
 #             self.redirect("/error")
 
         user = PFuser()
+        if data.get('first_name') != '':
+            user.first_name = data.get('first_name')
+        if data.get('last_name') != '':
+            user.last_name = data.get('last_name')
+        user.full_name = data.get('first_name') + ' ' + data.get('last_name')
         if data.get('age') != '':
             user.age = data.get('age')
         if data.get('gender') != '':
             user.gender = data.get('gender')
         user.home = {'city': data.get('locality'), 'province': data.get(
             'administrative_area_level_2'), 'country': data.get('country')}
-        user.full_name = data.get('name')
-
+        
         user, status = logic.user_update(user, user_id, None)
         if status != "OK":
             self.redirect("/error")

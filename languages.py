@@ -8,7 +8,8 @@ en = {
     # PROFILE 1
     'step' : 'step',
     'profile_intro': 'Hey there!! To offer you a personalized experience we need to know some information about you.',
-    'name': 'Name',
+    'first_name': 'First name',
+    'last_name': 'Last name',
     'home_city': 'Home city',
     'gender': 'Gender',
     'age': 'Age',
@@ -54,7 +55,7 @@ en = {
       
     'search_settings_popup' : {
         'title': 'Search settings',
-        'porpose': 'Purpose',
+        'purpose': 'Purpose',
         'tourists': 'Dinner with visitors',
         'partner': 'Romantic dinner with the partner',
         'friends': 'Dinner with friends',
@@ -89,7 +90,8 @@ it = {
     # PROFILE 1
     'step' : 'passo',
     'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di alcune indormazioni su di te.',
-    'name': 'Nome',
+    'first_name': 'Nome',
+    'last_name': 'Cognome',
     'home_city': 'Citta` di origine',
     'gender': 'Genere',
     'age': 'Eta`',
@@ -135,7 +137,7 @@ it = {
       
     'search_settings_popup' : {
         'title': 'Impostazioni di ricerca',
-        'porpose': 'Motivo',
+        'purpose': 'Motivo',
         'tourists': 'Cena con degli ospiti da fuori citta`',
         'partner': 'Cena romantica con il/la tuo/a compagno/a',
         'friends': 'Cena con gli amici',
