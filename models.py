@@ -1202,7 +1202,20 @@ class PFuser(PFmodel):
             user = user_query.get()
             if user and user.fb_user_id:
 
+                if user.first_name != user_response['first_name']:
+                    user.first_name = user_response['first_name']
+                if user.last_name != user_response['last_name']:
+                    user.last_name = user_response['last_name']
+                if user.full_name != user_response['name']:
+                    user.full_name = user_response['name']
+                if user.locale != user_response['locale']:
+                    user.locale = user_response['locale']
+                picture = 'http://graph.facebook.com/{0}/picture'.format(user_response['id'])
+                if user.picture != picture:
+                    user.picture = picture
+
                 user.fb_access_token = access_token
+                user.put()
                 return user, ['FB_user_exists']
 
             if not user:
@@ -1239,7 +1252,19 @@ class PFuser(PFmodel):
             user = user_query.get()
             if user and user.google_user_id:
 
+                if user.first_name != user_response['given_name']:
+                    user.first_name = user_response['given_name']
+                if user.last_name != user_response['family_name']:
+                    user.last_name = user_response['family_name']
+                if user.full_name != user_response['name']:
+                    user.full_name = user_response['name']
+                if user.locale != user_response['locale']:
+                    user.locale = user_response['locale']
+                if user.picture != user_response['picture']:
+                    user.picture = user_response['picture']
+
                 user.google_access_token = access_token
+                user.put()
                 return user, ['google_user_exists']
 
             if not user:
@@ -1252,6 +1277,7 @@ class PFuser(PFmodel):
                 user.email = user_response['email']
                 user.full_name = user_response['name']
                 user.locale = user_response['locale']
+                user.picture = user_response['picture']
                 status.append('user_added')
 
             else:
@@ -1261,10 +1287,6 @@ class PFuser(PFmodel):
             user.google_user_id = user_response['id']
             if 'profile' in user_response.keys():
                 user.profile = user_response['profile']
-            if 'picture' in user_response.keys():
-                user.picture = user_response['picture']
-            if 'image' in user_response.keys():
-                user.picture = user_response['image'].geT('url')
             user.google_access_token = access_token
 
         user.put()

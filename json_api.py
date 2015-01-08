@@ -33,6 +33,10 @@ class UserHandler(webapp2.RequestHandler):
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
         user_id = logic.get_current_userid(auth)
+        if user_id is None:
+            self.response.set_status(403)
+            self.response.write("You must login first!")
+            return
         
         user, status = logic.user_get(user_id, None)
         if status == "OK":
@@ -64,6 +68,10 @@ class UserHandler(webapp2.RequestHandler):
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
         user_id = logic.get_current_userid(auth)
+        if user_id is None:
+            self.response.set_status(403)
+            self.response.write("You must login first!")
+            return
         
         post_data = json.loads(self.request.body)
         if post_data is None:
@@ -113,6 +121,12 @@ class UserLoginHandler(webapp2.RequestHandler):
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
         user_id = logic.get_current_userid(auth)
+        if user_id is None:
+            self.response.write('ok')
+        
+        set_cookie(self.response, 'user',
+                                        user_id, expires=0, encrypt=True)
+                
         
         set_cookie(self.response, 'user', user_id, expires=0, encrypt=True)
         self.response.write('ok')
@@ -140,6 +154,18 @@ class PlaceListHandler(webapp2.RequestHandler):
 
     def post(self):
         logging.info("Received new place to save: " + self.request.body)
+#         auth = self.request.headers.get("Authorization")
+#         if auth is None or len(auth) < 1:
+#             auth = self.request.cookies.get("user")
+#         if auth is None:
+#             user_id = None
+#         else:
+#             user_id = logic.get_current_userid(auth)
+#         if user_id is None:
+#             self.response.set_status(403)
+#             self.response.write("You must login first!")
+#             return
+        
         body = json.loads(self.request.body)
         place = Place.from_json(body)
 
@@ -170,6 +196,17 @@ class PlaceHandler(webapp2.RequestHandler):
             self.response.write("Invalid place id, it must be a number")
 
     def put(self, pid):
+#         auth = self.request.headers.get("Authorization")
+#         if auth is None or len(auth) < 1:
+#             auth = self.request.cookies.get("user")
+#         if auth is None:
+#             user_id = None
+#         else:
+#             user_id = logic.get_current_userid(auth)
+#         if user_id is None:
+#             self.response.set_status(403)
+#             self.response.write("You must login first!")
+#             return
 
         body = json.loads(self.request.body)
         place = Place.from_json(body)
@@ -202,6 +239,11 @@ class RatingHandler(webapp2.RequestHandler):
             user_id = None
         else:
             user_id = logic.get_current_userid(auth)
+        if user_id is None:
+            self.response.set_status(403)
+            self.response.write("You must login first!")
+            return
+        
         body = json.loads(self.request.body)
 
         rating = Rating.from_json(body)

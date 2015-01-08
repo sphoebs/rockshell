@@ -39,7 +39,10 @@ def cookie_signature(*parts):
 def set_cookie(response, name, value, domain=None, path="/", expires=None, encrypt=True):
     """Generates and signs a cookie for the given name/value"""
     # encrypt is never used
-    timestamp = str(int(time.time()))
+    if expires == 0:
+        timestamp = str(0)
+    else:
+        timestamp = str(int(time.time()))
     value = base64.b64encode(value)
     signature = cookie_signature(value, timestamp)
     cookie = Cookie.BaseCookie()

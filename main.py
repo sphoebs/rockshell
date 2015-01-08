@@ -139,6 +139,9 @@ class UserHandler(BaseRequestHandler):
     def get(self):
 
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
         user, status = logic.user_get(user_id, None)
         if status == "OK":
             self.render(
@@ -154,6 +157,9 @@ class UserHandler(BaseRequestHandler):
         data = self.request
 
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
 #         user, status = logic.user_get(user_id, None)
 #         if status != "OK":
 #             self.redirect("/error")
@@ -182,6 +188,9 @@ class UserRatingsHandler(BaseRequestHandler):
 
     def get(self):
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
@@ -227,6 +236,9 @@ class UserRatingsOtherHandler(BaseRequestHandler):
 
     def get(self):
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
@@ -238,6 +250,9 @@ class LetsgoHandler(BaseRequestHandler):
 
     def get(self):
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
         places = []
         user, status = logic.user_get(user_id, None)
         if status != "OK":
@@ -261,6 +276,9 @@ class SettingsHandler(BaseRequestHandler):
         data = self.request
 
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
 #         user, status = logic.user_get(user_id, None)
 #         if status != "OK":
 #             self.redirect("/error")
@@ -285,6 +303,9 @@ class RatingsPageHandler(BaseRequestHandler):
     
     def get(self):
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')

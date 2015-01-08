@@ -234,7 +234,7 @@ $(window).load(function() {
 		
 	});
 	
-	var userpic = String("{{user.picture if user.picture != None else ''}}");
+	var userpic = user.picture;
 	if(userpic != undefined && userpic.length > 0){	
 		$('.user-picture').css('background-image', 'url(' + userpic + ')');
 	}
