@@ -309,7 +309,30 @@ class RatingsPageHandler(BaseRequestHandler):
         user, status = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
+            return
         self.render('ratings.html', {'user': user, 'lang' : LANG })
+        
+class RestaurantPageHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        user, status = logic.user_get(user_id, None)
+        if status != "OK":
+            self.redirect('/')
+            return
+        get_values = self.request.GET
+        if not get_values:
+            self.redirect('/error')
+        else:
+            place_key =  get_values.get('id')
+            place, status = logic.place_get(None, place_key)
+            if status == 'OK':
+                self.render('restaurant.html', {'place': place, 'user': user, 'lang' : LANG });
+            else:
+                self.redirect('/error')
         
 
 class ErrorHandler(BaseRequestHandler):
@@ -336,6 +359,7 @@ app = webapp2.WSGIApplication([
     ('/letsgo', LetsgoHandler),
     ('/settings', SettingsHandler),
     ('/ratings', RatingsPageHandler),
+    ('/restaurant', RestaurantPageHandler),
     ('/error', ErrorHandler)
 
 ], debug=True)

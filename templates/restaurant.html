@@ -1,0 +1,156 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="full-background rest">
+	<div class="scrollable">
+	
+		<div class="top-bar rest-bar">
+			<div class="bar-background"></div>
+			<div class="menu-button">
+				<button class="img-btn"></button>
+				<div class="user-menu-small">
+					<div class="user-picture"></div>
+					<div class="text-300 user-name">{{ lang['welcome']}}<br/>{{user.first_name}} </div>
+				</div>
+			</div>
+			<div class="rest-logo"></div>
+		</div>
+		
+		<div class="left-menu">
+			<div class="user-menu">
+				<div class="user-picture"></div>
+				<h2 class="text-300 user-name">{{ lang['welcome']}} {{user.first_name}}</h2>
+			</div>
+			<br/>
+		
+			<ul class="menu-items">
+				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+			</ul>
+	
+		</div>
+	
+		<div class="rest-container">
+			<h2 class="text-center">{{place.name}}</h2>
+			
+			<div style="float:right">
+			<div class="picture">
+				<img src="{{place.picture}}">
+			</div>
+		
+			<div class="rest-map">
+				<img src="https://maps.googleapis.com/maps/api/staticmap?center={{place.address.location.lat}},{{place.address.location.lon}}&zoom=16&size=300x250&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.location.lat}},{{place.address.location.lon}}" >
+			</div>
+			</div>
+		
+			<div style="float:left">
+			<p><small>{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</small></p>
+			<p><small>Tel: {{place.phone}}</small></p>
+			<p><small>Average price: {{place.price_avg}}</small></p>
+			<p>Description: {{place.description}}</p>
+			
+			<h4>Opening hours:</h4>
+			<ul>
+				<li>Mon: 12-14</li>
+				<li>Tue: 12-14, 18-22</li>
+				<li>Wed: 12-14</li>
+				<li>Thu: 12-14</li>
+				<li>Fri: 12-14</li>
+				<li>Sat: 12-14</li>
+				<li>Sun: closed</li>
+			</ul>
+			
+			<p>Closed the following days: 15/08/2015</p>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+{% endblock %} {% block scripts %}
+<!-- <script type="text/javascript"
+	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script> -->
+<script type="text/javascript">
+	$(window).load(function() {
+		
+		$('.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-red',
+		    verticalHandleClass: 'handle-red'
+		});
+		
+		$('.left-menu').hide();
+		var count = 1;
+		$('.menu-button button').click(function(){
+			if(count % 2 == 1){
+				//odd time --> open left menu
+				$('.left-menu').show();
+				$('.user-menu-small').hide();
+				count++;
+			} else {
+				//even time --> close left menu
+				$('.left-menu').hide();
+				$('.user-menu-small').show();
+				count++;
+			}
+			
+		});
+		$('#rate-more').click(function(){
+			window.location = '/ratings'
+		});
+		$('#near-me').click(function(){
+			window.location = '/letsgo'
+		});
+		$('#logout').click(function(){
+			$.ajax({
+				type : 'DELETE',
+				url : '/api/user/login',
+				success : function() {
+					window.location = '/';
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		});
+		
+		$('.rest-map img').click(function(){
+			//TODO: goto google maps 
+		});
+		
+		/* function initializeMap() {
+			var lat = {{place.address.location.lat}};
+			var lon = {{place.address.location.lon}};
+			
+			var myLatlng = new google.maps.LatLng(lat, lon);
+			var mapOptions = {
+				scrollwheel: false,
+				zoom: 16,
+			    center: myLatlng,
+			}
+			var map = new google.maps.Map(document.getElementById('rest-map'), mapOptions);
+			
+			var marker = new google.maps.Marker({
+				icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+				position: myLatlng
+				map: map,
+				title: {{place.name}}
+			});
+			
+			google.maps.event.addListener(map, 'bounds_changed', function(){
+				
+			});
+			
+			
+		} */
+	});
+</script>
+
+
+{% endblock %}

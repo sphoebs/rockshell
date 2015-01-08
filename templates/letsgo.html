@@ -10,7 +10,7 @@
 			<button class="img-btn"></button>
 			<div class="user-menu-small">
 				<div class="user-picture"></div>
-				<div class="text-300 user-name">{{ lang['welcome']}} <br/> </div>
+				<div class="text-300 user-name">{{ lang['welcome']}}<br/> </div>
 			</div>
 		</div>
 		<div class="logo"></div>
@@ -18,7 +18,7 @@
 	
 	<div class="rest-details">
 		<button class="img-btn prev"></button>
-		<div class="main">
+		<div class="main clickable">
 			<p class="text-100 red-text center-text first">{{ lang['in_this_picture']}}</p>
 			<p class="text-100 red-text name">{{ lang['restaurant_name']}}</p>
 			<p class="text-100 red-text address">{{ lang['address']}}</p>
@@ -111,6 +111,7 @@ $(window).load(function() {
 		var p = places[pos];
 		$('.rest-details .name').html(p.name);
 		$('.rest-details .address').html(p.address.street + ', ' + p.address.city);
+		
 		if(p.distance){
 			
 			var meters = Math.round(p.distance);
@@ -156,6 +157,10 @@ $(window).load(function() {
 	
 	$('.rest-details .next').click(onNext);
 	$('.rest-details .prev').click(onPrev);
+	$('.rest-details .main').click(function(){
+		var p = places[pos];
+		window.location = '/restaurant?id=' + p.key;
+	});
 	
 	function showRecommendations(position) {
 		

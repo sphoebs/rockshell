@@ -9,7 +9,7 @@
 		<div class="scrollable">
 			<div class="text-100 center-text"> {{lang['ratings_text1']}}</div>
 			<div class="city-search">
-				<label class="text-300 red-text">{{lang['city_select']}}: </label>
+				<label class="text-300">{{lang['city_select']}}: </label>
 				<div class="input">
 					<input type="text" name="auto-city" id="city" >
 					<input type="hidden" name="locality" id="locality" /> 
@@ -22,8 +22,8 @@
 			<br/>
 			<div>
 				<div class="text-100 no-places">{{lang['no_places_selected']}}</div>
-				<span class="text-100">{{lang['create_place_button']}}</span>
-				<button class="img-btn new-place">{{lang['add_place']}}</button>
+				<p class="text-100">{{lang['create_place_button']}}</p>
+				<button class="img-btn new-place"style="margin-left: 10px; margin-right: 10px;">{{lang['add_place']}}</button>
 				<div class="new-place-form popup-area"></div>
 			</div>
 			
@@ -269,16 +269,25 @@
 			
 			$('#close-popup').click(function(){
 				$('.popup-area').html('');
+				/* $('.scrollable').enscroll({
+				    showOnHover: false,
+				    verticalScrolling: true,
+					horizontalScrolling: false,
+					zIndex: 100,
+				    verticalTrackClass: 'track-red',
+				    verticalHandleClass: 'handle-red'
+				}); */
 			});
 			
-			$('.scrollable').enscroll({
+			$('.popup-scrollable').enscroll({
 			    showOnHover: false,
 			    verticalScrolling: true,
 				horizontalScrolling: false,
-				zIndex: 100,
+				zIndex: 320,
 			    verticalTrackClass: 'track-red',
 			    verticalHandleClass: 'handle-red'
 			});
+			
 			
 			$('#rest-picture').change(function(){
 				$(this).parent().find('.rest-image').attr('src', this.value);
@@ -481,6 +490,7 @@
 			
 			var myLatlng = new google.maps.LatLng(lat, lon);
 			var mapOptions = {
+				scrollwheel: false,
 				zoom: 12,
 			    center: myLatlng,
 			    mapTypeControl:true,
@@ -557,7 +567,6 @@
 			}
 			
 			google.maps.event.addListener(map, 'bounds_changed', function(){
-				console.log("BOUNDS CHANGED");
 				var bounds = map.getBounds();
 				filtered_places = [];
 				for (var i=0; i<markers.length; i++){

@@ -74,6 +74,7 @@ button {
 	background-color: #DC3D3D;
 	line-height: 1.3em;
 	font-size: 13pt;
+	cursor: pointer;
 }
 
 input[type=button], input[type=submit] {
@@ -110,12 +111,29 @@ input[type=text], input[type=number], select {
 	box-shadow: none;
 	background-color: rgba(255, 255, 255, 0.6);
 	/* color: #DC3D3D; */
+	max-width: 90%;
 }
 
 button.disabled {
 	-webkit-filter: grayscale(100%);
 	-moz-filter: grayscale(100%);
 	filter: grayscale(100%);
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.clickable:not(.disabled ):hover {
+	-webkit-filter: brightness(120%);
+	-moz-filter: brightness(120%);
+	filter: brightness(120%);
+}
+
+.clickable:not(.disabled ):active {
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
 }
 
 /* SCROLL BAR */
@@ -817,7 +835,7 @@ li.rest-item {
 	background-size: contain;
 }
 
-.letsgo .left-menu {
+.letsgo .left-menu, .rest .left-menu {
 	width: 250px;
 	max-width: 80%;
 	/* max-height: 95%; */
@@ -846,13 +864,13 @@ li.rest-item {
 	border-radius: 24px;
 }
 
-.letsgo .menu-items {
+.letsgo .menu-items, .rest .menu-items {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.letsgo .menu-items li button {
+.letsgo .menu-items li button, .rest .menu-items li button {
 	width: 100%;
 	/* height: 50px; */
 	text-align: left;
@@ -863,7 +881,7 @@ li.rest-item {
 	border-top: solid 2px #B03131;
 }
 
-.letsgo .menu-items .selected {
+.letsgo .menu-items .selected, .rest .menu-items .selected {
 	color: #B03131;
 	background: rgba(255, 255, 255, 0.8);
 }
@@ -944,7 +962,7 @@ li.rest-item {
 }
 
 .map-search {
-	width: 100%;
+	width: 90%;
 	height: 250px;
 	margin: 10px;
 }
@@ -978,6 +996,58 @@ li.rest-item {
 } */
 
 /* RATINGS END */
+
+/* RESTAURANT */
+
+.full-background.rest {
+	background-color: rgba(247, 248, 205, 1);
+}
+
+.rest-container {
+	margin: 15px;
+}
+
+.rest-bar {
+	height: 50px;
+}
+
+
+.rest-logo {
+	position: fixed;
+	top: 0;
+	left: 50%;
+	-webkit-transform: translate(-50%, 0);
+	transform: translate(-50%, 0);
+	display: block;
+/* 	margin-left: auto;
+	margin-right: auto; */
+	z-index: 9;
+	height: 50px;
+	width: 200px;
+	max-width: 50%;
+	background-image: url(../images/logo_02.png);
+	background-repeat: no-repeat;
+	background-position: top;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+.rest .picture img, .rest .rest-map img{
+	width: 300px;
+	height: auto;
+	max-width: 90%;
+	margin: 10px;
+}
+
+.rest .scrollable {
+	overflow: hidden;
+	max-height: 100%;
+}
+
+
+/* RESTAURANT END */
 
 /* MOBILE */
 @media screen and (min-width: 0px) and (max-width: 500px) {
@@ -1014,7 +1084,7 @@ li.rest-item {
 		margin-top: 5px;
 		margin-bottom: 10px;
 	}
-	.form-label, .form-input {
+	.form-label, .form-input, .city-search label, .city-search .input {
 		width: 100%;
 		text-align: left;
 		display: block;
@@ -1031,4 +1101,13 @@ li.rest-item {
 		display: block;
 		width: 100%;
 	}
+	
+	.ratings .filters{
+		width: 100%;
+	}
+	
+	.ratings .rest-list{
+		width: 100%;
+	}
+
 }
