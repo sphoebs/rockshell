@@ -791,6 +791,7 @@ li.rest-item {
 	bottom: 10px;
 	width: 50px;
 	height: 75px;
+	background-color: transparent;
 	background-image: url(../images/red_arrow_left.png);
 	background-repeat: no-repeat;
 	background-position: bottom;
@@ -806,6 +807,7 @@ li.rest-item {
 	bottom: 10px;
 	width: 50px;
 	height: 75px;
+	background-color: transparent;
 	background-image: url(../images/red_arrow_right.png);
 	background-repeat: no-repeat;
 	background-position: bottom;
@@ -926,6 +928,12 @@ li.rest-item {
 	height: 150px;
 }
 
+.ui-widget {
+	font-family: "Lato";
+	font-size: 1em;
+	margin-bottom: 10px;
+}
+
 .search-name {
 	background-color: #DC3D3D;
 	border-right: solid 1px #842525;
@@ -955,19 +963,19 @@ li.rest-item {
 #pac-input {
 	background-color: #fff;
 	padding: 0 11px 0 13px;
-	width: 55%;
+	width: 75%;
 	/* font-family: Roboto;
 	font-size: 15px;
 	font-weight: 300; */
 	text-overflow: ellipsis;
 }
 
-#pac-input:focus {
-	/* border-color: #4d90fe; */
+/* #pac-input:focus {
+	border-color: #4d90fe;
 	margin-left: -1px;
-	padding-left: 14px; /* Regular padding-left + 1. */
-	width: 55%;
-}
+	padding-left: 14px; Regular padding-left + 1.
+	width: 75%;
+} */
 
 /* RATINGS END */
 
