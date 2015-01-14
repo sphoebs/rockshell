@@ -10,7 +10,7 @@ import json
 from models import PFuser, Place, Rating
 import logging
 
-from google.appengine.api import urlfetch
+from google.appengine.api import urlfetch, memcache, taskqueue
 from urllib import urlencode
 import urllib2
 # import time
@@ -64,6 +64,12 @@ def user_login(token, service):
     """
     logging.info("user_create: Received token and service: " +
                  str(token) + " -- " + str(service))
+    
+    #This is likely to be the first call received by the service. Here we initialize the clusters
+#     q = taskqueue.Queue('update-clusters-queue') 
+#     task = taskqueue.Task(url='/recommender/init', method='GET')
+#     q.add(task)
+    
     if token is None or service is None:
         return None, None, "ERROR: missing token or service"
 #     if isinstance(token, str):
@@ -249,16 +255,50 @@ def rating_create(rating, user_id, user_key_str):
     - the stored/updated rating (or None in case of errors in the input),
     - the status (a string indicating whether an error occurred)
     """
-    from recommender import update_clusters
+#     from recommender import update_clusters
     if user_id is not None or user_key_str is not None:
         rating.user = PFuser.make_key(user_id, user_key_str)
 
-    logging.error("RAting user: " + str(rating.user))
-
+    logging.info("Rating user: " + str(rating.user))
+    
     res = Rating.store(rating, None)
     if res == None:
         return None, "ERROR: invalid input data"
-    update_clusters([res.user.id()])
+    
+    client = memcache.Client()
+    users = client.gets('updated_users')
+    if users is None:
+        client.add('updated_users', [])
+        users = client.gets('updated_users')
+    
+    if not rating.user.id() in users:
+        users.append(rating.user.id())
+        i =0
+        while i<20:
+            i+=1
+            if client.cas('updated_users', users):
+                break;
+            
+        do_recompute = client.gets('recompute_clusters')
+        if do_recompute is None:
+            client.add('recompute_clusters', True)
+        elif do_recompute == False:
+            i =0
+            while i<20:
+                i+=1
+                if client.cas('recompute_clusters', True):
+                    break;
+#         logging.info('updated_users: ' + str(users) + ' -- memcache: ' + str(client.get('updated_users')))
+    
+        #TODO: countdown should depend on the importance of the new rating for the user
+        #  - if the user have very few ratings, the countdown should be small, ~30 seconds
+        #  - if the user already have many ratings, the new ones will not influence much 
+        #        his/her recommendations and the updated can wait more, ~ 1 hour or more
+    
+        q = taskqueue.Queue('update-clusters-queue') 
+        task = taskqueue.Task(url='/recommender/update_clusters', method='GET', countdown=20)
+        q.add(task)
+#     update_clusters([res.user.id()])
     return res, "OK"
 
 

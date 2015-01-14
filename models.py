@@ -7,10 +7,11 @@ import fix_path
 import types
 from datetime import datetime
 from google.appengine.ext import ndb
-from google.appengine.api import search
 from google.appengine.api.datastore_types import GeoPt
+from google.appengine.api import search
+from google.appengine.api import memcache
 import logging
-from _ast import Num
+from __builtin__ import staticmethod
 
 
 
@@ -1820,3 +1821,364 @@ class Rating(PFmodel):
         dblist = list(dblist)
 
         return dblist
+    
+    
+class Cluster(PFmodel):
+    # id is stored in key: cluster_<number>
+    # user= keys of users in the cluster
+    users = ndb.StringProperty(repeated=True, indexed=True)
+    
+    @staticmethod
+    def to_json(obj):
+        """ 
+        It transforms the Cluster object in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of Cluster to convert.
+
+        Return value: dict representation of the Cluster.
+
+        Of 'key', only the id appears in the dict.
+        """
+        if not isinstance(obj, Cluster):
+            return None
+
+        base_dict = obj.to_dict()
+        res = {}
+        res[obj.key.id()] = base_dict['users']
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Cluster.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Cluster.
+        """
+        if not isinstance(json_dict, dict):
+            return None
+        if len(json_dict.keys()) != 1:
+            return None
+
+        cl_id = json_dict.keys()[0]
+        cl = Cluster(key=Cluster.make_key(cl_id))
+        cl.users = json_dict[cl_id]
+        return cl
+        
+    @staticmethod
+    def make_key(obj_id):
+        """
+        It creates a Key object for this Cluster, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+
+        Return value: ndb.Key.
+        """
+        if obj_id is not None:
+            if not isinstance(obj_id, (str, unicode, long)):
+                return None
+            else:
+                return ndb.Key(Cluster, obj_id)
+        else:
+            return None
+    
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+
+        It is empty in the parent class.
+        
+        TODO (maybe not needed)
+        """
+        pass
+    
+    @staticmethod
+    def upload_all_to_memcache():
+        """
+        It get all clusters from the datastore and stores them in memcache after being converted to a dict.
+        
+        It has no parameters.
+        
+        Returns True if the clusters are added to memcache successfully and False if an error happens
+        """
+        client = memcache.Client()
+        clusters = Cluster.query()
+        cldict = {}
+        for cl in clusters:
+            cldict.update(Cluster.to_json(cl))
+        # no expire time, we want it in memcache as long as possible
+        client.set(key='clusters', value = cldict)
+        return True
+        
+    @staticmethod
+    def update_in_memcache(clusters, remove_old = False):
+        """
+        Updates a list of clusters in the full list of clusters stored in memcache.
+        
+        Parameters:
+        - clusters: a list of clusters to be updated in the memcache. They should already be stored in the datastore. 
+            If no clusters are found in memcache, they are collected from skratch from datastore and the input data is ignored.
+        
+        Returns True if the update is successful and False if an error happens
+        """
+        if not isinstance(clusters, list):
+            return False
+        if len(clusters) < 1:
+            return False
+        if not isinstance(clusters[0], Cluster):
+            return False
+        
+        client = memcache.Client()
+        mc_clusters = client.gets('clusters')
+        if mc_clusters is None:
+            Cluster.upload_all_to_memcache()
+            return True
+        else:
+            if remove_old == True:
+                mc_clusters = {}
+            for cl in clusters:
+                mc_clusters.update(Cluster.to_json(cl))
+            i = 0;
+            #try 20 times to save
+            while i<20:
+                i+=1
+                logging.info('CLUSTERS UPDATED TO STORE IN MEMCACHE: ' + str(mc_clusters))
+                if client.cas('clusters', mc_clusters):
+                    return True
+            return False
+        
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the Cluster.
+
+        Parameters:
+        - obj: it containes the object data to store
+        - key: key for the object. If a Cluster with same key already exists, it is updated; otherwise, it is created.
+
+        Return value: Cluster
+        """
+        if not isinstance(obj, Cluster):
+            return None
+        if key is None or not isinstance(key, ndb.Key) or key.kind().find('Cluster') < 0:
+            #key is required, but the input one is not valid
+            return None
+        #save in datastore
+        cluster = key.get()
+        if cluster is not None:
+            cluster.users = obj.users
+        else:
+            cluster = Cluster(key=key, users = obj.users)
+        future = cluster.put_async()
+        
+        #save in memcache
+        done = Cluster.update_in_memcache([cluster])
+        if not done:
+            #TODO: what do we do if the cluster is not updated in memcache?
+            pass
+        key = future.get_result()
+        return cluster
+    
+    @staticmethod
+    def store_all(clusters_dict):
+        clusters = []
+        if clusters_dict is None:
+            Cluster.update_in_memcache(clusters, remove_old=True)
+            return
+        
+        for clid in clusters_dict:
+            cldict = {clid: clusters_dict[clid]}
+            cluster = Cluster.from_json(cldict)
+            clusters.append(cluster)
+        
+        futures = ndb.put_multi_async(clusters)
+        
+        #update memcache
+        done = Cluster.update_in_memcache(clusters, remove_old=True)
+        if not done:
+            #TODO: what do we do if the cluster is not updated in memcache?
+            pass
+        
+        for future in futures:
+            future.get_result()
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the Cluster by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: dict representation of cluster
+
+        """
+        if not isinstance(key, ndb.Key):
+            return None
+        
+        cid = key.id()
+        client = memcache.Client()
+        
+        clusters = client.get('clusters')
+        if clusters is not None:
+            logging.info('clusters loaded from memcache: ' + str(clusters))
+            cluster = clusters[cid]
+            return cluster
+        else:
+            cluster = key.get()
+            Cluster.upload_all_to_memcache()
+            return Cluster.to_json(cluster)
+
+        
+    @staticmethod
+    def get_cluster_for_user(user_id):
+        """
+        It gets the cluster in which the user is present.
+        
+        Return: dict representation of cluster 
+        """
+        logging.info('Cluster.get_cluster_for_user START - user:' + str(user_id))
+        if not isinstance(user_id, (str, unicode)):
+            #wrong input for user_id
+            return None
+        client = memcache.Client()
+        clusters = client.get('clusters')
+        if clusters is not None:
+            logging.info('Cluster.get_cluster_for_user -- found clusters in memcache: ' + str(clusters))
+            for clid in clusters:
+                users = clusters[clid]
+                if user_id in users:
+                    logging.info('Cluster.get_cluster_for_user -- found user cluster memcache: ' + str(clid))
+                    return {clid: users}
+            # not found, search in datastore
+            cluster = Cluster.query(Cluster.users == user_id).fetch(1)
+            logging.info('Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
+            Cluster.upload_all_to_memcache()
+            
+            return Cluster.to_json(cluster)
+        else:
+            cluster = Cluster.query(Cluster.users == user_id).fetch(1)
+            logging.info('Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
+            Cluster.upload_all_to_memcache()
+            
+            return Cluster.to_json(cluster)
+        
+    @staticmethod
+    def get_all_clusters_dict():
+        client = memcache.Client()
+        clusters = client.get('clusters')
+        if clusters is None:
+            Cluster.upload_all_to_memcache()
+            clusters = client.get('clusters')
+        return clusters
+
+
+    @staticmethod
+    def delete(key):
+        """
+        It deletes the Cluster referenced by the key.
+
+        Parameters:
+        - key: the ndb.Key that identifies the object to delete (both kind and id needed).
+
+        Return value: boolean.
+
+        It returns True if the Cluster has been deleted, False if an error happened.
+        """
+        logging.info('Cluster.delete START - key: ' + str(key))
+        if not isinstance(key, ndb.Key) or key.kind().find('Cluster') < 0:
+            logging.info('Cluster.delete END - invalid key')
+            return None
+
+        #delete from datastore
+        future = key.delete_async()
+        
+        #delete from memcache
+        client = memcache.Client()
+        clusters = client.gets('clusters')
+        
+        if clusters is None or len(clusters) < 1:
+            future.get_result()
+            Cluster.upload_all_to_memcache()
+            logging.info('Cluster.delete END - full upload to memcache')
+            return True
+        else:
+            if key.id() in clusters:
+                del clusters[key.id()]
+                i = 0
+                while i< 20:
+                    i+=1
+                    if client.cas('clusters', clusters):
+                        break
+            logging.info('Cluster.delete END - updated memcache: ' + str(client.get('clusters')))
+            future.get_result()
+            return True 
+            
+        
+    @staticmethod
+    def delete_all():
+        """
+        It deletes all clusters. 
+        Empty result
+        """
+        #TODO: is fetch the fastest way to get them?
+        keys = ndb.gql('SELECT __key__ FROM Cluster').fetch()
+        if keys is None:
+            return
+        futures = ndb.delete_multi_async(keys)
+        
+        client = memcache.Client()
+        client.delete('clusters')
+        
+        for future in futures:
+            future.get_result()
+        
+    @staticmethod
+    def get_next_id():
+        logging.info('Cluster.get_next_id START')
+        client = memcache.Client()
+        
+        next_id = client.gets('next_cluster_id')
+        if next_id is None:
+            keys = ndb.gql('SELECT __key__ FROM Cluster').fetch()
+#             clusters = Cluster.query().order(-Cluster.key).fetch()
+            last_cluster_id = None
+            for key in keys:
+                if last_cluster_id is None:
+                    last_cluster_id = int(key.id()[8:])
+                else:
+                    cid = int(key.id()[8:])
+                    if cid > last_cluster_id:
+                        last_cluster_id = cid
+            logging.info('LAST_CLUSTER: ' + str(last_cluster_id))
+            if last_cluster_id is None:
+                next_id = 0
+            else:
+                next_id = last_cluster_id + 1
+            i = 0
+            while i<20: 
+                i+=1
+                if client.cas('next_cluster_id', next_id):
+                    break
+        logging.info('Cluster.get_next_id - saved in memcache: ' + str(client.get('next_cluster_id'))) 
+        logging.info('Cluster.get_next_id END - ' + str(next_id))
+        return next_id
+    
+    @staticmethod
+    def increment_next_id():
+        client = memcache.Client()
+        next_id = client.incr('next_cluster_id', initial_value = 0)
+        return next_id
+        
+        

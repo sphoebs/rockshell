@@ -16,46 +16,43 @@
 #
 import webapp2
 import logic
-from models import Place
+from models import Place, Cluster
 import math
 import logging
 import json
 
+from google.appengine.api import memcache
+
 # incremental clustering is used, so clusters should be always available
 # and recomputed only when needed
-clusters = {}
-user2cluster_map = {}
-next_clusterid = 1
+# clusters = {}
+# user2cluster_map = {}
+# next_clusterid = 1
 
 # configuration of cluster algorithm
 cluster_threshold = 0.2
-num_clusters = None
-
-# count the number of updates and recompute the clusters every 20 new
-# ratings (each one ending in an update of clusters)
-num_changes = 0
-max_changes = 20
-
-user_sim_matrix = {}
-cluster_sim_matrix = {}
 
 from math import radians, cos, sin, asin, sqrt
+
 
 def distance(lat1, lon1, lat2, lon2):
     """
     Calculate the great circle distance between two points 
     on the earth (specified in decimal degrees), using the haversine formula
-    
+
     Returns distance in meters
     """
-    # convert decimal degrees to radians 
+    logging.info('recommender.distance START : lat1=' + str(lat1) +
+                 " - lon1=" + str(lon1) + " - lat2=" + str(lat2) + " - lon2=" + str(lon2))
+    # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    # haversine formula 
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * asin(sqrt(a))
     meters = 6367000 * c
+    logging.info('recommender.distance END - ' + str(meters))
     return meters
 
 
@@ -70,12 +67,11 @@ def load_data(filters):
 
     if filters is None, it loads all ratings in the datastore
     """
-
+    logging.info('recommender.load_data START - filters=' + str(filters))
     ratings, status = logic.rating_list_get(filters)
     if status != "OK":
         return None
 
-    logging.info("Loaded " + str(len(ratings)) + " ratings")
     # map: user - place - purpose --> value
     data = {}
     for rating in ratings:
@@ -87,7 +83,8 @@ def load_data(filters):
             if place not in data[user]:
                 data[user][place] = {}
             data[user][place][rating.purpose] = rating.value
-
+    logging.info('recommender.load_data END - data users: ' +
+                 str(len(data)) + ' -- ratings: ' + str(len(ratings)))
     return data
 
 
@@ -99,6 +96,8 @@ def euclidean_distance(ratings, person1, person2):
 
     Returns a float number between 0 and 1 representing the similarity between the two users.
     """
+    logging.info('recommender.euclidean_distance START - ratings, person1=' +
+                 str(person1) + ', person2=' + str(person2))
     if person1 not in ratings or person2 not in ratings:
         # one of the two has no ratings
         return 0
@@ -122,7 +121,9 @@ def euclidean_distance(ratings, person1, person2):
                           for purpose in ratings[person1][item] if purpose in ratings[person2][item]])
 
 #     logging.info('euclidean - sum of squares: ' + str(sum_of_squares))
-    return 1 / (1 + (math.sqrt(sum_of_squares) / math.sqrt(len(si))))
+    res = 1 / (1 + (math.sqrt(sum_of_squares) / math.sqrt(len(si))))
+    logging.info('recommender.euclidean_distance END - ' + str(res))
+    return res
 
 
 def pearson_similarity(ratings, person1, person2):
@@ -134,6 +135,8 @@ def pearson_similarity(ratings, person1, person2):
     Returns a float number between 0 and 1 representing the similarity between the two users.
 
     """
+    logging.info('recommender.pearson_similarity START - ratings, person1=' +
+                 str(person1) + ', person2=' + str(person2))
     si = {}
     num = 0
     for item in ratings[person1]:
@@ -163,14 +166,15 @@ def pearson_similarity(ratings, person1, person2):
 #     logging.info('pearson - numerator: ' + str(pSum))
 
     denominator = math.sqrt(sum1Sq * sum2Sq)
-#     logging.info('pearson - denominator: ' + str(denominator))
-    return pSum / denominator
+    res = pSum / denominator
+    logging.info('recommender.pearson_similarity END - ' + str(res))
+    return res
 
 
 def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
     """
     It computes the similarities between all users and stores them in the user_sim_matrix matrix.
-    user_sim_matrix is a global variable which stores the values of user-user similarity.
+    user_sim_matrix stores the values of user-user similarity and is saved in memcache.
     Thanks to this matrix, the similarity values are computed only once, and updated when needed,
     avoiding the recomputation of similarity for each iterative step of the hierarchical clustering algorithm
 
@@ -178,9 +182,10 @@ def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
     - ratings: the data structure containing all ratings in the system [the similarity values can be wrong if only filtered ratings are considered]
     - similarity (optional): the function to use for computing the similarity
 
-    It has no return value.
+    It returns the matrix of user similarities.
     """
-    global user_sim_matrix
+    logging.info('recommender.compute_user_sim_matrix START')
+    user_sim_matrix = {}
     for u1 in ratings:
         for u2 in ratings:
             if u1 not in user_sim_matrix:
@@ -198,6 +203,11 @@ def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
                     sim = similarity(ratings, u1, u2)
                     user_sim_matrix[u1][u2] = sim
                     user_sim_matrix[u2][u1] = sim
+    client = memcache.Client()
+    client.set('user_sim_matrix', user_sim_matrix)
+    logging.info(
+        'recommender.compute_user_sim_matrix END ')#- user_sim_matrix: ' + str(user_sim_matrix))
+    return user_sim_matrix
 
 
 def update_user_sim_matrix(ratings, user, similarity=euclidean_distance):
@@ -211,9 +221,16 @@ def update_user_sim_matrix(ratings, user, similarity=euclidean_distance):
     - user: the id of the user for which similarity values need to be recomputed
     - similarity (optional): the function to use for computing the similarity
 
-    It has no return value.
+    It returns the user_sim_matrix with the updated info.
     """
-    global user_sim_matrix
+    logging.info(
+        'recommender.update_user_sim_matrix START - user=' + str(user))
+    client = memcache.Client()
+    user_sim_matrix = client.gets('user_sim_matrix')
+    if user_sim_matrix is None:
+        user_sim_matrix = compute_user_sim_matrix(ratings, similarity)
+        return user_sim_matrix
+
     if user in ratings:
         for u2 in ratings:
             if user not in user_sim_matrix:
@@ -230,9 +247,30 @@ def update_user_sim_matrix(ratings, user, similarity=euclidean_distance):
                 sim = similarity(ratings, user, u2)
                 user_sim_matrix[user][u2] = sim
                 user_sim_matrix[u2][user] = sim
+    i = 0
+    while i < 20:
+        i += 1
+        if client.cas('user_sim_matrix', user_sim_matrix):
+            break
+    logging.info(
+        'recommender.update_user_sim_matrix END ')#- user_sim_matrix: ' + str(user_sim_matrix))
+    return user_sim_matrix
 
 
-def cluster_similarity(ratings, cluster1_id, cluster2_id, similarity=euclidean_distance):
+def get_user_sim_matrix():
+    """
+    It gets the user_sim_matrix from memcache and returns it.
+    If the matrix is not available in memcache, it returns None.
+    """
+    logging.info('recommender.get_user_sim_matrix START')
+    client = memcache.Client()
+    user_sim_matrix = client.gets('user_sim_matrix')
+    logging.info(
+        'recommender.get_user_sim_matrix END ')#- user_sim_matrix: ' + str(user_sim_matrix))
+    return user_sim_matrix
+
+
+def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_matrix=None, similarity=euclidean_distance):
     """
     It computes the complete-linkage similarity between two clusters.
     It reuses already computed similarities stored in cluster_sim_matrix and updates it every time a new similarity is computed.
@@ -244,17 +282,31 @@ def cluster_similarity(ratings, cluster1_id, cluster2_id, similarity=euclidean_d
 
     Returns a float between 0 and 1 indicating the similarity or None if the cluster ids are not valid
     """
-    global cluster_sim_matrix
-    global clusters
-
-    if clusters is None or cluster1_id not in clusters or cluster2_id not in clusters:
-        return None
+    logging.info('recommender.cluster_similarity START - cluster1_id=' + str(cluster1_id) +
+                 ', cluster2_id=' + str(cluster2_id))
+    client = memcache.Client()
+    if cluster_sim_matrix is None:
+        cluster_sim_matrix = client.gets('cluster_sim_matrix')
+        if cluster_sim_matrix is None:
+            cluster_sim_matrix = {}
 
     if cluster1_id in cluster_sim_matrix and cluster2_id in cluster_sim_matrix[cluster1_id]:
-        return cluster_sim_matrix[cluster1_id][cluster2_id]
+        sim = cluster_sim_matrix[cluster1_id][cluster2_id]
+        logging.info(
+            'recommender.cluster_similarity END found in matrix:' + str(sim))
+        return sim
     else:
+        if cluster_sim_matrix is not None:
+            client.gets('cluster_sim_matrix')
+        # cluster1 and cluster2 are the lists of users within those clusters
         cluster1 = clusters[cluster1_id]
         cluster2 = clusters[cluster2_id]
+#         cluster2 = Cluster.get_by_key(Cluster.make_key('cluster_'+str(cluster2_id)))
+
+        if cluster1 is None or cluster2 is None:
+            logging.info('recommender.cluster_similarity - clusters are None')
+            return None
+
         min_sim = 1
         sim = 0
         for user1 in cluster1:
@@ -269,10 +321,17 @@ def cluster_similarity(ratings, cluster1_id, cluster2_id, similarity=euclidean_d
         cluster_sim_matrix[cluster1_id][cluster2_id] = sim
         cluster_sim_matrix[cluster2_id][cluster1_id] = sim
 
+        # update cluster_sim_matrix in memcache
+        i = 0
+        while i < 20:
+            i += 1
+            if client.cas('cluster_sim_matrix', cluster_sim_matrix):
+                break
+        logging.info('recommender.cluster_similarity END computed:' + str(sim))
         return sim
 
 
-def init_cluster_sim_matrix(ratings, similarity=euclidean_distance):
+def init_cluster_sim_matrix(ratings, clusters, similarity=euclidean_distance):
     """
     It fills the cluster_sim_matrix with the initial similarities for current clusters.
 
@@ -280,32 +339,39 @@ def init_cluster_sim_matrix(ratings, similarity=euclidean_distance):
     - ratings: the data structure containing all ratings in the system [the similarity values can be wrong if only filtered ratings are considered]
     - similarity: the user similarity function to use
 
-    It has no return value
+    It returns the cluster_sim_matrix.
     """
-    global cluster_sim_matrix
-    global clusters
-
-    for cid1 in clusters:
-        for cid2 in clusters:
-            if cid1 not in cluster_sim_matrix:
-                cluster_sim_matrix[cid1] = {}
-            if cid2 not in cluster_sim_matrix:
-                cluster_sim_matrix[cid2] = {}
+    logging.info('recommender.init_cluster_sim_matrix START')
+    cluster_sim_matrix = {}
+    if clusters is not None:
+        for cid1 in clusters:
+            for cid2 in clusters:
+                if cid1 not in cluster_sim_matrix:
+                    cluster_sim_matrix[cid1] = {}
+                if cid2 not in cluster_sim_matrix:
+                    cluster_sim_matrix[cid2] = {}
 #             if cid2 not in cluster_sim_matrix[cid1]:
 #                 cluster_sim_matrix[cid1][cid2] = None
 #             if cid1 not in cluster_sim_matrix[cid2]:
 #                 cluster_sim_matrix[cid2][cid1] = None
-            if cid2 not in cluster_sim_matrix[cid1]:
-                if cid1 == cid2:
-                    cluster_sim_matrix[cid1][cid1] = 1
-                else:
-                    sim = cluster_similarity(
-                        ratings, cid1, cid2, similarity=similarity)
-                    cluster_sim_matrix[cid1][cid2] = sim
-                    cluster_sim_matrix[cid2][cid1] = sim
+                if cid2 not in cluster_sim_matrix[cid1]:
+                    if cid1 == cid2:
+                        cluster_sim_matrix[cid1][cid1] = 1
+                    else:
+                        sim = cluster_similarity(
+                            ratings, clusters, cid1, cid2, cluster_sim_matrix=cluster_sim_matrix, similarity=similarity)
+                        if sim is not None:
+                            cluster_sim_matrix[cid1][cid2] = sim
+                            cluster_sim_matrix[cid2][cid1] = sim
+
+    client = memcache.Client()
+    client.set('cluster_sim_matrix', cluster_sim_matrix)
+    logging.info(
+        'recommender.init_cluster_sim_matrix END ')#- cluster_sim_matrix: ' + str(cluster_sim_matrix))
+    return cluster_sim_matrix
 
 
-def update_cluster_sim_matrix(ratings, cluster_id, similarity=euclidean_distance):
+def update_cluster_sim_matrix(ratings, clusters, cluster_id, similarity=euclidean_distance):
     """
     It updates the cluster_sim_matrix for the indicated cluster (its row and column)
 
@@ -314,14 +380,24 @@ def update_cluster_sim_matrix(ratings, cluster_id, similarity=euclidean_distance
     - cluster: the id of the cluster to update
     - similarity: the user similarity function to use
 
-    It has no return value
+    It returns the updated cluster_sim_matrix
     """
-    global cluster_sim_matrix
-    global clusters
+    logging.info(
+        'recommender.update_cluster_sim_matrix START - cluster_id=' + str(cluster_id))
+    client = memcache.Client()
+    cluster_sim_matrix = client.gets('cluster_sim_matrix')
+    if cluster_sim_matrix is None:
+        cluster_sim_matrix = init_cluster_sim_matrix(
+            ratings, clusters, similarity)
+        logging.info(
+            'recommender.update_cluster_sim_matrix END - cluster_sim_matrix computed from zero')
+        return cluster_sim_matrix
 
     if cluster_id not in clusters:
         # invalid cluster id, nothing to do
-        return
+        logging.info(
+            'recommender.update_cluster_sim_matrix END - invalid cluster_id')
+        return None
 
     for cid2 in clusters:
         if cluster_id not in cluster_sim_matrix:
@@ -332,9 +408,17 @@ def update_cluster_sim_matrix(ratings, cluster_id, similarity=euclidean_distance
             cluster_sim_matrix[cluster_id][cluster_id] = 1
         else:
             sim = cluster_similarity(
-                ratings, cluster_id, cid2, similarity=similarity)
+                ratings, clusters, cluster_id, cid2, similarity=similarity)
             cluster_sim_matrix[cluster_id][cid2] = sim
             cluster_sim_matrix[cid2][cluster_id] = sim
+    i = 0
+    while i < 20:
+        i += 1
+        if client.cas('cluster_sim_matrix', cluster_sim_matrix):
+            break
+    logging.info(
+        'recommender.update_cluster_sim_matrix END ')#- updated: ' + str(cluster_sim_matrix))
+    return cluster_sim_matrix
 
 
 def remove_cluster_sim_matrix(cluster_ids):
@@ -344,27 +428,48 @@ def remove_cluster_sim_matrix(cluster_ids):
     Input:
     - cluster_ids: list of cluster ids to be removed
 
-    It has no return value
+    It returns the updated cluster_sim_matrix
     """
-    global cluster_sim_matrix
+    logging.info(
+        'recommender.remove_cluster_sim_matrix START - cluster_ids= ' + str(cluster_ids))
+    client = memcache.Client()
+    cluster_sim_matrix = client.gets('cluster_sim_matrix')
+    if cluster_sim_matrix is None:
+        logging.info(
+            'recommender.remove_cluster_sim_matrix END cluster_sim_matrix is not defined')
+        return None
+#     logging.info(
+#         'recommender.remove_cluster_sim_matrix - cluster_sim_matrix : ' + str(cluster_sim_matrix))
 
     if cluster_ids is None or len(cluster_ids) < 1:
         #         the input is empty, nothing to do
-        return
+        logging.info(
+            'recommender.remove_cluster_sim_matrix END no ids to remove')
+        return None
 
     for cid in cluster_ids:
-        if cid in clusters:
-            del clusters[cid]
+        if cid in cluster_sim_matrix:
+            del cluster_sim_matrix[cid]
     # remove similarities of other clusters with each cluster in cluster_ids
-    for other_id in clusters:
+    for other_id in cluster_sim_matrix:
         # here other_id should always be different from the ids in input since
         # we already removed them from clusters
         for cid in cluster_ids:
-            if other_id != cid and cid in clusters[other_id]:
-                del clusters[other_id][cid]
+            if other_id != cid and cid in cluster_sim_matrix[other_id]:
+                del cluster_sim_matrix[other_id][cid]
+    i = 0
+    while i < 20:
+        i += 1
+        if client.cas('cluster_sim_matrix', cluster_sim_matrix):
+            break
+#     logging.info('recommender.remove_cluster_sim_matrix - stored in memcache: ' +
+#                  str(client.get('cluster_sim_matrix')))
+    logging.info(
+        'recommender.remove_cluster_sim_matrix END ')#- updated: ' + str(cluster_sim_matrix))
+    return cluster_sim_matrix
 
 
-def find_nearest_clusters(ratings):
+def find_nearest_clusters(ratings, clusters):
     """
     It returns the pair of clusters with higher similarity.
 
@@ -373,8 +478,7 @@ def find_nearest_clusters(ratings):
 
     Result: (cluster1_id, cluster2_id, similarity) or None, if no clusters are available
     """
-    global clusters
-
+    logging.info('recommender.find_nearest_clusters START'); # - ratings: ' + str(ratings) + ' clusters: ' + str(clusters))
     if clusters is None or len(clusters) < 2:
         return None
 
@@ -382,19 +486,26 @@ def find_nearest_clusters(ratings):
     for cluster1 in clusters:
         for cluster2 in clusters:
             if cluster2 != cluster1:
-                sim = cluster_similarity(ratings, cluster1, cluster2)
+                sim = cluster_similarity(ratings, clusters, cluster1, cluster2)
                 if sim is not None:
                     pairs.append((cluster1, cluster2, sim))
 #
 #     pairs = [(cluster1, cluster2, cluster_similarity(ratings, cluster1,
 # cluster2)) for cluster1 in clusters for cluster2 in clusters if cluster2
 # != cluster1]
-    pairs.sort()
-    pairs.reverse()
-    return pairs[0]
+#     logging.info('recommender.find_nearest_clusters PAIRS: ' + str(pairs[0:5]) + '...')
+    pairs = sorted(pairs, key=lambda x: x[2], reverse = True)
+#     logging.info('recommender.find_nearest_clusters PAIRS - sorted: ' + str(pairs[0:5])+ '...')
+
+    if len(pairs) > 0:
+        logging.info('recommender.find_nearest_clusters END: ' + str(pairs[0]))
+        return pairs[0]
+    else:
+        logging.info('recommender.find_nearest_clusters END: ' + str(None))
+        return None
 
 
-def find_clusters(ratings):
+def find_clusters(ratings, clusters):
     """
     It iteratively computes the clusters.
     Starting from the initial set of singleton clusters, it iterativelu merges the two closest clusters, 
@@ -405,13 +516,10 @@ def find_clusters(ratings):
 
     It updates global variables clusters and next_cluster_id and has no result.
     """
-    global clusters
-    global next_clusterid
-    global cluster_sim_matrix
-
+    logging.info('recommender.find_clusters START')
     if cluster_threshold is not None:
         # find best pair
-        pair = find_nearest_clusters(ratings)
+        pair = find_nearest_clusters(ratings, clusters)
         if pair is None:
             return None
 
@@ -419,35 +527,39 @@ def find_clusters(ratings):
         logging.info(
             'Best pair: ' + str(cluster1) + " and " + str(cluster2) + " sim: " + str(sim))
         while sim > cluster_threshold:
+
             # merge best pair
-            clusters[next_clusterid] = clusters[cluster1] + clusters[cluster2]
-            next_clusterid += 1
+            clusters[
+                'cluster_' + str(Cluster.get_next_id())] = clusters[cluster1] + clusters[cluster2]
+            Cluster.increment_next_id()
+            Cluster.delete(Cluster.make_key(cluster1))
+            Cluster.delete(Cluster.make_key(cluster2))
+            try:
+                del clusters[cluster1]
+            except KeyError:
+                # the key is not valid, so no cluster with that id exists, so nothing to delete
+                pass
+            try:
+                del clusters[cluster2]
+            except KeyError:
+                # the key is not valid, so no cluster with that id exists, so nothing to delete
+                pass
+            
             # update cluster similarity matrix
             remove_cluster_sim_matrix([cluster1, cluster2])
 
             # find next best pair (to update sim and start next iteration)
-            pair = find_nearest_clusters(ratings)
+            pair = find_nearest_clusters(ratings, clusters)
             if pair is None:
                 return None
             cluster1, cluster2, sim = pair
             logging.info(
                 'Best pair: ' + str(cluster1) + " and " + str(cluster2) + " sim: " + str(sim))
+    logging.info('recommender.find_clusters END')#: ' + str(clusters))
+    return clusters
 
 
-#     elif num_clusters is not None:
-#         while len(clusters) > num_clusters:
-#             cluster1, cluster2, sim = find_nearest_clusters(ratings, clusters)
-#             logging.info(
-#                 'Best pair: ' + str(cluster1) + " and " + str(cluster2) + " sim: " + str(sim))
-#             clusters[next_clusterid] = clusters[cluster1] + clusters[cluster2]
-#             next_clusterid += 1
-#             del clusters[cluster1]
-#             del clusters[cluster2]
-    # maybe the return is not needed
-#     return clusters, next_clusterid
-
-
-def build_clusters(ratings):
+def build_clusters(ratings, clusters=None):
     """
     It computes the clusters.
     After the initialization, the iterative step is assigned to the function find_clusters.
@@ -455,13 +567,13 @@ def build_clusters(ratings):
     Input:
     - ratings: the data structure containing all ratings in the system [the similarity values can be wrong if only filtered ratings are considered]
 
-    It updates global variables clusters and user2cluster_map and has no result.
+    It returns the computed clusters
     """
-    global clusters
-    global user2cluster_map
-    global next_clusterid
-    
-    logging.info("BUILD CLUSTERS start")
+    logging.info('recommender.build_clusters START')
+    if clusters is None:
+        clusters = Cluster.get_all_clusters_dict()
+        if clusters is None:
+            clusters = {}
 
     num = len(ratings)
     if num <= 0:
@@ -469,86 +581,89 @@ def build_clusters(ratings):
     clusters = {}
     # init clusters: each user in a singleton cluster
     for user in ratings:
-        clusters[next_clusterid] = [user]
-        next_clusterid += 1
+        clusters['cluster_' + str(Cluster.get_next_id())] = [user]
+        Cluster.increment_next_id()
 
     logging.info("Build clusters init: " + str(clusters))
     if num > 1:
         # compute similarities between clusters
-        init_cluster_sim_matrix(ratings)
+        init_cluster_sim_matrix(ratings, clusters)
         # compute required clusters, according to defined threshold
-        find_clusters(ratings)
+        find_clusters(ratings, clusters)
 
-    user2cluster_map = {}
-    for cid in clusters:
-        for user in clusters[cid]:
-            user2cluster_map[user] = cid
-
+    Cluster.store_all(clusters)
 #     return clusters, user2cluster_map
-    logging.info("BUILD CLUSTERS end")
+    logging.info('recommender.build_clusters END: ' + str(clusters))
+    return clusters
 
 
 def update_clusters(users):
+    #TODO: this is not working!!! + move to task queue
     """
     It updates clusters. 
     When too many changes are made after last full cluster building, clusters are recomputed from scratch.
 
     Input: 
-    - users: lsit of user ids that have new/updated ratings since lust update
+    - users: lsit of user ids that have new/updated ratings since last update
 
     It updates clusters and all related data structures and has no return value.    
     """
-    global num_changes
-    global clusters
-    global user2cluster_map
-    global next_clusterid
-    global cluster_sim_matrix
-    global max_changes
-    
-    logging.info("UPDATE CLUSTERS start")
+    # TODO: this will be moved in a task for a queue
+
+    logging.info('recommender.update_clusters START - users: ' + str(users))
 
     ratings = load_data(None)
-    if clusters is not None and len(clusters) > 0 and num_changes > max_changes:
-        compute_user_sim_matrix(ratings)
-        build_clusters(ratings)
-        num_changes = 0
-    else:
-        for user in users:
-            if user in user2cluster_map:
-                cluster_id = user2cluster_map[user]
-                if cluster_id in clusters: 
-                    user_cluster = clusters[cluster_id]
-                    logging.info("User cluster: " + str(user_cluster))
-                    # remove user from his current cluster
-                    if user_cluster is not None:
-                        i = user_cluster.index(user)
-                        del user_cluster[i]
-                        if len(user_cluster) == 0:
-                            # the cluster is empty, remove it
-                            remove_cluster_sim_matrix([cluster_id])
-                            del clusters[cluster_id]
-                        else :
-                            # update similarity of this cluster, since now it has one
-                            # user less (1 row and 1 column)
-                            update_cluster_sim_matrix(ratings, cluster_id)
+#     if clusters is not None and len(clusters) > 0 and num_changes > max_changes:
+# TODO: this will be moved to a scheduled task!!
+#         compute_user_sim_matrix(ratings)
+#         build_clusters(ratings)
+#         num_changes = 0
+#     else:
+    for user in users:
+        cluster = Cluster.get_cluster_for_user(user)
+        if cluster is not None and len(cluster.keys()) == 1:
+            logging.info("User cluster: " + str(cluster))
+            clid = cluster.keys()[0]
+            clusers = cluster.get(clid)
+            i = clusers.index(user)
+            del clusers[i]
+            if len(clusers) == 0:
+                # the cluster is empty, remove it
+                remove_cluster_sim_matrix([clid])
+                Cluster.delete(Cluster.make_key(clid))
+            else:
+                # update similarity of this cluster, since now it has one
+                # user less (1 row and 1 column)
+                clusters = Cluster.get_all_clusters_dict()
+                update_cluster_sim_matrix(ratings, clusters, clid)
 
-            # update user_sim_matrix for this user (1 row and 1 column of the
-            # matrix)
-            update_user_sim_matrix(ratings, user)
+        # update user_sim_matrix for this user (1 row and 1 column of the
+        # matrix)
+        update_user_sim_matrix(ratings, user)
 
-            # add new cluster for the updated user
-            clusters[next_clusterid] = [user]
-            next_clusterid += 1
+        # add new cluster for the updated user
+        clid = 'cluster_' + str(Cluster.get_next_id())
+        new_cluster = {clid: [user]}
+        Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
+        Cluster.increment_next_id()
 
-        # run other steps of hierarchical clustering
-        find_clusters(ratings)
-        num_changes += 1
+    # run other steps of hierarchical clustering
+    clusters = Cluster.get_all_clusters_dict()
+    logging.info(
+        'recommender.update_clusters -- user have been moved, iteration still to do: ' + str(clusters))
+    clusters = find_clusters(ratings, clusters)
+    Cluster.delete_all()
+    Cluster.store_all(clusters)
+    # TODO: update only new/updated clusters?
+    init_cluster_sim_matrix(ratings, clusters)
 
-        user2cluster_map = {}
-        for cid in clusters:
-            for user in clusters[cid]:
-                user2cluster_map[user] = cid
-    logging.info("UPDATE CLUSTERS end")
+#         user2cluster_map = {}
+#         for cid in clusters:
+#             for user in clusters[cid]:
+#                 user2cluster_map[user] = cid
+    logging.info(
+        'recommender.update_clusters END - clusters: ' + str(clusters))
+
 
 def cluster_based(user, places, purpose='dinner with tourists', np=5):
     """
@@ -565,40 +680,32 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5):
     - list of np tuples (score, place_key), where score is the predicted rating for the user and place_key is the key of the palce to which it refers to
     - None if the clusters cannot be computed (no ratings in the system) 
     """
+    logging.info('recommender.cluster_based START - user=' +
+                 str(user) + ', places, purpose:' + str(purpose) + ', np=' + str(np))
+    clusters = Cluster.get_all_clusters_dict()
 
-    global clusters
-    global user2cluster_map
-    
-    logging.info("CLUSTER BASED start")
-
-    if clusters is None or len(clusters) < 1:
+    if clusters is None or len(clusters.keys()) < 1:
         # there are no clusters, try to build them
         ratings = load_data(None)
         compute_user_sim_matrix(ratings)
-        build_clusters(ratings)
+        clusters = build_clusters(ratings)
         if clusters is None or len(clusters) < 1:
-            # no clusters can be built, no personalized recommendation can be computed
-            logging.info("CLUSTER BASED end -- no clusters ")
+            # no clusters can be built, no personalized recommendation can be
+            # computed
+            logging.info('recommender.cluster_based END - no clusters')
             return None
-
-    if user2cluster_map is None or len(user2cluster_map) < 1:
-        # we know that clusters are defined, but for some reason
-        # user2cluster_map is not synchronized with clusters
-        logging.error("user2cluster_map is not synchronized with clusters")
-        user2cluster_map = {}
-        for cid in clusters:
-            for user in clusters[cid]:
-                user2cluster_map[user] = cid
 
     # clusters have already been computed.
     logging.info("clusters: " + str(clusters))
-    if user in user2cluster_map and user2cluster_map[user] in clusters:
-        user_cluster = clusters[user2cluster_map[user]]
-    else:
+
+    user_cluster = Cluster.get_cluster_for_user(user)
+    if user_cluster is None or len(user_cluster.keys()) != 1:
         # the user is not in a cluster, no personalized recommendation can be
         # computed for him
-        logging.info("CLUSTER BASED end -- user is not in clusters ")
+        logging.info('recommender.cluster_based END - user not in cluster')
         return None
+
+    user_cluster = user_cluster.get(user_cluster.keys()[0])
 
     filters = {}
     filters['users'] = user_cluster
@@ -622,10 +729,12 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5):
     scores = [(sum(items[item]) / len(items[item]), item)
               for item in items]
     logging.info("scores: " + str(scores))
-    scores.sort()
-    scores.reverse()
-    logging.info("CLUSTER BASED end")
-    return scores[0:np]
+#     logging.info('scores ordering start - len:' + str(len(scores)))
+    scores = sorted(scores, key=lambda x: x[0], reverse = True)
+#     logging.info('scores ordering end')
+    res = scores[0:np]
+    logging.info('recommender.cluster_based END - res: ' + str(res))
+    return res
 
 
 def recommend(user_id, filters, purpose='dinner with tourists', n=5):
@@ -653,24 +762,25 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
 
     Returns a list of n places
     """
-    logging.info("RECOMMEND start")
+    logging.info("recommender.recommend START - user_id=" + str(user_id) +
+                 ', filters=' + str(filters) + ', purpose=' + str(purpose) + ', n=' + str(n))
     places, status = logic.place_list_get(filters)
     logging.info("RECOMMEND places loaded ")
-    
+
     if status != "OK" or places is None or len(places) < 1:
         # the system do not know any place within these filters
-        logging.info("RECOMMEND places not found -- end")
+        logging.info("recommender.recommend END - no places")
         return None
 
     scores = cluster_based(user_id, places, purpose, n)
-    
+
     log_text = "RECOMMEND scores from cluster-based : "
     if scores is None:
         log_text += "None"
-    else : 
+    else:
         log_text += str(len(scores))
     logging.info(log_text)
-    
+
     if scores is None or (len(scores) < n and len(scores) < len(places)):
         # cluster-based recommendation failed
         # non-personalized recommendation
@@ -709,7 +819,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         log_text = "RECOMMEND scores from average-based : "
         if scores is None:
             log_text += "None"
-        else : 
+        else:
             log_text += str(len(scores))
         logging.info(log_text)
 
@@ -730,7 +840,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     log_text = "RECOMMEND final scores : "
     if scores is None:
         log_text += "None"
-    else : 
+    else:
         log_text += str(len(scores))
     logging.info(log_text)
 
@@ -738,44 +848,176 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     for p in places:
         found = False
         for (score, item) in scores:
-            if item == p.key:
+            if item == p.key.id():
                 places_scores.append((score, p))
                 found = True
         if not found:
             places_scores.append((0, p))
-
-    places_scores.sort()
-    places_scores.reverse()
+    logging.info('places_scores ordering start')
+    places_scores = sorted(places_scores, key=lambda x: x[0], reverse = True)
+    logging.info('places_scores ordering end')
     places_scores = places_scores[0:n]
+#     logging.info('recommender.recommend - places_scores: ' + str(places_scores))
     items = [place for (score, place) in places_scores]
 #     logging.info("Recommended items: " + str(items))
-    logging.info("RECOMMEND --end ")
+    logging.info("recommender.recommend END - items: " + str(items))
     return items
+
+# 
+# class RecommenderInitHandler(webapp2.RequestHandler):
+#     
+#     def get(self):
+#         """
+#         It initializes clusters
+#         """
+#         logging.info('recommender.RecommenderInitHandler.get START')
+#         clusters = Cluster.get_all_clusters_dict()
+# 
+#         if clusters is None or len(clusters.keys()) < 1:
+#             logging.info('recommender.RecommenderInitHandler.get - building clusters')
+#             ratings = load_data(None)
+#             compute_user_sim_matrix(ratings)
+#             build_clusters(ratings)
+#         else:
+#             logging.info('recommender.RecommenderInitHandler.get - clusters already available')
+#         logging.info('recommender.RecommenderInitHandler.get END')
+#         self.response.write('OK')
+    
+
+class UpdatesHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        """
+        It updates clusters. 
+        It gets the list of users with updates from memcache, together with the ratings added in last hour.
+        
+        """
+        logging.info('updateshandler.get START ')
+        
+        #check headers to let only tasks execute this method
+        if 'X-AppEngine-QueueName' not in self.request.headers:
+            # the request is not coming from a queue!!
+            self.response.set_status(403)
+            self.response.write("You cannot access this method!!!")
+            return
+        
+        
+        client = memcache.Client()
+        users = client.gets('updated_users')
+        if users is None or not isinstance(users, list) or len(users)<1:
+            logging.info('updateshandler.get END - no users to update')
+            self.response.write('OK')
+            return
+
+        ratings = load_data(None)
+        #     if clusters is not None and len(clusters) > 0 and num_changes > max_changes:
+        # TODO: this will be moved to a scheduled task!!
+        #         compute_user_sim_matrix(ratings)
+        #         build_clusters(ratings)
+        #         num_changes = 0
+        #     else:
+        for user in users:
+            cluster = Cluster.get_cluster_for_user(user)
+            if cluster is not None and len(cluster.keys()) == 1:
+                logging.info("User cluster: " + str(cluster))
+                clid = cluster.keys()[0]
+                clusers = cluster.get(clid)
+                i = clusers.index(user)
+                del clusers[i]
+                if len(clusers) == 0:
+                    # the cluster is empty, remove it
+                    remove_cluster_sim_matrix([clid])
+                    Cluster.delete(Cluster.make_key(clid))
+                else:
+                    # update similarity of this cluster, since now it has one
+                    # user less (1 row and 1 column)
+                    clusters = Cluster.get_all_clusters_dict()
+                    update_cluster_sim_matrix(ratings, clusters, clid)
+
+            # update user_sim_matrix for this user (1 row and 1 column of the
+            # matrix)
+            update_user_sim_matrix(ratings, user)
+
+            # add new cluster for the updated user
+            clid = 'cluster_' + str(Cluster.get_next_id())
+            new_cluster = {clid: [user]}
+            Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
+            Cluster.increment_next_id()
+
+        # run other steps of hierarchical clustering
+        clusters = Cluster.get_all_clusters_dict()
+        logging.info(
+                     'updateshandler.get -- user have been moved, iteration still to do: ' + str(clusters))
+        clusters = find_clusters(ratings, clusters)
+        Cluster.delete_all()
+        Cluster.store_all(clusters)
+        # TODO: update only new/updated clusters?
+        init_cluster_sim_matrix(ratings, clusters)
+
+#         user2cluster_map = {}
+#         for cid in clusters:
+#             for user in clusters[cid]:
+#                 user2cluster_map[user] = cid
+
+        i =0
+        while i<20:
+            i+=1
+            if client.cas('updated_users', []):
+                break;
+
+        logging.info(
+                     'updateshandler.get END - clusters: ' + str(clusters))
+        self.response.write('OK')
+        
+class RecomputeClustersHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        #check headers to let only tasks execute this method
+        logging.info('recommender.RecomputeClustersHandler.get START')
+        if 'X-AppEngine-Cron' not in self.request.headers:
+            logging.info('recommender.RecomputeClustersHandler.get END called not from queue - 403')
+            # the request is not coming from a queue!!
+            self.response.set_status(403)
+            self.response.write("You cannot access this method!!!")
+            return
+        
+        client = memcache.Client()
+        do_recompute = client.gets('recompute_clusters')
+        if do_recompute == True:
+            logging.info('recommender.RecomputeClustersHandler.get -- recompute needed')
+            #new ratings have been added, so clusters need to be recomputed
+            ratings = load_data(None)
+            compute_user_sim_matrix(ratings)
+            build_clusters(ratings)
+            i =0
+            while i<20:
+                i+=1
+                if client.cas('recompute_clusters', False):
+                    break;
+        logging.info('recommender.RecomputeClustersHandler.get END')
+        self.response.write('OK')
 
 
 # The following is for publishing the recommender via rest api
 class RecommenderHandler(webapp2.RequestHandler):
 
-#     def initialize(self, *a, **kw):
-#         webapp2.RequestHandler.initialize(self, *a, **kw)
-#         global clusters
-#         global user2cluster_map
+#     def main(self):
+#         logging.info('recommender.RecommenderHandler.main START')
 #         ratings = load_data(None)
 #         compute_user_sim_matrix(ratings)
 #         build_clusters(ratings)
-
-    def main(self):
-        global clusters
-        global user2cluster_map
-        ratings = load_data(None)
-        compute_user_sim_matrix(ratings)
-        build_clusters(ratings)
+#         logging.info('recommender.RecommenderHandler.main END')
 
     def get(self):
         auth = self.request.headers.get("Authorization")
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
         user_id = logic.get_current_userid(auth)
+        
+        if user_id is None:
+            self.response.set_status(403)
+            self.response.write("You must login first!")
+            return
 
         logging.info('Recommender: ' + str(self.request.GET))
 
@@ -788,11 +1030,11 @@ class RecommenderHandler(webapp2.RequestHandler):
             'lon': float(self.request.GET.get('lon')),
             'max_dist': float(self.request.GET.get('max_dist'))
         }
-        
+
         purpose = self.request.GET.get('purpose')
         num = int(self.request.GET.get('n'))
-        
-        places = recommend(user_id, filters, purpose = purpose, n= num)
+
+        places = recommend(user_id, filters, purpose=purpose, n=num)
 
         if places is None or len(places) == 0:
             self.response.headers['Content-Type'] = 'application/json'
@@ -801,16 +1043,20 @@ class RecommenderHandler(webapp2.RequestHandler):
 
         json_list = [Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone',
                                            'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for place in places]
-        
+
         # add distance to user for each place
         if 'lat' in filters and 'lon' in filters:
             for item in json_list:
-                item['distance'] = distance(item['address']['lat'], item['address']['lon'], filters['lat'], filters['lon'])
-    
+                item['distance'] = distance(
+                    item['address']['lat'], item['address']['lon'], filters['lat'], filters['lon'])
+
 #         logging.info(str(json_list))
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(json_list))
 
 app = webapp2.WSGIApplication([
-    ('/recommender/', RecommenderHandler)
+    ('/recommender/', RecommenderHandler),
+#     ('/recommender/init', RecommenderInitHandler),
+    ('/recommender/update_clusters', UpdatesHandler),
+    ('/recommender/recompute_clusters', RecomputeClustersHandler)
 ], debug=True)

@@ -239,10 +239,10 @@ class RatingHandler(webapp2.RequestHandler):
             user_id = None
         else:
             user_id = logic.get_current_userid(auth)
-        if user_id is None:
-            self.response.set_status(403)
-            self.response.write("You must login first!")
-            return
+#         if user_id is None:
+#             self.response.set_status(403)
+#             self.response.write("You must login first!")
+#             return
         
         body = json.loads(self.request.body)
 
@@ -251,7 +251,7 @@ class RatingHandler(webapp2.RequestHandler):
             rating, status = logic.rating_create(rating, user_id, None)
         else :
             rating, status = logic.rating_create(rating, None, None)
-        logging.error(status)
+        logging.info(status)
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps(Rating.to_json(rating, ['key', 'user', 'place', 'purpose', 'value', 'not_known'], ['creation_time'])))

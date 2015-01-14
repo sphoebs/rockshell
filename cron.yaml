@@ -1,0 +1,4 @@
+cron:
+- description: recompute clusters every day
+  url: /recommender/recompute_clusters
+  schedule: every day 23:59
