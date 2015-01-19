@@ -211,12 +211,13 @@ def place_update(in_place, place_id, place_key_str):
     return res, "OK"
 
 
-def place_list_get(filters):
+def place_list_get(filters, user_id):
     """
     It retrieves a list of places corresponding to the specified filters.
     
     Parameters:
     - filters: a dictionary containing the characteristics the returned places should have.
+    - user_id: if it s set, the personal data about the user added to each place (like ratings)
     
     Available filters:
         - 'city': 'city!province!state!country'
@@ -231,7 +232,7 @@ def place_list_get(filters):
     - list of Places that satisfy the filters
     - status message
     """
-    res = Place.get_list(filters)
+    res = Place.get_list(filters, user_id)
 
     if res is None:
         return None, "ERROR: filters are wrongly defined"

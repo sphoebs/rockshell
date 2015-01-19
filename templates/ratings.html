@@ -41,7 +41,7 @@
 				</div>
 			</div>
 
-			<ul class="rest-list scrollable">
+			<ul class="rest-list">
 				
 			</ul>
 
@@ -216,6 +216,13 @@
 			
 			for(var i=0; start+i<filtered_places.length && i<pageSize; i++){
 				var rest = filtered_places[start+i];
+				var ratings = {};
+				if(rest.ratings != undefined){
+					for(var j = 0; j< rest.ratings.length; j++){
+						rating = rest.ratings[j];
+						ratings[rating.purpose] = rating.value;
+					}
+				}
 				
 				//load underscore template
 				var xmlhttp = new XMLHttpRequest();
@@ -224,7 +231,7 @@
 				var template = xmlhttp.responseText;
 				var compiled = _.template(template);
 				var html = compiled({
-					rest : rest, strings: {{lang['rating_purposes']|safe}}
+					rest : rest, ratings: ratings, strings: {{lang['rating_purposes']|safe}}
 				});
 				$('.rest-list').append(html);
 				

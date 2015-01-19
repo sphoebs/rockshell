@@ -77,7 +77,7 @@ def load_data(filters):
     for rating in ratings:
         if rating.not_known is False and rating.value > 0:
             user = rating.user.id()
-            place = rating.place.id()
+            place = rating.place.urlsafe()
             if user not in data:
                 data[user] = {}
             if place not in data[user]:
@@ -710,7 +710,7 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5):
     filters = {}
     filters['users'] = user_cluster
     if places is not None:
-        filters['places'] = [place.key.id() for place in places]
+        filters['places'] = [Place.make_key(None, place['key']).id() for place in places]
     filters['purpose'] = purpose
 
     ratings = load_data(filters)
@@ -760,11 +760,12 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     - 'lat', 'lon' and 'max_dist': lat and lon indicates the user position, while max_dist is a measure expressed in meters 
         and represnt the radius of the circular region the user is interested in. 
 
-    Returns a list of n places
+    Returns a list of n places in json format
     """
     logging.info("recommender.recommend START - user_id=" + str(user_id) +
                  ', filters=' + str(filters) + ', purpose=' + str(purpose) + ', n=' + str(n))
-    places, status = logic.place_list_get(filters)
+    # places is already a json list
+    places, status = logic.place_list_get(filters, user_id)
     logging.info("RECOMMEND places loaded ")
 
     if status != "OK" or places is None or len(places) < 1:
@@ -786,7 +787,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         # non-personalized recommendation
         rating_filters = {}
         if places is not None:
-            rating_filters['places'] = [place.key.id() for place in places]
+            rating_filters['places'] = [Place.make_key(None, place['key']).id() for place in places]
         rating_filters['purpose'] = purpose
         ratings = load_data(rating_filters)
         items = {}
@@ -829,11 +830,11 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         for p in places:
             in_list = False
             for score, key in scores:
-                if key == p.key:
+                if key == p['key']:
                     in_list = True
                     break
             if not in_list:
-                scores.append((0, p.key))
+                scores.append((0, p['key']))
             if len(scores) >= n:
                 # we have enough recommended places
                 break
@@ -848,7 +849,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     for p in places:
         found = False
         for (score, item) in scores:
-            if item == p.key.id():
+            if item == p['key']:
                 places_scores.append((score, p))
                 found = True
         if not found:
@@ -1041,9 +1042,9 @@ class RecommenderHandler(webapp2.RequestHandler):
             self.response.write(json.dumps([]))
             return
 
-        json_list = [Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone',
-                                           'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for place in places]
-
+#         json_list = [Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone',
+#                                            'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for place in places]
+        json_list = places
         # add distance to user for each place
         if 'lat' in filters and 'lon' in filters:
             for item in json_list:

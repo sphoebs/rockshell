@@ -622,30 +622,21 @@ class Hours(PFmodel):
 class Place(PFmodel):
 
     """Represents a place"""
+    ext_id = ndb.StringProperty()
+    ext_source = ndb.StringProperty()
     name = ndb.StringProperty()
     description = ndb.TextProperty(indexed=False)
     picture = ndb.TextProperty(indexed=False)
     phone = ndb.TextProperty(indexed=False)
     price_avg = ndb.FloatProperty()
+    website = ndb.StringProperty(indexed=False)
+    email = ndb.StringProperty(indexed=False)
 
     service = ndb.StringProperty(choices=["restaurant", "bar"], repeated=True)
 
     address = ndb.StructuredProperty(Address)
     hours = ndb.StructuredProperty(Hours, repeated=True)
     days_closed = ndb.DateProperty(repeated=True)
-
-#     @staticmethod
-#     def make_key(pid):
-#         return ndb.Key(Place, pid)
-#
-#     def to_json(self):
-#
-#         res = dict(self.to_dict(), **dict(id=self.key.id()))
-#         if self.address.location:
-#             res['address']['lat'] = self.address.location.lat
-#             res['address']['lon'] = self.address.location.lon
-#             del res['address']['location']
-#         return res
 
     @staticmethod
     def to_json(obj, allowed, hidden):
@@ -659,6 +650,7 @@ class Place(PFmodel):
 
         Return value: dict representation of the object.
 
+        If allowed is None, this method acts as all fields are present in allowed.
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
         """
@@ -673,6 +665,19 @@ class Place(PFmodel):
             for day in res['days_closed']:
                 day = day.strftime('%Y-%m-%d')
 
+        return res
+
+    @staticmethod
+    def list_to_json(place_list):
+        """
+        It converts a list of Places into a list of dict objects, ready for transformation into json string,
+        """
+        if not isinstance(place_list, list):
+            return None
+        
+        res = []
+        for place in place_list:
+            res.append(Place.to_json(place, None, None))
         return res
 
     @staticmethod
@@ -841,12 +846,13 @@ class Place(PFmodel):
             return None
 
     @staticmethod
-    def get_list(filters):
+    def get_list(filters, user_id):
         """
         It retrieves a list of Places satisfying the characteristics described in filter.
 
         Parameters:
         - filters: a dict containing the characteristics the objects in the resulting list should have.
+        - user_id: if it is set, the personal data about the user are added to each place (like ratings)
 
         Available filters:
         - 'city': 'city!province!state!country'
@@ -857,7 +863,7 @@ class Place(PFmodel):
         - 'lat', 'lon' and 'max_dist': lat and lon indicates the user position, while max_dist is a measure expressed in meters 
             and represnt the radius of the circular region the user is interested in. 
             
-        Return value: list of Places.
+        Return value: list of Places in json format, with personal user information added.
         """
 
         logging.info('Place.get_list -- getting places with filters: ' + str(filters))
@@ -938,8 +944,26 @@ class Place(PFmodel):
         # executes query only once and store the results
         # Never use fetch()!
         dblist = list(dblist)
+        reslist = Place.list_to_json(dblist)
+        futures = []
+        if user_id is not None:
+            for place in dblist:
+                future = Rating.query(ndb.AND(Rating.place == place.key,Rating.user == PFuser.make_key(user_id,None))).fetch_async()
+                futures.append(future)
+                
+            
+            for future in futures:
+                ratings = future.get_result()
+                ratings = Rating.list_to_json(ratings)
+                
+                if len(ratings) > 0:
+                    place_key = ratings[0]['place']
+                    for place in reslist:
+                        if place['key'] == place_key:
+                            place['ratings'] = ratings
+                            break;
 
-        return dblist
+        return reslist
 
     @staticmethod
     def get_list_by_keys(keys):
@@ -1602,6 +1626,19 @@ class Rating(PFmodel):
             res['creation_time'] = res[
                 'creation_time'].strftime('%Y-%m-%d %H:%M')
         
+        return res
+    
+    @staticmethod
+    def list_to_json(rating_list):
+        """
+        It converts a list of Rating into a list of dict objects, ready for transformation into json string,
+        """
+        if not isinstance(rating_list, list):
+            return None
+        
+        res = []
+        for rating in rating_list:
+            res.append(Rating.to_json(rating, None, None))
         return res
 
     @staticmethod

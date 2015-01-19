@@ -211,11 +211,10 @@ class UserRatingsHandler(BaseRequestHandler):
                 province + "!" + state + "!" + country
 
         logging.info("Getting places with filters: " + str(filters))
+        #plist is already a json list
+        plist, status = logic.place_list_get(filters, user_id)
 
-        plist, status = logic.place_list_get(filters)
-
-        json_list = json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture',
-                                                  'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for p in plist])
+        json_list = json.dumps(plist)
 #         logging.info(str(json_list))
         if 'city' in filters.keys():
             filters['city'] = user.home.city + ', ' + user.home.province

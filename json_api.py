@@ -137,17 +137,24 @@ class PlaceListHandler(webapp2.RequestHandler):
 
     def get(self):
         get_values = self.request.GET
+        
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
         logging.info("GET PLACES filters: " + str(get_values))
         if not get_values:
             get_values = None
         else:
             filters = {}
             filters['city'] = get_values.get('city')
-        plist, status = logic.place_list_get(filters)
+        # plist is already a json list.
+        plist, status = logic.place_list_get(filters, user_id)
 
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps([Place.to_json(p, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[]) for p in plist]))
+            self.response.write(json.dumps(plist))
         else:
             self.response.set_status(400)
             self.response.write(status)
