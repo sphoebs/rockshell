@@ -597,75 +597,75 @@ def build_clusters(ratings, clusters=None):
     return clusters
 
 
-def update_clusters(users):
-    #TODO: this is not working!!! + move to task queue
-    """
-    It updates clusters. 
-    When too many changes are made after last full cluster building, clusters are recomputed from scratch.
+# def update_clusters(users):
+#     #TODO: this is not working!!! + move to task queue
+#     """
+#     It updates clusters. 
+#     When too many changes are made after last full cluster building, clusters are recomputed from scratch.
+# 
+#     Input: 
+#     - users: lsit of user ids that have new/updated ratings since last update
+# 
+#     It updates clusters and all related data structures and has no return value.    
+#     """
+#     # TODO: this will be moved in a task for a queue
+# 
+#     logging.info('recommender.update_clusters START - users: ' + str(users))
+# 
+#     ratings = load_data(None)
+# #     if clusters is not None and len(clusters) > 0 and num_changes > max_changes:
+# # TODO: this will be moved to a scheduled task!!
+# #         compute_user_sim_matrix(ratings)
+# #         build_clusters(ratings)
+# #         num_changes = 0
+# #     else:
+#     for user in users:
+#         cluster = Cluster.get_cluster_for_user(user)
+#         if cluster is not None and len(cluster.keys()) == 1:
+#             logging.info("User cluster: " + str(cluster))
+#             clid = cluster.keys()[0]
+#             clusers = cluster.get(clid)
+#             i = clusers.index(user)
+#             del clusers[i]
+#             if len(clusers) == 0:
+#                 # the cluster is empty, remove it
+#                 remove_cluster_sim_matrix([clid])
+#                 Cluster.delete(Cluster.make_key(clid))
+#             else:
+#                 # update similarity of this cluster, since now it has one
+#                 # user less (1 row and 1 column)
+#                 clusters = Cluster.get_all_clusters_dict()
+#                 update_cluster_sim_matrix(ratings, clusters, clid)
+# 
+#         # update user_sim_matrix for this user (1 row and 1 column of the
+#         # matrix)
+#         update_user_sim_matrix(ratings, user)
+# 
+#         # add new cluster for the updated user
+#         clid = 'cluster_' + str(Cluster.get_next_id())
+#         new_cluster = {clid: [user]}
+#         Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
+#         Cluster.increment_next_id()
+# 
+#     # run other steps of hierarchical clustering
+#     clusters = Cluster.get_all_clusters_dict()
+#     logging.info(
+#         'recommender.update_clusters -- user have been moved, iteration still to do: ' + str(clusters))
+#     clusters = find_clusters(ratings, clusters)
+#     Cluster.delete_all()
+#     Cluster.store_all(clusters)
+#     # TODO: update only new/updated clusters?
+#     init_cluster_sim_matrix(ratings, clusters)
+# 
+# #         user2cluster_map = {}
+# #         for cid in clusters:
+# #             for user in clusters[cid]:
+# #                 user2cluster_map[user] = cid
+#     logging.info(
+#         'recommender.update_clusters END - clusters: ' + str(clusters))
 
-    Input: 
-    - users: lsit of user ids that have new/updated ratings since last update
 
-    It updates clusters and all related data structures and has no return value.    
-    """
-    # TODO: this will be moved in a task for a queue
-
-    logging.info('recommender.update_clusters START - users: ' + str(users))
-
-    ratings = load_data(None)
-#     if clusters is not None and len(clusters) > 0 and num_changes > max_changes:
-# TODO: this will be moved to a scheduled task!!
-#         compute_user_sim_matrix(ratings)
-#         build_clusters(ratings)
-#         num_changes = 0
-#     else:
-    for user in users:
-        cluster = Cluster.get_cluster_for_user(user)
-        if cluster is not None and len(cluster.keys()) == 1:
-            logging.info("User cluster: " + str(cluster))
-            clid = cluster.keys()[0]
-            clusers = cluster.get(clid)
-            i = clusers.index(user)
-            del clusers[i]
-            if len(clusers) == 0:
-                # the cluster is empty, remove it
-                remove_cluster_sim_matrix([clid])
-                Cluster.delete(Cluster.make_key(clid))
-            else:
-                # update similarity of this cluster, since now it has one
-                # user less (1 row and 1 column)
-                clusters = Cluster.get_all_clusters_dict()
-                update_cluster_sim_matrix(ratings, clusters, clid)
-
-        # update user_sim_matrix for this user (1 row and 1 column of the
-        # matrix)
-        update_user_sim_matrix(ratings, user)
-
-        # add new cluster for the updated user
-        clid = 'cluster_' + str(Cluster.get_next_id())
-        new_cluster = {clid: [user]}
-        Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
-        Cluster.increment_next_id()
-
-    # run other steps of hierarchical clustering
-    clusters = Cluster.get_all_clusters_dict()
-    logging.info(
-        'recommender.update_clusters -- user have been moved, iteration still to do: ' + str(clusters))
-    clusters = find_clusters(ratings, clusters)
-    Cluster.delete_all()
-    Cluster.store_all(clusters)
-    # TODO: update only new/updated clusters?
-    init_cluster_sim_matrix(ratings, clusters)
-
-#         user2cluster_map = {}
-#         for cid in clusters:
-#             for user in clusters[cid]:
-#                 user2cluster_map[user] = cid
-    logging.info(
-        'recommender.update_clusters END - clusters: ' + str(clusters))
-
-
-def cluster_based(user, places, purpose='dinner with tourists', np=5):
+def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filters=None):
     """
     It computes cluster-based recommendations.
     Clusters have been already computed, so only user's cluster information is needed to compute predictions for the user.
@@ -682,55 +682,99 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5):
     """
     logging.info('recommender.cluster_based START - user=' +
                  str(user) + ', places, purpose:' + str(purpose) + ', np=' + str(np))
-    clusters = Cluster.get_all_clusters_dict()
+    
+    #check in memcache if the user already did the same request (ignore np)
+    
+    client = memcache.Client()
+    rec_name = 'cluster-scores_' + str(user)
+    # memcache_scores is a dict containing: 
+    # - scores: list of items and scores
+    # - purpose
+    # - lat
+    # - lon
+    # - max_dist
+    memcache_scores = client.get(rec_name)
+    logging.info("CLUSTER SCORES from memcache: " + str(memcache_scores) + ' -- ' + str(loc_filters))
+    memcache_valid = False
+    if memcache_scores is not None and 'purpose' in memcache_scores and memcache_scores['purpose'] == purpose:
+        if loc_filters is not None and 'lat' in loc_filters:
+            if 'lat' in memcache_scores and 'lon' in memcache_scores and 'max_dist' in memcache_scores:
+                diff_lat = memcache_scores['lat'] - loc_filters['lat']
+                diff_lon = memcache_scores['lon'] - loc_filters['lon']
+                if diff_lat < 0.0002 and diff_lat > -0.0002 and diff_lon < 0.0002 and diff_lon > -0.0002  and memcache_scores['max_dist'] == loc_filters['max_dist']:
+                    memcache_valid = True
+#         else:
+#             memcache_valid = True
+    
+    if  memcache_valid:
+        logging.info("CLUSTER SCORES loaded from memcache")
+        scores = memcache_scores['scores']
+#         scores = sorted(scores, key=lambda x: x[0], reverse = True)
+    else:
+        logging.info("CLUSTER SCORES computed from skratch")
+        clusters = Cluster.get_all_clusters_dict()
 
-    if clusters is None or len(clusters.keys()) < 1:
-        # there are no clusters, try to build them
-        ratings = load_data(None)
-        compute_user_sim_matrix(ratings)
-        clusters = build_clusters(ratings)
-        if clusters is None or len(clusters) < 1:
-            # no clusters can be built, no personalized recommendation can be
-            # computed
-            logging.info('recommender.cluster_based END - no clusters')
+        if clusters is None or len(clusters.keys()) < 1:
+            # there are no clusters, try to build them
+            ratings = load_data(None)
+            compute_user_sim_matrix(ratings)
+            clusters = build_clusters(ratings)
+            if clusters is None or len(clusters) < 1:
+                # no clusters can be built, no personalized recommendation can be
+                # computed
+                logging.info('recommender.cluster_based END - no clusters')
+                return None
+
+        # clusters have already been computed.
+        logging.info("clusters: " + str(clusters))
+
+        user_cluster = Cluster.get_cluster_for_user(user)
+        if user_cluster is None or len(user_cluster.keys()) != 1:
+            # the user is not in a cluster, no personalized recommendation can be
+            # computed for him
+            logging.info('recommender.cluster_based END - user not in cluster')
             return None
 
-    # clusters have already been computed.
-    logging.info("clusters: " + str(clusters))
+        user_cluster = user_cluster.get(user_cluster.keys()[0])
 
-    user_cluster = Cluster.get_cluster_for_user(user)
-    if user_cluster is None or len(user_cluster.keys()) != 1:
-        # the user is not in a cluster, no personalized recommendation can be
-        # computed for him
-        logging.info('recommender.cluster_based END - user not in cluster')
-        return None
+        filters = {}
+        filters['users'] = user_cluster
+        if places is not None:
+            filters['places'] = [Place.make_key(None, place['key']).id() for place in places]
+        filters['purpose'] = purpose
 
-    user_cluster = user_cluster.get(user_cluster.keys()[0])
+        ratings = load_data(filters)
 
-    filters = {}
-    filters['users'] = user_cluster
-    if places is not None:
-        filters['places'] = [Place.make_key(None, place['key']).id() for place in places]
-    filters['purpose'] = purpose
+        # prediction formula = average
+        items = {}
+        for other in user_cluster:
+            if other != user:
+                if other in ratings:
+                    for item in ratings[other]:
+                        if purpose in ratings[other][item]:
+                            if item not in items.keys():
+                                items[item] = []
+                            items[item].append(ratings[other][item][purpose])
 
-    ratings = load_data(filters)
-
-    # prediction formula = average
-    items = {}
-    for other in user_cluster:
-        if other != user:
-            if other in ratings:
-                for item in ratings[other]:
-                    if purpose in ratings[other][item]:
-                        if item not in items.keys():
-                            items[item] = []
-                        items[item].append(ratings[other][item][purpose])
-
-    scores = [(sum(items[item]) / len(items[item]), item)
+        scores = [(sum(items[item]) / len(items[item]), item)
               for item in items]
-    logging.info("scores: " + str(scores))
+#         logging.info("scores: " + str(scores))
 #     logging.info('scores ordering start - len:' + str(len(scores)))
-    scores = sorted(scores, key=lambda x: x[0], reverse = True)
+        scores = sorted(scores, key=lambda x: x[0], reverse = True)
+        
+        #save scores in memcache
+        rec_name = 'cluster-scores_' + str(user)
+        memcache_scores = {}
+        memcache_scores['scores'] = scores
+        memcache_scores['purpose'] = purpose
+        if loc_filters is not None and 'lat' in loc_filters:
+            memcache_scores['lat'] = loc_filters['lat']
+            memcache_scores['lon'] = loc_filters['lon']
+            memcache_scores['max_dist'] = loc_filters['max_dist']
+        logging.info("CLUSTER SCORES saving in memcache: " + str(memcache_scores))
+        client.set(rec_name, memcache_scores)
+        
+    
 #     logging.info('scores ordering end')
     res = scores[0:np]
     logging.info('recommender.cluster_based END - res: ' + str(res))
@@ -764,6 +808,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     """
     logging.info("recommender.recommend START - user_id=" + str(user_id) +
                  ', filters=' + str(filters) + ', purpose=' + str(purpose) + ', n=' + str(n))
+    
     # places is already a json list
     places, status = logic.place_list_get(filters, user_id)
     logging.info("RECOMMEND places loaded ")
@@ -773,7 +818,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         logging.info("recommender.recommend END - no places")
         return None
 
-    scores = cluster_based(user_id, places, purpose, n)
+    scores = cluster_based(user_id, places, purpose, n, loc_filters=filters)
 
     log_text = "RECOMMEND scores from cluster-based : "
     if scores is None:
@@ -918,6 +963,12 @@ class UpdatesHandler(webapp2.RequestHandler):
         #         num_changes = 0
         #     else:
         for user in users:
+            # remove memchached recommendations
+            client = memcache.Client()
+            rec_name = 'cluster-scores_' + str(user)
+            client.set(rec_name, None)
+            
+            #update clusters
             cluster = Cluster.get_cluster_for_user(user)
             if cluster is not None and len(cluster.keys()) == 1:
                 logging.info("User cluster: " + str(cluster))
