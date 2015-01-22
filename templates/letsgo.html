@@ -79,61 +79,109 @@
 {% endblock %} {% block scripts %}
 
 <script type="text/javascript">
+
+//TODO: cache geolocation!! (or not?? what if mobile and is moving??)
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showRecommendations);
+} else { 
+    alert('{{ lang['no_geolocation']}}');
+}
+var user = {{user|safe}};
+var places = [];
+var pos = 0;
+
+function renderPlace(pos){
+	if(window.console){
+		console.log("Showing place " + pos + " of " + places.length);
+	}
+	//enable prev and next buttons
+	$('.rest-details .prev').removeClass('disabled');
+	$('.rest-details .next').removeClass('disabled');
+	if(pos >= places.length-1){
+		//disable next button
+		$('.rest-details .next').addClass('disabled');
+	}
+	if(pos == 0){
+		//disable prev button
+		$('.rest-details .prev').addClass('disabled');
+	}
+	
+	var p = places[pos];
+	$('.rest-details .name').html(p.name);
+	$('.rest-details .address').html(p.address.street + ', ' + p.address.city);
+	
+	if(p.distance){
+		
+		var meters = Math.round(p.distance);
+		var text = '{{ lang['distance']}}' + ': ';
+		if(meters < 1000){
+			text += meters + ' m';
+		} else {
+			km = meters / 1000;
+			text += km.toFixed(2) + ' km';
+		}
+		$('.rest-details .distance').html(text);
+		$('.rest-details .distance').show();
+	} else {
+		$('.rest-details .distance').hide();
+	}
+	
+	var picture = p.picture;
+	if(picture == undefined || picture == '' || picture == 'null'){
+		picture = '/static/images/empty_big.png';
+	}
+	$('.letsgo').css('background-image', 'url(' + picture + ')');
+}
+
+function showRecommendations(position) {
+	
+	var settings =user.settings; 
+	if(settings == undefined){
+		settings = {purpose: 'dinner with tourists', max_distance: 1000, num_places: 5};
+	} else {
+		if (settings.purpose == undefined){
+			settings.purpose = 'dinner with tourists';
+		}
+		if (settings.max_distance == undefined){
+			settings.max_distance = 1000;
+		}
+		if(settings.num_places == undefined){
+			settings.num_places = 5
+		}
+	}
+	
+	
+	url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + 
+			'&max_dist='+ settings.max_distance+'&purpose=' + settings.purpose + '&n=' + settings.num_places;
+    $.ajax({
+		type : 'GET',
+		url : url,
+		success : function(data) {
+			$('.loading').hide();
+			places = data;
+			
+			if(places == null || places.length < 1){
+				alert('{{ lang['no_places_position']}}');
+			}
+			
+			renderPlace(pos);
+		},
+		error : function(resp) {
+			if(window.console){
+				console.log(resp);
+			}
+			alert("Error " + resp.status);
+		}
+	}); 
+}
+
 $(window).load(function() {
-	if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showRecommendations);
-    } else { 
-        alert('{{ lang['no_geolocation']}}');
-    }
-	var user = {{user|safe}};
+	
+	
 	$('.user-name').append(' '+user.first_name);
 	
 	
-	var places = [];
-	var pos = 0;
 	
-	function renderPlace(pos){
-		if(window.console){
-			console.log("Showing place " + pos + " of " + places.length);
-		}
-		//enable prev and next buttons
-		$('.rest-details .prev').removeClass('disabled');
-		$('.rest-details .next').removeClass('disabled');
-		if(pos >= places.length-1){
-			//disable next button
-			$('.rest-details .next').addClass('disabled');
-		}
-		if(pos == 0){
-			//disable prev button
-			$('.rest-details .prev').addClass('disabled');
-		}
-		
-		var p = places[pos];
-		$('.rest-details .name').html(p.name);
-		$('.rest-details .address').html(p.address.street + ', ' + p.address.city);
-		
-		if(p.distance){
-			
-			var meters = Math.round(p.distance);
-			var text = '{{ lang['distance']}}' + ': ';
-			if(meters < 1000){
-				text += meters + ' m';
-			} else {
-				km = meters / 1000;
-				text += km.toFixed(2) + ' km';
-			}
-			$('.rest-details .distance').html(text);
-			$('.rest-details .distance').show();
-		} else {
-			$('.rest-details .distance').hide();
-		}
-		
-		var picture = p.picture;
-		if(picture == undefined || picture == '' || picture == 'null'){
-			picture = '/static/images/empty_big.png';
-		}
-		$('.letsgo').css('background-image', 'url(' + picture + ')');
-	}
 	
 	function onNext(){
 		if(pos < places.length-1){
@@ -162,54 +210,7 @@ $(window).load(function() {
 		window.location = '/restaurant?id=' + p.key;
 	});
 	
-	function showRecommendations(position) {
-		
-		var settings =user.settings; 
-		if(settings == undefined){
-			settings = {purpose: 'dinner with tourists', max_distance: 1000, num_places: 5};
-		} else {
-			if (settings.purpose == undefined){
-				settings.purpose = 'dinner with tourists';
-			}
-			if (settings.max_distance == undefined){
-				settings.max_distance = 1000;
-			}
-			if(settings.num_places == undefined){
-				settings.num_places = 5
-			}
-		}
-		
-		
-		url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + 
-				'&max_dist='+ settings.max_distance+'&purpose=' + settings.purpose + '&n=' + settings.num_places;
-	    $.ajax({
-			type : 'GET',
-			url : url,
-			success : function(data) {
-				$('.loading').hide();
-				places = data;
-				
-				if(places == null || places.length < 1){
-					alert('{{ lang['no_places_position']}}');
-				}
-				
-				renderPlace(pos);
-					
-				/* places_str = '';
-				for(var i=0; i< places.length; i++){
-					p = places[i];
-					places_str += '<li><div><p>' + p.name + '</p><p>'+ p.address.street + ', ' + p.address.city + '</p></div></li>';
-				}
-				$('#places').html(places_str);  */
-			},
-			error : function(resp) {
-				if(window.console){
-					console.log(resp);
-				}
-				alert("Error " + resp.status);
-			}
-		}); 
-	}
+	
 	
 	
 	

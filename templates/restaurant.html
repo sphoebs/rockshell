@@ -31,36 +31,36 @@
 		</div>
 	
 		<div class="rest-container">
-			<h2 class="text-center">{{place.name}}</h2>
+			<img class="picture">
+		
+			<h2>{{place.name}}</h2>
 			
-			<div style="float:right">
-			<div class="picture">
-				<img src="{{place.picture}}">
+			<div class="rest-right">
+				<div class="rest-map">
+					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.location.lat}},{{place.address.location.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.location.lat}},{{place.address.location.lon}})" >
+				</div>
 			</div>
 		
-			<div class="rest-map">
-				<img src="https://maps.googleapis.com/maps/api/staticmap?center={{place.address.location.lat}},{{place.address.location.lon}}&zoom=16&size=300x250&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.location.lat}},{{place.address.location.lon}}" >
-			</div>
-			</div>
-		
-			<div style="float:left">
-			<p><small>{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</small></p>
-			<p><small>Tel: {{place.phone}}</small></p>
-			<p><small>Average price: {{place.price_avg}}</small></p>
-			<p>Description: {{place.description}}</p>
-			
-			<h4>Opening hours:</h4>
-			<ul>
-				<li>Mon: 12-14</li>
-				<li>Tue: 12-14, 18-22</li>
-				<li>Wed: 12-14</li>
-				<li>Thu: 12-14</li>
-				<li>Fri: 12-14</li>
-				<li>Sat: 12-14</li>
-				<li>Sun: closed</li>
-			</ul>
-			
-			<p>Closed the following days: 15/08/2015</p>
+			<div class="rest-left">
+				<p class="black-text desc">Description: {{place.description}}</p>
+				
+				<img class="icon-address"></img>
+				<p class="iconed black-text">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
+				
+				<img class="icon-phone"></img>
+				<p class="iconed black-text">Tel: {{place.phone}}</p>
+				
+				<img class="icon-hours"></img>
+				<p class="iconed black-text">Opening hours: Mon: 12-14; Tue: 12-14, 18-22; Wed: 12-14; Thu: 12-14; Fri: 12-14; Sat: 12-14; Sun: closed</p>
+				
+				<img class="icon-closed"></img>
+				<p class="iconed black-text">Closed: 15/08/2015</p>
+				
+				<img class="icon-web"></img>
+				<p class="iconed black-text">Website: {{place.website}}</p>
+				
+				<img class="icon-email"></img>
+				<p class="iconed black-text">Email: {{place.email}}</p>
 			</div>
 
 		</div>
@@ -72,6 +72,8 @@
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script> -->
 <script type="text/javascript">
 	$(window).load(function() {
+		
+		$('.picture').css('background-image','url({{place.picture|e}})')
 		
 		$('.scrollable').enscroll({
 		    showOnHover: false,

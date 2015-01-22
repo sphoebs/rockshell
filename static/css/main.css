@@ -1031,7 +1031,7 @@ li.rest-item {
 	height: 50px;
 	width: 200px;
 	max-width: 50%;
-	background-image: url(../images/logo_02.png);
+	background-image: url(../images/logo_white.png);
 	background-repeat: no-repeat;
 	background-position: top;
 	-webkit-background-size: contain;
@@ -1040,18 +1040,144 @@ li.rest-item {
 	background-size: contain;
 }
 
-.rest .picture img, .rest .rest-map img{
-	width: 300px;
-	height: auto;
-	max-width: 90%;
-	margin: 10px;
-}
+
 
 .rest .scrollable {
 	overflow: hidden;
 	max-height: 100%;
 }
 
+.rest .picture {
+	width: 100%;
+	height: 200px;
+	border: 0;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+.rest .rest-right{
+	width: 40%;
+	height: 300px;
+	max-height: 80%;
+	float: right;
+}
+
+.rest .rest-map img{
+	width: 90%;
+	height: 300px;
+	max-height: 100%;
+	margin: 10px;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: auto;
+	-moz-background-size: auto;
+	-o-background-size: auto;
+	background-size: auto;
+}
+
+.rest .rest-left{
+	width: 60%;
+	float: left;
+}
+
+img.icon-address{
+	display: inline;
+	width: 24px;
+	height: 24px;
+	border: 0;
+	background-image: url(../images/location.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+img.icon-phone{
+	display: inline;
+	width: 24px;
+	height: 24px;
+	background-image: url(../images/phone.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+img.icon-hours{
+	display: inline;
+	width: 24px;
+	height: 24px;
+	background-image: url(../images/hours.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+img.icon-closed{
+	display: inline;
+	width: 24px;
+	height: 24px;
+	background-image: url(../images/calendar.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+img.icon-web{
+	display: inline;
+	width: 24px;
+	height: 24px;
+	background-image: url(../images/web.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+img.icon-email{
+	display: inline;
+	width: 24px;
+	height: 24px;
+	background-image: url(../images/mail.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+p.iconed{
+	margin-left: 30px;
+	margin-top: -24px;
+	margin-bottom: 10px;
+}
+
+.black-text{
+	color: #999999;
+}
+
+.rest p.desc{
+	font-size: 20px;
+	margin-bottom: 10px;
+	margin-top: 5px;
+}
 
 /* RESTAURANT END */
 
