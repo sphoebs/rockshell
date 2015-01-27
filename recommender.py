@@ -34,6 +34,7 @@ cluster_threshold = 0.2
 
 from math import radians, cos, sin, asin, sqrt
 
+debug = False
 
 def distance(lat1, lon1, lat2, lon2):
     """
@@ -42,7 +43,8 @@ def distance(lat1, lon1, lat2, lon2):
 
     Returns distance in meters
     """
-    logging.info('recommender.distance START : lat1=' + str(lat1) +
+    if debug:
+        logging.info('recommender.distance START : lat1=' + str(lat1) +
                  " - lon1=" + str(lon1) + " - lat2=" + str(lat2) + " - lon2=" + str(lon2))
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
@@ -52,7 +54,8 @@ def distance(lat1, lon1, lat2, lon2):
     a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
     c = 2 * asin(sqrt(a))
     meters = 6367000 * c
-    logging.info('recommender.distance END - ' + str(meters))
+    if debug:
+        logging.info('recommender.distance END - ' + str(meters))
     return meters
 
 
@@ -67,7 +70,8 @@ def load_data(filters):
 
     if filters is None, it loads all ratings in the datastore
     """
-    logging.info('recommender.load_data START - filters=' + str(filters))
+    if debug:
+        logging.info('recommender.load_data START - filters=' + str(filters))
     ratings, status = logic.rating_list_get(filters)
     if status != "OK":
         return None
@@ -83,7 +87,8 @@ def load_data(filters):
             if place not in data[user]:
                 data[user][place] = {}
             data[user][place][rating.purpose] = rating.value
-    logging.info('recommender.load_data END - data users: ' +
+    if debug:
+        logging.info('recommender.load_data END - data users: ' +
                  str(len(data)) + ' -- ratings: ' + str(len(ratings)))
     return data
 
@@ -96,7 +101,8 @@ def euclidean_distance(ratings, person1, person2):
 
     Returns a float number between 0 and 1 representing the similarity between the two users.
     """
-    logging.info('recommender.euclidean_distance START - ratings, person1=' +
+    if debug:
+        logging.info('recommender.euclidean_distance START - ratings, person1=' +
                  str(person1) + ', person2=' + str(person2))
     if person1 not in ratings or person2 not in ratings:
         # one of the two has no ratings
@@ -122,7 +128,8 @@ def euclidean_distance(ratings, person1, person2):
 
 #     logging.info('euclidean - sum of squares: ' + str(sum_of_squares))
     res = 1 / (1 + (math.sqrt(sum_of_squares) / math.sqrt(len(si))))
-    logging.info('recommender.euclidean_distance END - ' + str(res))
+    if debug:
+        logging.info('recommender.euclidean_distance END - ' + str(res))
     return res
 
 
@@ -135,7 +142,8 @@ def pearson_similarity(ratings, person1, person2):
     Returns a float number between 0 and 1 representing the similarity between the two users.
 
     """
-    logging.info('recommender.pearson_similarity START - ratings, person1=' +
+    if debug:
+        logging.info('recommender.pearson_similarity START - ratings, person1=' +
                  str(person1) + ', person2=' + str(person2))
     si = {}
     num = 0
@@ -167,7 +175,8 @@ def pearson_similarity(ratings, person1, person2):
 
     denominator = math.sqrt(sum1Sq * sum2Sq)
     res = pSum / denominator
-    logging.info('recommender.pearson_similarity END - ' + str(res))
+    if debug:
+        logging.info('recommender.pearson_similarity END - ' + str(res))
     return res
 
 
@@ -184,7 +193,8 @@ def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
 
     It returns the matrix of user similarities.
     """
-    logging.info('recommender.compute_user_sim_matrix START')
+    if debug:
+        logging.info('recommender.compute_user_sim_matrix START')
     user_sim_matrix = {}
     for u1 in ratings:
         for u2 in ratings:
@@ -205,7 +215,8 @@ def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
                     user_sim_matrix[u2][u1] = sim
     client = memcache.Client()
     client.set('user_sim_matrix', user_sim_matrix)
-    logging.info(
+    if debug:
+        logging.info(
         'recommender.compute_user_sim_matrix END ')#- user_sim_matrix: ' + str(user_sim_matrix))
     return user_sim_matrix
 
@@ -223,7 +234,8 @@ def update_user_sim_matrix(ratings, user, similarity=euclidean_distance):
 
     It returns the user_sim_matrix with the updated info.
     """
-    logging.info(
+    if debug:
+        logging.info(
         'recommender.update_user_sim_matrix START - user=' + str(user))
     client = memcache.Client()
     user_sim_matrix = client.gets('user_sim_matrix')
@@ -252,7 +264,8 @@ def update_user_sim_matrix(ratings, user, similarity=euclidean_distance):
         i += 1
         if client.cas('user_sim_matrix', user_sim_matrix):
             break
-    logging.info(
+    if debug:
+        logging.info(
         'recommender.update_user_sim_matrix END ')#- user_sim_matrix: ' + str(user_sim_matrix))
     return user_sim_matrix
 
@@ -262,10 +275,12 @@ def get_user_sim_matrix():
     It gets the user_sim_matrix from memcache and returns it.
     If the matrix is not available in memcache, it returns None.
     """
-    logging.info('recommender.get_user_sim_matrix START')
+    if debug:
+        logging.info('recommender.get_user_sim_matrix START')
     client = memcache.Client()
     user_sim_matrix = client.gets('user_sim_matrix')
-    logging.info(
+    if debug:
+        logging.info(
         'recommender.get_user_sim_matrix END ')#- user_sim_matrix: ' + str(user_sim_matrix))
     return user_sim_matrix
 
@@ -282,7 +297,8 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
 
     Returns a float between 0 and 1 indicating the similarity or None if the cluster ids are not valid
     """
-    logging.info('recommender.cluster_similarity START - cluster1_id=' + str(cluster1_id) +
+    if debug:
+        logging.info('recommender.cluster_similarity START - cluster1_id=' + str(cluster1_id) +
                  ', cluster2_id=' + str(cluster2_id))
     client = memcache.Client()
     if cluster_sim_matrix is None:
@@ -292,8 +308,9 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
 
     if cluster1_id in cluster_sim_matrix and cluster2_id in cluster_sim_matrix[cluster1_id]:
         sim = cluster_sim_matrix[cluster1_id][cluster2_id]
-        logging.info(
-            'recommender.cluster_similarity END found in matrix:' + str(sim))
+        if debug:
+            logging.info(
+                         'recommender.cluster_similarity END found in matrix:' + str(sim))
         return sim
     else:
         if cluster_sim_matrix is not None:
@@ -304,7 +321,8 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
 #         cluster2 = Cluster.get_by_key(Cluster.make_key('cluster_'+str(cluster2_id)))
 
         if cluster1 is None or cluster2 is None:
-            logging.info('recommender.cluster_similarity - clusters are None')
+            if debug:
+                logging.info('recommender.cluster_similarity - clusters are None')
             return None
 
         min_sim = 1
@@ -327,7 +345,8 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
             i += 1
             if client.cas('cluster_sim_matrix', cluster_sim_matrix):
                 break
-        logging.info('recommender.cluster_similarity END computed:' + str(sim))
+        if debug:
+            logging.info('recommender.cluster_similarity END computed:' + str(sim))
         return sim
 
 
@@ -341,7 +360,8 @@ def init_cluster_sim_matrix(ratings, clusters, similarity=euclidean_distance):
 
     It returns the cluster_sim_matrix.
     """
-    logging.info('recommender.init_cluster_sim_matrix START')
+    if debug:
+        logging.info('recommender.init_cluster_sim_matrix START')
     cluster_sim_matrix = {}
     if clusters is not None:
         for cid1 in clusters:
@@ -366,8 +386,9 @@ def init_cluster_sim_matrix(ratings, clusters, similarity=euclidean_distance):
 
     client = memcache.Client()
     client.set('cluster_sim_matrix', cluster_sim_matrix)
-    logging.info(
-        'recommender.init_cluster_sim_matrix END ')#- cluster_sim_matrix: ' + str(cluster_sim_matrix))
+    if debug:
+        logging.info(
+                     'recommender.init_cluster_sim_matrix END ')#- cluster_sim_matrix: ' + str(cluster_sim_matrix))
     return cluster_sim_matrix
 
 
@@ -382,21 +403,24 @@ def update_cluster_sim_matrix(ratings, clusters, cluster_id, similarity=euclidea
 
     It returns the updated cluster_sim_matrix
     """
-    logging.info(
-        'recommender.update_cluster_sim_matrix START - cluster_id=' + str(cluster_id))
+    if debug:
+        logging.info(
+                     'recommender.update_cluster_sim_matrix START - cluster_id=' + str(cluster_id))
     client = memcache.Client()
     cluster_sim_matrix = client.gets('cluster_sim_matrix')
     if cluster_sim_matrix is None:
         cluster_sim_matrix = init_cluster_sim_matrix(
             ratings, clusters, similarity)
-        logging.info(
-            'recommender.update_cluster_sim_matrix END - cluster_sim_matrix computed from zero')
+        if debug:
+            logging.info(
+                         'recommender.update_cluster_sim_matrix END - cluster_sim_matrix computed from zero')
         return cluster_sim_matrix
 
     if cluster_id not in clusters:
         # invalid cluster id, nothing to do
-        logging.info(
-            'recommender.update_cluster_sim_matrix END - invalid cluster_id')
+        if debug:
+            logging.info(
+                         'recommender.update_cluster_sim_matrix END - invalid cluster_id')
         return None
 
     for cid2 in clusters:
@@ -416,8 +440,9 @@ def update_cluster_sim_matrix(ratings, clusters, cluster_id, similarity=euclidea
         i += 1
         if client.cas('cluster_sim_matrix', cluster_sim_matrix):
             break
-    logging.info(
-        'recommender.update_cluster_sim_matrix END ')#- updated: ' + str(cluster_sim_matrix))
+    if debug:
+        logging.info(
+                     'recommender.update_cluster_sim_matrix END ')#- updated: ' + str(cluster_sim_matrix))
     return cluster_sim_matrix
 
 
@@ -430,21 +455,24 @@ def remove_cluster_sim_matrix(cluster_ids):
 
     It returns the updated cluster_sim_matrix
     """
-    logging.info(
-        'recommender.remove_cluster_sim_matrix START - cluster_ids= ' + str(cluster_ids))
+    if debug:
+        logging.info(
+                     'recommender.remove_cluster_sim_matrix START - cluster_ids= ' + str(cluster_ids))
     client = memcache.Client()
     cluster_sim_matrix = client.gets('cluster_sim_matrix')
     if cluster_sim_matrix is None:
-        logging.info(
-            'recommender.remove_cluster_sim_matrix END cluster_sim_matrix is not defined')
+        if debug:
+            logging.info(
+                         'recommender.remove_cluster_sim_matrix END cluster_sim_matrix is not defined')
         return None
 #     logging.info(
 #         'recommender.remove_cluster_sim_matrix - cluster_sim_matrix : ' + str(cluster_sim_matrix))
 
     if cluster_ids is None or len(cluster_ids) < 1:
         #         the input is empty, nothing to do
-        logging.info(
-            'recommender.remove_cluster_sim_matrix END no ids to remove')
+        if debug:
+            logging.info(
+                         'recommender.remove_cluster_sim_matrix END no ids to remove')
         return None
 
     for cid in cluster_ids:
@@ -464,8 +492,9 @@ def remove_cluster_sim_matrix(cluster_ids):
             break
 #     logging.info('recommender.remove_cluster_sim_matrix - stored in memcache: ' +
 #                  str(client.get('cluster_sim_matrix')))
-    logging.info(
-        'recommender.remove_cluster_sim_matrix END ')#- updated: ' + str(cluster_sim_matrix))
+    if debug:
+        logging.info(
+                     'recommender.remove_cluster_sim_matrix END ')#- updated: ' + str(cluster_sim_matrix))
     return cluster_sim_matrix
 
 
@@ -478,7 +507,8 @@ def find_nearest_clusters(ratings, clusters):
 
     Result: (cluster1_id, cluster2_id, similarity) or None, if no clusters are available
     """
-    logging.info('recommender.find_nearest_clusters START'); # - ratings: ' + str(ratings) + ' clusters: ' + str(clusters))
+    if debug:
+        logging.info('recommender.find_nearest_clusters START'); # - ratings: ' + str(ratings) + ' clusters: ' + str(clusters))
     if clusters is None or len(clusters) < 2:
         return None
 
@@ -498,10 +528,12 @@ def find_nearest_clusters(ratings, clusters):
 #     logging.info('recommender.find_nearest_clusters PAIRS - sorted: ' + str(pairs[0:5])+ '...')
 
     if len(pairs) > 0:
-        logging.info('recommender.find_nearest_clusters END: ' + str(pairs[0]))
+        if debug:
+            logging.info('recommender.find_nearest_clusters END: ' + str(pairs[0]))
         return pairs[0]
     else:
-        logging.info('recommender.find_nearest_clusters END: ' + str(None))
+        if debug:
+            logging.info('recommender.find_nearest_clusters END: ' + str(None))
         return None
 
 
@@ -516,7 +548,8 @@ def find_clusters(ratings, clusters):
 
     It updates global variables clusters and next_cluster_id and has no result.
     """
-    logging.info('recommender.find_clusters START')
+    if debug:
+        logging.info('recommender.find_clusters START')
     if cluster_threshold is not None:
         # find best pair
         pair = find_nearest_clusters(ratings, clusters)
@@ -524,8 +557,9 @@ def find_clusters(ratings, clusters):
             return None
 
         cluster1, cluster2, sim = pair
-        logging.info(
-            'Best pair: ' + str(cluster1) + " and " + str(cluster2) + " sim: " + str(sim))
+        if debug:
+            logging.info(
+                         'Best pair: ' + str(cluster1) + " and " + str(cluster2) + " sim: " + str(sim))
         while sim > cluster_threshold:
 
             # merge best pair
@@ -555,7 +589,8 @@ def find_clusters(ratings, clusters):
             cluster1, cluster2, sim = pair
             logging.info(
                 'Best pair: ' + str(cluster1) + " and " + str(cluster2) + " sim: " + str(sim))
-    logging.info('recommender.find_clusters END')#: ' + str(clusters))
+    if debug:
+        logging.info('recommender.find_clusters END')#: ' + str(clusters))
     return clusters
 
 
@@ -569,7 +604,8 @@ def build_clusters(ratings, clusters=None):
 
     It returns the computed clusters
     """
-    logging.info('recommender.build_clusters START')
+    if debug:
+        logging.info('recommender.build_clusters START')
     if clusters is None:
         clusters = Cluster.get_all_clusters_dict()
         if clusters is None:
@@ -584,7 +620,8 @@ def build_clusters(ratings, clusters=None):
         clusters['cluster_' + str(Cluster.get_next_id())] = [user]
         Cluster.increment_next_id()
 
-    logging.info("Build clusters init: " + str(clusters))
+    if debug:
+        logging.info("Build clusters init: " + str(clusters))
     if num > 1:
         # compute similarities between clusters
         init_cluster_sim_matrix(ratings, clusters)
@@ -593,7 +630,8 @@ def build_clusters(ratings, clusters=None):
 
     Cluster.store_all(clusters)
 #     return clusters, user2cluster_map
-    logging.info('recommender.build_clusters END: ' + str(clusters))
+    if debug:
+        logging.info('recommender.build_clusters END: ' + str(clusters))
     return clusters
 
 
@@ -680,7 +718,8 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
     - list of np tuples (score, place_key), where score is the predicted rating for the user and place_key is the key of the palce to which it refers to
     - None if the clusters cannot be computed (no ratings in the system) 
     """
-    logging.info('recommender.cluster_based START - user=' +
+    if debug:
+        logging.info('recommender.cluster_based START - user=' +
                  str(user) + ', places, purpose:' + str(purpose) + ', np=' + str(np))
     
     #check in memcache if the user already did the same request (ignore np)
@@ -694,7 +733,8 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
     # - lon
     # - max_dist
     memcache_scores = client.get(rec_name)
-    logging.info("CLUSTER SCORES from memcache: " + str(memcache_scores) + ' -- ' + str(loc_filters))
+    if debug:
+        logging.info("CLUSTER SCORES from memcache: " + str(memcache_scores) + ' -- ' + str(loc_filters))
     memcache_valid = False
     if memcache_scores is not None and 'purpose' in memcache_scores and memcache_scores['purpose'] == purpose:
         if loc_filters is not None and 'lat' in loc_filters:
@@ -707,11 +747,13 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
 #             memcache_valid = True
     
     if  memcache_valid:
-        logging.info("CLUSTER SCORES loaded from memcache")
+        if debug:
+            logging.info("CLUSTER SCORES loaded from memcache")
         scores = memcache_scores['scores']
 #         scores = sorted(scores, key=lambda x: x[0], reverse = True)
     else:
-        logging.info("CLUSTER SCORES computed from skratch")
+        if debug:
+            logging.info("CLUSTER SCORES computed from skratch")
         clusters = Cluster.get_all_clusters_dict()
 
         if clusters is None or len(clusters.keys()) < 1:
@@ -722,17 +764,20 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
             if clusters is None or len(clusters) < 1:
                 # no clusters can be built, no personalized recommendation can be
                 # computed
-                logging.info('recommender.cluster_based END - no clusters')
+                if debug:
+                    logging.info('recommender.cluster_based END - no clusters')
                 return None
 
         # clusters have already been computed.
-        logging.info("clusters: " + str(clusters))
+        if debug:
+            logging.info("clusters: " + str(clusters))
 
         user_cluster = Cluster.get_cluster_for_user(user)
         if user_cluster is None or len(user_cluster.keys()) != 1:
             # the user is not in a cluster, no personalized recommendation can be
             # computed for him
-            logging.info('recommender.cluster_based END - user not in cluster')
+            if debug:
+                logging.info('recommender.cluster_based END - user not in cluster')
             return None
 
         user_cluster = user_cluster.get(user_cluster.keys()[0])
@@ -771,7 +816,8 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
             memcache_scores['lat'] = loc_filters['lat']
             memcache_scores['lon'] = loc_filters['lon']
             memcache_scores['max_dist'] = loc_filters['max_dist']
-        logging.info("CLUSTER SCORES saving in memcache: " + str(memcache_scores))
+        if debug:
+            logging.info("CLUSTER SCORES saving in memcache: " + str(memcache_scores))
         client.set(rec_name, memcache_scores)
         
     
@@ -806,26 +852,30 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
 
     Returns a list of n places in json format
     """
-    logging.info("recommender.recommend START - user_id=" + str(user_id) +
+    if debug:
+        logging.info("recommender.recommend START - user_id=" + str(user_id) +
                  ', filters=' + str(filters) + ', purpose=' + str(purpose) + ', n=' + str(n))
     
     # places is already a json list
     places, status = logic.place_list_get(filters, user_id)
-    logging.info("RECOMMEND places loaded ")
+    if debug:
+        logging.info("RECOMMEND places loaded ")
 
     if status != "OK" or places is None or len(places) < 1:
         # the system do not know any place within these filters
-        logging.info("recommender.recommend END - no places")
+        if debug:
+            logging.info("recommender.recommend END - no places")
         return None
 
     scores = cluster_based(user_id, places, purpose, n, loc_filters=filters)
 
-    log_text = "RECOMMEND scores from cluster-based : "
-    if scores is None:
-        log_text += "None"
-    else:
-        log_text += str(len(scores))
-    logging.info(log_text)
+    if debug:
+        log_text = "RECOMMEND scores from cluster-based : "
+        if scores is None:
+            log_text += "None"
+        else:
+            log_text += str(len(scores))
+        logging.info(log_text)
 
     if scores is None or (len(scores) < n and len(scores) < len(places)):
         # cluster-based recommendation failed
@@ -862,12 +912,13 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
                     break
         else:
             scores = avg_scores[0:n]
-        log_text = "RECOMMEND scores from average-based : "
-        if scores is None:
-            log_text += "None"
-        else:
-            log_text += str(len(scores))
-        logging.info(log_text)
+        if debug:
+            log_text = "RECOMMEND scores from average-based : "
+            if scores is None:
+                log_text += "None"
+            else:
+                log_text += str(len(scores))
+            logging.info(log_text)
 
     if scores is None or (len(scores) < n and len(scores) < len(places)):
         # cluster-based and average recommendations both failed to fill the recommendation list
@@ -883,12 +934,14 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
             if len(scores) >= n:
                 # we have enough recommended places
                 break
-    log_text = "RECOMMEND final scores : "
-    if scores is None:
-        log_text += "None"
-    else:
-        log_text += str(len(scores))
-    logging.info(log_text)
+            
+    if debug:
+        log_text = "RECOMMEND final scores : "
+        if scores is None:
+            log_text += "None"
+        else:
+            log_text += str(len(scores))
+        logging.info(log_text)
 
     places_scores = []
     for p in places:
@@ -899,9 +952,9 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
                 found = True
         if not found:
             places_scores.append((0, p))
-    logging.info('places_scores ordering start')
+    
     places_scores = sorted(places_scores, key=lambda x: x[0], reverse = True)
-    logging.info('places_scores ordering end')
+    
     places_scores = places_scores[0:n]
 #     logging.info('recommender.recommend - places_scores: ' + str(places_scores))
     items = [place for (score, place) in places_scores]
@@ -938,6 +991,7 @@ class UpdatesHandler(webapp2.RequestHandler):
         It gets the list of users with updates from memcache, together with the ratings added in last hour.
         
         """
+        
         logging.info('updateshandler.get START ')
         
         #check headers to let only tasks execute this method
@@ -951,7 +1005,8 @@ class UpdatesHandler(webapp2.RequestHandler):
         client = memcache.Client()
         users = client.gets('updated_users')
         if users is None or not isinstance(users, list) or len(users)<1:
-            logging.info('updateshandler.get END - no users to update')
+            if debug:
+                logging.info('updateshandler.get END - no users to update')
             self.response.write('OK')
             return
 
@@ -971,7 +1026,8 @@ class UpdatesHandler(webapp2.RequestHandler):
             #update clusters
             cluster = Cluster.get_cluster_for_user(user)
             if cluster is not None and len(cluster.keys()) == 1:
-                logging.info("User cluster: " + str(cluster))
+                if debug:
+                    logging.info("User cluster: " + str(cluster))
                 clid = cluster.keys()[0]
                 clusers = cluster.get(clid)
                 i = clusers.index(user)
@@ -998,7 +1054,8 @@ class UpdatesHandler(webapp2.RequestHandler):
 
         # run other steps of hierarchical clustering
         clusters = Cluster.get_all_clusters_dict()
-        logging.info(
+        if debug:
+            logging.info(
                      'updateshandler.get -- user have been moved, iteration still to do: ' + str(clusters))
         clusters = find_clusters(ratings, clusters)
         Cluster.delete_all()

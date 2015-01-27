@@ -296,8 +296,15 @@ def rating_create(rating, user_id, user_key_str):
         #  - if the user already have many ratings, the new ones will not influence much 
         #        his/her recommendations and the updated can wait more, ~ 1 hour or more
     
+        num_ratings = rating_count(user_key = rating.user);
+        time = 20;
+        if num_ratings < 2:
+            time = 5;
+        elif num_ratings > 15:
+            time = 5 * 60;
+    
         q = taskqueue.Queue('update-clusters-queue') 
-        task = taskqueue.Task(url='/recommender/update_clusters', method='GET', countdown=20)
+        task = taskqueue.Task(url='/recommender/update_clusters', method='GET', countdown=time)
         q.add(task)
 #     update_clusters([res.user.id()])
     return res, "OK"
@@ -354,3 +361,7 @@ def rating_list_get(filters):
     if res is None:
         return None, "ERROR: filters are wrongly defined"
     return res, "OK"
+
+def rating_count(user_key = None, place_key = None):
+    count = Rating.count(user_key, place_key);
+    return count;

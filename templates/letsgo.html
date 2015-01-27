@@ -39,9 +39,10 @@
 		
 		<ul class="menu-items">
 			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
-			<li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li>
-			<li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li>
-			<li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li>
+			<li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li>
+			<!-- <li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li> -->
+			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
+			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
 			<li><button class="img-btn" id="settings">{{ lang['search_settings']}}</button></li>
 			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 		</ul>
@@ -84,17 +85,30 @@
 <script type="text/javascript">
 
 $(window).load(function() {
-	
-	//TODO: cache geolocation!! (or not?? what if mobile and is moving??)
-	if (navigator.geolocation) {
-		$('.loading-message').html('Getting your position');
-	    navigator.geolocation.getCurrentPosition(showRecommendations);
-	} else { 
-	    alert('{{ lang['no_geolocation']}}');
-	}
+	var reclist_cachetime = 1000 * 60 * 30; // 30 minutes of cache of recommendations
 	var user = {{user|safe}};
 	var places = [];
 	var pos = 0;
+	var reclist = localStorage.reclist;
+	if (reclist != undefined ){
+		reclist = JSON.parse(reclist);
+		if (reclist.length > 0 && (localStorage.reclist_time + reclist_cachetime) > Date.now()){
+			places = reclist;
+			$('.loading').hide();
+			renderPlace(pos);
+		} else {
+			localStorage.removeItem("reclist");
+			localStorage.removeItem("reclist_time");
+			reclist = undefined;
+		}
+	} else {
+		if (navigator.geolocation) {
+			$('.loading-message').html('Getting your position');
+	    	navigator.geolocation.getCurrentPosition(showRecommendations);
+		} else { 
+	    	alert('{{ lang['no_geolocation']}}');
+		}
+	}
 
 	function renderPlace(pos){
 		if(window.console){
@@ -141,7 +155,7 @@ $(window).load(function() {
 
 	function showRecommendations(position) {
 		$('.loading-message').html('Loading your search settings');
-		var settings =user.settings; 
+		var settings = user.settings; 
 		if(settings == undefined){
 			settings = {purpose: 'dinner with tourists', max_distance: 1000, num_places: 5};
 		} else {
@@ -169,9 +183,11 @@ $(window).load(function() {
 				
 				if(places == null || places.length < 1){
 					alert('{{ lang['no_places_position']}}');
+				} else {
+					localStorage.reclist = JSON.stringify(places);
+					localStorage.reclist_time = Date.now();
+					renderPlace(pos);
 				}
-				
-				renderPlace(pos);
 			},
 			error : function(resp) {
 				if(window.console){
@@ -309,10 +325,29 @@ $(window).load(function() {
 		$('#close-popup').click(function(){
 			$('.popup-area').html('');
 		});
+		
+		$('.settings-popup .save').click(function(){
+			localStorage.removeItem("reclist");
+			localStorage.removeItem("reclist_time");
+			$('.settings-popup form').submit();
+		});
 	});
 	
 	$('#rate-more').click(function(){
 		window.location = '/ratings'
+	});
+	
+	$('#refresh').click(function(){
+		$('.left-menu').hide();
+		$('.user-menu-small').show();
+		count++;
+		$('.loading').show();
+		if (navigator.geolocation) {
+			$('.loading-message').html('Getting your position');
+	    	navigator.geolocation.getCurrentPosition(showRecommendations);
+		} else { 
+	    	alert('{{ lang['no_geolocation']}}');
+		}
 	});
 	
 	

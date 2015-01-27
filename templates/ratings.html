@@ -20,15 +20,15 @@
 				</div>
 			</div>
 			<br/>
-			<div>
+			<div class="create-places center-text">
 				<div class="text-100 no-places">{{lang['no_places_selected']}}</div>
 				<p class="text-100">{{lang['create_place_button']}}</p>
 				<button class="img-btn new-place"style="margin-left: 10px; margin-right: 10px;">{{lang['add_place']}}</button>
 				<div class="new-place-form popup-area"></div>
 			</div>
-			
+
 			<div class="filters">
-			
+				
 				<div class="ui-widget">
   					<label class="text-100" for="name-input">{{lang['search_name']}}: </label>
   					<input type="text" name="name-input" id="name-input">
@@ -137,8 +137,8 @@
 			
 			if(place.geometry.viewport){
 				var bounds = place.geometry.viewport;
-				var southWest = new google.maps.LatLng( bounds.Ea.k, bounds.wa.j );
-				var northEast = new google.maps.LatLng( bounds.Ea.j, bounds.wa.k );
+				var southWest = new google.maps.LatLng( bounds.Ca.k, bounds.va.j );
+				var northEast = new google.maps.LatLng( bounds.Ca.j, bounds.va.k );
 				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
 				
 			}
@@ -171,9 +171,14 @@
 				success : function(data) {
 					
 					if(data.length <1){
-						$('.no-places').show();
+						/* $('.no-places').show(); */
+						$('.navigation-buttons .prev').addClass('disabled');
+						$('.navigation-buttons .next').addClass('disabled');
+						$('.navigation-buttons').show();
+						$('.create-places').show();
+						$('.rest-list').show();
 					} else {
-						$('.no-places').hide();
+						/* $('.no-places').hide(); */
 						all_places = data;
 						filtered_places = data;
 						for(var i=0; i< all_places.length; i++){
@@ -240,6 +245,8 @@
 			$('.rating').click(saveRating);
 			$('.scrollable').scrollTop(0);
 			$('.navigation-buttons').show();
+			$('.create-places').show();
+			$('.rest-list').show();
 			initFilters();
 			
 		}
@@ -377,9 +384,29 @@
 					url : '/api/place',
 					data : JSON.stringify(place),
 					success : function(place) {
+						place.ratings = [];
 						$('.rating.selected').each(function(){
-							saveNewPlaceRating(place.key, this);
+							var btn = $(this);
+							var value = $(btn).attr('value');
+							var not_known = false;
+							
+							if (value == 0){
+								not_known = true;
+							}
+							var rating = {
+								'place_id' : place.key,
+								'purpose' : $(btn).attr('purpose'),
+								'value' : value,
+								'not_known' : not_known,
+							};
+							place.ratings.push(rating);
+							/* saveNewPlaceRating(place.key, this); */
+							saveNewPlaceRating(rating);
 						});
+						all_places.push(place);
+						filtered_places = all_places;
+						last_pos = 0;
+						displayPlaces(last_pos);
 						
 					},
 					error : function(resp) {
@@ -400,9 +427,10 @@
 			});
 		}
 		
-		function saveNewPlaceRating(place, div) {
-			var btn = $(div);
-			var value = $(btn).attr('value');
+		/* function saveNewPlaceRating(place, div) { */
+		function saveNewPlaceRating(rating) {
+			/* var btn = $(div); */
+			/* var value = $(div).attr('value');
 			var not_known = false;
 			
 			if (value == 0){
@@ -410,10 +438,10 @@
 			}
 			var rating = {
 				'place_id' : place,
-				'purpose' : $(btn).attr('purpose'),
+				'purpose' : $(div).attr('purpose'),
 				'value' : value,
 				'not_known' : not_known,
-			};
+			}; */
 			$.ajax({
 				type : 'POST',
 				url : '/api/rating',
@@ -594,6 +622,7 @@
 		$('.navigation-buttons .next').click(onNext);
 		$('.navigation-buttons .prev').click(onPrev);
 		$('.navigation-buttons').hide();
+		$('.create-places').hide();
 		$('.filters').hide();
 		$('.no-places').hide();
 		$('.search-name').click(function(){

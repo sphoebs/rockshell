@@ -1859,6 +1859,22 @@ class Rating(PFmodel):
 
         return dblist
     
+    @staticmethod
+    def count(user_key = None, place_key = None):
+        if user_key is not None and place_key is not None:
+            if not isinstance(user_key, ndb.Key) or user_key.kind().find('PFuser') < 0 or not isinstance(place_key, ndb.Key) or place_key.kind().find('Place') < 0:
+                return None
+            return Rating.query(ndb.AND( Rating.user == user_key,Rating.place == place_key)).count()
+        elif user_key is not None:
+            if not isinstance(user_key, ndb.Key) or user_key.kind().find('PFuser') < 0:
+                return None
+            return Rating.query(Rating.user == user_key).count()
+        elif place_key is not None:
+            if not isinstance(place_key, ndb.Key) or place_key.kind().find('Place') < 0:
+                return None
+            return Rating.query(Rating.place == place_key).count()
+        else:
+            return None
     
 class Cluster(PFmodel):
     # id is stored in key: cluster_<number>
