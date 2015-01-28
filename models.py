@@ -798,10 +798,10 @@ class Place(PFmodel):
         if not valid:
             logging.error("Invalid input data: " + str(wrong_list))
             return None
-        logging.info("Place.store: key=" + str(key))
+#         logging.info("Place.store: key=" + str(key))
         if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
             # key is valid --> update
-            logging.info("Updating place " + str(key))
+#             logging.info("Updating place " + str(key))
             db_obj = key.get()
             if db_obj is None:
                 logging.info("Updating place - NOT FOUND " + str(key))
@@ -809,10 +809,10 @@ class Place(PFmodel):
 
             objdict = obj.to_dict()
             
-            NOT_ALLOWED = ['id', 'key']
+            NOT_ALLOWED = ['id', 'key', 'service', 'ext_id', 'ext_source']
 
             for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED:
+                if key in NOT_ALLOWED or value is None: #TODO: let value to be None??
                     return None
                 if hasattr(db_obj, key):
                     try:
@@ -825,61 +825,11 @@ class Place(PFmodel):
                 
             db_obj.put()
             
-            
-#             if obj.name is not None and len(obj.name) > 0:
-#                 db_obj.name = obj.name
-#             if obj.description is not None and len(obj.description) > 0:
-#                 db_obj.description = obj.description
-#             if obj.picture is not None and len(obj.picture) > 0:
-#                 db_obj.picture = obj.picture
-#             if obj.phone is not None and len(obj.phone) > 0:
-#                 db_obj.phone = obj.phone
-#             if obj.website is not None and len(obj.website) > 0:
-#                 db_obj.website = obj.website
-#             if obj.email is not None and len(obj.email) > 0:
-#                 db_obj.email = obj.email
-#             if obj.service is not None:
-#                 db_obj.service = obj.service
-#             if obj.address is not None:
-#                 if obj.address.street is not None and obj.address.location.lat is not None and obj.address.location.lon is not None:
-#                     db_obj.address = obj.address
-#             if obj.hours is not None and len(obj.hours) >0:
-#                 db_obj.hours = obj.hours
-#             if obj.days_closed is not None and len(obj.days_closed)>0:
-#                 db_obj.days_closed = obj.days_closed
-                
-#             objdict = obj.to_dict()
-#             
-#             if 'name' in objdict.keys():
-#                 db_obj.name = objdict['name']
-#             if 'description' in objdict.keys():
-#                 db_obj.description = objdict['description']
-#             if 'picture' in objdict.keys():
-#                 db_obj.picture = objdict['picture']
-#             if 'phone' in objdict.keys():
-#                 db_obj.phone = objdict['phone']
-#             if 'website' in objdict.keys():
-#                 db_obj.website = objdict['website']
-#             if 'email' in objdict.keys():
-#                 db_obj.email = objdict['email']
-#             if 'price_avg' in objdict.keys():
-#                 db_obj.price_avg = objdict['price_avg']
-#             if 'service' in objdict.keys():
-#                 db_obj.service = objdict['service']
-#             if 'address' in objdict.keys():
-#                 db_obj.address = objdict['address']
-#             if 'hours' in objdict.keys():
-#                 db_obj.hours = objdict['hours']
-#             if 'days_closed' in objdict.keys():
-#                 db_obj.days_closed = objdict['days_closed']
-
-#             db_obj.put()
-            
             return db_obj
 
         else:
             # key is not valid --> create
-            logging.info("Creating new place ")
+#             logging.info("Creating new place ")
             obj.put()
             if obj.address is not None and obj.address.location is not None:
                 geopoint = search.GeoPoint(obj.address.location.lat, obj.address.location.lon)
