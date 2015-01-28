@@ -81,7 +81,27 @@ en = {
     'search_name': 'Search by name',
     'map_search': 'Search in the map',
     'done': 'I\'m done',
-    'city_mandatory': 'The city must be set!!'
+    'city_mandatory': 'The city must be set!!',
+    
+    # RESTAURANT PAGE
+    'rest_opening_hours': 'Opening hours',
+    'rest_closed': 'Closed',
+    'rest_name': 'Restaurant name',
+    'rest_description': 'Description',
+    'rest_address': 'Address',
+    'rest_phone': 'Phone number',
+    'rest_website': 'Website',
+    'rest_email': 'E-mail',
+    'rest_edit': 'Edit',
+    'rest_picture': 'Picture (URL)',
+    'opening_mon': 'Mon',
+    'opening_tue': 'Tue',
+    'opening_wed': 'Wed',
+    'opening_thu': 'Thu',
+    'opening_fri': 'Fri',
+    'opening_sat': 'Sat',
+    'opening_sun': 'Sun',
+    'rest_closed_wday': 'closed'
       
 }
 
@@ -164,6 +184,27 @@ it = {
     'search_name': 'Cerca per nome',
     'map_search': 'Cerca nella mappa',
     'done': 'Ho finito',
-    'city_mandatory': 'La citta` deve essere selezionata!!'
+    'city_mandatory': 'La citta` deve essere selezionata!!',
+    
+    # RESTAURANT PAGE
+    'rest_opening_hours': 'Orario d\'apertura',
+    'rest_closed': 'Chiuso',
+    'rest_name': 'Nome del ristorante',
+    'rest_description': 'Descrizione',
+    'rest_address': 'Indirizzo',
+    'rest_phone': 'Numero di telefono',
+    'rest_website': 'Sito web',
+    'rest_email': 'E-mail',
+    'rest_edit': 'Modifica',
+    'rest_picture': 'Immagine (URL)',
+    'opening_mon': 'Lun',
+    'opening_tue': 'Mar',
+    'opening_wed': 'Mer',
+    'opening_thu': 'Gio',
+    'opening_fri': 'Ven',
+    'opening_sat': 'Sab',
+    'opening_sun': 'Dom',
+    'rest_closed_wday': 'chiuso'
+    
 }
 

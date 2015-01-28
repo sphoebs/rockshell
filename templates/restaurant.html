@@ -23,6 +23,7 @@
 			<br/>
 		
 			<ul class="menu-items">
+				<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
 				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
@@ -37,30 +38,55 @@
 			
 			<div class="rest-right">
 				<div class="rest-map">
-					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.location.lat}},{{place.address.location.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.location.lat}},{{place.address.location.lon}})" >
+					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
 				</div>
 			</div>
 		
 			<div class="rest-left">
-				<p class="black-text desc">Description: {{place.description}}</p>
+				<p class="black-text desc">{{place.description}}</p>
 				
 				<img class="icon-address"></img>
 				<p class="iconed black-text">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
 				
 				<img class="icon-phone"></img>
-				<p class="iconed black-text">Tel: {{place.phone}}</p>
+				<p class="iconed black-text">{{place.phone}}</p>
 				
 				<img class="icon-hours"></img>
-				<p class="iconed black-text">Opening hours: Mon: 12-14; Tue: 12-14, 18-22; Wed: 12-14; Thu: 12-14; Fri: 12-14; Sat: 12-14; Sun: closed</p>
-				
+				<p class="iconed black-text">{{ lang['rest_opening_hours'] }}: 
+				{% for h in place.hours %}
+					{% if h.weekday == '1' %}
+						{{ lang['opening_mon']}}:
+					{% elif h.weekday == '2' %}
+						{{ lang['opening_tue']}}:
+					{% elif h.weekday == '3' %}
+						{{ lang['opening_wed']}}:
+					{% elif h.weekday == '4' %}
+						{{ lang['opening_thu']}}:
+					{% elif h.weekday == '5' %}
+						{{ lang['opening_fri']}}:
+					{% elif h.weekday == '6' %}
+						{{ lang['opening_sat']}}:
+					{% elif h.weekday == '7' %}
+						{{ lang['opening_sun']}}:
+					{% endif %}
+					
+					{{ '%s-%s'|format(h.open1, h.close1) if h.open1 and h.close1 else lang['rest_closed_wday']}}
+					{{ ', %s-%s'|format(h.open2, h.close2) if h.open2 and h.close2 }}
+					{{ '; ' if not h.weekday == '7' }}
+				{% endfor %}
+				</p>
 				<img class="icon-closed"></img>
-				<p class="iconed black-text">Closed: 15/08/2015</p>
+				<p class="iconed black-text">{{ lang['rest_closed'] }}: 
+					{% for d in place.days_closed %}
+						{{ d ~ ', '}}
+					{% endfor %}	
+				</p>
 				
 				<img class="icon-web"></img>
-				<p class="iconed black-text">Website: {{place.website}}</p>
+				<p class="iconed black-text">{{place.website}}</p>
 				
 				<img class="icon-email"></img>
-				<p class="iconed black-text">Email: {{place.email}}</p>
+				<p class="iconed black-text">{{place.email}}</p>
 			</div>
 
 		</div>
@@ -70,6 +96,7 @@
 {% endblock %} {% block scripts %}
 <!-- <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script> -->
+<script src="/static/js/enquire.min.js"></script>
 <script type="text/javascript">
 	$(window).load(function() {
 		
@@ -100,6 +127,9 @@
 			}
 			
 		});
+		$('#edit').click(function(){
+			window.location = 'restaurant/edit?id={{place.key|e}}';
+		});
 		$('#rate-more').click(function(){
 			window.location = '/ratings'
 		});
@@ -126,31 +156,16 @@
 			//TODO: goto google maps 
 		});
 		
-		/* function initializeMap() {
-			var lat = {{place.address.location.lat}};
-			var lon = {{place.address.location.lon}};
+		
+		enquire.register("screen and (max-width:500px)", {
+			match : function() {
+				$('.picture').insertAfter('.rest-left');
+				$('.rest-right').insertAfter('.picture');
+			}, 
 			
-			var myLatlng = new google.maps.LatLng(lat, lon);
-			var mapOptions = {
-				scrollwheel: false,
-				zoom: 16,
-			    center: myLatlng,
-			}
-			var map = new google.maps.Map(document.getElementById('rest-map'), mapOptions);
-			
-			var marker = new google.maps.Marker({
-				icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
-				position: myLatlng
-				map: map,
-				title: {{place.name}}
-			});
-			
-			google.maps.event.addListener(map, 'bounds_changed', function(){
-				
-			});
-			
-			
-		} */
+		});
+		
+		
 	});
 </script>
 

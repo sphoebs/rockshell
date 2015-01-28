@@ -329,7 +329,31 @@ class RestaurantPageHandler(BaseRequestHandler):
             place_key =  get_values.get('id')
             place, status = logic.place_get(None, place_key)
             if status == 'OK':
+                place = Place.to_json(place, None, None)
                 self.render('restaurant.html', {'place': place, 'user': user, 'lang' : LANG });
+            else:
+                self.redirect('/error')
+                
+class RestaurantEditHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        user, status = logic.user_get(user_id, None)
+        if status != "OK":
+            self.redirect('/')
+            return
+        get_values = self.request.GET
+        if not get_values:
+            self.redirect('/error')
+        else:
+            place_key =  get_values.get('id')
+            place, status = logic.place_get(None, place_key)
+            if status == 'OK':
+                place = Place.to_json(place, None, None)
+                self.render('restaurant_edit.html', {'place': place, 'hours_string': json.dumps(place['hours']), 'closed': json.dumps(place['days_closed']), 'user': user, 'lang' : LANG });
             else:
                 self.redirect('/error')
         
@@ -359,6 +383,7 @@ app = webapp2.WSGIApplication([
     ('/settings', SettingsHandler),
     ('/ratings', RatingsPageHandler),
     ('/restaurant', RestaurantPageHandler),
+    ('/restaurant/edit', RestaurantEditHandler),
     ('/error', ErrorHandler)
 
 ], debug=True)

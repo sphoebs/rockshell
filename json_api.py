@@ -220,7 +220,9 @@ class PlaceHandler(webapp2.RequestHandler):
         place, status = logic.place_update(place, None, pid)
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[])))
+            place = Place.to_json(place, None,None)
+            logging.info('Place json: ' + str(place))
+            self.response.write(json.dumps(place))
         else:
             self.response.set_status(404)
             self.response.write(status)

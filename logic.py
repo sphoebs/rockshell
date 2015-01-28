@@ -204,7 +204,7 @@ def place_update(in_place, place_id, place_key_str):
     - the status (a string indicating whether an error occurred)
     """
     res = Place.store(
-        in_place, Place.get_by_key(Place.make_key(place_id, place_key_str)))
+        in_place, Place.make_key(place_id, place_key_str))
     if res is None:
         return None, "ERROR: wrong input data"
 

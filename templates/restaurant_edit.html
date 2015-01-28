@@ -1,0 +1,430 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="full-background rest">
+	<div class="scrollable">
+
+		<div class="top-bar rest-bar">
+			<div class="bar-background"></div>
+			<div class="menu-button">
+				<button class="img-btn"></button>
+				<div class="user-menu-small">
+					<div class="user-picture"></div>
+					<div class="text-300 user-name">
+						{{ lang['welcome']}}<br />{{user.first_name}}
+					</div>
+				</div>
+			</div>
+			<div class="rest-logo"></div>
+		</div>
+		
+		<div class="left-menu">
+			<div class="user-menu">
+				<div class="user-picture"></div>
+				<h2 class="text-300 user-name">{{ lang['welcome']}}
+					{{user.first_name}}</h2>
+			</div>
+			<br />
+
+			<ul class="menu-items">
+				<li><button class="img-btn" id="rate-more">{{
+						lang['rate_more']}}</button></li>
+				<li><button class="img-btn" id="near-me">{{
+						lang['near_me']}}</button></li>
+				<li><button class="img-btn" id="logout">{{
+						lang['log_out']}}</button></li>
+			</ul>
+
+		</div>
+
+		<div class="rest-container">
+		
+			<h2 class="center-text">Edit restaurant</h2>
+
+			<!-- <form> -->
+				<div>
+					<label class="form-label">{{ lang['rest_name']}}: </label>
+					<div class="form-input">
+						<input type="text" id="rest_name" name="rest_name" value="{{place.name|e}}">
+					</div>
+				</div>
+				<div>
+					<label class="form-label">{{ lang['rest_description']}}: </label>
+					<div class="form-input">
+						<textarea id="rest_description" name="rest_description">{{place.description|e}}</textarea>
+					</div>
+				</div>
+				<div>
+					<label class="form-label">{{ lang['rest_picture']}}: </label>
+					<div class="form-input">
+						<input type="text" id="rest_picture" name="rest_picture" value="{{place.picture|e}}">
+					</div>
+				</div>
+				<div>
+					<label class="form-label">{{ lang['rest_address']}}: </label>
+					<div class="form-input">
+						<input type="text" name="auto-city" id="rest-address" 
+							value="{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})">
+						<input type="hidden" name="street_number" id="street_number" value="{{place.address.street}}" />
+						<input type="hidden" name="route" id="route" value=""/>
+						<input type="hidden" name="locality" id="locality" value="{{place.address.city}}"/> 
+						<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" value="{{place.address.province}}" /> 
+						<input type="hidden" name="country" id="country" value="{{place.address.country}}"/>
+						<input type="hidden" name="lat" id="lat" value="{{place.address.lat}}"/>
+						<input type="hidden" name="lon" id="lon" value="{{place.address.lon}}"/>
+					</div>
+				</div>
+				
+				<div>
+					<label class="form-label">{{ lang['rest_phone']}}: </label>
+					<div class="form-input">
+						<input type="text" id="rest_phone" name="rest_phone" value="{{place.phone|e}}">
+					</div>
+				</div>
+				<div>
+					<label class="form-label">{{ lang['rest_website']}}: </label>
+					<div class="form-input">
+						<input type="text" id="rest_website" name="rest_website" value="{{place.website|e}}">
+					</div>
+				</div>
+				<div>
+					<label class="form-label">{{ lang['rest_email']}}: </label>
+					<div class="form-input">
+						<input type="text" id="rest_email" name="rest_email" value="{{place.email|e}}">
+					</div>
+				</div>
+
+				<div>
+					<label class="form-label">{{ lang['rest_opening_hours']}}:
+					</label>
+					<div class="form-input opening"></div>
+				</div>
+
+				<div>
+					<label class="form-label">{{ lang['rest_closed']}}: </label>
+					<div class="form-input closed">
+						<input type="text" class="days-input" id="datepicker" placeholder="Add new day">
+						{% for day in place.days_closed %}
+						<div class="days-item">
+							<p>{{day}}</p><button class="img-btn delete-small"></button>
+						</div>
+						{% endfor %}
+						
+					</div>
+				</div>
+
+				<input type="button" class="img-btn save text-100"
+					value="{{ lang['save']}}" />
+			<!-- </form> -->
+
+		</div>
+	</div>
+</div>
+
+{% endblock %} {% block scripts %}
+<script type="text/javascript"
+	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+<script type="text/javascript">
+	$(window).load(function() {
+		
+		displayHours();
+		addressAutocomplete();
+		
+		var closed = {{closed|safe}};
+		
+		
+		$( "#datepicker" ).datepicker({ minDate: -1, dateFormat: 'dd-mm-yy',
+		    onClose: function () {
+		        var day = $(this).val();
+		        if(day == ''){
+		        	return;
+		        }
+		        closed.push(day);
+		        $(this).val('');
+		        var html = '<div class="days-item"><p>'+day+'</p><button class="img-btn delete-small"></button></div>';
+		        $('.closed').append(html);
+		        console.log('Closed: ' + JSON.stringify(closed));
+		       	
+				$('.delete-small').click(function(){
+					removeDay(this);
+				});
+		    }
+		});
+		
+		$('.delete-small').click(function(){
+			removeDay(this);
+		});
+		
+		function removeDay(btn){
+			var day = $(btn).parent().find('p').html();
+			var index = closed.indexOf(day);
+			if (index >= 0) {
+			  closed.splice( index, 1 );
+			}
+			console.log('Closed: ' + JSON.stringify(closed));
+			$(btn).parent().remove();
+		}
+		
+		function displayHours(){
+			var hours = {{hours_string|safe}};
+		
+			var hours_html = '<div class="hours-block"><label class="form-label2">DAY</label>'+
+				'<div class="form-input-opening"><input type="time" id="rest_opening_1" value="VAL1"></div>'+
+				'<div class="form-input-opening"><input type="time" id="rest_opening_2" value="VAL2"></div>'+
+				'<div class="form-input-opening"><input type="time" id="rest_opening_3" value="VAL3"></div>'+
+				'<div class="form-input-opening"><input type="time" id="rest_opening_4" value="VAL4"></div>'+
+				'<input type="hidden" id="rest_day" value="NUM"/> </div>';
+			var hours_mon, hours_tue, hours_wed, hours_thu, hours_fri, hours_sat, hours_sun = undefined;
+			if(hours != undefined && hours.length > 0){
+				for (var i=0; i< hours.length; i++){
+					var h = hours[i];
+					if (h.weekday == '1'){
+						hours_mon = hours_html.replace('DAY', '{{lang['opening_mon']}}').replace('NUM', '1').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+					} else if (h.weekday == '2'){
+						hours_tue = hours_html.replace('DAY', '{{lang['opening_tue']}}').replace('NUM', '2').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+					} else if (h.weekday == '3'){
+						hours_wed = hours_html.replace('DAY', '{{lang['opening_wed']}}').replace('NUM', '3').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+					} else if (h.weekday == '4'){
+						hours_thu = hours_html.replace('DAY', '{{lang['opening_thu']}}').replace('NUM', '4').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+					} else if (h.weekday == '5'){
+						hours_fri = hours_html.replace('DAY', '{{lang['opening_fri']}}').replace('NUM', '5').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+					} else if (h.weekday == '6'){
+						hours_sat = hours_html.replace('DAY', '{{lang['opening_sat']}}').replace('NUM', '6').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+					} else if (h.weekday == '7'){
+						hours_sun = hours_html.replace('DAY', '{{lang['opening_sun']}}').replace('NUM', '7').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+					} 
+				}
+			}
+		
+			if (hours_mon == undefined){
+				hours_mon = hours_html.replace('DAY', '{{lang['opening_mon']}}').replace('NUM', '1').replace('VAL1', '').replace('VAL2', '').replace('VAL3', '').replace('VAL4', '');
+			} 
+			if (hours_tue == undefined){
+				hours_tue = hours_html.replace('DAY', '{{lang['opening_tue']}}').replace('NUM', '2').replace('VAL1', '').replace('VAL2', '').replace('VAL3', '').replace('VAL4', '');
+			} 
+			if (hours_wed == undefined){
+				hours_wed = hours_html.replace('DAY', '{{lang['opening_wed']}}').replace('NUM', '3').replace('VAL1', '').replace('VAL2', '').replace('VAL3', '').replace('VAL4', '');
+			} 
+			if (hours_thu == undefined){
+				hours_thu = hours_html.replace('DAY', '{{lang['opening_thu']}}').replace('NUM', '4').replace('VAL1', '').replace('VAL2', '').replace('VAL3', '').replace('VAL4', '');
+			} 
+			if (hours_fri == undefined){
+				hours_fri = hours_html.replace('DAY', '{{lang['opening_fri']}}').replace('NUM', '5').replace('VAL1', '').replace('VAL2', '').replace('VAL3', '').replace('VAL4', '');
+			} 
+			if (hours_sat == undefined){
+				hours_sat = hours_html.replace('DAY', '{{lang['opening_sat']}}').replace('NUM', '6').replace('VAL1', '').replace('VAL2', '').replace('VAL3', '').replace('VAL4', '');
+			} 
+			if (hours_sun == undefined){
+				hours_sun = hours_html.replace('DAY', '{{lang['opening_sun']}}').replace('NUM', '7').replace('VAL1', '').replace('VAL2', '').replace('VAL3', '').replace('VAL4', '');			
+			} 
+		
+			$('.opening').append(hours_mon);
+			$('.opening').append(hours_tue);
+			$('.opening').append(hours_wed);
+			$('.opening').append(hours_thu);
+			$('.opening').append(hours_fri);
+			$('.opening').append(hours_sat);
+			$('.opening').append(hours_sun);
+		}
+		
+		
+		function addressAutocomplete(){
+		
+			var input2 = document.getElementById('rest-address');
+
+			var autocomplete2 = new google.maps.places.Autocomplete(
+					input2);
+
+			var componentForm2 = {
+				street_number: 'short_name',
+				route: 'long_name',
+				locality : 'long_name',
+				administrative_area_level_2 : 'short_name',
+				country : 'short_name',
+			};
+		
+			google.maps.event.addListener(autocomplete2,
+					'place_changed', function() {
+						// Get the place details from the autocomplete object.
+				var place = autocomplete2.getPlace();
+			
+				// Get each component of the address from the place details
+				// and fill the corresponding field on the form.
+				for (var i = 0; i < place.address_components.length; i++) {
+					var addressType = place.address_components[i].types[0];
+					if (componentForm2[addressType]) {
+						var val = place.address_components[i][componentForm2[addressType]];
+						document.getElementById(addressType).value = val;
+					}
+				}
+			
+				// save latitude and longitude
+				if(place.geometry.location){
+					/* alert(JSON.stringify(place.geometry.location)); */
+					document.getElementById('lat').value = place.geometry.location.k;
+					document.getElementById('lon').value = place.geometry.location.D;
+				}
+			});
+		
+		}
+		
+		function getCookie(cname) {
+			var name = cname + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ')
+					c = c.substring(1);
+				if (c.indexOf(name) != -1)
+					return c.substring(name.length, c.length);
+			}
+			return "";
+		};
+		
+		var auth = getCookie('user');
+		
+		function savePlace(){
+			
+				var self = this;
+				
+				var name = $('#rest_name').val();
+				var description = $('#rest_description').val();
+				var picture = $('#rest_picture').val();
+				
+				var street = $('#route').val() + " " + $('#street_number').val();
+				street = street != " " ? street : undefined;
+				var city = $('#locality').val();
+				city = city != "" ? city : undefined;
+				var province = $('#administrative_area_level_2').val();
+				province = province != "" ? province : undefined;
+				var country = $('#country').val();
+				country = country != "" ? country : undefined;
+				var latitude = $('#lat').val() != "" ? $('#lat').val() : undefined;
+				var longitude = $('#lon').val() != "" ? $('#lon').val() : undefined;
+				
+				var phone = $('#rest_phone').val();
+				var website = $('#rest_website').val();
+				var email = $('#rest_email').val();
+				
+				//get hours
+				var hours = [];
+				$('.hours-block').each(function(){
+					var h = {
+						'weekday': $(this).find('#rest_day').val(),
+						'open1': $(this).find('#rest_opening_1').val(),
+						'close1': $(this).find('#rest_opening_2').val(),
+						'open2': $(this).find('#rest_opening_3').val(),
+						'close2': $(this).find('#rest_opening_4').val(),
+					};
+					hours.push(h);
+					
+				});
+				
+				
+				if(name == undefined || name == ''){
+					// name is missing!!
+					return 
+				}
+				
+				var place = {
+					'name': name,
+					'description': description,
+					'picture': picture,
+					'address' : {
+						'street' : street,
+						'city' : city,
+						'province' : province,
+						'country': country,
+						'lat' : latitude,
+						'lon': longitude
+					},
+					'phone' : phone,
+					'website' : website,
+					'email' : email,
+					'hours': hours,
+					'days_closed' : closed
+				};
+				$.ajax({
+					type : 'PUT',
+					url : '/api/place/{{place.key}}',
+					data : JSON.stringify(place),
+					success : function(place) {
+						window.location = '/restaurant?id=' + place.key
+						
+					},
+					error : function(resp) {
+						
+							if(window.console){
+								console.log(resp);
+							}
+							alert("Error" + resp.status);
+						
+					},
+					headers : {
+						Authorization : auth
+					}
+				});
+			
+		}
+		
+		$('.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-red',
+		    verticalHandleClass: 'handle-red'
+		});
+		
+		$('.left-menu').hide();
+		var count = 1;
+		$('.menu-button button').click(function(){
+			if(count % 2 == 1){
+				//odd time --> open left menu
+				$('.left-menu').show();
+				$('.user-menu-small').hide();
+				count++;
+			} else {
+				//even time --> close left menu
+				$('.left-menu').hide();
+				$('.user-menu-small').show();
+				count++;
+			}
+			
+		});
+		$('#rate-more').click(function(){
+			window.location = '/ratings'
+		});
+		$('#near-me').click(function(){
+			window.location = '/letsgo'
+		});
+		$('#logout').click(function(){
+			$.ajax({
+				type : 'DELETE',
+				url : '/api/user/login',
+				success : function() {
+					window.location = '/';
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		});
+		
+		$('.rest-map img').click(function(){
+			//TODO: goto google maps 
+		});
+		
+		$('.save').click(function(){
+			savePlace();
+		});
+		
+		
+
+	});
+</script>
+
+
+{% endblock %}

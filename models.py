@@ -422,7 +422,7 @@ class Hours(PFmodel):
             res['open2'] = res['open2'].strftime('%H:%M')
         if 'close2' in res.keys():
             res['close2'] = res['close2'].strftime('%H:%M')
-
+#         logging.info('Converting hours to json: ' + str(res))
         return res
 
     @staticmethod
@@ -659,11 +659,17 @@ class Place(PFmodel):
         if 'address' in res.keys():
             res['address'] = Address.to_json(obj.address, None, None)
         if 'hours' in res.keys():
+            tmp_hours = []
             for hours in obj.hours:
                 hours = Hours.to_json(hours, None, None)
+                tmp_hours.append(hours)
+            res['hours'] = tmp_hours
         if 'days_closed' in res.keys():
-            for day in res['days_closed']:
-                day = day.strftime('%Y-%m-%d')
+            tmp_days = []
+            for day in obj.days_closed:
+                day = day.strftime('%d-%m-%Y')
+                tmp_days.append(day)
+            res['days_closed'] = tmp_days
 
         return res
 
@@ -699,15 +705,21 @@ class Place(PFmodel):
         if 'address' in json_dict.keys():
             json_dict['address'] = Address.from_json(json_dict['address'])
         if 'hours' in json_dict.keys():
+            hlist = []
             for hours in json_dict['hours']:
                 hours = Hours.from_json(hours)
+                hlist.append(hours)
+            json_dict['hours'] = hlist
         if 'days_closed' in json_dict.keys():
+            dlist = []
             for day in json_dict['days_closed']:
                 try:
-                    day = datetime.strptime(day, '%Y-%m-%d').date()
+                    day = datetime.strptime(day, '%d-%m-%Y').date()
+                    dlist.append(day)
                 except ValueError:
                     # TODO: handle error
                     del day
+            json_dict['days_closed'] = dlist
 
         try:
             # populate raises exceptions if the keys and values in json_dict
@@ -786,40 +798,88 @@ class Place(PFmodel):
         if not valid:
             logging.error("Invalid input data: " + str(wrong_list))
             return None
-
+        logging.info("Place.store: key=" + str(key))
         if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
             # key is valid --> update
+            logging.info("Updating place " + str(key))
             db_obj = key.get()
             if db_obj is None:
+                logging.info("Updating place - NOT FOUND " + str(key))
                 return None
 
             objdict = obj.to_dict()
             
-            if 'name' in objdict.keys():
-                db_obj.name = objdict['name']
-            if 'description' in objdict.keys():
-                db_obj.description = objdict['description']
-            if 'picture' in objdict.keys():
-                db_obj.picture = objdict['picture']
-            if 'phone' in objdict.keys():
-                db_obj.phone = objdict['phone']
-            if 'price_avg' in objdict.keys():
-                db_obj.price_avg = objdict['price_avg']
-            if 'service' in objdict.keys():
-                db_obj.service = objdict['service']
-            if 'address' in objdict.keys():
-                db_obj.address = objdict['address']
-            if 'hours' in objdict.keys():
-                db_obj.hours = objdict['hours']
-            if 'days_closed' in objdict.keys():
-                db_obj.days_closed = objdict['days_closed']
+            NOT_ALLOWED = ['id', 'key']
 
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED:
+                    return None
+                if hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        return None
+            
+                else:
+                    return None
+                
             db_obj.put()
+            
+            
+#             if obj.name is not None and len(obj.name) > 0:
+#                 db_obj.name = obj.name
+#             if obj.description is not None and len(obj.description) > 0:
+#                 db_obj.description = obj.description
+#             if obj.picture is not None and len(obj.picture) > 0:
+#                 db_obj.picture = obj.picture
+#             if obj.phone is not None and len(obj.phone) > 0:
+#                 db_obj.phone = obj.phone
+#             if obj.website is not None and len(obj.website) > 0:
+#                 db_obj.website = obj.website
+#             if obj.email is not None and len(obj.email) > 0:
+#                 db_obj.email = obj.email
+#             if obj.service is not None:
+#                 db_obj.service = obj.service
+#             if obj.address is not None:
+#                 if obj.address.street is not None and obj.address.location.lat is not None and obj.address.location.lon is not None:
+#                     db_obj.address = obj.address
+#             if obj.hours is not None and len(obj.hours) >0:
+#                 db_obj.hours = obj.hours
+#             if obj.days_closed is not None and len(obj.days_closed)>0:
+#                 db_obj.days_closed = obj.days_closed
+                
+#             objdict = obj.to_dict()
+#             
+#             if 'name' in objdict.keys():
+#                 db_obj.name = objdict['name']
+#             if 'description' in objdict.keys():
+#                 db_obj.description = objdict['description']
+#             if 'picture' in objdict.keys():
+#                 db_obj.picture = objdict['picture']
+#             if 'phone' in objdict.keys():
+#                 db_obj.phone = objdict['phone']
+#             if 'website' in objdict.keys():
+#                 db_obj.website = objdict['website']
+#             if 'email' in objdict.keys():
+#                 db_obj.email = objdict['email']
+#             if 'price_avg' in objdict.keys():
+#                 db_obj.price_avg = objdict['price_avg']
+#             if 'service' in objdict.keys():
+#                 db_obj.service = objdict['service']
+#             if 'address' in objdict.keys():
+#                 db_obj.address = objdict['address']
+#             if 'hours' in objdict.keys():
+#                 db_obj.hours = objdict['hours']
+#             if 'days_closed' in objdict.keys():
+#                 db_obj.days_closed = objdict['days_closed']
+
+#             db_obj.put()
             
             return db_obj
 
         else:
             # key is not valid --> create
+            logging.info("Creating new place ")
             obj.put()
             if obj.address is not None and obj.address.location is not None:
                 geopoint = search.GeoPoint(obj.address.location.lat, obj.address.location.lon)
