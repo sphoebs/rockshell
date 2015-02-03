@@ -8,24 +8,26 @@
 	</div>
 	
 	<div class="top-bar">
-		<div class="bar-background"></div>
 		<div class="menu-button">
 			<button class="img-btn"></button>
 			<div class="user-menu-small">
 				<div class="user-picture"></div>
-				<div class="text-300 user-name">{{ lang['welcome']}}<br/> </div>
+				<div class="text-bold user-name">{{ lang['welcome']}}<br/> </div>
 			</div>
 		</div>
 		<div class="rest-logo"></div>
+		<div class="refresh-button">
+			<button class="img-btn" id="refresh"></button>
+		</div>
 	</div>
 	
 	<div class="rest-details">
 		<button class="img-btn prev"></button>
 		<div class="main clickable">
-			<p class="text-100 red-text center-text first">{{ lang['in_this_picture']}}</p>
-			<p class="text-100 red-text name">{{ lang['restaurant_name']}}</p>
-			<p class="text-100 red-text address">{{ lang['address']}}</p>
-			<p class="text-100 red-text distance">{{ lang['distance']}}: 100 m</p>
+			<p class="center-text first">{{ lang['in_this_picture']}}</p>
+			<p class="name">{{ lang['restaurant_name']}}</p>
+			<p class="address">{{ lang['address']}}</p>
+			<p class="distance">{{ lang['distance']}}: 100 m</p>
 		</div>
 		<button class="img-btn next"></button>
 	</div>
@@ -33,13 +35,13 @@
 	<div class="left-menu scrollable">
 		<div class="user-menu">
 			<div class="user-picture"></div>
-			<h2 class="text-300 user-name">{{ lang['welcome']}}</h2>
+			<h2 class="text-bold user-name">{{ lang['welcome']}}</h2>
 		</div>
 		<br/>
 		
 		<ul class="menu-items">
 			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
-			<li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li>
+			<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
 			<!-- <li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li> -->
 			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
 			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
@@ -234,14 +236,16 @@ $(window).load(function() {
 	
 	
 	
-	
 	$('.left-menu').hide();
+	var window_width = $('.letsgo').width();
 	var count = 1;
 	$('.menu-button button').click(function(){
 		if(count % 2 == 1){
 			//odd time --> open left menu
 			$('.left-menu').show();
-			$('.user-menu-small').hide();
+			if(window_width > 600){
+				$('.user-menu-small').hide();
+			}
 			$('.scrollable').enscroll({
 			    showOnHover: false,
 			    verticalScrolling: true,
@@ -254,7 +258,10 @@ $(window).load(function() {
 		} else {
 			//even time --> close left menu
 			$('.left-menu').hide();
-			$('.user-menu-small').show();
+			// show user menu small if width larger than 600px
+			if(window_width > 600){
+				$('.user-menu-small').show();
+			}
 			count++;
 		}
 		
@@ -338,9 +345,6 @@ $(window).load(function() {
 	});
 	
 	$('#refresh').click(function(){
-		$('.left-menu').hide();
-		$('.user-menu-small').show();
-		count++;
 		$('.loading').show();
 		if (navigator.geolocation) {
 			$('.loading-message').html('Getting your position');

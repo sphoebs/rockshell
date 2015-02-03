@@ -1,12 +1,12 @@
 body {
-	font-size: 13pt;
+	font-size: 10pt;
 	font-family: "Lato";
 	color: #DC3D3D;
 	margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6, p {
-	margin: 2px;
+	margin: 5px;
 }
 
 .full-background {
@@ -22,28 +22,22 @@ h1, h2, h3, h4, h5, h6, p {
 	z-index: -1;
 }
 
-.text-100 {
-	font-family: "Lato";
-	font-weight: 100;
-	padding-left: 10px;
-	padding-right: 10px;
-	line-height: 1.2em;
-}
-
-.text-300 {
-	font-family: "Lato";
-	font-weight: 500;
-	padding-left: 10px;
-	padding-right: 10px;
+.text-bold {
+	font-weight: 700; /* or 900, if more. Other weights are not provided */
 }
 
 .center-text {
 	text-align: center;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 
 form {
 	margin-top: 20px;
 	margin-bottom: 20px;
+	width: 90%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .img-btn:not(.disabled ):hover {
@@ -70,14 +64,13 @@ button {
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
-	color: white;
+	/* color: white;
 	background-color: #DC3D3D;
-	line-height: 1.3em;
-	font-size: 13pt;
+	line-height: 1.3em; */
 	cursor: pointer;
 }
 
-input[type=button], input[type=submit] {
+.red-button, input[type=button], input[type=submit] {
 	outline: 0;
 	border: 0;
 	box-shadow: none;
@@ -94,18 +87,16 @@ input[type=button], input[type=submit] {
 	border-right: solid 1px #842525;
 	border-bottom: solid 2px #842525;
 	color: white;
-	font-size: 13pt;
 	line-height: 1.3em;
 	padding-left: 10px;
 	padding-right: 10px;
+	font-size: 12pt;
 }
-
-
 
 input[type=text], input[type=number], select {
 	outline: 0;
 	border: 0;
-	font-size: 13pt;
+	font-size: 12pt;
 	line-height: 1.3em;
 	border-bottom: solid 2px #DC3D3D;
 	box-shadow: none;
@@ -150,9 +141,9 @@ button.disabled {
 
 /* SCROLL BAR */
 .scrollable, .popup-scrollable {
-	max-height: 75%;
+	/* max-height: 75%; */
 	overflow: hidden;
-	margin-bottom: 10px;
+	/* margin-bottom: 10px; */
 }
 
 .track-red {
@@ -230,10 +221,10 @@ button.disabled {
 
 .popup-foreground {
 	position: fixed;
-	top: 10%;
-	bottom: 10%;
-	left: 10%;
-	right: 10%;
+	top: 25px;
+	bottom: 25px;
+	left: 25px;
+	right: 25px;
 	background-color: #F7F8CD;
 	z-index: 310;
 	border: solid 2px #DC3D3D;
@@ -270,7 +261,7 @@ button.disabled {
 	z-index: 200;
 }
 
-.loading img{
+.loading img {
 	display: block;
 	width: 100px;
 	height: 100px;
@@ -279,10 +270,10 @@ button.disabled {
 	margin-right: auto;
 }
 
-.loading .loading-message{
+.loading .loading-message {
 	text-align: center;
 	color: #000;
-	font-size: 24px;
+	font-size: 16px;
 }
 
 /* LOADING END */
@@ -338,18 +329,19 @@ button.disabled {
 .login {
 	position: absolute;
 	left: 50%;
-	bottom: 7%;
+	bottom: 5%;
 	-webkit-transform: translate(-50%, 0);
 	transform: translate(-50%, 0);
 	z-index: 1000;
-	width: 167px;
-	max-width: 27%;
+	width: 179px;
+	max-width: 29%;
 	height: 167px;
-	max-height: 27%;
+	max-height: 29%;
 }
 
 .login h4 {
-	font-size: 24pt;
+	margin-top: 5px;
+	font-size: 16pt;
 }
 
 .login .google-btn {
@@ -371,6 +363,7 @@ button.disabled {
 .login .fb-btn {
 	display: inline-block;
 	padding: 2px;
+	margin-left: 4px;
 	width: 64px;
 	height: 64px;
 	max-width: 40%;
@@ -382,52 +375,34 @@ button.disabled {
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	width: 64px;
 }
 
 /* HOME PAGE END */
 
 /* PROFILE PAGE */
 .full-background.profile {
-	background-image: url(../images/home_background.png);
-	/* background-color: #F7F8CD; */
+	background-image: none;
+	background-color: #F7F8CD;
 }
 
 .profile-container {
 	position: fixed;
-	top: 10%;
-	left: 5%;
-	right: 5%;
-	bottom: 5%;
-	background-color: rgba(247, 248, 205, 0.95);
-	z-index: 1;
-}
-
-.profile-logo {
-	width: 370px;
-	height: 130px;
-	max-width: 60%;
-	max-height: 30%;
-	background-image: url(../images/logo_02.png);
-	background-repeat: no-repeat;
-	background-position: center;
-	-webkit-background-size: contain;
-	-moz-background-size: contain;
-	-o-background-size: contain;
-	background-size: contain;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: -50px;
-	margin-bottom: 20px;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
 
 .step {
+	margin-top: 30px;
 	position: absolute;
 	right: 5px;
 	margin: 5px;
 	padding: 5px;
-	width: 64px;
-	height: 64px;
-	font-size: 16pt;
+	width: 32px;
+	height: 32px;
+	font-size: 10pt;
 	color: white;
 	text-align: center;
 	background-image: url(../images/red_circle.png);
@@ -439,24 +414,29 @@ button.disabled {
 	background-size: contain;
 }
 
-.form-label {
-	width: 25%;
-	text-align: right;
-	display: inline-block;
-	padding-right: 10px;
-	vertical-align: top;
-	/* margin-top: 15px; */
-	margin-top: 15px;
+.profile-logo {
+	width: 190px;
+	height: 70px;
+	background-image: url(../images/logo_02.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
-.form-input {
-	width: 60%;
+.form-label, .form-input, .city-search label, .city-search .input {
+	width: 100%;
 	text-align: left;
+	display: block;
 	padding-left: 10px;
-	display: inline-block;
-	vertical-align: top;
-	/* margin-top: 7px; */
 	margin-top: 15px;
+	font-size: 11pt;
 }
 
 .form-input .radio-inline {
@@ -464,8 +444,6 @@ button.disabled {
 }
 
 .save {
-/* 	width: 130px;
-	height: 40px; */
 	text-align: center;
 	margin-top: 10px;
 	margin-left: 50%;
@@ -486,22 +464,25 @@ li.rest-item {
 	padding-bottom: 5px;
 	padding-top: 5px;
 	border-bottom: solid 2px #DC3D3D;
+	margin-right: 15px;
 }
 
 .rest-item div.rest-details {
-	display: inline-block;
+	display: block;
+	width: 100%;
+	/* display: inline-block;
 	width: 45%;
-	vertical-align: top;
+	vertical-align: top; */
 	margin-top: 10px;
 }
 
 .rest-item .rest-details .name, .letsgo .rest-details .name {
-	font-size: 20pt;
+	font-size: 13pt;
 	margin-bottom: 0;
 }
 
 .rest-item .rest-details .address {
-	margin: 0;
+	margin: 0 0 5px 0;
 }
 
 .rest-item .rest-details .rest-image {
@@ -512,8 +493,7 @@ li.rest-item {
 
 .rest-item div.rest-ratings {
 	display: inline-block;
-	width: 45%;
-	margin-left: 10px;
+	width: 100%;
 	margin-top: 15px;
 }
 
@@ -613,28 +593,24 @@ li.rest-item {
 }
 
 .navigation-buttons .continue {
-/* 	width: 130px;
-	height: 32px; */
 	display: block;
 	text-align: center;
 	margin-top: 10px;
 	margin-left: auto;
 	margin-right: auto;
-	background-color: #DC3D3D;
-	border-right: solid 1px #842525;
-	border-bottom: solid 2px #842525;
 }
 
 .navigation-buttons .next {
-	width: 150px;
+	width: 32px;
 	height: 32px;
 	float: right;
 	display: block;
 	color: #DC3D3D;
-	text-align: right;
+	/* text-align: right; */
 	/* margin-top: 10px; */
 	margin-right: 20px;
-	padding-right: 45px;
+	margin-bottom: 10px;
+	/* padding-right: 45px; */
 	background-color: transparent;
 	background-image: url(../images/arrows/arrow_right.png);
 	background-repeat: no-repeat;
@@ -646,15 +622,16 @@ li.rest-item {
 }
 
 .navigation-buttons .prev {
-	width: 150px;
+	width: 32px;
 	height: 32px;
 	float: left;
 	display: block;
 	color: #DC3D3D;
-	text-align: left;
+	/* text-align: left; */
 	/* margin-top: 10px; */
 	margin-left: 20px;
-	padding-left: 45px;
+	margin-bottom: 10px;
+	/* padding-left: 45px; */
 	background-color: transparent;
 	background-image: url(../images/arrows/arrow_left.png);
 	background-repeat: no-repeat;
@@ -693,25 +670,118 @@ li.rest-item {
 
 /* PROFILE RATINGS END */
 
-/* PROFILE OTHER RATINGS */
+/* RATINGS */
+.ratings #city, .ratings #name-input {
+	width: 70%;
+}
+
+.create-places {
+	border: solid 1px #DC3D3D;
+	width: 70%;
+	margin: 10px auto 5px auto;
+	padding: 5px;
+}
+
+.ratings .filters {
+	display: block;
+	width: 100%;
+	max-width: 750px;
+	padding: 10px;
+	vertical-align: top;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.ratings .rest-list {
+	display: block;
+	width: 100%;
+	max-width: 750px;
+	padding: 10px;
+	vertical-align: top;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.ui-autocomplete {
+	max-height: 150px;
+	overflow-y: auto;
+	/* prevent horizontal scrollbar */
+	overflow-x: hidden;
+}
+/* IE 6 doesn't support max-height
+   * we use height instead, but this forces the menu to always be this tall
+   */
+* html .ui-autocomplete {
+	height: 150px;
+}
+
+.ui-widget {
+	font-family: "Lato"; font-size : 1em;
+	margin-bottom: 10px;
+	font-size: 1em;
+}
+
+.search-name {
+	background-image: url(../images/search.png);
+	width: 32px;
+	height: 32px;
+}
+
+.name-input-block {
+	display: block;
+	width: 90%;
+	margin: 0 auto;
+}
+
+.name-input-block input, .name-input-block button {
+	display: inline-block;
+}
+
+.map-search-label {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.map-search {
+	width: 90%;
+	height: 250px;
+	margin: 0 auto;
+	/* margin: 10px; */
+}
+
+.controls {
+	margin-top: 16px;
+	border: 1px solid transparent;
+	border-radius: 2px 0 0 2px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	height: 32px;
+	outline: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+#pac-input {
+	background-color: #fff;
+	padding: 0 11px 0 13px;
+	width: 75%;
+	/* font-family: Roboto;
+	font-size: 15px;
+	font-weight: 300; */
+	text-overflow: ellipsis;
+	margin-left: 15px;
+}
+
+.city-search .input input {
+	width: 100%;
+}
+
 .my-input-text {
 	margin-bottom: 10px;
 	width: 400px;
-	max-width: 80%;
+	max-width: 90%;
 }
 
-.save-buttons {
-	float: right;
-}
-
-.save-buttons button {
-/* 	width: 130px;
-	height: 32px; */
-	max-width: 40%;
-	margin-right: 10px;
-}
-
-/* PROFILE OTHER RATINGS END */
+/* RATINGS END */
 
 /* LETS GO */
 .full-background.letsgo {
@@ -720,62 +790,65 @@ li.rest-item {
 
 .top-bar {
 	position: relative;
-	height: 100px;
-}
-
-.top-bar .bar-background {
-	position: fixed;
-	top: 0;
-	left: 0;
 	height: 50px;
-	width: 100%;
 	background-color: #DC3D3D;
 	border-bottom: solid 2px #881e1e;
 	z-index: 1;
 }
 
-.top-bar .logo {
+.rest-logo {
 	position: fixed;
-	top: 0;
+	top: 5px;
 	left: 50%;
 	-webkit-transform: translate(-50%, 0);
 	transform: translate(-50%, 0);
 	display: block;
-	margin-left: auto;
-	margin-right: auto;
 	z-index: 9;
-	height: 150px;
+	height: 40px;
 	width: 200px;
 	max-width: 50%;
-	background-image: url(../images/logo_03.png);
+	background-image: url(../images/logo_white.png);
 	background-repeat: no-repeat;
 	background-position: top;
 	-webkit-background-size: contain;
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	z-index: 11;
 }
 
 .top-bar .menu-button {
 	height: 50px;
-	max-width: 40%;
+	max-width: 30%;
 	position: fixed;
 	top: 5px;
 	left: 20px;
 	z-index: 11;
 }
 
+.top-bar .refresh-button button {
+	height: 32px;
+	width: 32px;
+	position: fixed;
+	top: 9px;
+	right: 20px;
+	z-index: 11;
+	background-image: url(../images/refresh.png);
+}
+
 .top-bar .menu-button button {
-	width: 40px;
-	height: 40px;
-	background-color: #DC3D3D;
+	width: 32px;
+	height: 32px;
+	margin-top: 4px;
+	/* background-color: #DC3D3D; */
 	background-image: url(../images/menu_btn.png);
 	float: left;
 }
 
 .top-bar .menu-button .user-menu-small {
-	z-index: 8;
-}
+	z-index: 11;
+	display: none; /* this is hidden in small screens */
+} 
 
 .top-bar .menu-button .user-menu-small .user-picture {
 	background-image: url(../images/user.png);
@@ -787,11 +860,9 @@ li.rest-item {
 	background-size: contain;
 	position: fixed;
 	top: 5px;
-	left: 70px;
+	left: 60px;
 	width: 40px;
 	height: 40px;
-	margin-left: 5px;
-	margin-right: 5px;
 	float: left;
 	border: solid 2px white;
 	border-radius: 24px;
@@ -802,11 +873,11 @@ li.rest-item {
 	float: left;
 	position: fixed;
 	top: 2px;
-	left: 120px;
+	left: 110px;
 }
 
 .letsgo .rest-details {
-	width: 280px;
+	width: 240px;
 	max-width: 60%;
 	padding-left: 25px;
 	padding-right: 25px;
@@ -832,10 +903,13 @@ li.rest-item {
 
 .letsgo .rest-details .prev {
 	position: absolute;
-	left: -50px;
-	bottom: 10px;
+	bottom: 15px;
+	/* left: -50px; 
 	width: 50px;
-	height: 75px;
+	height: 75px; */
+	left: -40px;
+	width: 40px;
+	height: 60px;
 	background-color: transparent;
 	background-image: url(../images/red_arrow_left.png);
 	background-repeat: no-repeat;
@@ -848,10 +922,13 @@ li.rest-item {
 
 .letsgo .rest-details .next {
 	position: absolute;
-	right: -50px;
-	bottom: 10px;
+	bottom: 15px;
+	/* right: -50px; 
 	width: 50px;
-	height: 75px;
+	height: 75px; */
+	right: -40px;
+	width: 40px;
+	height: 60px;
 	background-color: transparent;
 	background-image: url(../images/red_arrow_right.png);
 	background-repeat: no-repeat;
@@ -899,136 +976,23 @@ li.rest-item {
 
 .letsgo .menu-items li button, .rest .menu-items li button {
 	width: 100%;
-	/* height: 50px; */
 	text-align: left;
-	font-size: 16pt;
+	/* font-size: 16pt; */
+	font-size: larger;
+	color: white;
 	background: rgba(220, 61, 61, 1);
 	padding: 10px;
 	padding-left: 30px;
 	border-top: solid 2px #B03131;
 }
 
-.letsgo .menu-items .selected, .rest .menu-items .selected {
+/* .letsgo .menu-items .selected, .rest .menu-items .selected {
 	color: #B03131;
 	background: rgba(255, 255, 255, 0.8);
-}
-
-@media screen and (min-width: 0px) and (max-width: 650px) {
-	.user-menu-small {
-		display: none !important;
-	} /* hide it on small screens */
-}
-
-/* LETS GO END */
-
-/* RATINGS */
-.city-search label {
-	width: 45%;
-	display: inline-block;
-	text-align: right;
-	padding-right: 10px;
-	paddint-left: 10px;
-}
-
-.city-search .input {
-	width: 45%;
-	display: inline-block;
-	text-align: left;
-	padding-right: 10px;
-	paddint-left: 10px;
-}
-
-.ratings .filters {
-	display: block;
-	width: 100%;
-	max-width:750px;
-	padding: 10px;
-	vertical-align: top;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.ratings .rest-list {
-	display: block;
-	width: 100%;
-	max-width: 750px;
-	padding: 10px;
-	vertical-align: top;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.new-place {
-	/* width: 180px;
-	height: 40px; */
-	background-color: #DC3D3D;
-	border-right: solid 1px #842525;
-	border-bottom: solid 2px #842525;
-}
-
-.ui-autocomplete {
-	max-height: 150px;
-	overflow-y: auto;
-	/* prevent horizontal scrollbar */
-	overflow-x: hidden;
-}
-/* IE 6 doesn't support max-height
-   * we use height instead, but this forces the menu to always be this tall
-   */
-* html .ui-autocomplete {
-	height: 150px;
-}
-
-.ui-widget {
-	font-family: "Lato";
-	font-size: 1em;
-	margin-bottom: 10px;
-}
-
-.search-name {
-	background-color: #DC3D3D;
-	border-right: solid 1px #842525;
-	border-bottom: solid 2px #842525;
-	background-image: url(../images/search.png);
-	width: 32px;
-	height: 32px;
-}
-
-.map-search {
-	width: 90%;
-	height: 250px;
-	margin: 10px;
-}
-
-.controls {
-	margin-top: 16px;
-	border: 1px solid transparent;
-	border-radius: 2px 0 0 2px;
-	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	height: 32px;
-	outline: none;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-}
-
-#pac-input {
-	background-color: #fff;
-	padding: 0 11px 0 13px;
-	width: 75%;
-	/* font-family: Roboto;
-	font-size: 15px;
-	font-weight: 300; */
-	text-overflow: ellipsis;
-}
-
-/* #pac-input:focus {
-	border-color: #4d90fe;
-	margin-left: -1px;
-	padding-left: 14px; Regular padding-left + 1.
-	width: 75%;
 } */
 
-/* RATINGS END */
+
+/* LETS GO END */
 
 /* RESTAURANT */
 
@@ -1037,41 +1001,7 @@ li.rest-item {
 }
 
 .rest-container {
-	margin: 15px;
-}
-
-.rest-bar {
-	height: 50px;
-}
-
-
-.rest-logo {
-	position: fixed;
-	top: 0;
-	left: 50%;
-	-webkit-transform: translate(-50%, 0);
-	transform: translate(-50%, 0);
-	display: block;
-/* 	margin-left: auto;
-	margin-right: auto; */
-	z-index: 9;
-	height: 50px;
-	width: 200px;
-	max-width: 50%;
-	background-image: url(../images/logo_white.png);
-	background-repeat: no-repeat;
-	background-position: top;
-	-webkit-background-size: contain;
-	-moz-background-size: contain;
-	-o-background-size: contain;
-	background-size: contain;
-}
-
-
-
-.rest .scrollable {
-	overflow: hidden;
-	max-height: 100%;
+	padding: 15px;
 }
 
 .rest .picture {
@@ -1087,21 +1017,19 @@ li.rest-item {
 }
 
 .rest .rest-right{
-	width: 40%;
+	width: 100%;
 	height: 300px;
 	max-height: 80%;
-	float: right;
 }
 
-.rest .rest-map{
+.rest .rest-right .rest-map{
 	margin-bottom: 10px;
 }
 
-.rest .rest-map img{
-	width: 90%;
+.rest .rest-right .rest-map img{
+	width: 100%;
 	height: 300px;
 	max-height: 100%;
-	margin: 10px;
 	background-repeat: no-repeat;
 	background-position: center;
 	-webkit-background-size: auto;
@@ -1254,29 +1182,41 @@ input.days-input {
 
 /* RESTAURANT END */
 
-/* MOBILE */
-@media screen and (min-width: 0px) and (max-width: 500px) {
-	.full-background.profile {
-		background-image: none;
-		background-color: #F7F8CD;
+
+/* media queries*/
+@media screen and (min-width: 500px) and (max-width: 980px) {
+	body {
+		font-size: 13pt;
+	}
+	.red-button, input[type=button], input[type=submit], input[type=text],
+		input[type=number], select {
+		font-size: 14pt;
+	}
+	.login h4 {
+		margin-top: 10px;
+		font-size: 20pt;
+	}
+	
+	.loading .loading-message {
+		font-size: 20px;
 	}
 
 	/* profile */
+	.full-background.profile {
+		background-image: url(../images/home_background.png);
+	}
 	.profile-container {
 		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-	}
-	.step {
-		margin-top: 25px;
+		top: 45px;
+		left: 20px;
+		right: 20px;
+		bottom: 20px;
+		background-color: rgba(247, 248, 205, 0.95);
+		z-index: 1;
 	}
 	.profile-logo {
-		width: 370px;
-		height: 130px;
-		max-width: 60%;
-		max-height: 30%;
+		width: 250px;
+		height: 110px;
 		background-image: url(../images/logo_02.png);
 		background-repeat: no-repeat;
 		background-position: center;
@@ -1286,40 +1226,239 @@ input.days-input {
 		background-size: contain;
 		margin-left: auto;
 		margin-right: auto;
-		margin-top: 5px;
-		margin-bottom: 10px;
+		margin-top: -50px;
+		margin-bottom: 20px;
 	}
-	.form-label, .form-input, .city-search label, .city-search .input {
-		width: 100%;
-		text-align: left;
-		display: block;
-		padding-left: 10px;
+	.step {
+		right: 5px;
+		margin: 5px;
+		padding: 5px;
+		width: 48px;
+		height: 48px;
+		font-size: 13pt;
+	}
+	.form-label {
+		width: 25%;
+		text-align: right;
+		display: inline-block;
+		padding-right: 10px;
+		vertical-align: top;
 		margin-top: 15px;
+		font-size: 13pt;
+	}
+	.form-input {
+		width: 60%;
+		text-align: left;
+		padding-left: 10px;
+		display: inline-block;
+		vertical-align: top;
+		margin-top: 15px;
+		font-size: 13pt;
 	}
 
-	/* profile step 2 - ratings */
-	.rest-item div.rest-details {
-		display: block;
-		width: 100%;
+	/* profile end */
+
+	/* profile ratings */
+	.rest-item .rest-details .name, .letsgo .rest-details .name {
+		font-size: 16pt;
 	}
-	.rest-item div.rest-ratings {
-		display: block;
-		width: 100%;
+	.city-search label {
+		font-size: 13pt;
+	}
+	.city-search .input {
+		font-size: 13pt;
+	}
+
+	/* profile ratings end */
+	
+	/* letsgo */
+	.letsgo .rest-details {
+		width: 350px;
+	}
+	/* letsgo end */
+	
+	/* restaurant */
+	.rest .rest-right{
+		width: 40%;
+		height: 300px;
+		max-height: 80%;
+		float: right;
 	}
 	
-	.ratings .filters{
-		width: 100%;
-	}
-	
-	.ratings .rest-list{
-		width: 100%;
-	}
-	
-	.rest .rest-left, .rest .rest-right {
-		width: 100%;
-		display: block;
+	.rest .rest-left{
+		width: 60%;
 		float: left;
 	}
+	/* restaurant end */
+}
 
+@media screen and (min-width: 600px) {
+	/* profile ratings */
+	.rest-item {
+		max-width: 750px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.filters {
+		max-width: 750px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.rest-item div.rest-details {
+		display: inline-block;
+		width: 50%;
+		vertical-align: top;
+	}
+	.rest-item div.rest-ratings {
+		display: inline-block;
+		width: 45%;
+		margin-left: 10px;
+	}
+	/* profile ratings end */
+	.city-search label {
+		width: 45%;
+		text-align: right;
+		display: inline-block;
+		padding-right: 10px;
+		vertical-align: top;
+	}
+	.city-search .input {
+		width: 45%;
+		text-align: left;
+		padding-left: 10px;
+		display: inline-block;
+		vertical-align: top;
+	}
+	.ratings #city {
+		width: 100%;
+	}
+	
+	/* letsgo */
+	.top-bar .menu-button .user-menu-small {
+		display: block;
+	}
+	/* letsgo */
+	
+}
 
+@media screen and (min-width: 980px) {
+	body {
+		font-size: 15pt;
+	}
+	.red-button, input[type=button], input[type=submit], input[type=text],
+		input[type=number], select {
+		font-size: 16pt;
+	}
+	.login h4 {
+		margin-top: 10px;
+		font-size: 24pt;
+	}
+	
+	.loading .loading-message {
+		font-size: 24px;
+	}
+
+	/* profile */
+	.full-background.profile {
+		background-image: url(../images/home_background.png);
+	}
+	.profile-container {
+		position: fixed;
+		top: 45px;
+		left: 20px;
+		right: 20px;
+		bottom: 20px;
+		background-color: rgba(247, 248, 205, 0.95);
+		z-index: 1;
+	}
+	.profile-logo {
+		width: 350px;
+		height: 150px;
+		background-image: url(../images/logo_02.png);
+		background-repeat: no-repeat;
+		background-position: center;
+		-webkit-background-size: contain;
+		-moz-background-size: contain;
+		-o-background-size: contain;
+		background-size: contain;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: -50px;
+		margin-bottom: 20px;
+	}
+	.step {
+		right: 5px;
+		margin: 5px;
+		padding: 5px;
+		width: 64px;
+		height: 64px;
+		font-size: 15pt;
+	}
+	.form-label {
+		width: 25%;
+		text-align: right;
+		display: inline-block;
+		padding-right: 10px;
+		vertical-align: top;
+		margin-top: 15px;
+		font-size: 15pt;
+	}
+	.form-input {
+		width: 60%;
+		text-align: left;
+		padding-left: 10px;
+		display: inline-block;
+		vertical-align: top;
+		margin-top: 15px;
+		font-size: 15pt;
+	}
+
+	/* profile end */
+
+	/* profile ratings */
+	.rest-item .rest-details .name, .letsgo .rest-details .name {
+		font-size: 20pt;
+	}
+	.city-search label {
+		width: 45%;
+		text-align: right;
+		display: inline-block;
+		padding-right: 10px;
+		vertical-align: top;
+		margin-top: 15px;
+		font-size: 15pt;
+	}
+	.city-search .input {
+		width: 45%;
+		text-align: left;
+		padding-left: 10px;
+		display: inline-block;
+		vertical-align: top;
+		margin-top: 15px;
+		font-size: 15pt;
+	}
+	.ratings #city {
+		width: 100%;
+	}
+	/* profile ratings end */
+	
+		/* letsgo */
+	.letsgo .rest-details {
+		width: 450px;
+	}
+	/* letsgo end */
+	
+	/* restaurant */
+	.rest .rest-right{
+		width: 40%;
+		height: 300px;
+		max-height: 80%;
+		float: right;
+	}
+	
+	.rest .rest-left{
+		width: 60%;
+		float: left;
+	}
+	/* restaurant end */
 }

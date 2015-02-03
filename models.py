@@ -328,21 +328,24 @@ class Address(PFmodel):
             # key is valid --> update
             db_obj = key.get()
             if db_obj is None:
+                logging.info("Updating address - NOT FOUND " + str(key))
                 return None
 
             objdict = obj.to_dict()
-            if 'street' in objdict.keys():
-                db_obj.street = objdict['street']
-            if 'city' in objdict.keys():
-                db_obj.city = objdict['city']
-            if 'province' in objdict.keys():
-                db_obj.province = objdict['province']
-            if 'state' in objdict.keys():
-                db_obj.state = objdict['state']
-            if 'country' in objdict.keys():
-                db_obj.country = objdict['country']
-            if 'location' in objdict.keys():
-                db_obj.location = objdict['location']
+            
+            NOT_ALLOWED = ['id', 'key']
+
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED:
+                    return None
+                if hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        return None
+            
+                else:
+                    return None
                 
             db_obj.put()
             return db_obj
@@ -567,20 +570,25 @@ class Hours(PFmodel):
             # key is valid --> update
             db_obj = key.get()
             if db_obj is None:
+                logging.info("Updating hours - NOT FOUND " + str(key))
                 return None
 
             objdict = obj.to_dict()
+            
+            NOT_ALLOWED = ['id', 'key']
+
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED:
+                    return None
+                if hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        return None
+            
+                else:
+                    return None
                 
-            if 'weekday' in objdict.keys():
-                db_obj.weekday = objdict['weekday']
-            if 'open1' in objdict.keys():
-                db_obj.open1 = objdict['open1']
-            if 'close1' in objdict.keys():
-                db_obj.close1 = objdict['close1']
-            if 'open2' in objdict.keys():
-                db_obj.open2 = objdict['open2']
-            if 'close2' in objdict.keys():
-                db_obj.close2 = objdict['close2']
             db_obj.put()
             return db_obj
 
@@ -625,7 +633,8 @@ class Place(PFmodel):
     ext_id = ndb.StringProperty()
     ext_source = ndb.StringProperty()
     name = ndb.StringProperty()
-    description = ndb.TextProperty(indexed=False)
+    description_en = ndb.TextProperty(indexed=False)
+    description_it = ndb.TextProperty(indexed=False)
     picture = ndb.TextProperty(indexed=False)
     phone = ndb.TextProperty(indexed=False)
     price_avg = ndb.FloatProperty()
@@ -637,6 +646,7 @@ class Place(PFmodel):
     address = ndb.StructuredProperty(Address)
     hours = ndb.StructuredProperty(Hours, repeated=True)
     days_closed = ndb.DateProperty(repeated=True)
+    
 
     @staticmethod
     def to_json(obj, allowed, hidden):
@@ -888,16 +898,17 @@ class Place(PFmodel):
             #the three parameters must come all together
             
             #map all place fields to document and add all other filters here.
-            index = search.Index(name="places")
-            query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
-            logging.info("Place.get_list -- getting places with query " + str(query))
-            result = index.search(query)
-            places = [ Place.make_key(None, d.doc_id) for d in result.results]
+#             index = search.Index(name="places")
+#             query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
+#             logging.info("Place.get_list -- getting places with query " + str(query))
+#             result = index.search(query)
+#             places = [ Place.make_key(None, d.doc_id) for d in result.results]
+            places = []
             logging.info("Place.get_list -- found places " + str(len(places)))
             num = 0
             max_dist = float(filters['max_dist'])
-            # TODO: correct cycle is: while len(places) < 1 and num < 5:
-            while len(places) < 5 and num < 5:
+            # request plaes until one is obtained, increasing the distance.
+            while len(places) < 1 and num < 5:
                 # no places within that area, try to get something by extending area of max_dist for maximum 5 times.
                 max_dist += max_dist
                 query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], max_dist)
@@ -1103,18 +1114,26 @@ class Settings(PFmodel):
             # key is valid --> update
             db_obj = key.get()
             if db_obj is None:
+                logging.info("Updating settings - NOT FOUND " + str(key))
                 return None
 
             objdict = obj.to_dict()
-            if 'purpose' in objdict.keys():
-                db_obj.purpose = objdict['purpose']
-            if 'max_distance' in objdict.keys():
-                db_obj.max_distance = objdict['max_distance']
-            if 'num_places' in objdict.keys():
-                db_obj.num_places = objdict['num_places']
             
+            NOT_ALLOWED = ['id', 'key']
+
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED:
+                    return None
+                if hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        return None
+            
+                else:
+                    return None
+                
             db_obj.put()
-            return db_obj
 
         else:
             # key is not valid --> create
@@ -1510,50 +1529,32 @@ class PFuser(PFmodel):
             # key is valid --> update
             db_obj = key.get()
             if db_obj is None:
+                logging.info("Updating PFuser - NOT FOUND " + str(key))
                 return None
+
             objdict = obj.to_dict()
-            # remove properties that cannot be changed
-#             if 'user_id' in objdict.keys():
-#                 del objdict['user_id']
-#             if 'fb_user_id' in objdict.keys():
-#                 del objdict['fb_user_id']
-#             if 'fb_access_token' in objdict.keys():
-#                 del objdict['fb_access_token']
-#             if 'google_user_id' in objdict.keys():
-#                 del objdict['google_user_id']
-#             if 'google_access_token' in objdict.keys():
-#                 del objdict['google_access_token']
-#             if 'created' in objdict.keys():
-#                 del objdict['created']
-#             if 'updated' in objdict.keys():
-#                 del objdict['updated']
-#             if 'email' in objdict.keys():
-#                 del objdict['email']
+            
+            NOT_ALLOWED = ['id', 'key', 'user_id', 'fb_user_id', 'fb_access_token', 'google_user_id', 'google_access_token', 'created', 'updated', 'email']
 
-            if 'first_name' in objdict.keys():
-                db_obj.first_name = objdict['first_name']
-            if 'last_name' in objdict.keys():
-                db_obj.last_name = objdict['last_name']
-            if 'full_name' in objdict.keys():
-                db_obj.full_name = objdict['full_name']
-            if 'age' in objdict.keys():
-                db_obj.age = objdict['age']
-            if 'gender' in objdict.keys():
-                db_obj.gender = objdict['gender']
-            if 'picture' in objdict.keys():
-                db_obj.picture = objdict['picture']
-            if 'home' in objdict.keys():
-                db_obj.home = objdict['home']
-            if 'visited_city' in objdict.keys():
-                db_obj.visited_city = objdict['visited_city']
-            if 'settings' in objdict.keys() and objdict['settings'] is not None:
-                settings = Settings()
-                settings.populate(**objdict['settings'])
-                logging.info("UPDATED user SETTINGS: " + str(settings) + " -- " + str(objdict['settings']))
-                db_obj.settings = settings
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED or value is None: #TODO: let value to be None??
+                    continue
+                if key == 'settings':
+                    settings = Settings()
+                    settings.populate(**objdict['settings'])
+                    logging.info("UPDATED user SETTINGS: " + str(settings) + " -- " + str(objdict['settings']))
+                    db_obj.settings = settings
+                elif hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        return None
+            
+                else:
+                    continue
                 
-
             db_obj.put()
+            
             logging.info('object stored correctly!!')
             return db_obj
 

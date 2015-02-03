@@ -1,8 +1,6 @@
 {% extends "base.html" %} {% block main %}
 
 <div class="full-background rest">
-	<div class="scrollable">
-
 		<div class="top-bar rest-bar">
 			<div class="bar-background"></div>
 			<div class="menu-button">
@@ -17,7 +15,7 @@
 			<div class="rest-logo"></div>
 		</div>
 		
-		<div class="left-menu">
+		<div class="left-menu scrollable">
 			<div class="user-menu">
 				<div class="user-picture"></div>
 				<h2 class="text-300 user-name">{{ lang['welcome']}}
@@ -36,11 +34,11 @@
 
 		</div>
 
-		<div class="rest-container">
+		<div class="rest-container scrollable">
 		
 			<h2 class="center-text">Edit restaurant</h2>
 
-			<!-- <form> -->
+			
 				<div>
 					<label class="form-label">{{ lang['rest_name']}}: </label>
 					<div class="form-input">
@@ -48,9 +46,15 @@
 					</div>
 				</div>
 				<div>
-					<label class="form-label">{{ lang['rest_description']}}: </label>
+					<label class="form-label">{{ lang['rest_description']}} (EN): </label>
 					<div class="form-input">
-						<textarea id="rest_description" name="rest_description">{{place.description|e}}</textarea>
+						<textarea id="rest_description_en" name="rest_description_en">{{place.description_en|e}}</textarea>
+					</div>
+				</div>
+				<div>
+					<label class="form-label">{{ lang['rest_description']}} (IT): </label>
+					<div class="form-input">
+						<textarea id="rest_description_it" name="rest_description_it">{{place.description_it|e}}</textarea>
 					</div>
 				</div>
 				<div>
@@ -114,16 +118,23 @@
 
 				<input type="button" class="img-btn save text-100"
 					value="{{ lang['save']}}" />
-			<!-- </form> -->
+			
 
 		</div>
-	</div>
 </div>
 
 {% endblock %} {% block scripts %}
 <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
+
+$(window).ready(function() {
+	var window_height = $('.rest').height();
+	var bar_height = $('.top-bar').height();
+	$('.rest-container.scrollable').height(window_height - bar_height - 40);
+	
+});
+
 	$(window).load(function() {
 		
 		displayHours();
@@ -287,7 +298,8 @@
 				var self = this;
 				
 				var name = $('#rest_name').val();
-				var description = $('#rest_description').val();
+				var description_en = $('#rest_description_en').val();
+				var description_it = $('#rest_description_it').val();
 				var picture = $('#rest_picture').val();
 				
 				var street = $('#route').val() + " " + $('#street_number').val();
@@ -327,7 +339,8 @@
 				
 				var place = {
 					'name': name,
-					'description': description,
+					'description_en': description_en,
+					'description_it': description_it,
 					'picture': picture,
 					'address' : {
 						'street' : street,
@@ -349,7 +362,6 @@
 					data : JSON.stringify(place),
 					success : function(place) {
 						window.location = '/restaurant?id=' + place.key
-						
 					},
 					error : function(resp) {
 						
@@ -366,7 +378,7 @@
 			
 		}
 		
-		$('.scrollable').enscroll({
+		$('.rest-container.scrollable').enscroll({
 		    showOnHover: false,
 		    verticalScrolling: true,
 			horizontalScrolling: false,
@@ -376,17 +388,31 @@
 		});
 		
 		$('.left-menu').hide();
+		var window_width = $('.rest').width();
 		var count = 1;
 		$('.menu-button button').click(function(){
 			if(count % 2 == 1){
 				//odd time --> open left menu
 				$('.left-menu').show();
-				$('.user-menu-small').hide();
+				if(window_width > 600){
+					$('.user-menu-small').hide();
+				}
+				$('.left-menu.scrollable').enscroll({
+				    showOnHover: false,
+				    verticalScrolling: true,
+					horizontalScrolling: false,
+					zIndex: 100,
+				    verticalTrackClass: 'track-white',
+				    verticalHandleClass: 'handle-white'
+				});
 				count++;
 			} else {
 				//even time --> close left menu
 				$('.left-menu').hide();
-				$('.user-menu-small').show();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
 				count++;
 			}
 			

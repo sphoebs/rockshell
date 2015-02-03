@@ -5,10 +5,10 @@
 
 		<div class="rest-item">
 			<div class="rest-details">
-				<div class="text-100 red-text name">
+				<div class="name">
 					<input class="my-input-text" type="text" id="rest-name" placeholder="<%= strings.name_placeholder %>"/>
 				</div>
-				<div class="text-100 red-text address" >
+				<div class="address" >
 					<input class="my-input-text" type="text" name="auto-city" id="rest-address" >
 					<input type="hidden" name="street_number" id="street_number" />
 					<input type="hidden" name="route" id="route" />
@@ -18,15 +18,13 @@
 					<input type="hidden" name="lat" id="lat"/>
 					<input type="hidden" name="lon" id="lon"/>
 				</div>
-				<div class="text-100 red-text"> 
+				<div class="picture"> 
 					<input class="my-input-text" type="text" id="rest-picture" placeholder="<%= strings.picture_placeholder %>">
 					<img class="rest-image">
 				</div>
 			</div>
 			<div class="rest-ratings">
-				<div class="text-100 red-text">
-					<small><%= purpose.tourists %></small>
-				</div>
+				<p><%= purpose.tourists %></p>
 				<div class="purpose-buttons">
 					<img class="purpose-icon"
 						src="/static/images/ratings/guest_selected.png">
@@ -49,7 +47,7 @@
 				</div>
 
 
-				<small class="text-100 red-text"><%= purpose.partner %></small>
+				<p><%= purpose.partner %></p>
 				<div class="purpose-buttons">
 					<img class="purpose-icon"
 						src="/static/images/ratings/romantic_selected.png">
@@ -71,7 +69,7 @@
 						value="5"></button>
 				</div>
 
-				<small class="text-100 red-text"><%= purpose.friends %></small>
+				<p><%= purpose.friends %></p>
 				<div class="purpose-buttons">
 					<img class="purpose-icon"
 						src="/static/images/ratings/friends_selected.png">
@@ -93,7 +91,7 @@
 						value="5"></button>
 				</div>
 
-				<small class="text-100 red-text"><%= purpose.price_quality %></small>
+				<p><%= purpose.price_quality %></p>
 				<div class="purpose-buttons">
 					<img class="purpose-icon"
 						src="/static/images/ratings/lunch_selected.png">
@@ -117,7 +115,7 @@
 
 			</div>
 			<div>
-				<button class="img-btn save"><%= strings.save %></button>
+				<button class="img-btn red-button save"><%= strings.save %></button>
 			</div> 
 		</div>
 	</div>

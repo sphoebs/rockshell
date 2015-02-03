@@ -92,6 +92,46 @@ def load_data(filters):
                  str(len(data)) + ' -- ratings: ' + str(len(ratings)))
     return data
 
+def comealong_similarity(ratings, person1, person2):
+    """
+    Computes ComeAlong similarity between two users.
+    
+    Formula: 2 * (1/(1+ ((sum(pow((x-y)/4, 2))))/n) - 1/2)
+    
+    Returns a float number between 0 and 1 representing the similarity between the two users.
+    """
+    if debug:
+        logging.info('recommender.comealong_similarity START - ratings, person1=' +
+                 str(person1) + ', person2=' + str(person2))
+    if person1 not in ratings or person2 not in ratings:
+        # one of the two has no ratings
+        return 0
+
+    si = {}
+    for item in ratings[person1]:
+        if item in ratings[person2]:
+            for purpose in ratings[person1][item]:
+                if purpose in ratings[person2][item]:
+                    si[str(item) + str(purpose)] = 1
+
+    # if they have no ratings in common, return 0
+    if len(si) == 0:
+        return 0
+
+#     logging.info('Euclidean distance - SI length: ' + str(len(si)))
+
+    # Add up all the squares of the differences
+    sum_of_squares = sum([pow((ratings[person1][item][purpose] - ratings[person2][item][purpose])/(5-1), 2)
+                          for item in ratings[person1] if item in ratings[person2]
+                          for purpose in ratings[person1][item] if purpose in ratings[person2][item]])
+
+#     logging.info('comealong - sum of squares: ' + str(sum_of_squares))
+    res = 2 * (1 / (1 + sum_of_squares / len(si)) - (1/2))
+    if debug:
+        logging.info('recommender.comealong_similarity END - ' + str(res))
+    return res
+    
+
 
 def euclidean_distance(ratings, person1, person2):
     """
@@ -180,7 +220,7 @@ def pearson_similarity(ratings, person1, person2):
     return res
 
 
-def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
+def compute_user_sim_matrix(ratings, similarity=comealong_similarity):
     """
     It computes the similarities between all users and stores them in the user_sim_matrix matrix.
     user_sim_matrix stores the values of user-user similarity and is saved in memcache.
@@ -221,7 +261,7 @@ def compute_user_sim_matrix(ratings, similarity=euclidean_distance):
     return user_sim_matrix
 
 
-def update_user_sim_matrix(ratings, user, similarity=euclidean_distance):
+def update_user_sim_matrix(ratings, user, similarity=comealong_similarity):
     """
     It updates the similarity values of the indicated user, by recomputing the similarity between the user 
     and each other user in the system.
@@ -285,7 +325,7 @@ def get_user_sim_matrix():
     return user_sim_matrix
 
 
-def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_matrix=None, similarity=euclidean_distance):
+def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_matrix=None, similarity=comealong_similarity):
     """
     It computes the complete-linkage similarity between two clusters.
     It reuses already computed similarities stored in cluster_sim_matrix and updates it every time a new similarity is computed.
@@ -350,7 +390,7 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
         return sim
 
 
-def init_cluster_sim_matrix(ratings, clusters, similarity=euclidean_distance):
+def init_cluster_sim_matrix(ratings, clusters, similarity=comealong_similarity):
     """
     It fills the cluster_sim_matrix with the initial similarities for current clusters.
 
@@ -392,7 +432,7 @@ def init_cluster_sim_matrix(ratings, clusters, similarity=euclidean_distance):
     return cluster_sim_matrix
 
 
-def update_cluster_sim_matrix(ratings, clusters, cluster_id, similarity=euclidean_distance):
+def update_cluster_sim_matrix(ratings, clusters, cluster_id, similarity=comealong_similarity):
     """
     It updates the cluster_sim_matrix for the indicated cluster (its row and column)
 
@@ -857,6 +897,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
                  ', filters=' + str(filters) + ', purpose=' + str(purpose) + ', n=' + str(n))
     
     # places is already a json list
+    #TODO: get places for a larger area and filter after, to avoid making multiple queries (check inside the method)
     places, status = logic.place_list_get(filters, user_id)
     if debug:
         logging.info("RECOMMEND places loaded ")
@@ -991,7 +1032,7 @@ class UpdatesHandler(webapp2.RequestHandler):
         It gets the list of users with updates from memcache, together with the ratings added in last hour.
         
         """
-        
+        #TODO: make all changes to clusters in memory and store in datastore and memcache only the result!!
         logging.info('updateshandler.get START ')
         
         #check headers to let only tasks execute this method
@@ -1009,6 +1050,13 @@ class UpdatesHandler(webapp2.RequestHandler):
                 logging.info('updateshandler.get END - no users to update')
             self.response.write('OK')
             return
+        
+        #clean list of updated users
+        i =0
+        while i<20:
+            i+=1
+            if client.cas('updated_users', []):
+                break;
 
         ratings = load_data(None)
         #     if clusters is not None and len(clusters) > 0 and num_changes > max_changes:
@@ -1068,11 +1116,7 @@ class UpdatesHandler(webapp2.RequestHandler):
 #             for user in clusters[cid]:
 #                 user2cluster_map[user] = cid
 
-        i =0
-        while i<20:
-            i+=1
-            if client.cas('updated_users', []):
-                break;
+        
 
         logging.info(
                      'updateshandler.get END - clusters: ' + str(clusters))

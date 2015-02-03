@@ -7,11 +7,22 @@
 		<div class="home-logo"></div>
 		<div class="home-logo-bg"></div>
 		<div class="login">
-			<h4 class="text-300">Login</h4>
+			<h4 >Login</h4>
 			<a class="img-btn" href="{{google}}"><div class="google-btn"></div></a> 
 			<a class="img-btn" href="{{facebook}}"><div class="fb-btn"></div></a>
 		</div>
 	</div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	$(window).ready(function() {
+		var logo_height = $('.home-logo').width();
+		$('.home-container').height(logo_height);
+		
+	});
+</script>
 
 {% endblock %}

@@ -48,33 +48,33 @@
 					<label class="form-label">{{ lang['age']}}: </label>
 					<div class="form-input">
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="<18" {{"checked" if user.age and user.age == "<18" else ""}} >
+							<label > <input type="radio" name="age" value="<18" {{"checked" if user.age and user.age == "<18" else ""}} >
 								{{ lang['<18_years']}}
 							</label>
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="18-25" {{"checked" if user.age and user.age == "18-25" else ""}} >
+							<label > <input type="radio" name="age" value="18-25" {{"checked" if user.age and user.age == "18-25" else ""}} >
 								18 - 25 {{ lang['years_old']}}
 							</label>
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="26-35" {{"checked" if user.age and user.age == "26-35" else ""}}>
+							<label > <input type="radio" name="age" value="26-35" {{"checked" if user.age and user.age == "26-35" else ""}}>
 								26 - 35 {{ lang['years_old']}}
 							</label>	
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value="36-55" {{"checked" if user.age and user.age == "36-55" else ""}}>
+							<label > <input type="radio" name="age" value="36-55" {{"checked" if user.age and user.age == "36-55" else ""}}>
 								36 - 55 {{ lang['years_old']}}
 							</label>
 						</div>
 						<div class="radio">
-							<label class="text-100 red-text"> <input type="radio" name="age" value=">55" {{"checked" if user.age and user.age == ">55" else ""}}>
+							<label > <input type="radio" name="age" value=">55" {{"checked" if user.age and user.age == ">55" else ""}}>
 								{{ lang['>55_years']}}
 							</label>
 						</div>
 					</div>
 				</div>
-				<input type="submit" class="img-btn save text-100" value="{{ lang['save']}}" />
+				<input type="submit" class="img-btn save " value="{{ lang['save']}}" />
 			</form>
 		</div>
 	</div>
@@ -86,6 +86,13 @@
 <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
+$(window).ready(function() {
+	var window_height = $('.profile').height();
+	var logo_height = $('.profile-logo').height();
+	$('.scrollable').height(window_height - logo_height - 40);
+	
+});
+
 	$(window)
 			.load(
 					function() {

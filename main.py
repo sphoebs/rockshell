@@ -42,6 +42,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 # AVAILABLE_LOCALES = ['en', 'it']
 LANG = languages.en
+LANG_NAME = 'en'
 
 
 class BaseRequestHandler(webapp2.RequestHandler):
@@ -51,6 +52,7 @@ class BaseRequestHandler(webapp2.RequestHandler):
         """
         self.initialize(request, response)
         global LANG
+        global LANG_NAME
         
         # first, try and set locale from cookie
         locale = request.cookies.get('locale')
@@ -61,18 +63,23 @@ class BaseRequestHandler(webapp2.RequestHandler):
             for locale in locales:
                 if 'en' in locale.lower():
                     LANG = languages.en
+                    LANG_NAME = 'en'
                     break
                 elif 'it' in locale.lower():
                     LANG = languages.it
+                    LANG_NAME = 'it'
                     break
             else:
                 # if still no locale set, use the first available one
                 LANG = languages.en
+                LANG_NAME = 'en'
         else:
             if 'en' in locale.lower():
                 LANG = languages.en
+                LANG_NAME = 'en'
             elif 'it' in locale.lower():
                 LANG = languages.it
+                LANG_NAME = 'it'
         
             
 
@@ -330,6 +337,8 @@ class RestaurantPageHandler(BaseRequestHandler):
             place, status = logic.place_get(None, place_key)
             if status == 'OK':
                 place = Place.to_json(place, None, None)
+                if 'description_' + LANG_NAME in place:
+                    place['description'] = place['description_' + LANG_NAME]
                 self.render('restaurant.html', {'place': place, 'user': user, 'lang' : LANG });
             else:
                 self.redirect('/error')

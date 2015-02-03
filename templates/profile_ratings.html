@@ -3,15 +3,15 @@
 <div class="full-background profile">
 
 	<div class="profile-container">
-		<div class="step text-100">{{ lang['step']}} 2/3</div>
+		<div class="step">{{ lang['step']}} 2/3</div>
 		<div class="profile-logo"></div>
 
 		<div class="scrollable">
-			<div class="text-100 red-text center-text">
-				{{ lang['profile2_text1']}}: <span class="text-300">{{city}}</span>
+			<div class="center-text">
+				{{ lang['profile2_text1']}}: <span class="text-bold">{{city}}</span>
 			</div>
-			<div class="text-100 red-text center-text">{{ lang['profile2_text2']}}:</div>
-			<div class="text-100 red-text center-text">
+			<div class="center-text">{{ lang['profile2_text2']}}:</div>
+			<div class="center-text">
 				<small>{{ lang['profile_feedback']}}</small>
 			</div>
 
@@ -20,10 +20,9 @@
 			</ul>
 
 			<div class="navigation-buttons">
-				<button class="prev">{{ lang['prev']}}</button>
-				<button class="next">{{ lang['next']}}</button>
-				<button class="img-btn continue"
-					onclick="window.location = '/profile/3'">{{ lang['continue']}}</button>
+				<button class="prev"></button>
+				<button class="next"></button>
+				<button class="img-btn red-button continue " onclick="window.location = '/profile/3'" >{{ lang['continue']}}</button>
 			</div>
 
 		</div>
@@ -36,6 +35,13 @@
 {% endblock %} {% block scripts %}
 
 <script type="text/javascript">
+$(window).ready(function() {
+	var window_height = $('.profile').height();
+	var logo_height = $('.profile-logo').height();
+	$('.scrollable').height(window_height - logo_height - 40);
+	
+});
+
 	$(window).load(function() {
 		
 		var pageSize= 5;

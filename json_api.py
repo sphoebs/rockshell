@@ -149,7 +149,7 @@ class PlaceListHandler(webapp2.RequestHandler):
         else:
             filters = {}
             filters['city'] = get_values.get('city')
-        # plist is already a json list.
+        # plist is already in json.
         plist, status = logic.place_list_get(filters, user_id)
 
         if status == "OK":

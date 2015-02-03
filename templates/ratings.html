@@ -3,13 +3,13 @@
 <div class="full-background profile">
 
 	<div class="profile-container ratings">
-		<div class="step text-100" {{ 'style=display:none;' if not profile else ""}} >{{ lang['step']}} 3/3</div>
+		<div class="step" {{ 'style=display:none;' if not profile else ""}} >{{ lang['step']}} 3/3</div>
 		<div class="profile-logo"></div>
 		
 		<div class="scrollable">
-			<div class="text-100 center-text"> {{lang['ratings_text1']}}</div>
+			<div class=" center-text"> {{lang['ratings_text1']}}</div>
 			<div class="city-search">
-				<label class="text-300">{{lang['city_select']}}: </label>
+				<label class="text-bold">{{lang['city_select']}}: </label>
 				<div class="input">
 					<input type="text" name="auto-city" id="city" >
 					<input type="hidden" name="locality" id="locality" /> 
@@ -19,23 +19,25 @@
 					<input type="hidden" name="city-lon" id="city-lon"/> <!-- To center map -->
 				</div>
 			</div>
-			<br/>
+			
 			<div class="create-places center-text">
-				<div class="text-100 no-places">{{lang['no_places_selected']}}</div>
-				<p class="text-100">{{lang['create_place_button']}}</p>
-				<button class="img-btn new-place"style="margin-left: 10px; margin-right: 10px;">{{lang['add_place']}}</button>
-				<div class="new-place-form popup-area"></div>
+				<div class="no-places">{{lang['no_places_selected']}}</div>
+				<p>{{lang['create_place_button']}}</p>
+				<button class="img-btn red-button new-place" style="margin-left: 10px; margin-right: 10px;">{{lang['add_place']}}</button>
 			</div>
+			<div class="new-place-form popup-area"></div>
 
 			<div class="filters">
 				
 				<div class="ui-widget">
-  					<label class="text-100" for="name-input">{{lang['search_name']}}: </label>
-  					<input type="text" name="name-input" id="name-input">
-  					<button class="img-btn search-name"></button>
+  					<label for="name-input">{{lang['search_name']}}: </label>
+  					<div class="name-input-block">
+  						<input type="text" name="name-input" id="name-input"/>
+  						<button class="img-btn red-button search-name"></button>
+  					</div>
 				</div>
 				
-				<label class="text-100">{{lang['map_search']}}: </label>
+				<label class="map-search-label">{{lang['map_search']}}: </label>
 				<input id="pac-input" class="controls" type="text" placeholder="Search Box">
 				<div class="map-search" id="map-search">
 				</div>
@@ -46,12 +48,12 @@
 			</ul>
 
 			<div class="navigation-buttons">
-				<button class="prev">{{ lang['prev']}}</button>
-				<button class="next">{{ lang['next']}}</button>
-				<button class="img-btn continue"
+				<button class="prev"></button>
+				<button class="next"></button>
+				<button class="img-btn continue red-button"
 					onclick="window.location = '/letsgo'">{{ lang['done']}}</button>
 			</div>
-
+			
 		</div>
 	</div>
 </div>
@@ -63,6 +65,14 @@
 <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
+
+$(window).ready(function() {
+	var window_height = $('.profile').height();
+	var logo_height = $('.profile-logo').height();
+	$('.scrollable').height(window_height - logo_height - 40);
+	
+});
+
 	$(window).load(function() {
 		var pageSize = 5;
 		var all_places = [];
@@ -128,7 +138,7 @@
 					$('#'+addressType).val(val);
 				}
 			}
-			console.log('place: ' + JSON.stringify(place.geometry.viewport));
+			/* console.log('place: ' + JSON.stringify(place.geometry.viewport)); */
 			if(place.geometry.location){
 				/* alert(JSON.stringify(place.geometry.location)); */
 				document.getElementById('city-lat').value = place.geometry.location.k;
@@ -247,6 +257,11 @@
 			$('.navigation-buttons').show();
 			$('.create-places').show();
 			$('.rest-list').show();
+			
+			$('.rest-item').tooltip({
+		        tooltipClass:"my-tooltip"
+		    });
+			
 			initFilters();
 			
 		}
@@ -280,6 +295,10 @@
 				purpose: {{lang['rating_purposes']|safe}} 
 			});
 			$('.new-place-form').html(html);
+			
+			$('.new-rest-popup').tooltip({
+		        tooltipClass:"my-tooltip"
+		    });
 			
 			$('#close-popup').click(function(){
 				$('.popup-area').html('');
