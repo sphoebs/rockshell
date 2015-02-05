@@ -224,7 +224,7 @@ class PlaceHandler(webapp2.RequestHandler):
             logging.info('Place json: ' + str(place))
             self.response.write(json.dumps(place))
         else:
-            self.response.set_status(404)
+            self.response.set_status(400)
             self.response.write(status)
 
 

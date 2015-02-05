@@ -1230,6 +1230,8 @@ class PFuser(PFmodel):
     # defined, as before
     visited_city = ndb.StructuredProperty(Address, repeated=True)
     settings = ndb.StructuredProperty(Settings, indexed = False)
+    
+    role = ndb.StringProperty()
 
 #     rating = ndb.StructuredProperty(Rating, repeated=True)
 

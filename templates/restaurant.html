@@ -6,7 +6,7 @@
 			<div class="bar-background"></div>
 			<div class="menu-button">
 				<button class="img-btn"></button>
-				<div class="user-menu-small">
+				<div class="user-menu-small clickable">
 					<div class="user-picture"></div>
 					<div class="text-bold user-name">{{ lang['welcome']}}<br/>{{user.first_name}} </div>
 				</div>
@@ -15,14 +15,17 @@
 		</div>
 		
 		<div class="left-menu scrollable">
-			<div class="user-menu">
+			<div class="user-menu clickable">
 				<div class="user-picture"></div>
 				<h2 class="text-bold user-name">{{ lang['welcome']}} {{user.first_name}}</h2>
 			</div>
 			<br/>
 		
 			<ul class="menu-items">
-				<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
+				{% if user.role == 'admin' %}
+					<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
+				{% endif %}
+				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
 				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
@@ -31,7 +34,7 @@
 		</div>
 	
 		<div class="rest-container scrollable">
-			<img class="picture">
+			<img class="picture" src="/static/images/empty_small.png">
 		
 			<h2>{{place.name}}</h2>
 			
@@ -119,7 +122,8 @@ $(window).ready(function() {
 
 	$(window).load(function() {
 		
-		$('.picture').css('background-image','url({{place.picture|e}})')
+		var rest_picture = '{{place.picture if not place.picture is none}}';
+		$('.picture').css('background-image','url('+ rest_picture +')')
 		
 		$('.rest-container.scrollable').enscroll({
 		    showOnHover: false,
@@ -129,6 +133,11 @@ $(window).ready(function() {
 		    verticalTrackClass: 'track-red',
 		    verticalHandleClass: 'handle-red'
 		});
+		
+		var userpic = "{{ user.picture|e }}";
+		if(userpic != undefined && userpic.length > 0){	
+			$('.user-picture').css('background-image', 'url(' + userpic + ')');
+		} 
 		
 		$('.left-menu').hide();
 		var window_width = $('.rest').width();
@@ -163,6 +172,9 @@ $(window).ready(function() {
 		$('#edit').click(function(){
 			window.location = 'restaurant/edit?id={{place.key|e}}';
 		});
+		$('#new-rest').click(function(){
+			window.location = '/restaurant/new';
+		});
 		$('#rate-more').click(function(){
 			window.location = '/ratings'
 		});
@@ -196,6 +208,10 @@ $(window).ready(function() {
 				$('.rest-right').insertAfter('.picture');
 			}, 
 			
+		});
+		
+		$('.user-menu, .user-menu-small').click(function(){
+			window.location = '/profile/1';
 		});
 		
 		

@@ -174,6 +174,8 @@ class UserHandler(BaseRequestHandler):
         user = PFuser()
         if data.get('first_name') != '':
             user.first_name = data.get('first_name')
+        if data.get('role') != '':
+            user.role = data.get('role')
         if data.get('last_name') != '':
             user.last_name = data.get('last_name')
         user.full_name = data.get('first_name') + ' ' + data.get('last_name')
@@ -267,11 +269,11 @@ class LetsgoHandler(BaseRequestHandler):
         logging.info("USER: " + str(user))
         json_user = json.dumps(PFuser.to_json(user,
                                               ['key', 'first_name', 'last_name', 'full_name',
-                                                  'picture', 'home', 'visited_city', 'settings'],
+                                                  'picture', 'home', 'visited_city', 'settings', 'role'],
                                               ['user_id', 'fb_user_id', 'fb_access_token', 'google_user_id', 'google_access_token', 
                                                'created', 'updated,' 'email', 'profile', 'age', 'gender']))
         logging.info("USER JSON: " + str(json_user))
-        self.render('letsgo.html', {'list': places, 'user': json_user, 'lang' : LANG})
+        self.render('letsgo.html', {'list': places, 'user_role': user.role, 'user': json_user, 'lang' : LANG})
 
 
 class SettingsHandler(BaseRequestHandler):
@@ -356,7 +358,10 @@ class RestaurantEditHandler(BaseRequestHandler):
             return
         get_values = self.request.GET
         if not get_values:
-            self.redirect('/error')
+            if user.role != 'admin':
+                self.redirect('/error')
+            else:
+                self.render('restaurant_list_edit.html',{'user': user, 'lang' : LANG});
         else:
             place_key =  get_values.get('id')
             place, status = logic.place_get(None, place_key)
@@ -365,7 +370,21 @@ class RestaurantEditHandler(BaseRequestHandler):
                 self.render('restaurant_edit.html', {'place': place, 'hours_string': json.dumps(place['hours']), 'closed': json.dumps(place['days_closed']), 'user': user, 'lang' : LANG });
             else:
                 self.redirect('/error')
+                
+class RestaurantNewHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        user, status = logic.user_get(user_id, None)
+        if status != "OK":
+            self.redirect('/')
+            return
         
+        self.render('restaurant_edit.html', {'place': Place(), 'hours_string': '[]', 'closed': '[]', 'user': user, 'lang' : LANG });
+         
 
 class ErrorHandler(BaseRequestHandler):
 
@@ -393,6 +412,7 @@ app = webapp2.WSGIApplication([
     ('/ratings', RatingsPageHandler),
     ('/restaurant', RestaurantPageHandler),
     ('/restaurant/edit', RestaurantEditHandler),
+    ('/restaurant/new', RestaurantNewHandler),
     ('/error', ErrorHandler)
 
 ], debug=True)

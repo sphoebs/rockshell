@@ -10,7 +10,7 @@
 	<div class="top-bar">
 		<div class="menu-button">
 			<button class="img-btn"></button>
-			<div class="user-menu-small">
+			<div class="user-menu-small clickable">
 				<div class="user-picture"></div>
 				<div class="text-bold user-name">{{ lang['welcome']}}<br/> </div>
 			</div>
@@ -33,7 +33,7 @@
 	</div>
 	
 	<div class="left-menu scrollable">
-		<div class="user-menu">
+		<div class="user-menu clickable">
 			<div class="user-picture"></div>
 			<h2 class="text-bold user-name">{{ lang['welcome']}}</h2>
 		</div>
@@ -46,6 +46,10 @@
 			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
 			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
 			<li><button class="img-btn" id="settings">{{ lang['search_settings']}}</button></li>
+			{% if user_role == 'admin' %}
+				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
+				<li><button class="img-btn" id="edit-rest">{{ lang['rest_edit'] }}</button></li>
+			{% endif %}
 			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 		</ul>
 	
@@ -293,11 +297,11 @@ $(window).load(function() {
 	});
 
 	$('#discounts').click(function(){
-		alert('{{ lang['coming_soon']}}')
+		alert('{{ lang['coming_soon']}}');
 	});
 	
 	$('#inspire-me').click(function(){
-		alert('{{ lang['coming_soon']}}')
+		alert('{{ lang['coming_soon']}}');
 	});
 	
 	$('#settings').click(function(){
@@ -341,7 +345,15 @@ $(window).load(function() {
 	});
 	
 	$('#rate-more').click(function(){
-		window.location = '/ratings'
+		window.location = '/ratings';
+	});
+	
+	$('#new-rest').click(function(){
+		window.location = '/restaurant/new';
+	});
+	
+	$('#edit-rest').click(function(){
+		window.location = '/restaurant/edit';
 	});
 	
 	$('#refresh').click(function(){

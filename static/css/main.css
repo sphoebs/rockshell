@@ -1141,8 +1141,15 @@ p.iconed{
 
 .hours-block {
 	display: inline-block;
-	margin-left: 5px;
-	marfin-right: 5px;
+	margin: 5px;
+}
+
+p.time-label {
+	width: 45px;
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	font-size: small;
 }
 
 .days-item {
@@ -1150,8 +1157,7 @@ p.iconed{
 	border: solid 1px #DC3D3D;
 	background-color: rgba(255, 255, 255, 0.6);
 	padding: 5px;
-	margin-left: 7px;
-	margin-right: 7px;
+	margin: 7px;
 }
 
 .days-item p{
@@ -1180,6 +1186,19 @@ input.days-input {
 	width: 150px;
 }
 
+.rest-item.no-border{
+	border: none;	
+}
+
+.rest-item a{
+	text-decoration: none;
+	color: #DC3D3D;
+}
+
+.rest-item a:hover{
+	filter: brightness(150%);
+}
+
 /* RESTAURANT END */
 
 
@@ -1189,7 +1208,7 @@ input.days-input {
 		font-size: 13pt;
 	}
 	.red-button, input[type=button], input[type=submit], input[type=text],
-		input[type=number], select {
+		input[type=number], select, textarea {
 		font-size: 14pt;
 	}
 	.login h4 {
@@ -1346,7 +1365,7 @@ input.days-input {
 		font-size: 15pt;
 	}
 	.red-button, input[type=button], input[type=submit], input[type=text],
-		input[type=number], select {
+		input[type=number], select, textarea {
 		font-size: 16pt;
 	}
 	.login h4 {

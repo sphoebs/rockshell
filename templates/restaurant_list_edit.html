@@ -1,0 +1,326 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="full-background rest">
+
+	<div class="top-bar">
+			<div class="bar-background"></div>
+			<div class="menu-button">
+				<button class="img-btn"></button>
+				<div class="user-menu-small clickable">
+					<div class="user-picture"></div>
+					<div class="text-bold user-name">{{ lang['welcome']}}<br/>{{user.first_name}} </div>
+				</div>
+			</div>
+			<div class="rest-logo"></div>
+		</div>
+		
+		<div class="left-menu scrollable">
+			<div class="user-menu clickable">
+				<div class="user-picture"></div>
+				<h2 class="text-bold user-name">{{ lang['welcome']}} {{user.first_name}}</h2>
+			</div>
+			<br/>
+		
+			<ul class="menu-items">
+				<li><button class="img-btn" id="back">{{ lang['back']}}</button></li>
+			</ul>
+	
+		</div>
+		
+		<div class="rest-container scrollable">
+			<div class="city-search">
+				<label class="text-bold">Select a city for searching the places you want to edit: </label>
+				<div class="input">
+					<input type="text" name="auto-city" id="city" >
+					<input type="hidden" name="locality" id="locality" /> 
+					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
+					<input type="hidden" name="country" id="country"/>
+					<input type="hidden" name="city-lat" id="city-lat"/> <!-- To center map -->
+					<input type="hidden" name="city-lon" id="city-lon"/> <!-- To center map -->
+				</div>
+			</div>
+			
+			<ul class="rest-list">
+				
+			</ul>
+			
+			<div class="navigation-buttons">
+				<button class="prev"></button>
+				<button class="next"></button>
+				<button class="img-btn continue red-button"
+					onclick="window.location = '/letsgo'">{{ lang['done']}}</button>
+			</div>
+
+		</div>
+</div>
+
+
+
+
+{% endblock %} {% block scripts %}
+<script type="text/javascript"
+	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+<script type="text/javascript">
+
+$(window).ready(function() {
+	var window_height = $('.rest').height();
+	var bar_height = $('.top-bar').height();
+	$('.rest-container.scrollable').height(window_height - bar_height - 40);
+	
+});
+
+	$(window).load(function() {
+		var pageSize = 50;
+		var all_places = [];
+		var last_pos = 0;
+		
+		var city_bounds = undefined;
+		
+		function getCookie(cname) {
+			var name = cname + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ')
+					c = c.substring(1);
+				if (c.indexOf(name) != -1)
+					return c.substring(name.length, c.length);
+			}
+			return "";
+		};
+		
+		var auth = getCookie('user');
+		
+		$('.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-red',
+		    verticalHandleClass: 'handle-red'
+		});
+		
+		var input = document.getElementById('city');
+		var options = {
+			types : [ '(cities)' ]
+		};
+		var autocomplete = new google.maps.places.Autocomplete(
+				input, options);
+
+		var componentForm = {
+			locality : 'long_name',
+			administrative_area_level_2 : 'short_name',
+			country : 'short_name',
+		};
+	
+
+		google.maps.event.addListener(autocomplete,
+				'place_changed', function() {
+					fillInAddress();
+				});
+
+		function fillInAddress() {
+			// Get the place details from the autocomplete object.
+			var place = autocomplete.getPlace();
+			
+			// Get each component of the address from the place details
+			// and fill the corresponding field on the form.
+			for (var i = 0; i < place.address_components.length; i++) {
+				var addressType = place.address_components[i].types[0];
+				if (componentForm[addressType]) {
+					var val = place.address_components[i][componentForm[addressType]];
+					$('#'+addressType).val(val);
+				}
+			}
+			if(window.console){
+				console.log('place: ' + JSON.stringify(place.geometry.viewport));
+			}
+			if(place.geometry.location){
+				/* alert(JSON.stringify(place.geometry.location)); */
+				document.getElementById('city-lat').value = place.geometry.location.k;
+				document.getElementById('city-lon').value = place.geometry.location.D;
+			}
+			
+			if(place.geometry.viewport){
+				var bounds = place.geometry.viewport;
+				var southWest = new google.maps.LatLng( bounds.Da.k, bounds.wa.j );
+				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.wa.k );
+				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
+				
+			}
+			
+			loadPlaces();
+		}
+		
+		function loadPlaces(){
+			
+			var city = $('#locality').val();
+			if(city == undefined || city == ''){
+				alert("{{lang['city_mandatory']}}");
+				return;
+			}
+			var province = $('#administrative_area_level_2').val();
+			if(province == undefined || province == ''){
+				province = 'null';
+			}
+			var state = 'null';
+			var country = $('#country').val();
+			if(country == undefined || country == ''){
+				country = 'null';
+			}
+			
+			var city_filter = city + '!' + province + '!' + state + '!' + country;
+			
+			$.ajax({
+				type : 'GET',
+				url : '/api/place?city=' + city_filter,
+				success : function(data) {
+					
+					if(data.length <1){
+						/* $('.no-places').show(); */
+						$('.navigation-buttons .prev').addClass('disabled');
+						$('.navigation-buttons .next').addClass('disabled');
+						$('.navigation-buttons').show();
+						$('.create-places').show();
+						$('.rest-list').show();
+					} else {
+						all_places = data;
+						last_pos = 0;
+						displayPlaces(last_pos);
+					}
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error" + resp.status);
+					
+				},
+				headers : {
+					Authorization : getCookie('user')
+				}
+			});
+			
+		}
+		
+		function displayPlaces(start){
+			$('.rest-list').html('');
+			
+			//enable prev and next buttons
+			$('.navigation-buttons .prev').removeClass('disabled');
+			$('.navigation-buttons .next').removeClass('disabled');
+			if(start == 0){
+				//diable prev button
+				$('.navigation-buttons .prev').addClass('disabled');
+			}
+			if(start + pageSize >= all_places.length){
+				//disable next button
+				$('.navigation-buttons .next').addClass('disabled');
+			}
+			
+			for(var i=0; start+i<all_places.length && i<pageSize; i++){
+				var rest = all_places[start+i];
+				var ratings = {};
+				if(rest.ratings != undefined){
+					for(var j = 0; j< rest.ratings.length; j++){
+						rating = rest.ratings[j];
+						ratings[rating.purpose] = rating.value;
+					}
+				}
+				
+				//load underscore template
+				var xmlhttp = new XMLHttpRequest();
+				xmlhttp.open("GET","/static/js_templates/rest_edit_list.ejs",false);
+				xmlhttp.send(null);
+				var template = xmlhttp.responseText;
+				var compiled = _.template(template);
+				var html = compiled({
+					rest : rest,
+				});
+				$('.rest-list').append(html);
+				
+				
+			}
+			$('.scrollable').scrollTop(0);
+			$('.navigation-buttons').show();
+			$('.rest-list').show();
+			
+		}
+		
+		
+
+		function onNext(){
+			if(last_pos + pageSize < all_places.length ){
+				last_pos += pageSize;
+				displayPlaces(last_pos);
+			} else {
+				//there are no more places after the ones already shown
+				//do nothing
+			}
+		}
+		
+		function onPrev(){
+			if(last_pos > 0 ){
+				last_pos -= pageSize;
+				displayPlaces(last_pos);
+			} else {
+				//there are no places before the ones already shown
+				//do nothing
+			}
+		}
+		
+		$('.left-menu').hide();
+		var window_width = $('.letsgo').width();
+		var count = 1;
+		$('.menu-button button').click(function(){
+			if(count % 2 == 1){
+				//odd time --> open left menu
+				$('.left-menu').show();
+				if(window_width > 600){
+					$('.user-menu-small').hide();
+				}
+				$('.scrollable').enscroll({
+				    showOnHover: false,
+				    verticalScrolling: true,
+					horizontalScrolling: false,
+					zIndex: 100,
+				    verticalTrackClass: 'track-white',
+				    verticalHandleClass: 'handle-white'
+				});
+				count++;
+			} else {
+				//even time --> close left menu
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+				count++;
+			}
+			
+		});
+		
+		var userpic = user.picture;
+		if(userpic != undefined && userpic.length > 0){	
+			$('.user-picture').css('background-image', 'url(' + userpic + ')');
+		}
+		
+		$('.user-menu, .user-menu-small').click(function(){
+			window.location = '/profile/1';
+		});
+		
+		
+		$('.navigation-buttons .next').click(onNext);
+		$('.navigation-buttons .prev').click(onPrev);
+		$('.navigation-buttons').hide();
+		
+		$('#back').click(function(){
+			window.location= '/letsgo';
+		});
+
+	});
+</script>
+
+
+{% endblock %}
+		

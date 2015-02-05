@@ -92,7 +92,8 @@ en = {
     'rest_phone': 'Phone number',
     'rest_website': 'Website',
     'rest_email': 'E-mail',
-    'rest_edit': 'Edit',
+    'rest_edit': 'Edit restaurant',
+    'rest_new': 'New restaurant',
     'rest_picture': 'Picture (URL)',
     'opening_mon': 'Mon',
     'opening_tue': 'Tue',
@@ -101,7 +102,12 @@ en = {
     'opening_fri': 'Fri',
     'opening_sat': 'Sat',
     'opening_sun': 'Sun',
-    'rest_closed_wday': 'closed'
+    'rest_closed_wday': 'closed',
+    'open': 'from',
+    'close': 'to',
+    'add-day': 'Add new day',
+    
+    'back': 'Back'
       
 }
 
@@ -195,7 +201,8 @@ it = {
     'rest_phone': 'Numero di telefono',
     'rest_website': 'Sito web',
     'rest_email': 'E-mail',
-    'rest_edit': 'Modifica',
+    'rest_edit': 'Modifica ristorante',
+    'rest_new': 'Nuovo ristorante',
     'rest_picture': 'Immagine (URL)',
     'opening_mon': 'Lun',
     'opening_tue': 'Mar',
@@ -204,7 +211,12 @@ it = {
     'opening_fri': 'Ven',
     'opening_sat': 'Sab',
     'opening_sun': 'Dom',
-    'rest_closed_wday': 'chiuso'
+    'rest_closed_wday': 'chiuso',
+    'open': 'dalle',
+    'close': 'alle',
+    'add-day': 'Aggiungi giorno',
+    
+    'back': 'Indietro'
     
 }
 
