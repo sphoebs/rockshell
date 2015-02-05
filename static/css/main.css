@@ -464,7 +464,7 @@ li.rest-item {
 	padding-bottom: 5px;
 	padding-top: 5px;
 	border-bottom: solid 2px #DC3D3D;
-	margin-right: 15px;
+	padding-right: 15px;
 }
 
 .rest-item div.rest-details {

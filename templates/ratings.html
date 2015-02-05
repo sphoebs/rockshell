@@ -21,7 +21,7 @@
 			</div>
 			
 			<div class="create-places center-text">
-				<div class="no-places">{{lang['no_places_selected']}}</div>
+				<!-- <div class="no-places">{{lang['no_places_selected']}}</div> -->
 				<p>{{lang['create_place_button']}}</p>
 				<button class="img-btn red-button new-place" style="margin-left: 10px; margin-right: 10px;">{{lang['add_place']}}</button>
 			</div>
@@ -138,7 +138,9 @@ $(window).ready(function() {
 					$('#'+addressType).val(val);
 				}
 			}
-			/* console.log('place: ' + JSON.stringify(place.geometry.viewport)); */
+			if(window.console){
+				console.log('place: ' + JSON.stringify(place.geometry.viewport));
+			}
 			if(place.geometry.location){
 				/* alert(JSON.stringify(place.geometry.location)); */
 				document.getElementById('city-lat').value = place.geometry.location.k;
@@ -147,8 +149,8 @@ $(window).ready(function() {
 			
 			if(place.geometry.viewport){
 				var bounds = place.geometry.viewport;
-				var southWest = new google.maps.LatLng( bounds.Ca.k, bounds.va.j );
-				var northEast = new google.maps.LatLng( bounds.Ca.j, bounds.va.k );
+				var southWest = new google.maps.LatLng( bounds.Da.k, bounds.wa.j );
+				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.wa.k );
 				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
 				
 			}
