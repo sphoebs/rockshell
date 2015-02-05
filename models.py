@@ -934,28 +934,28 @@ class Place(PFmodel):
                 gql_str = 'WHERE '
                 params = []
                 num = 1
-                if pieces[0] != 'null':
-                    gql_str += 'address.city = :' + str(num)
+                if pieces[3] != 'null':
+                    gql_str += ' address.country = :' + str(num)
                     num = num+1
-                    params.append(pieces[0]) 
-                if pieces[1] != 'null':
-                    if not gql_str.endswith('WHERE '):
-                        gql_str += ' AND '
-                    gql_str += ' address.province = :' + str(num)
-                    num = num+1
-                    params.append(pieces[1])
+                    params.append(pieces[3])
                 if pieces[2] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
                     gql_str += ' address.state = :' + str(num)
                     num = num+1
                     params.append(pieces[2])
-                if pieces[3] != 'null':
+                if pieces[1] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
-                    gql_str += ' address.country = :' + str(num)
-                    params.append(pieces[3])
-
+                    gql_str += ' address.province = :' + str(num)
+                    num = num+1
+                    params.append(pieces[1])
+                if pieces[0] != 'null':
+                    if not gql_str.endswith('WHERE '):
+                        gql_str += ' AND '
+                    gql_str += 'address.city = :' + str(num)
+                    params.append(pieces[0]) 
+                
                 logging.info('Getting places with query: ' + gql_str)
 
                 dblist = Place.gql(gql_str, *params)
@@ -969,7 +969,7 @@ class Place(PFmodel):
         futures = []
         if user_id is not None:
             for place in dblist:
-                future = Rating.query(ndb.AND(Rating.place == place.key,Rating.user == PFuser.make_key(user_id,None))).fetch_async()
+                future = Rating.query(ndb.AND(Rating.user == PFuser.make_key(user_id,None), Rating.place == place.key)).fetch_async()
                 futures.append(future)
                 
             
@@ -1854,12 +1854,12 @@ class Rating(PFmodel):
 #             
 #         else :
         dblist = Rating.query()
+        if filters is not None and 'purpose' in filters:
+            dblist = dblist.filter(Rating.purpose == filters['purpose'])
         if filters is not None and 'user' in filters:
             dblist = dblist.filter(Rating.user == PFuser.make_key(filters['user'], None))
         if filters is not None and 'place' in filters:
             dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
-        if filters is not None and 'purpose' in filters:
-            dblist = dblist.filter(Rating.purpose == filters['purpose'])
         if filters is not None and 'users' in filters:
             dblist = dblist.filter(Rating.user.IN([PFuser.make_key(user, None) for user in filters['users']]))
         if filters is not None and 'places' in filters:
@@ -1877,8 +1877,8 @@ class Rating(PFmodel):
         if user_key is not None and place_key is not None:
             if not isinstance(user_key, ndb.Key) or user_key.kind().find('PFuser') < 0 or not isinstance(place_key, ndb.Key) or place_key.kind().find('Place') < 0:
                 return None
-            return Rating.query(ndb.AND( Rating.user == user_key,Rating.place == place_key)).count()
-        elif user_key is not None:
+            return Rating.query(ndb.AND(Rating.user == user_key, Rating.place == place_key)).count()
+        elif user_key is not None: 
             if not isinstance(user_key, ndb.Key) or user_key.kind().find('PFuser') < 0:
                 return None
             return Rating.query(Rating.user == user_key).count()
