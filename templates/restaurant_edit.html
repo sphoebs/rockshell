@@ -7,7 +7,7 @@
 				<button class="img-btn"></button>
 				<div class="user-menu-small clickable">
 					<div class="user-picture"></div>
-					<div class="text-300 user-name">
+					<div class="text-bold user-name">
 						{{ lang['welcome']}}<br />{{user.first_name}}
 					</div>
 				</div>
@@ -18,7 +18,7 @@
 		<div class="left-menu scrollable">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-300 user-name">{{ lang['welcome']}}
+				<h2 class="text-bold user-name">{{ lang['welcome']}}
 					{{user.first_name}}</h2>
 			</div>
 			<br />
@@ -115,8 +115,19 @@
 						
 					</div>
 				</div>
+				
+				<br/>
+				
+				{% if user.role == 'admin' %}
+				<div>
+					<label class="form-label">Restaurant owner (email): </label>
+					<div class="form-input">
+						<input type="text" id="owner_email" name="owner_email" value="">
+					</div>
+				</div>
+				{% endif %}
 
-				<input type="button" class="img-btn save text-100"
+				<input type="button" class="img-btn save"
 					value="{{ lang['save']}}" />
 			
 
@@ -317,6 +328,11 @@ $(window).ready(function() {
 				var website = $('#rest_website').val();
 				var email = $('#rest_email').val();
 				
+				var owner_email = undefined;
+				{% if user.role == 'admin' %}
+					owner_email = $('#owner_email').val();
+				{% endif %}
+				
 				//get hours
 				var hours = [];
 				$('.hours-block').each(function(){
@@ -370,6 +386,25 @@ $(window).ready(function() {
 					url : url,
 					data : JSON.stringify(place),
 					success : function(place) {
+						if( owner_email != undefined){
+							$.ajax({
+								type : 'POST',
+								url : '/api/place/'+place.key+'/owner',
+								data: JSON.stringify({email: owner_email}),
+								success: function(place){
+									if(window.console){
+										console.log('owner saved with success');
+									}
+								},
+								error: function(resp){
+									if(window.console){
+										console.log(resp);
+									}
+									alert("Error saving owner: " + resp.status);
+								}
+							});
+						}
+						
 						window.location = '/restaurant?id=' + place.key
 					},
 					error : function(resp) {
@@ -377,7 +412,7 @@ $(window).ready(function() {
 							if(window.console){
 								console.log(resp);
 							}
-							alert("Error" + resp.status);
+							alert("Error " + resp.status);
 						
 					},
 					headers : {

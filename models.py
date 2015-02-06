@@ -625,372 +625,6 @@ class Hours(PFmodel):
 #         Return value: list of Address.
 #         """
 #         return None
-
-
-class Place(PFmodel):
-
-    """Represents a place"""
-    ext_id = ndb.StringProperty()
-    ext_source = ndb.StringProperty()
-    name = ndb.StringProperty()
-    description_en = ndb.TextProperty(indexed=False)
-    description_it = ndb.TextProperty(indexed=False)
-    picture = ndb.TextProperty(indexed=False)
-    phone = ndb.TextProperty(indexed=False)
-    price_avg = ndb.FloatProperty()
-    website = ndb.StringProperty(indexed=False)
-    email = ndb.StringProperty(indexed=False)
-
-    service = ndb.StringProperty(choices=["restaurant", "bar"], repeated=True)
-
-    address = ndb.StructuredProperty(Address)
-    hours = ndb.StructuredProperty(Hours, repeated=True)
-    days_closed = ndb.DateProperty(repeated=True)
-    
-
-    @staticmethod
-    def to_json(obj, allowed, hidden):
-        """ 
-        It transforms the Place in a dict, that can be easily converted to a json.
-
-        Parameters:
-        - obj: the instance of Place to convert.
-        - allowed: list of strings indicating which properties are needed.
-        - hidden: list of strings indicating which properties are not needed.
-
-        Return value: dict representation of the object.
-
-        If allowed is None, this method acts as all fields are present in allowed.
-        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
-        'key' is converted to urlsafe.
-        """
-        res = PFmodel.to_json(obj, Place, allowed, hidden)
-
-        if 'address' in res.keys():
-            res['address'] = Address.to_json(obj.address, None, None)
-        if 'hours' in res.keys():
-            tmp_hours = []
-            for hours in obj.hours:
-                hours = Hours.to_json(hours, None, None)
-                tmp_hours.append(hours)
-            res['hours'] = tmp_hours
-        if 'days_closed' in res.keys():
-            tmp_days = []
-            for day in obj.days_closed:
-                day = day.strftime('%d-%m-%Y')
-                tmp_days.append(day)
-            res['days_closed'] = tmp_days
-
-        return res
-
-    @staticmethod
-    def list_to_json(place_list):
-        """
-        It converts a list of Places into a list of dict objects, ready for transformation into json string,
-        """
-        if not isinstance(place_list, list):
-            return None
-        
-        res = []
-        for place in place_list:
-            res.append(Place.to_json(place, None, None))
-        return res
-
-    @staticmethod
-    def from_json(json_dict):
-        """
-        It converts a dict coming from a json string into a Place.
-
-        Parameters:
-        - json_dict: the dict containing the information received from a json string.
-
-        Return value: Place or None if the input dict contains wrong data.
-
-        """
-        if not isinstance(json_dict, dict):
-            return None
-
-        res = Place()
-
-        if 'address' in json_dict.keys():
-            json_dict['address'] = Address.from_json(json_dict['address'])
-        if 'hours' in json_dict.keys():
-            hlist = []
-            for hours in json_dict['hours']:
-                hours = Hours.from_json(hours)
-                hlist.append(hours)
-            json_dict['hours'] = hlist
-        if 'days_closed' in json_dict.keys():
-            dlist = []
-            for day in json_dict['days_closed']:
-                try:
-                    day = datetime.strptime(day, '%d-%m-%Y').date()
-                    dlist.append(day)
-                except ValueError:
-                    # TODO: handle error
-                    del day
-            json_dict['days_closed'] = dlist
-
-        try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
-            res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating Place from json: " + str(e))
-            return None
-
-        return res
-
-    @staticmethod
-    def make_key(obj_id, url_encoded):
-        """
-        It creates a Key object for this class, with id obj_id.
-
-        Parameters:
-        - obj_id: the object id. It can be a string or a long.
-        - url_encoded: the object key as url-encoded string.
-
-        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
-
-        Return value: ndb.Key.
-        """
-        return PFmodel.make_key(obj_id, url_encoded, 'Place')
-
-    @staticmethod
-    def is_valid(obj):
-        """
-        It validates the object data.
-
-        Parameters:
-        - obj: the object to be validated
-
-        Return value: (boolean, list of strings representing invalid properties).
-        A result of False, [] means that the object type is wrong, so all properties are wrong.
-        """
-        wrong_list = []
-        if not isinstance(obj, Place):
-            return False, wrong_list
-
-        if obj.address is not None:
-            valid, wrong_addr = Address.is_valid(obj.address)
-            if not valid:
-                for p in wrong_addr:
-                    wrong_list.append('address.' + p)
-#             del valid, wrong_addr
-
-        if obj.hours is not None:
-            valid, wrong_h = Hours.is_valid(obj.hours)
-            if not valid:
-                for p in wrong_h:
-                    wrong_list.append('hours.' + p)
-#             del valid, wrong_h
-
-        if len(wrong_list) > 0:
-            return False, wrong_list
-        else:
-            return True, None
-
-    @staticmethod
-    def store(obj, key):
-        """
-        It creates or updates the Place, according to presence and validity of the key.
-
-        Parameters:
-        - obj: the Place to store
-        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
-
-        Return value: Place
-        """
-        if not isinstance(obj, Place):
-            return None
-
-        valid, wrong_list = Place.is_valid(obj)
-        if not valid:
-            logging.error("Invalid input data: " + str(wrong_list))
-            return None
-#         logging.info("Place.store: key=" + str(key))
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
-            # key is valid --> update
-#             logging.info("Updating place " + str(key))
-            db_obj = key.get()
-            if db_obj is None:
-                logging.info("Updating place - NOT FOUND " + str(key))
-                return None
-
-            objdict = obj.to_dict()
-            
-            NOT_ALLOWED = ['id', 'key', 'service', 'ext_id', 'ext_source']
-
-            for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED or value is None: #TODO: let value to be None??
-                    return None
-                if hasattr(db_obj, key):
-                    try:
-                        setattr(db_obj, key, value)
-                    except:
-                        return None
-            
-                else:
-                    return None
-                
-            db_obj.put()
-            
-            return db_obj
-
-        else:
-            # key is not valid --> create
-#             logging.info("Creating new place ")
-            obj.put()
-            if obj.address is not None and obj.address.location is not None:
-                geopoint = search.GeoPoint(obj.address.location.lat, obj.address.location.lon)
-                fields = [search.GeoField(name='location', value=geopoint)]
-                d = search.Document(doc_id=obj.key.urlsafe(), fields=fields)
-                search.Index(name='places').put(d)
-            
-            return obj
-
-    @staticmethod
-    def get_by_key(key):
-        """
-        It retrieves the Place by key.
-
-        Parameters:
-        - key: the ndb key identifying the object to retrieve.
-
-        Return value: Place
-
-        """
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
-            return key.get()
-        else:
-            return None
-
-    @staticmethod
-    def get_list(filters, user_id):
-        """
-        It retrieves a list of Places satisfying the characteristics described in filter.
-
-        Parameters:
-        - filters: a dict containing the characteristics the objects in the resulting list should have.
-        - user_id: if it is set, the personal data about the user are added to each place (like ratings)
-
-        Available filters:
-        - 'city': 'city!province!state!country'
-            The 'city' filter contains the full description of the city, with values separated with a '!'. 
-            This string is split and used to retrieve only the places that are in the specified city. 
-            'null' is used if part of the full city description is not available [example: 'Trento!TN!null!Italy'
-            or if a bigger reagion is considered [example: 'null!TN!null!Italy' retrieves all places in the province of Trento]
-        - 'lat', 'lon' and 'max_dist': lat and lon indicates the user position, while max_dist is a measure expressed in meters 
-            and represnt the radius of the circular region the user is interested in. 
-            
-        Return value: list of Places in json format, with personal user information added.
-        """
-
-        logging.info('Place.get_list -- getting places with filters: ' + str(filters))
-
-        if filters is not None and not isinstance(filters, dict):
-            logging.error('Filters MUST be stored in a dictionary!! The received filters are wrong!!')
-            return None
-
-        
-        
-        if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
-            #the three parameters must come all together
-            
-            #map all place fields to document and add all other filters here.
-#             index = search.Index(name="places")
-#             query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
-#             logging.info("Place.get_list -- getting places with query " + str(query))
-#             result = index.search(query)
-#             places = [ Place.make_key(None, d.doc_id) for d in result.results]
-            places = []
-            logging.info("Place.get_list -- found places " + str(len(places)))
-            num = 0
-            max_dist = float(filters['max_dist'])
-            # request plaes until one is obtained, increasing the distance.
-            while len(places) < 1 and num < 5:
-                # no places within that area, try to get something by extending area of max_dist for maximum 5 times.
-                max_dist += max_dist
-                query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], max_dist)
-                logging.info("Place.get_list -- getting places with query " + str(query))
-                result = index.search(query)
-                places = [ Place.make_key(None, d.doc_id) for d in result.results]
-                logging.info("Place.get_list -- found places " + str(len(places)))
-                num  += 1
-                
-            if places is None or len(places) < 1:
-                #even extending the area did not work
-                return None
-            
-            dblist = Place.query(Place.key.IN(places))
-            
-        else :
-            dblist = Place.query()
-
-        if 'city' in filters.keys() and isinstance(filters['city'], (str, unicode)):
-            pieces = filters['city'].split("!")
-            if len(pieces) == 4:
-                # apply filter only if its content is valid
-                gql_str = 'WHERE '
-                params = []
-                num = 1
-                if pieces[3] != 'null':
-                    gql_str += ' address.country = :' + str(num)
-                    num = num+1
-                    params.append(pieces[3])
-                if pieces[2] != 'null':
-                    if not gql_str.endswith('WHERE '):
-                        gql_str += ' AND '
-                    gql_str += ' address.state = :' + str(num)
-                    num = num+1
-                    params.append(pieces[2])
-                if pieces[1] != 'null':
-                    if not gql_str.endswith('WHERE '):
-                        gql_str += ' AND '
-                    gql_str += ' address.province = :' + str(num)
-                    num = num+1
-                    params.append(pieces[1])
-                if pieces[0] != 'null':
-                    if not gql_str.endswith('WHERE '):
-                        gql_str += ' AND '
-                    gql_str += 'address.city = :' + str(num)
-                    params.append(pieces[0]) 
-                
-                logging.info('Getting places with query: ' + gql_str)
-
-                dblist = Place.gql(gql_str, *params)
-
-        
-
-        # executes query only once and store the results
-        # Never use fetch()!
-        dblist = list(dblist)
-        reslist = Place.list_to_json(dblist)
-        futures = []
-        if user_id is not None:
-            for place in dblist:
-                future = Rating.query(ndb.AND(Rating.user == PFuser.make_key(user_id,None), Rating.place == place.key)).fetch_async()
-                futures.append(future)
-                
-            
-            for future in futures:
-                ratings = future.get_result()
-                ratings = Rating.list_to_json(ratings)
-                
-                if len(ratings) > 0:
-                    place_key = ratings[0]['place']
-                    for place in reslist:
-                        if place['key'] == place_key:
-                            place['ratings'] = ratings
-                            break;
-
-        return reslist
-
-    @staticmethod
-    def get_list_by_keys(keys):
-        
-        dblist = Place.query(Place.key.IN(keys))
-        return list(dblist)
     
 
 class Settings(PFmodel):
@@ -1579,6 +1213,22 @@ class PFuser(PFmodel):
             return key.get()
         else:
             return None
+        
+    @staticmethod
+    def get_by_email(email):
+        """
+        It retrieves the PFuser by email.
+
+        Parameters:
+        - email: the string email to identify the user.
+
+        Return value: PFuser
+
+        """
+        if email is None or not isinstance(email, (str, unicode)) or len(email) <1:
+            return None
+        user = PFuser.query().filter(PFuser.email == email).get()
+        return user
 
 #     @staticmethod
 #     def get_list(filters):
@@ -1592,6 +1242,407 @@ class PFuser(PFmodel):
 #         """
 #         return None
 
+class Place(PFmodel):
+
+    """Represents a place"""
+    ext_id = ndb.StringProperty()
+    ext_source = ndb.StringProperty()
+    name = ndb.StringProperty()
+    description_en = ndb.TextProperty(indexed=False)
+    description_it = ndb.TextProperty(indexed=False)
+    picture = ndb.TextProperty(indexed=False)
+    phone = ndb.TextProperty(indexed=False)
+    price_avg = ndb.FloatProperty()
+    website = ndb.StringProperty(indexed=False)
+    email = ndb.StringProperty(indexed=False)
+
+    service = ndb.StringProperty(choices=["restaurant", "bar"], repeated=True)
+
+    address = ndb.StructuredProperty(Address)
+    hours = ndb.StructuredProperty(Hours, repeated=True)
+    days_closed = ndb.DateProperty(repeated=True)
+    
+    owner = ndb.KeyProperty(PFuser)
+    
+
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Place in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of Place to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If allowed is None, this method acts as all fields are present in allowed.
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        """
+        res = PFmodel.to_json(obj, Place, allowed, hidden)
+
+        if 'address' in res.keys():
+            res['address'] = Address.to_json(obj.address, None, None)
+        if 'hours' in res.keys():
+            tmp_hours = []
+            for hours in obj.hours:
+                hours = Hours.to_json(hours, None, None)
+                tmp_hours.append(hours)
+            res['hours'] = tmp_hours
+        if 'days_closed' in res.keys():
+            tmp_days = []
+            for day in obj.days_closed:
+                day = day.strftime('%d-%m-%Y')
+                tmp_days.append(day)
+            res['days_closed'] = tmp_days
+        if 'owner' in res:
+            res['owner'] = res['owner'].urlsafe()
+
+        return res
+
+    @staticmethod
+    def list_to_json(place_list):
+        """
+        It converts a list of Places into a list of dict objects, ready for transformation into json string,
+        """
+        if not isinstance(place_list, list):
+            return None
+        
+        res = []
+        for place in place_list:
+            res.append(Place.to_json(place, None, None))
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Place.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Place or None if the input dict contains wrong data.
+
+        """
+        if not isinstance(json_dict, dict):
+            return None
+
+        res = Place()
+
+        if 'address' in json_dict.keys():
+            json_dict['address'] = Address.from_json(json_dict['address'])
+        if 'hours' in json_dict.keys():
+            hlist = []
+            for hours in json_dict['hours']:
+                hours = Hours.from_json(hours)
+                hlist.append(hours)
+            json_dict['hours'] = hlist
+        if 'days_closed' in json_dict.keys():
+            dlist = []
+            for day in json_dict['days_closed']:
+                try:
+                    day = datetime.strptime(day, '%d-%m-%Y').date()
+                    dlist.append(day)
+                except ValueError:
+                    # TODO: handle error
+                    del day
+            json_dict['days_closed'] = dlist
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Place from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Place')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of False, [] means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Place):
+            return False, wrong_list
+
+        if obj.address is not None:
+            valid, wrong_addr = Address.is_valid(obj.address)
+            if not valid:
+                for p in wrong_addr:
+                    wrong_list.append('address.' + p)
+#             del valid, wrong_addr
+
+        if obj.hours is not None:
+            valid, wrong_h = Hours.is_valid(obj.hours)
+            if not valid:
+                for p in wrong_h:
+                    wrong_list.append('hours.' + p)
+#             del valid, wrong_h
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the Place, according to presence and validity of the key.
+
+        Parameters:
+        - obj: the Place to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+
+        Return value: Place
+        """
+        if not isinstance(obj, Place):
+            return None
+
+        valid, wrong_list = Place.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            return None
+#         logging.info("Place.store: key=" + str(key))
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
+            # key is valid --> update
+#             logging.info("Updating place " + str(key))
+            db_obj = key.get()
+            if db_obj is None:
+                logging.info("Updating place - NOT FOUND " + str(key))
+                return None
+
+            objdict = obj.to_dict()
+            
+            NOT_ALLOWED = ['id', 'key', 'service', 'ext_id', 'ext_source', 'owner']
+
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED: 
+                    continue
+                if hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        continue
+            
+                else:
+                    continue
+                
+            db_obj.put()
+            
+            return db_obj
+
+        else:
+            # key is not valid --> create
+#             logging.info("Creating new place ")
+            obj.put()
+            if obj.address is not None and obj.address.location is not None:
+                geopoint = search.GeoPoint(obj.address.location.lat, obj.address.location.lon)
+                fields = [search.GeoField(name='location', value=geopoint)]
+                d = search.Document(doc_id=obj.key.urlsafe(), fields=fields)
+                search.Index(name='places').put(d)
+            
+            return obj
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the Place by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: Place
+
+        """
+        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
+            return key.get()
+        else:
+            return None
+
+    @staticmethod
+    def get_list(filters, user_id):
+        """
+        It retrieves a list of Places satisfying the characteristics described in filter.
+
+        Parameters:
+        - filters: a dict containing the characteristics the objects in the resulting list should have.
+        - user_id: if it is set, the personal data about the user are added to each place (like ratings)
+
+        Available filters:
+        - 'city': 'city!province!state!country'
+            The 'city' filter contains the full description of the city, with values separated with a '!'. 
+            This string is split and used to retrieve only the places that are in the specified city. 
+            'null' is used if part of the full city description is not available [example: 'Trento!TN!null!Italy'
+            or if a bigger reagion is considered [example: 'null!TN!null!Italy' retrieves all places in the province of Trento]
+        - 'lat', 'lon' and 'max_dist': lat and lon indicates the user position, while max_dist is a measure expressed in meters 
+            and represnt the radius of the circular region the user is interested in. 
+            
+        Return value: list of Places in json format, with personal user information added.
+        """
+
+        logging.info('Place.get_list -- getting places with filters: ' + str(filters))
+
+        if filters is not None and not isinstance(filters, dict):
+            logging.error('Filters MUST be stored in a dictionary!! The received filters are wrong!!')
+            return None
+
+        
+        
+        if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
+            #the three parameters must come all together
+            
+            #map all place fields to document and add all other filters here.
+#             index = search.Index(name="places")
+#             query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
+#             logging.info("Place.get_list -- getting places with query " + str(query))
+#             result = index.search(query)
+#             places = [ Place.make_key(None, d.doc_id) for d in result.results]
+            places = []
+            logging.info("Place.get_list -- found places " + str(len(places)))
+            num = 0
+            max_dist = float(filters['max_dist'])
+            # request plaes until one is obtained, increasing the distance.
+            while len(places) < 1 and num < 5:
+                # no places within that area, try to get something by extending area of max_dist for maximum 5 times.
+                max_dist += max_dist
+                query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], max_dist)
+                logging.info("Place.get_list -- getting places with query " + str(query))
+                result = index.search(query)
+                places = [ Place.make_key(None, d.doc_id) for d in result.results]
+                logging.info("Place.get_list -- found places " + str(len(places)))
+                num  += 1
+                
+            if places is None or len(places) < 1:
+                #even extending the area did not work
+                return None
+            
+            dblist = Place.query(Place.key.IN(places))
+            
+        else :
+            dblist = Place.query()
+
+        if 'city' in filters.keys() and isinstance(filters['city'], (str, unicode)):
+            pieces = filters['city'].split("!")
+            if len(pieces) == 4:
+                # apply filter only if its content is valid
+                gql_str = 'WHERE '
+                params = []
+                num = 1
+                if pieces[3] != 'null':
+                    gql_str += ' address.country = :' + str(num)
+                    num = num+1
+                    params.append(pieces[3])
+                if pieces[2] != 'null':
+                    if not gql_str.endswith('WHERE '):
+                        gql_str += ' AND '
+                    gql_str += ' address.state = :' + str(num)
+                    num = num+1
+                    params.append(pieces[2])
+                if pieces[1] != 'null':
+                    if not gql_str.endswith('WHERE '):
+                        gql_str += ' AND '
+                    gql_str += ' address.province = :' + str(num)
+                    num = num+1
+                    params.append(pieces[1])
+                if pieces[0] != 'null':
+                    if not gql_str.endswith('WHERE '):
+                        gql_str += ' AND '
+                    gql_str += 'address.city = :' + str(num)
+                    params.append(pieces[0]) 
+                
+                logging.info('Getting places with query: ' + gql_str)
+
+                dblist = Place.gql(gql_str, *params)
+
+        
+
+        # executes query only once and store the results
+        # Never use fetch()!
+        dblist = list(dblist)
+        reslist = Place.list_to_json(dblist)
+        futures = []
+        if user_id is not None:
+            for place in dblist:
+                future = Rating.query(ndb.AND(Rating.user == PFuser.make_key(user_id,None), Rating.place == place.key)).fetch_async()
+                futures.append(future)
+                
+            
+            for future in futures:
+                ratings = future.get_result()
+                ratings = Rating.list_to_json(ratings)
+                
+                if len(ratings) > 0:
+                    place_key = ratings[0]['place']
+                    for place in reslist:
+                        if place['key'] == place_key:
+                            place['ratings'] = ratings
+                            break;
+
+        return reslist
+
+    @staticmethod
+    def get_list_by_keys(keys):
+        
+        dblist = Place.query(Place.key.IN(keys))
+        return list(dblist)
+    
+    @staticmethod
+    def set_owner(place_key_str, user_id, requester_id):
+        requester = PFuser.make_key(requester_id, None).get()
+        if requester is None or requester.role != 'admin':
+            return None
+        
+        place = Place.make_key(None, place_key_str).get()
+        if place is None:
+            return None
+        user = PFuser.make_key(user_id, None).get()
+        if user is None:
+            return None
+        
+        user.role = 'owner'
+        user.put()
+        
+        place.owner = user.key
+        place.put()
+        return place
+        
+    
+    @staticmethod
+    def get_owner_places(user_id):
+        
+        key = PFuser.make_key(user_id, None)
+        q = Place.query().filter(Place.owner == key);
+        places = []
+        for p in q:
+            places.append(p)
+        return places
+        
+    
 
 class Rating(PFmodel):
     user = ndb.KeyProperty(PFuser)

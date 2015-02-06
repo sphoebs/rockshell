@@ -50,6 +50,9 @@
 				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
 				<li><button class="img-btn" id="edit-rest">{{ lang['rest_edit'] }}</button></li>
 			{% endif %}
+			{% if user_role == 'owner' %}
+				<li><button class="img-btn" id="edit-rest-owner">{{ lang['rest_edit'] }}</button></li>
+			{% endif %}
 			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 		</ul>
 	
@@ -354,6 +357,10 @@ $(window).load(function() {
 	
 	$('#edit-rest').click(function(){
 		window.location = '/restaurant/edit';
+	});
+	
+	$('#edit-rest-owner').click(function(){
+		window.location = '/owner/list';
 	});
 	
 	$('#refresh').click(function(){

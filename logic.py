@@ -239,6 +239,43 @@ def place_list_get(filters, user_id):
 
     return res, "OK"
 
+def place_set_owner(place_key_str, user_email, requester_id):
+    """
+    It sets the owner of a Place. Only adming can request this operation.
+    
+    Parameters:
+    - place_key_str: place key as urlsafe string
+    - user_email: email of the user to be set as owner of the place
+    - requester_id: id of the user that made the request: only admins are allowed to set owners!
+    
+    Returns a tuple:
+    - the Place with owner set
+    - status message
+    """
+    user = PFuser.get_by_email(user_email)
+    if user is None:
+        return None, "ERROR: Invalid user email"
+    
+    place = Place.set_owner(place_key_str, user.key.id(), requester_id)
+    if place is None:
+        return None, "ERROR: either the place is not correct or the requester is not an admin"
+    return place, "OK"
+
+
+def place_owner_list(user_id):
+    """
+    It retrieves the list of places for which the user is the owner.
+    
+    Parameters:
+    - user_id: id of the user, which is owner and wants to get its own places.
+    
+    Returns a tuple:
+    - list of Places owned by the user (empty if the user is not an owner)
+    - status message
+    """
+    places = Place.get_owner_places(user_id)
+    return places, "OK"
+
 
 def rating_create(rating, user_id, user_key_str):
     """

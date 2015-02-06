@@ -333,6 +333,7 @@ class RestaurantPageHandler(BaseRequestHandler):
             return
         get_values = self.request.GET
         if not get_values:
+            logging.info("MISSING GET VALUES")
             self.redirect('/error')
         else:
             place_key =  get_values.get('id')
@@ -343,6 +344,7 @@ class RestaurantPageHandler(BaseRequestHandler):
                     place['description'] = place['description_' + LANG_NAME]
                 self.render('restaurant.html', {'place': place, 'user': user, 'lang' : LANG });
             else:
+                logging.info("PLACE NOT FOUND")
                 self.redirect('/error')
                 
 class RestaurantEditHandler(BaseRequestHandler):
@@ -382,8 +384,29 @@ class RestaurantNewHandler(BaseRequestHandler):
         if status != "OK":
             self.redirect('/')
             return
-        
+        if user.role != 'admin':
+            self.redirect('/error')
+            return
         self.render('restaurant_edit.html', {'place': Place(), 'hours_string': '[]', 'closed': '[]', 'user': user, 'lang' : LANG });
+         
+         
+class OwnerListHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        user, status = logic.user_get(user_id, None)
+        if status != "OK":
+            self.redirect('/')
+            return
+        places, status = logic.place_owner_list(user_id)
+        if status != "OK":
+            self.redirect('/error')
+            return
+        
+        self.render('owner_list.html', {'places': Place.list_to_json(places), 'user': user, 'lang' : LANG });
          
 
 class ErrorHandler(BaseRequestHandler):
@@ -413,6 +436,7 @@ app = webapp2.WSGIApplication([
     ('/restaurant', RestaurantPageHandler),
     ('/restaurant/edit', RestaurantEditHandler),
     ('/restaurant/new', RestaurantNewHandler),
+    ('/owner/list', OwnerListHandler),
     ('/error', ErrorHandler)
 
 ], debug=True)

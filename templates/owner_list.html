@@ -1,0 +1,135 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="full-background rest">
+
+	<div class="top-bar">
+			<div class="bar-background"></div>
+			<div class="menu-button">
+				<button class="img-btn"></button>
+				<div class="user-menu-small clickable">
+					<div class="user-picture"></div>
+					<div class="text-bold user-name">{{ lang['welcome']}}<br/>{{user.first_name}} </div>
+				</div>
+			</div>
+			<div class="rest-logo"></div>
+		</div>
+		
+		<div class="left-menu scrollable">
+			<div class="user-menu clickable">
+				<div class="user-picture"></div>
+				<h2 class="text-bold user-name">{{ lang['welcome']}} {{user.first_name}}</h2>
+			</div>
+			<br/>
+		
+			<ul class="menu-items">
+				<li><button class="img-btn" id="back">{{ lang['back']}}</button></li>
+			</ul>
+	
+		</div>
+		
+		<div class="rest-container ">
+			<h2 id="title">Your restaurants: </h2>
+			<ul class="rest-list scrollable">
+				{% for rest in places %}
+				<li class="rest-item">
+					<div class="rest-details">
+						<div class="text-bold name">{{ rest.name if not rest.name is none }}</div>
+						<div class=" address">
+							{{ rest.address.street~', '~ rest.address.city if not rest.address is none}}
+						</div>
+						<img class="rest-image" src="{{ rest.picture if not rest.picture is none else '/static/images/empty_small.png'}}" />
+					</div>
+					<div class="rest-actions">
+						<form action="/restaurant">
+							<input type="hidden" name="id" value="{{rest.key|e}}"/>
+							<input type="submit" class="img-btn" value="View" />
+						</form>
+						<form action="/restaurant/edit">
+							<input type="hidden" name="id" value="{{rest.key|e}}"/>
+							<input type="submit" class="img-btn" value="Edit" />
+						</form>
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
+			
+		</div>
+</div>
+
+
+
+
+{% endblock %} {% block scripts %}
+<script type="text/javascript"
+	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
+<script type="text/javascript">
+
+$(window).ready(function() {
+	var window_height = $('.rest').height();
+	var bar_height = $('.top-bar').height();
+	var title_height = $('#title').height();
+	$('.rest-container.scrollable').height(window_height - bar_height - title_height - 40);
+	
+});
+
+	$(window).load(function() {
+		
+		
+		$('.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-red',
+		    verticalHandleClass: 'handle-red'
+		});
+		
+		
+		
+		$('.left-menu').hide();
+		var window_width = $('.letsgo').width();
+		var count = 1;
+		$('.menu-button button').click(function(){
+			if(count % 2 == 1){
+				//odd time --> open left menu
+				$('.left-menu').show();
+				if(window_width > 600){
+					$('.user-menu-small').hide();
+				}
+				$('.scrollable').enscroll({
+				    showOnHover: false,
+				    verticalScrolling: true,
+					horizontalScrolling: false,
+					zIndex: 100,
+				    verticalTrackClass: 'track-white',
+				    verticalHandleClass: 'handle-white'
+				});
+				count++;
+			} else {
+				//even time --> close left menu
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+				count++;
+			}
+			
+		});
+		
+		var userpic = user.picture;
+		if(userpic != undefined && userpic.length > 0){	
+			$('.user-picture').css('background-image', 'url(' + userpic + ')');
+		}
+		
+		$('.user-menu, .user-menu-small').click(function(){
+			window.location = '/profile/1';
+		});
+		
+
+	});
+</script>
+
+
+{% endblock %}
+		

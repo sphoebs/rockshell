@@ -22,7 +22,7 @@
 			<br/>
 		
 			<ul class="menu-items">
-				{% if user.role == 'admin' %}
+				{% if user.role == 'admin' or place.owner == user.key %}
 					<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
 				{% endif %}
 				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
@@ -34,7 +34,7 @@
 		</div>
 	
 		<div class="rest-container scrollable">
-			<img class="picture" src="/static/images/empty_small.png">
+			<img class="picture" style="background-image: url(/static/images/empty_small.png)">
 		
 			<h2>{{place.name}}</h2>
 			

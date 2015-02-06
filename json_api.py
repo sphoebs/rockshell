@@ -136,21 +136,23 @@ class UserLoginHandler(webapp2.RequestHandler):
 class PlaceListHandler(webapp2.RequestHandler):
 
     def get(self):
-        get_values = self.request.GET
-        
         auth = self.request.headers.get("Authorization")
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
         user_id = logic.get_current_userid(auth)
         
-        logging.info("GET PLACES filters: " + str(get_values))
-        if not get_values:
-            get_values = None
-        else:
-            filters = {}
-            filters['city'] = get_values.get('city')
-        # plist is already in json.
-        plist, status = logic.place_list_get(filters, user_id)
+        if 'owned' not in self.request.url:
+            get_values = self.request.GET
+            logging.info("GET PLACES filters: " + str(get_values))
+            if not get_values:
+                get_values = None
+            else:
+                filters = {}
+                filters['city'] = get_values.get('city')
+            # plist is already in json.
+            plist, status = logic.place_list_get(filters, user_id)
+        else :
+            plist, status = logic.place_owner_list(user_id)
 
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
@@ -160,6 +162,10 @@ class PlaceListHandler(webapp2.RequestHandler):
             self.response.write(status)
 
     def post(self):
+        if 'owned' in self.request.url:
+            self.response.set_status(405)
+            return
+        
         logging.info("Received new place to save: " + self.request.body)
 #         auth = self.request.headers.get("Authorization")
 #         if auth is None or len(auth) < 1:
@@ -188,21 +194,53 @@ class PlaceListHandler(webapp2.RequestHandler):
 class PlaceHandler(webapp2.RequestHandler):
 
     def get(self, pid):
-        if pid.isdigit():
-            l_pid = long(pid)
-            logging.info("Received get place : " + str(l_pid))
-            place, status = logic.place_get(l_pid)
-            if status == "OK":
-                self.response.headers['Content-Type'] = 'application/json'
-                self.response.write(json.dumps(Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[])))
-            else:
-                self.response.set_status(404)
-                self.response.write(status)
+        if 'owner' in self.request.url:
+            self.response.set_status(405) 
+            return
+        logging.info("Received get place : " + str(pid))
+        place, status = logic.place_get(None, pid)
+        if status == "OK":
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps(Place.to_json(place, None,None)))
+        else:
+            self.response.set_status(404)
+            self.response.write(status)
+        
+            
+    def post(self, pid):
+        if 'owner' not in self.request.url:
+            self.response.set_status(405) 
+            return
+        
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        if auth is None:
+            req_id = None
+        else:
+            req_id = logic.get_current_userid(auth)
+        if req_id is None:
+            self.response.set_status(403)
+            self.response.write("You must login first!")
+            return
+        
+        #the body contains at least the email of the user to be set as owner of the place
+        body = json.loads(self.request.body)
+        user = PFuser.from_json(body)
+        place, status = logic.place_set_owner(pid, user.email, req_id)
+        if status == "OK":
+            self.response.set_status(201)
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.write(json.dumps(Place.to_json(place, None,None)))
         else:
             self.response.set_status(400)
-            self.response.write("Invalid place id, it must be a number")
+            self.response.write(status)
+
 
     def put(self, pid):
+        if 'owner' in self.request.url:
+            self.response.set_status(405) 
+            return
 #         auth = self.request.headers.get("Authorization")
 #         if auth is None or len(auth) < 1:
 #             auth = self.request.cookies.get("user")
@@ -229,6 +267,9 @@ class PlaceHandler(webapp2.RequestHandler):
 
 
     def delete(self, pid):
+        if 'owner' in self.request.url:
+            self.response.set_status(405) 
+            return
         res = Place.delete(Place.make_key(None, pid))
         if res == True:
             self.response.write("The place " + pid + " has been deleted successfully")
@@ -274,7 +315,9 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/user', handler=UserHandler),
     webapp2.Route(r'/api/user/login', handler=UserLoginHandler),
     webapp2.Route(r'/api/place', handler=PlaceListHandler),
+    webapp2.Route(r'/api/place/owned', handler=PlaceListHandler),
     webapp2.Route(r'/api/place/<pid>', handler=PlaceHandler),
+    webapp2.Route(r'/api/place/<pid>/owner', handler=PlaceHandler),
     webapp2.Route(r'/api/rating', handler=RatingHandler)
 ],
     debug=True

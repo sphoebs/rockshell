@@ -470,9 +470,6 @@ li.rest-item {
 .rest-item div.rest-details {
 	display: block;
 	width: 100%;
-	/* display: inline-block;
-	width: 45%;
-	vertical-align: top; */
 	margin-top: 10px;
 }
 
@@ -485,14 +482,14 @@ li.rest-item {
 	margin: 0 0 5px 0;
 }
 
-.rest-item .rest-details .rest-image {
+.rest-item .rest-details .rest-image{
 	max-height: 230px;
 	width: 90%;
 	height: auto;
 }
 
 .rest-item div.rest-ratings {
-	display: inline-block;
+	display: block;
 	width: 100%;
 	margin-top: 15px;
 }
@@ -1201,6 +1198,18 @@ input.days-input {
 
 /* RESTAURANT END */
 
+/* OWNER REST LIST */
+
+.rest-item div.rest-actions {
+	display: block;
+	width: 100%;
+	margin-top: 15px;
+}
+
+
+
+/* OWNER REST LIST END */
+
 
 /* media queries*/
 @media screen and (min-width: 500px) and (max-width: 980px) {
@@ -1356,8 +1365,15 @@ input.days-input {
 	.top-bar .menu-button .user-menu-small {
 		display: block;
 	}
-	/* letsgo */
+	/* letsgo end */
 	
+	/* owner list */
+	.rest-item div.rest-actions {
+		display: inline-block;
+		width: 45%;
+		margin-left: 10px;
+	}
+	/* owner list end */
 }
 
 @media screen and (min-width: 980px) {
