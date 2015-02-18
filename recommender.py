@@ -72,7 +72,7 @@ def load_data(filters):
     """
     if debug:
         logging.info('recommender.load_data START - filters=' + str(filters))
-    ratings, status = logic.rating_list_get(filters)
+    ratings, status, errcode = logic.rating_list_get(filters)
     if status != "OK":
         return None
 
@@ -606,8 +606,12 @@ def find_clusters(ratings, clusters):
             clusters[
                 'cluster_' + str(Cluster.get_next_id())] = clusters[cluster1] + clusters[cluster2]
             Cluster.increment_next_id()
-            Cluster.delete(Cluster.make_key(cluster1))
-            Cluster.delete(Cluster.make_key(cluster2))
+            try:
+                Cluster.delete(Cluster.make_key(cluster1))
+                Cluster.delete(Cluster.make_key(cluster2))
+            except TypeError, e:
+                logging.error("Error deleting clusters or making their keys: " + str(e))
+            
             try:
                 del clusters[cluster1]
             except KeyError:
@@ -667,8 +671,10 @@ def build_clusters(ratings, clusters=None):
         init_cluster_sim_matrix(ratings, clusters)
         # compute required clusters, according to defined threshold
         find_clusters(ratings, clusters)
-
-    Cluster.store_all(clusters)
+    try:
+        Cluster.store_all(clusters)
+    except (TypeError, ValueError) as e :
+        logging.error("Error while calling Cluster.store_all: " + str(e))
 #     return clusters, user2cluster_map
     if debug:
         logging.info('recommender.build_clusters END: ' + str(clusters))
@@ -811,8 +817,10 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
         # clusters have already been computed.
         if debug:
             logging.info("clusters: " + str(clusters))
-
-        user_cluster = Cluster.get_cluster_for_user(user)
+        try:
+            user_cluster = Cluster.get_cluster_for_user(user)
+        except TypeError, e:
+            logging.error("Error getting cluster for user " + str(user) + ": " + str(e))
         if user_cluster is None or len(user_cluster.keys()) != 1:
             # the user is not in a cluster, no personalized recommendation can be
             # computed for him
@@ -898,7 +906,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     
     # places is already a json list
     #TODO: get places for a larger area and filter after, to avoid making multiple queries (check inside the method)
-    places, status = logic.place_list_get(filters, user_id)
+    places, status, errcode = logic.place_list_get(filters, user_id)
     if debug:
         logging.info("RECOMMEND places loaded ")
 
@@ -1072,7 +1080,10 @@ class UpdatesHandler(webapp2.RequestHandler):
             client.set(rec_name, None)
             
             #update clusters
-            cluster = Cluster.get_cluster_for_user(user)
+            try:
+                cluster = Cluster.get_cluster_for_user(user)
+            except TypeError, e:
+                logging.error("Error while getting cluster for user " + str(user) + ": " + str(e))
             if cluster is not None and len(cluster.keys()) == 1:
                 if debug:
                     logging.info("User cluster: " + str(cluster))
@@ -1083,7 +1094,10 @@ class UpdatesHandler(webapp2.RequestHandler):
                 if len(clusers) == 0:
                     # the cluster is empty, remove it
                     remove_cluster_sim_matrix([clid])
-                    Cluster.delete(Cluster.make_key(clid))
+                    try:
+                        Cluster.delete(Cluster.make_key(clid))
+                    except (TypeError, ValueError) as e:
+                        logging.error("Error while deleting cluster or making its key: " + str(e))
                 else:
                     # update similarity of this cluster, since now it has one
                     # user less (1 row and 1 column)
@@ -1096,9 +1110,15 @@ class UpdatesHandler(webapp2.RequestHandler):
 
             # add new cluster for the updated user
             clid = 'cluster_' + str(Cluster.get_next_id())
-            new_cluster = {clid: [user]}
-            Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
             Cluster.increment_next_id()
+            new_cluster = {clid: [user]}
+            try:
+                Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
+            except (TypeError, ValueError) as e:
+                logging.info("Error while saving cluster " + str(e))
+            except Exception, e:
+                logging.info("Error ehile converting cluster from json " + str(e))
+            
 
         # run other steps of hierarchical clustering
         clusters = Cluster.get_all_clusters_dict()
@@ -1107,7 +1127,10 @@ class UpdatesHandler(webapp2.RequestHandler):
                      'updateshandler.get -- user have been moved, iteration still to do: ' + str(clusters))
         clusters = find_clusters(ratings, clusters)
         Cluster.delete_all()
-        Cluster.store_all(clusters)
+        try:
+            Cluster.store_all(clusters)
+        except (TypeError, ValueError) as e:
+                logging.info("Error while saving clusters " + str(e))
         # TODO: update only new/updated clusters?
         init_cluster_sim_matrix(ratings, clusters)
 
@@ -1194,8 +1217,6 @@ class RecommenderHandler(webapp2.RequestHandler):
             self.response.write(json.dumps([]))
             return
 
-#         json_list = [Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone',
-#                                            'price_avg', 'service', 'address', 'hours', 'days_closed'], []) for place in places]
         json_list = places
         # add distance to user for each place
         if 'lat' in filters and 'lon' in filters:

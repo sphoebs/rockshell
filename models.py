@@ -5,6 +5,7 @@ Created on Sep 15, 2014
 '''
 import fix_path
 import types
+import exceptions
 from datetime import datetime
 from google.appengine.ext import ndb
 from google.appengine.api.datastore_types import GeoPt
@@ -14,8 +15,33 @@ import logging
 from __builtin__ import staticmethod
 
 
-
 index = search.Index(name='places')
+
+
+def code_generator(used_codes):
+    """
+    Generates a random string of 5 characters
+
+    Input parameters:
+    - used_codes: list of codes already used, the new one should not be in the list
+
+    Return value: str of 5 characters
+    Exceptions: CodeException, if the generator is not able to find a unique string within 20 attempts
+    """
+    import string
+    import random
+    res = ''.join(random.SystemRandom().choice(
+        string.ascii_uppercase + string.digits) for _ in range(5))
+    i = 1
+    while res in used_codes:
+        if i > 20:
+            raise exceptions.CodeException(
+                "Not able to generate a new code in reasonable time.")
+        res = ''.join(random.SystemRandom().choice(
+            string.ascii_uppercase + string.digits) for _ in range(5))
+        i += 1
+    return res
+
 
 class PFmodel(ndb.Model):
 
@@ -34,9 +60,15 @@ class PFmodel(ndb.Model):
 
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
+        Exceptions: TypeError if the input parameters are not of the correct type
         """
         if not isinstance(obj_type, types.ClassType) and not isinstance(obj, obj_type):
-            return None
+            raise TypeError('obj_type must be a ClassType and obj must be an object of that class!')
+
+        if allowed is not None and not isinstance(allowed, list) and not all(isinstance(n, (str, unicode)) for n in allowed):
+            raise TypeError('allowed must be a list of strings, i.e. a list of names of properties for the object.')
+        if hidden is not None and not isinstance(hidden, list) and not all(isinstance(n, (str, unicode)) for n in hidden):
+            raise TypeError('hidden must be a list of strings, i.e. a list of names of properties for the object.')
 
         res = obj.to_dict()
         if obj.key is not None:
@@ -79,22 +111,27 @@ class PFmodel(ndb.Model):
         If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
 
         Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type
         """
         if obj_id is not None:
             if not isinstance(obj_id, (str, unicode, long)):
-                return None
+                raise TypeError(
+                    "obj_id must be str, unicode or long, instead it is " + str(type(obj_id)))
             else:
                 if class_name is None or not isinstance(class_name, str):
-                    return None
+                    raise TypeError(
+                        "class_name must be a str, instead it is " + str(type(class_name)))
                 return ndb.Key(class_name, obj_id)
 
-        if url_encoded is not None:
+        elif url_encoded is not None:
             if not isinstance(url_encoded, (str, unicode)):
-                return None
+                raise TypeError(
+                    "url_encoded must be str or unicode, instead it is " + str(type(url_encoded)))
             else:
                 return ndb.Key(urlsafe=url_encoded)
-
-        return None
+        else:
+            # obj_id and url_encoded are not set! TODO: raise exception?
+            return None
 
     @staticmethod
     def is_valid(obj):
@@ -134,10 +171,11 @@ class PFmodel(ndb.Model):
         - key: the ndb key identifying the object to retrieve.
 
         Return value: object of this class.
-
+        Exceptions: TypeError id the input parameter is of the wrong type
         """
         if not isinstance(key, ndb.Key):
-            return None
+            raise TypeError(
+                "key must be ndb.Key, instead it is " + str(type(key)))
 
         return key.get()
 
@@ -166,11 +204,13 @@ class PFmodel(ndb.Model):
         Return value: boolean.
 
         It returns True if the object has been deleted, False if delete is not allowed.
+        Exceptions: TypeError if the input parameter is of the wrong type
         """
         if not isinstance(key, ndb.Key):
-            return None
+            raise TypeError(
+                "key must be ndb.Key, instead it is " + str(type(key)))
 
-        delete_allowed = ('Place')
+        delete_allowed = ['Place']
         kind = key.kind()
         if kind in delete_allowed:
             key.delete()
@@ -209,6 +249,7 @@ class Address(PFmodel):
 
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
         """
         res = PFmodel.to_json(obj, Address, allowed, hidden)
         if res is not None and 'location' in res.keys():
@@ -226,10 +267,12 @@ class Address(PFmodel):
         - json_dict: the dict containing the information received from a json string.
 
         Return value: Address or None if the input dict contains wrong data.
-
+        Exceptions: TypeError if parameter is of the wrong type;
+                    Exceptions raised from res.populate()
         """
         if not isinstance(json_dict, dict):
-            return None
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
 
         if 'lat' in json_dict.keys() and 'lon' in json_dict.keys():
             lat = float(json_dict['lat'])
@@ -241,13 +284,13 @@ class Address(PFmodel):
 
         res = Address()
 
-        try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
-            res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating Address from json: " + str(e))
-            return None
+#         try:
+        # populate raises exceptions if the keys and values in json_dict
+        # are not valid for this object.
+        res.populate(**json_dict)
+#         except Exception as e:
+#             logging.error("Error while creating Address from json: " + str(e))
+#             return None
 
         return res
 
@@ -263,6 +306,7 @@ class Address(PFmodel):
         If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
 
         Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
         """
         return PFmodel.make_key(obj_id, url_encoded, 'Address')
 
@@ -305,84 +349,64 @@ class Address(PFmodel):
         else:
             return True, None
 
-    @staticmethod
-    def store(obj, key):
-        """
-        It creates or updates the address, according to presence and validity of the key.
-
-        Parameters:
-        - obj: the address to store
-        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
-
-        Return value: Address
-        """
-        if not isinstance(obj, Address):
-            return None
-
-        valid, wrong_list = Address.is_valid(obj)
-        if not valid:
-            logging.error("Invalid input data: " + str(wrong_list))
-            return None
-
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Address') > -1:
-            # key is valid --> update
-            db_obj = key.get()
-            if db_obj is None:
-                logging.info("Updating address - NOT FOUND " + str(key))
-                return None
-
-            objdict = obj.to_dict()
-            
-            NOT_ALLOWED = ['id', 'key']
-
-            for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED:
-                    return None
-                if hasattr(db_obj, key):
-                    try:
-                        setattr(db_obj, key, value)
-                    except:
-                        return None
-            
-                else:
-                    return None
-                
-            db_obj.put()
-            return db_obj
-
-        else:
-            # key is not valid --> create
-            obj.put()
-            return obj
-
-
+# Address is only present into other entities, it is never created alone
 #     @staticmethod
-#     def get_by_key(key):
+#     def store(obj, key):
 #         """
-#         It retrieves the object by key.
+#         It creates or updates the address, according to presence and validity of the key.
 #
 #         Parameters:
-#         - key: the ndb key identifying the object to retrieve.
+#         - obj: the address to store
+#         - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
 #
-#         Return value: object of this class.
+#         For updates, only allowed attributes are updated, while the others are ignored.
+#
+#         Return value: Address
+#         Exceptions: TypeError if the input parameters are of the wrong type;
+#                     ValueError if the input obj has wrong values;
+#                     InvalidKeyException if the key does not correspond to a valid Address;
 #
 #         """
-#         if key is not None and isinstance(key, ndb.Key) and key.kind().find('Address') > -1:
-#             return key.get()
+#         valid, wrong_list = Address.is_valid(obj)
+#         if not valid:
+#             logging.error("Invalid input data: " + str(wrong_list))
+#             if len(wrong_list)<1:
+#                 raise TypeError('obj must be Address, instead it is ' + str(type(obj)))
+#             else :
+#                 raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
+#
+#         if key is not None:
+#             if not( isinstance(key, ndb.Key) and key.kind().find('Address') > -1):
+#                 raise TypeError('key must be a valid key for an Address, it is ' + str(key))
+# key is valid --> update
+#             db_obj = key.get()
+#             if db_obj is None:
+#                 logging.info("Updating address - NOT FOUND " + str(key))
+#                 raise exceptions.InvalidKeyException('key does not correspond to any Address')
+#
+#             objdict = obj.to_dict()
+#
+#             NOT_ALLOWED = ['id', 'key']
+#
+#             for key, value in objdict.iteritems():
+#                 if key in NOT_ALLOWED:
+#                     continue
+#                 if hasattr(db_obj, key):
+#                     try:
+#                         setattr(db_obj, key, value)
+#                     except ValueError:
+#                         continue
+#
+#                 else:
+#                     continue
+#
+#             db_obj.put()
+#             return db_obj
+#
 #         else:
-#             return None
-
-#     @staticmethod
-#     def get_list(filters):
-#         """
-#         It retrieves a list of Addresses satisfying the characteristics described in filter.
-#
-#         Parameters:
-#         - filters: a dict containing the characteristics the objects in the resulting list should have.
-#
-#         Return value: list of Address.
-#         """
-#         return None
+# key is not valid --> create
+#             obj.put()
+#             return obj
 
 
 class Hours(PFmodel):
@@ -414,6 +438,7 @@ class Hours(PFmodel):
 
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
         """
         res = PFmodel.to_json(obj, Hours, allowed, hidden)
 
@@ -425,7 +450,7 @@ class Hours(PFmodel):
             res['open2'] = res['open2'].strftime('%H:%M')
         if 'close2' in res.keys():
             res['close2'] = res['close2'].strftime('%H:%M')
-#         logging.info('Converting hours to json: ' + str(res))
+
         return res
 
     @staticmethod
@@ -437,10 +462,11 @@ class Hours(PFmodel):
         - json_dict: the dict containing the information received from a json string.
 
         Return value: Hours or None if the input dict contains wrong data.
-
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
         """
         if not isinstance(json_dict, dict):
-            return None
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
 
         res = Hours()
 
@@ -469,13 +495,13 @@ class Hours(PFmodel):
             except ValueError:
                 del json_dict['close2']
 
-        try:
+#         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
-            res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating Hours from json: " + str(e))
-            return None
+        res.populate(**json_dict)
+#         except Exception as e:
+#             logging.info("Error while creating Hours from json: " + str(e))
+#             return None
 
         return res
 
@@ -491,6 +517,7 @@ class Hours(PFmodel):
         If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
 
         Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
         """
         return PFmodel.make_key(obj_id, url_encoded, 'Hours')
 
@@ -547,99 +574,82 @@ class Hours(PFmodel):
         else:
             return True, None
 
-    @staticmethod
-    def store(obj, key):
-        """
-        It creates or updates the Hours object, according to presence and validity of the key.
-
-        Parameters:
-        - obj: the Hours object to store
-        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
-
-        Return value: Hours
-        """
-        if not isinstance(obj, Hours):
-            return None
-
-        valid, wrong_list = Hours.is_valid(obj)
-        if not valid:
-            logging.error("Invalid input data: " + str(wrong_list))
-            return None
-
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Hours') > -1:
-            # key is valid --> update
-            db_obj = key.get()
-            if db_obj is None:
-                logging.info("Updating hours - NOT FOUND " + str(key))
-                return None
-
-            objdict = obj.to_dict()
-            
-            NOT_ALLOWED = ['id', 'key']
-
-            for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED:
-                    return None
-                if hasattr(db_obj, key):
-                    try:
-                        setattr(db_obj, key, value)
-                    except:
-                        return None
-            
-                else:
-                    return None
-                
-            db_obj.put()
-            return db_obj
-
-        else:
-            # key is not valid --> create
-            obj.put()
-            return obj
-
-
+# Hours is only used within other entities, it is never stored separately.
 #     @staticmethod
-#     def get_by_key(key):
+#     def store(obj, key):
 #         """
-#         It retrieves the object by key.
-#
+#         It creates or updates the Hours object, according to presence and validity of the key.
+# 
 #         Parameters:
-#         - key: the ndb key identifying the object to retrieve.
-#
-#         Return value: object of this class.
-#
+#         - obj: the Hours object to store
+#         - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+# 
+#         For updates, only allowed attributes are updated, while the others are ignored.
+# 
+#         Return value: Hours
+#         Exceptions: TypeError if the input parameters are of the wrong type;
+#                     ValueError if the input obj has wrong values;
+#                     InvalidKeyException if the key does not correspond to a valid Hours;
 #         """
-#         if key is not None and isinstance(key, ndb.Key) and key.kind().find('Address') > -1:
-#             return key.get()
+#         valid, wrong_list = Hours.is_valid(obj)
+#         if not valid:
+#             logging.error("Invalid input data: " + str(wrong_list))
+#             if len(wrong_list) < 1:
+#                 raise TypeError(
+#                     'obj must be Hours, instead it is ' + str(type(obj)))
+#             else:
+#                 raise ValueError(
+#                     'Wrong values for the following attributes: ' + str(wrong_list))
+# 
+#         if key is not None:
+#             if not(isinstance(key, ndb.Key) and key.kind().find('Hours') > -1):
+#                 raise TypeError('key must be a valid key for an Hours, it is ' + str(key))
+#             
+#             # key is valid --> update
+#             db_obj = key.get()
+#             if db_obj is None:
+#                 logging.info("Updating hours - NOT FOUND " + str(key))
+#                 raise exceptions.InvalidKeyException('key does not correspond to a valid Hours')
+# 
+#             objdict = obj.to_dict()
+# 
+#             NOT_ALLOWED = ['id', 'key']
+# 
+#             for key, value in objdict.iteritems():
+#                 if key in NOT_ALLOWED:
+#                     continue
+#                 if hasattr(db_obj, key):
+#                     try:
+#                         setattr(db_obj, key, value)
+#                     except:
+#                         continue
+# 
+#                 else:
+#                     continue
+# 
+#             db_obj.put()
+#             return db_obj
+# 
 #         else:
-#             return None
+#             # key is not valid --> create
+#             obj.put()
+#             return obj
 
-#     @staticmethod
-#     def get_list(filters):
-#         """
-#         It retrieves a list of Addresses satisfying the characteristics described in filter.
-#
-#         Parameters:
-#         - filters: a dict containing the characteristics the objects in the resulting list should have.
-#
-#         Return value: list of Address.
-#         """
-#         return None
-    
 
 class Settings(PFmodel):
+
     """
     Collects user's settings for recommendations.
-    
+
     """
     purpose = ndb.StringProperty(choices=[
-                                 "dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"], indexed = False)
-    max_distance = ndb.IntegerProperty(indexed = False)
-    num_places = ndb.IntegerProperty(indexed = False)
-    
+                                 "dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"], indexed=False)
+    max_distance = ndb.IntegerProperty(indexed=False)
+    num_places = ndb.IntegerProperty(indexed=False)
+
     created = ndb.DateTimeProperty(auto_now_add=True)
     updated = ndb.DateTimeProperty(auto_now=True)
-    
+
     @staticmethod
     def to_json(obj):
         """ 
@@ -652,8 +662,11 @@ class Settings(PFmodel):
 
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
+        
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
         """
-        res = PFmodel.to_json(obj, Settings, ['purpose', 'max_distance', 'num_places'], ['created','updated'])
+        res = PFmodel.to_json(
+            obj, Settings, ['purpose', 'max_distance', 'num_places'], ['created', 'updated'])
 
         return res
 
@@ -666,19 +679,21 @@ class Settings(PFmodel):
         - json_dict: the dict containing the information received from a json string.
 
         Return value: object of this class.
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
         """
         if not isinstance(json_dict, dict):
-            return None
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
 
         res = Settings()
 
-        try:
+#         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
-            res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating Settings from json: " + str(e))
-            return None
+        res.populate(**json_dict)
+#         except Exception as e:
+#             logging.info("Error while creating Settings from json: " + str(e))
+#             return None
 
         return res
 
@@ -696,6 +711,7 @@ class Settings(PFmodel):
         If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
 
         Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
         """
         return PFmodel.make_key(obj_id, url_encoded, 'Settings')
 
@@ -716,7 +732,7 @@ class Settings(PFmodel):
 
         if obj.max_distance is not None and obj.max_distance < 100:
             wrong_list.append('max_distance')
-            
+
         if obj.num_places is not None and obj.num_places < 1:
             wrong_list.append('num_places')
 
@@ -725,112 +741,68 @@ class Settings(PFmodel):
         else:
             return True, None
 
-    @staticmethod
-    def store(obj, key):
-        """
-        It creates or updates the settings, according to presence and validity of the key.
-
-        Parameters:
-        - obj: the settings to store
-        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
-
-        Return value: Settings
-        """
-        if not isinstance(obj, Settings):
-            return None
-
-        valid, wrong_list = Settings.is_valid(obj)
-        if not valid:
-            logging.error("Invalid input data: " + str(wrong_list))
-            return None
-
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Settings') > -1:
-            # key is valid --> update
-            db_obj = key.get()
-            if db_obj is None:
-                logging.info("Updating settings - NOT FOUND " + str(key))
-                return None
-
-            objdict = obj.to_dict()
-            
-            NOT_ALLOWED = ['id', 'key']
-
-            for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED:
-                    return None
-                if hasattr(db_obj, key):
-                    try:
-                        setattr(db_obj, key, value)
-                    except:
-                        return None
-            
-                else:
-                    return None
-                
-            db_obj.put()
-
-        else:
-            # key is not valid --> create
-            obj.put()
-            return obj
-
+# Settings is only present into other entities, it is never created alone
 #     @staticmethod
-#     def get_by_key(key):
+#     def store(obj, key):
 #         """
-#         It retrieves the object by key.
+#         It creates or updates the settings, according to presence and validity of the key.
 # 
 #         Parameters:
-#         - key: the ndb key identifying the object to retrieve.
+#         - obj: the settings to store
+#         - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
 # 
-#         Return value: object of this class.
+#         For updates, only allowed attributes are updated, while the others are ignored.
 # 
+#         Return value: Settings
+#         Exceptions: TypeError if the input parameters are of the wrong type;
+#                     ValueError if the input obj has wrong values;
+#                     InvalidKeyException if the key does not correspond to a valid Settings;
 #         """
-#         if not isinstance(key, ndb.Key):
-#             return None
+#         valid, wrong_list = Settings.is_valid(obj)
+#         if not valid:
+#             logging.error("Invalid input data: " + str(wrong_list))
+#             if len(wrong_list)<1:
+#                 raise TypeError('obj must be Settings, instead it is ' + str(type(obj)))
+#             else :
+#                 raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
 # 
-#         return key.get()
+#         if key is not None:
+#             if not( isinstance(key, ndb.Key) and key.kind().find('Settings') > -1):
+#                 raise TypeError('key must be a valid key for Settings, it is ' + str(key))
+#             # key is valid --> update
+#             db_obj = key.get()
+#             if db_obj is None:
+#                 logging.info("Updating settings - NOT FOUND " + str(key))
+#                 raise exceptions.InvalidKeyException('key does not correspond to any Settings')
 # 
-#     @staticmethod
-#     def get_list(filters):
-#         """
-#         It retrieves a list of objects satisfying the characteristics described in filter.
+#             objdict = obj.to_dict()
 # 
-#         Parameters:
-#         - filters: a dict containing the characteristics the objects in the resulting list should have.
+#             NOT_ALLOWED = ['id', 'key']
 # 
-#         Return value: list of objects of this class.
+#             for key, value in objdict.iteritems():
+#                 if key in NOT_ALLOWED:
+#                     continue
+#                 if hasattr(db_obj, key):
+#                     try:
+#                         setattr(db_obj, key, value)
+#                     except:
+#                         continue
 # 
-#         It is empty in the parent class.
-#         """
-#         pass
+#                 else:
+#                     continue
 # 
-#     @staticmethod
-#     def delete(key):
-#         """
-#         It deletes the object referenced by the key.
+#             db_obj.put()
 # 
-#         Parameters:
-#         - key: the ndb.Key that identifies the object to delete (both kind and id needed).
-# 
-#         Return value: boolean.
-# 
-#         It returns True if the object has been deleted, False if delete is not allowed.
-#         """
-#         if not isinstance(key, ndb.Key):
-#             return None
-# 
-#         delete_allowed = ('Place')
-#         kind = key.kind()
-#         if kind in delete_allowed:
-#             key.delete()
-#             return True
-#         return False
+#         else:
+#             # key is not valid --> create
+#             obj.put()
+#             return obj
 
 
-    
 class PFuser(PFmodel):
 
-    """Represents a user, with full profile
+    """
+    Represents a user, with full profile
 
     """
 
@@ -863,8 +835,8 @@ class PFuser(PFmodel):
     # list of cities visited in the last year, address is only partialluy
     # defined, as before
     visited_city = ndb.StructuredProperty(Address, repeated=True)
-    settings = ndb.StructuredProperty(Settings, indexed = False)
-    
+    settings = ndb.StructuredProperty(Settings, indexed=False)
+
     role = ndb.StringProperty()
 
 #     rating = ndb.StructuredProperty(Rating, repeated=True)
@@ -900,7 +872,8 @@ class PFuser(PFmodel):
                     user.full_name = user_response['name']
                 if user.locale != user_response['locale']:
                     user.locale = user_response['locale']
-                picture = 'http://graph.facebook.com/{0}/picture'.format(user_response['id'])
+                picture = 'http://graph.facebook.com/{0}/picture'.format(
+                    user_response['id'])
                 if user.picture != picture:
                     user.picture = picture
 
@@ -918,7 +891,8 @@ class PFuser(PFmodel):
                 user.email = user_response['email']
                 user.full_name = user_response['name']
                 user.locale = user_response['locale']
-                user.picture = 'http://graph.facebook.com/{0}/picture'.format(user_response['id'])
+                user.picture = 'http://graph.facebook.com/{0}/picture'.format(
+                    user_response['id'])
                 status.append('user_added')
 
             else:
@@ -937,8 +911,7 @@ class PFuser(PFmodel):
             user_query = PFuser.query(ndb.OR(
                 PFuser.fb_user_id == user_response['id'],
                 PFuser.email == user_response['email'].lower()
-            )
-            )
+            ))
             user = user_query.get()
             if user and user.google_user_id:
 
@@ -996,6 +969,8 @@ class PFuser(PFmodel):
 
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
+        
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
         """
         # add to hidden those properties that we never want to show
         hidden.extend(('fb_user_id', 'fb_access_token', 'google_user_id',
@@ -1003,12 +978,15 @@ class PFuser(PFmodel):
         res = PFmodel.to_json(obj, PFuser, allowed, hidden)
 
         if 'home' in res.keys():
-            res['home'] = Address.to_json(Address.from_json(res['home']), allowed, hidden)
+            res['home'] = Address.to_json(
+                Address.from_json(res['home']), allowed, hidden)
         if 'visited_city' in res.keys():
             for city in res['visited_city']:
-                city = Address.to_json(Address.from_json(city), allowed, hidden)
+                city = Address.to_json(
+                    Address.from_json(city), allowed, hidden)
         if 'settings' in res.keys():
-            res['settings'] = Settings.to_json(Settings.from_json(res['settings']))
+            res['settings'] = Settings.to_json(
+                Settings.from_json(res['settings']))
 
         return res
 
@@ -1021,10 +999,11 @@ class PFuser(PFmodel):
         - json_dict: the dict containing the information received from a json string.
 
         Return value: PFuser or None if the input dict contains wrong data.
-
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
         """
         if not isinstance(json_dict, dict):
-            return None
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
 
         res = PFuser()
 
@@ -1036,13 +1015,13 @@ class PFuser(PFmodel):
         if 'settings' in json_dict.keys():
             json_dict['settings'] = Settings.from_json(json_dict['settings'])
 
-        try:
+#         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
             res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating PFuser from json: " + str(e))
-            return None
+#         except Exception as e:
+#             logging.info("Error while creating PFuser from json: " + str(e))
+#             return None
 
         return res
 
@@ -1058,6 +1037,7 @@ class PFuser(PFmodel):
         If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
 
         Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
         """
         return PFmodel.make_key(obj_id, url_encoded, 'PFuser')
 
@@ -1097,7 +1077,7 @@ class PFuser(PFmodel):
                     obj.gender = 'F'
                 else:
                     wrong_list.append('gender')
-                    
+
         if obj.settings is not None:
             valid, wrong_settings = Settings.is_valid(obj.settings)
             if not valid:
@@ -1113,19 +1093,22 @@ class PFuser(PFmodel):
     def create(obj):
         """
         It creates a new PFuser, needed only to upload testing data and initial expert data
-        
+
         Parameters:
         - obj: the PFuser to store
-        
-        Return value: PFuser
-        """
-        if not isinstance(obj, PFuser):
-            return None
 
+        Return value: PFuser
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
+        """
         valid, wrong_list = PFuser.is_valid(obj)
         if not valid:
             logging.error("Invalid input data: " + str(wrong_list))
-            return None
+            if len(wrong_list)<1:
+                raise TypeError('obj must be PFuser, instead it is ' + str(type(obj)))
+            else :
+                raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
+            
         user_id = "CA_" + obj.user_id
         key = ndb.Key('PFuser', user_id)
         user = PFuser(key=key)
@@ -1148,50 +1131,61 @@ class PFuser(PFmodel):
         - obj: the PFuser to store
         - key: key of the user to update
 
+        For updates, only allowed attributes are updated, while the others are ignored.
+
         Return value: PFuser
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
+                    InvalidKeyException if the key does not correspond to a valid PFuser;
         """
-        if not isinstance(obj, PFuser):
-            return None
 
         valid, wrong_list = PFuser.is_valid(obj)
         if not valid:
             logging.error("Invalid input data: " + str(wrong_list))
-            return None
+            if len(wrong_list)<1:
+                raise TypeError('obj must be PFuser, instead it is ' + str(type(obj)))
+            else :
+                raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
 
-        logging.info('Storing user of kind ' + str(key.kind()))
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1:
-            logging.info('key is valid!!')
-            
+        if key is not None:
+            if not ( isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1):
+                raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
+                
+#             logging.info('key is valid!!')
+
             # key is valid --> update
             db_obj = key.get()
             if db_obj is None:
                 logging.info("Updating PFuser - NOT FOUND " + str(key))
-                return None
+                raise exceptions.InvalidKeyException('key does not correspond to any PFuser')
 
             objdict = obj.to_dict()
-            
-            NOT_ALLOWED = ['id', 'key', 'user_id', 'fb_user_id', 'fb_access_token', 'google_user_id', 'google_access_token', 'created', 'updated', 'email']
+
+            NOT_ALLOWED = ['id', 'key', 'user_id', 'fb_user_id', 'fb_access_token',
+                           'google_user_id', 'google_access_token', 'created', 'updated', 'email']
 
             for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED or value is None: #TODO: let value to be None??
+                # TODO: let value to be None??
+                if key in NOT_ALLOWED or value is None:
                     continue
                 if key == 'settings':
                     settings = Settings()
                     settings.populate(**objdict['settings'])
-                    logging.info("UPDATED user SETTINGS: " + str(settings) + " -- " + str(objdict['settings']))
+                    logging.info(
+                        "UPDATED user SETTINGS: " + str(settings) + " -- " + str(objdict['settings']))
                     db_obj.settings = settings
                 elif hasattr(db_obj, key):
                     try:
                         setattr(db_obj, key, value)
                     except:
-                        return None
-            
+                        continue
+
                 else:
                     continue
-                
+
             db_obj.put()
-            
-            logging.info('object stored correctly!!')
+
+#             logging.info('object stored correctly!!')
             return db_obj
 
         else:
@@ -1207,13 +1201,16 @@ class PFuser(PFmodel):
         - key: the ndb key identifying the object to retrieve.
 
         Return value: PFuser
+        Exceptions: TypeError if the input parameter is of the wrong type
 
         """
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1:
+        if key is not None:
+            if not ( isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1):
+                raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
             return key.get()
         else:
             return None
-        
+
     @staticmethod
     def get_by_email(email):
         """
@@ -1223,24 +1220,16 @@ class PFuser(PFmodel):
         - email: the string email to identify the user.
 
         Return value: PFuser
-
+        Exceptions: TypeError, if the input is of the wrong type
         """
-        if email is None or not isinstance(email, (str, unicode)) or len(email) <1:
+        if email is None:
             return None
+        if not isinstance(email, (str, unicode)) or len(email) < 1:
+            raise TypeError('email must be str or unicode and it should contain at least some characters, it is ' + str(email))
         user = PFuser.query().filter(PFuser.email == email).get()
         return user
 
-#     @staticmethod
-#     def get_list(filters):
-#         """
-#         It retrieves a list of PFusers satisfying the characteristics described in filter.
-#
-#         Parameters:
-#         - filters: a dict containing the characteristics the objects in the resulting list should have.
-#
-#         Return value: list of PFusers.
-#         """
-#         return None
+
 
 class Place(PFmodel):
 
@@ -1261,9 +1250,8 @@ class Place(PFmodel):
     address = ndb.StructuredProperty(Address)
     hours = ndb.StructuredProperty(Hours, repeated=True)
     days_closed = ndb.DateProperty(repeated=True)
-    
+
     owner = ndb.KeyProperty(PFuser)
-    
 
     @staticmethod
     def to_json(obj, allowed, hidden):
@@ -1280,6 +1268,7 @@ class Place(PFmodel):
         If allowed is None, this method acts as all fields are present in allowed.
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
         """
         res = PFmodel.to_json(obj, Place, allowed, hidden)
 
@@ -1303,16 +1292,18 @@ class Place(PFmodel):
         return res
 
     @staticmethod
-    def list_to_json(place_list):
+    def list_to_json(place_list, allowed, hidden):
         """
-        It converts a list of Places into a list of dict objects, ready for transformation into json string,
+        It converts a list of Places into a list of dict objects, ready for transformation into json string
+        Exceptions: TypeError if parameters are of the wrong type (also from Place.to_json())
         """
         if not isinstance(place_list, list):
-            return None
-        
+            raise TypeError(
+                "place_list must be list, instead it is " + str(type(place_list)))
+
         res = []
         for place in place_list:
-            res.append(Place.to_json(place, None, None))
+            res.append(Place.to_json(place, allowed, hidden))
         return res
 
     @staticmethod
@@ -1324,10 +1315,11 @@ class Place(PFmodel):
         - json_dict: the dict containing the information received from a json string.
 
         Return value: Place or None if the input dict contains wrong data.
-
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
         """
         if not isinstance(json_dict, dict):
-            return None
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
 
         res = Place()
 
@@ -1350,13 +1342,13 @@ class Place(PFmodel):
                     del day
             json_dict['days_closed'] = dlist
 
-        try:
+#         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
             res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating Place from json: " + str(e))
-            return None
+#         except Exception as e:
+#             logging.info("Error while creating Place from json: " + str(e))
+#             return None
 
         return res
 
@@ -1372,6 +1364,7 @@ class Place(PFmodel):
         If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
 
         Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
         """
         return PFmodel.make_key(obj_id, url_encoded, 'Place')
 
@@ -1417,55 +1410,65 @@ class Place(PFmodel):
         Parameters:
         - obj: the Place to store
         - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+        
+        For updates, only allowed attributes are updated, while the others are ignored.
 
         Return value: Place
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
+                    InvalidKeyException if the key does not correspond to a valid Place;
         """
-        if not isinstance(obj, Place):
-            return None
-
         valid, wrong_list = Place.is_valid(obj)
         if not valid:
             logging.error("Invalid input data: " + str(wrong_list))
-            return None
+            if len(wrong_list)<1:
+                raise TypeError('obj must be Place, instead it is ' + str(type(obj)))
+            else :
+                raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
 #         logging.info("Place.store: key=" + str(key))
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
+        if key is not None:
+            if not(isinstance(key, ndb.Key) and key.kind().find('Place') > -1):
+                raise TypeError('key must be a valid key for a Place, it is ' + str(key))
+                
             # key is valid --> update
-#             logging.info("Updating place " + str(key))
+            #             logging.info("Updating place " + str(key))
             db_obj = key.get()
             if db_obj is None:
                 logging.info("Updating place - NOT FOUND " + str(key))
-                return None
+                raise exceptions.InvalidKeyException('key does not correspond to any Place')
 
             objdict = obj.to_dict()
-            
-            NOT_ALLOWED = ['id', 'key', 'service', 'ext_id', 'ext_source', 'owner']
+
+            NOT_ALLOWED = [
+                'id', 'key', 'service', 'ext_id', 'ext_source', 'owner']
 
             for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED: 
+                if key in NOT_ALLOWED:
                     continue
                 if hasattr(db_obj, key):
                     try:
                         setattr(db_obj, key, value)
                     except:
                         continue
-            
+
                 else:
                     continue
-                
+
             db_obj.put()
-            
+
             return db_obj
 
         else:
             # key is not valid --> create
-#             logging.info("Creating new place ")
+            #             logging.info("Creating new place ")
             obj.put()
             if obj.address is not None and obj.address.location is not None:
-                geopoint = search.GeoPoint(obj.address.location.lat, obj.address.location.lon)
+                geopoint = search.GeoPoint(
+                    obj.address.location.lat, obj.address.location.lon)
                 fields = [search.GeoField(name='location', value=geopoint)]
                 d = search.Document(doc_id=obj.key.urlsafe(), fields=fields)
                 search.Index(name='places').put(d)
-            
+
             return obj
 
     @staticmethod
@@ -1477,10 +1480,13 @@ class Place(PFmodel):
         - key: the ndb key identifying the object to retrieve.
 
         Return value: Place
-
+        Exceptions: TypeError if the input parameter is of the wrong type
         """
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
-            return key.get()
+        if key is not None:
+            if isinstance(key, ndb.Key) and key.kind().find('Place') > -1:
+                return key.get()
+            else:
+                raise TypeError('key must be a valid key for a Place, it is ' + str(key))
         else:
             return None
 
@@ -1501,52 +1507,89 @@ class Place(PFmodel):
             or if a bigger reagion is considered [example: 'null!TN!null!Italy' retrieves all places in the province of Trento]
         - 'lat', 'lon' and 'max_dist': lat and lon indicates the user position, while max_dist is a measure expressed in meters 
             and represnt the radius of the circular region the user is interested in. 
-            
+
         Return value: list of Places in json format, with personal user information added.
+        Exceptions: TypeError if input parameters are of the wrong type;
+                    ValueError if the filters values are not valid
         """
 
-        logging.info('Place.get_list -- getting places with filters: ' + str(filters))
+        logging.info(
+            'Place.get_list -- getting places with filters: ' + str(filters))
 
         if filters is not None and not isinstance(filters, dict):
-            logging.error('Filters MUST be stored in a dictionary!! The received filters are wrong!!')
-            return None
+            logging.error(
+                'Filters MUST be stored in a dictionary!! The received filters are wrong!!')
+            raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
 
-        
-        
         if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
-            #the three parameters must come all together
+            # the three parameters must come all together
+            if isinstance(filters['lat'], float):
+                filters['lat'] = str(filters['lat'])
+            elif isinstance(filters['lat'], (str, unicode)):
+                try:
+                    float(filters['lat'])
+                except ValueError:
+                    raise ValueError('filters->lat should be a string representing a float, instead it is a string: ' + str(filters['lat']))
+            else:        
+                raise TypeError('filters->lat should be a float or a string representing a float, instead it is ' + str(type(filters['lat'])))
             
-            #map all place fields to document and add all other filters here.
-#             index = search.Index(name="places")
-#             query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
-#             logging.info("Place.get_list -- getting places with query " + str(query))
-#             result = index.search(query)
-#             places = [ Place.make_key(None, d.doc_id) for d in result.results]
+            if isinstance(filters['lon'], float):
+                filters['lon'] = str(filters['lon'])
+            elif isinstance(filters['lon'], (str, unicode)):
+                try:
+                    float(filters['lon'])
+                except ValueError:
+                    raise ValueError('filters->lon should be a string representing a float, instead it is a string: ' + str(filters['lon']))
+            else:        
+                raise TypeError('filters->lon should be a float or a string representing a float, instead it is ' + str(type(filters['lon'])))
+                 
+            if isinstance(filters['max_dist'], float):
+                filters['max_dist'] = str(filters['max_dist'])
+            elif isinstance(filters['max_dist'], int):
+                filters['max_dist'] = str(filters['max_dist'])
+            elif isinstance(filters['max_dist'], (str, unicode)):
+                try:
+                    max_dist = float(filters['max_dist'])
+                except ValueError:
+                    try:
+                        max_dist = int(filters['max_dist'])
+                    except ValueError:
+                        raise ValueError('filters->max_dist should be a string representing a float or a int, instead it is a string: ' + str(filters['lat']))
+            else:        
+                raise TypeError('filters->max_dist should be a float, a int or a string representing a float or a int, instead it is ' + str(type(filters['lat'])))
+           
+            
             places = []
-            logging.info("Place.get_list -- found places " + str(len(places)))
+#             logging.info("Place.get_list -- found places " + str(len(places)))
             num = 0
-            max_dist = float(filters['max_dist'])
-            # request plaes until one is obtained, increasing the distance.
+            # request places until one is obtained, increasing the distance.
             while len(places) < 1 and num < 5:
-                # no places within that area, try to get something by extending area of max_dist for maximum 5 times.
+                # no places within that area, try to get something by extending
+                # area of max_dist for maximum 5 times.
                 max_dist += max_dist
-                query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], max_dist)
-                logging.info("Place.get_list -- getting places with query " + str(query))
+                query = "distance(location, geopoint(%s, %s)) < %s" % (
+                    filters['lat'], filters['lon'], max_dist)
+                logging.info(
+                    "Place.get_list -- getting places with query " + str(query))
                 result = index.search(query)
-                places = [ Place.make_key(None, d.doc_id) for d in result.results]
-                logging.info("Place.get_list -- found places " + str(len(places)))
-                num  += 1
-                
+                places = [Place.make_key(None, d.doc_id)
+                          for d in result.results]
+                logging.info(
+                    "Place.get_list -- found places " + str(len(places)))
+                num += 1
+
             if places is None or len(places) < 1:
-                #even extending the area did not work
+                # even extending the area did not work
                 return None
-            
+
             dblist = Place.query(Place.key.IN(places))
-            
-        else :
+
+        else:
             dblist = Place.query()
 
-        if 'city' in filters.keys() and isinstance(filters['city'], (str, unicode)):
+        if 'city' in filters.keys():
+            if not isinstance(filters['city'], (str, unicode)):
+                raise TypeError('filters->city must be a string, it is ' + str(type(filters['city'])))
             pieces = filters['city'].split("!")
             if len(pieces) == 4:
                 # apply filter only if its content is valid
@@ -1555,32 +1598,31 @@ class Place(PFmodel):
                 num = 1
                 if pieces[3] != 'null':
                     gql_str += ' address.country = :' + str(num)
-                    num = num+1
+                    num = num + 1
                     params.append(pieces[3])
                 if pieces[2] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
                     gql_str += ' address.state = :' + str(num)
-                    num = num+1
+                    num = num + 1
                     params.append(pieces[2])
                 if pieces[1] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
                     gql_str += ' address.province = :' + str(num)
-                    num = num+1
+                    num = num + 1
                     params.append(pieces[1])
                 if pieces[0] != 'null':
                     if not gql_str.endswith('WHERE '):
                         gql_str += ' AND '
                     gql_str += 'address.city = :' + str(num)
-                    params.append(pieces[0]) 
-                
+                    params.append(pieces[0])
+
                 logging.info('Getting places with query: ' + gql_str)
 
                 dblist = Place.gql(gql_str, *params)
-
-        
-
+            else:
+                raise ValueError('filters->city is not well formatted! It should be <city>!<province>!<state>!<country> with "null" fir the missing parameters.')
         # executes query only once and store the results
         # Never use fetch()!
         dblist = list(dblist)
@@ -1588,81 +1630,115 @@ class Place(PFmodel):
         futures = []
         if user_id is not None:
             for place in dblist:
-                future = Rating.query(ndb.AND(Rating.user == PFuser.make_key(user_id,None), Rating.place == place.key)).fetch_async()
+                future = Rating.query(ndb.AND(Rating.user == PFuser.make_key(
+                    user_id, None), Rating.place == place.key)).fetch_async()
                 futures.append(future)
-                
-            
+
             for future in futures:
                 ratings = future.get_result()
                 ratings = Rating.list_to_json(ratings)
-                
+
                 if len(ratings) > 0:
                     place_key = ratings[0]['place']
                     for place in reslist:
                         if place['key'] == place_key:
                             place['ratings'] = ratings
-                            break;
+                            break
 
         return reslist
 
     @staticmethod
     def get_list_by_keys(keys):
+        """
+        Gets the list of places given the list of their keys.
+        
+        Parameters:
+        - keys: a list of ndb.Key for Places
+        
+        Return value: list of Place objects
+        Exceptions: TypeError if the parameter is of the wrong type
+        """
+        if not isinstance(keys, list):
+            raise TypeError('keys must be a list, it is ' + str(type(keys)))
+        else:
+            if not all( isinstance(key, ndb.Key) and key.kind().find('Place') < 0 for key in keys):
+                raise TypeError('keys in the list must be valid keys for Places.')
         
         dblist = Place.query(Place.key.IN(keys))
         return list(dblist)
-    
+
     @staticmethod
     def set_owner(place_key_str, user_id, requester_id):
+        """
+        Sets the owner of the Place
+        
+        Parameters:
+        - place_key_str: the urlsafe string representing the key of the Place
+        - user_id: the string id of the user to be set as owner
+        - requester_id: the string id of the user that is asking to set the user_id as owner of the place. 
+        Only admins are allowed to request this action.
+        It change also the role of the user to owner.
+        
+        Return value: the Place with updated information
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError is the input place key and user id do not correspond to real Place and PFuser
+                    UnauthorizedException if the requester cannot perform this action;
+                    
+        """
+        #validation of make_key parame is done within the function, no need to redo here
         requester = PFuser.make_key(requester_id, None).get()
         if requester is None or requester.role != 'admin':
-            return None
-        
+            raise exceptions.UnauthorizedException("Only admins can perform set_owner for a Place, the requester has role " + str(requester.role))
+
         place = Place.make_key(None, place_key_str).get()
         if place is None:
-            return None
+            # place key is not valid
+            raise ValueError("place_key_str does not correspond to a stored Place!")
+        
         user = PFuser.make_key(user_id, None).get()
         if user is None:
-            return None
-        
+            # user_id is not valid
+            raise ValueError("user_id does not correspond to a stored User!")
+
+        #TODO: this would need a transaction but they are not in the same entity group.
         user.role = 'owner'
         user.put()
-        
+
         place.owner = user.key
         place.put()
         return place
-        
-    
+
     @staticmethod
     def get_owner_places(user_id):
+        """
+        Gets all Places that have the user as owner.
         
+        Parameters:
+        - user_id: string id of the PFuser, which is a owner
+        
+        Return value: list of Places. If the user is not a owner, the list is empty.
+        Exceptions: TypeError if input parameter is of the wrong type (from PFuser.make_key())
+        """
         key = PFuser.make_key(user_id, None)
-        q = Place.query().filter(Place.owner == key);
+        q = Place.query().filter(Place.owner == key)
         places = []
         for p in q:
             places.append(p)
+            
         return places
-        
-    
+
 
 class Rating(PFmodel):
-    user = ndb.KeyProperty(PFuser)
-    place = ndb.KeyProperty(Place)
-    purpose = ndb.StringProperty(choices=[
-                                 "dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"])
+    _valid_ratings = [1.0, 3.0, 5.0]
+    _valid_purpose = ["dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"]
+    
+    user = ndb.KeyProperty(kind=PFuser)
+    place = ndb.KeyProperty(kind=Place)
+    purpose = ndb.StringProperty(choices=_valid_purpose)
     value = ndb.FloatProperty(required=True, default=0)
     not_known = ndb.BooleanProperty(required=True, default=False)
     creation_time = ndb.DateTimeProperty(auto_now=True)
 
-    __valid_ratings = [1.0, 3.0, 5.0]
-
-#     def to_json(self):
-#         tmp = self.to_dict()
-#         tmp['place_id'] = self.place.id()
-#         tmp['user_id'] = self.user.id()
-#         del tmp['place']
-#         del tmp['user']
-#         del tmp['creation_time']
-#         return dict(tmp)
 
     @staticmethod
     def to_json(obj, allowed, hidden):
@@ -1678,8 +1754,9 @@ class Rating(PFmodel):
 
         If a property appears in both allowed and hidden, hidden wins and the property is not returned.
         'key' is converted to urlsafe.
+        
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
         """
-        # TODO: add to hidden those properties that we never want to show
         res = PFmodel.to_json(obj, Rating, allowed, hidden)
 
         if 'user' in res.keys():
@@ -1689,17 +1766,18 @@ class Rating(PFmodel):
         if 'creation_time' in res.keys():
             res['creation_time'] = res[
                 'creation_time'].strftime('%Y-%m-%d %H:%M')
-        
+
         return res
-    
+
     @staticmethod
     def list_to_json(rating_list):
         """
-        It converts a list of Rating into a list of dict objects, ready for transformation into json string,
+        It converts a list of Rating into a list of dict objects, ready for transformation into json string
+        Exceptions: TypeError if parameters are of the wrong type (also from Rating.to_json())
         """
-        if not isinstance(rating_list, list):
-            return None
-        
+        if not isinstance(rating_list, list) or not all(isinstance(n, Rating) for n in rating_list):
+            raise TypeError('rating_list must be a list of Rating objects.')
+
         res = []
         for rating in rating_list:
             res.append(Rating.to_json(rating, None, None))
@@ -1714,10 +1792,11 @@ class Rating(PFmodel):
         - json_dict: the dict containing the information received from a json string.
 
         Return value: Place or None if the input dict contains wrong data.
-
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
         """
         if not isinstance(json_dict, dict):
-            return None
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
 
         res = Rating()
 
@@ -1725,9 +1804,11 @@ class Rating(PFmodel):
             json_dict['user'] = PFuser.make_key(None, json_dict['user'])
         if 'place_id' in json_dict.keys():
             if json_dict['place_id'].isdigit():
-                json_dict['place'] = Place.make_key(long(json_dict['place_id']), None)
-            else :
-                json_dict['place'] = Place.make_key(None, json_dict['place_id'])
+                json_dict['place'] = Place.make_key(
+                    long(json_dict['place_id']), None)
+            else:
+                json_dict['place'] = Place.make_key(
+                    None, json_dict['place_id'])
             del json_dict['place_id']
         elif 'place' in json_dict.keys():
             json_dict['place'] = Place.make_key(None, json_dict['place'])
@@ -1741,13 +1822,13 @@ class Rating(PFmodel):
             except ValueError:
                 del json_dict['creation_time']
 
-        try:
+#         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
             res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating Rating from json: " + str(e))
-            return None
+#         except Exception as e:
+#             logging.info("Error while creating Rating from json: " + str(e))
+#             return None
 
         return res
 
@@ -1763,6 +1844,7 @@ class Rating(PFmodel):
         If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
 
         Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
         """
         return PFmodel.make_key(obj_id, url_encoded, 'Rating')
 
@@ -1782,7 +1864,7 @@ class Rating(PFmodel):
             return False, wrong_list
 
         # check value and not_known
-        if obj.value in obj.__valid_ratings:
+        if obj.value in obj._valid_ratings:
             # value valid
             if obj.not_known == True:
                 wrong_list.append('not_known')
@@ -1790,14 +1872,14 @@ class Rating(PFmodel):
             if obj.value != 0:
                 wrong_list.append('value')
             else:
-                # value indicates that this is a "I don't know" rating
+                # value=0 indicates that this is a "I don't know" rating
                 if obj.not_known == False:
                     wrong_list.append('not_known')
 
         # check user is in datastore?
         if obj.user is None or not isinstance(obj.user, ndb.Key):
             wrong_list.append('user')
-        else :
+        else:
             user = obj.user.get()
             if user is None:
                 wrong_list.append('user')
@@ -1805,7 +1887,7 @@ class Rating(PFmodel):
         # check place is in datastore?
         if obj.place is None or not isinstance(obj.place, ndb.Key):
             wrong_list.append('place')
-        else :
+        else:
             place = obj.place.get()
             if place is None:
                 wrong_list.append('place')
@@ -1816,31 +1898,34 @@ class Rating(PFmodel):
             return True, None
 
     @staticmethod
-    def store(obj, key):
+    def store(obj):
         """
         It creates or updates the Rating, according to its presence in the datastore
 
         Parameters:
         - obj: the Rating to store
-        - key: key is not used here
 
         Return value: Rating
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
         """
-        if not isinstance(obj, Rating):
-            return None
-
         valid, wrong_list = Rating.is_valid(obj)
         if not valid:
             logging.error("Invalid input data: " + str(wrong_list))
-            return None
+            if len(wrong_list) < 1:
+                raise TypeError(
+                    'obj must be Rating, instead it is ' + str(type(obj)))
+            else:
+                raise ValueError(
+                    'Wrong values for the following attributes: ' + str(wrong_list))
 
         rlist = Rating.get_list(
             {'user': obj.user.id(), 'place': obj.place.id(), 'purpose': obj.purpose})
         if len(rlist) == 1:
-            rlist[0].value = obj.value()
+            rlist[0].value = obj.value
             rlist[0].not_known = obj.not_known
-            rlist[0].creation_time = datetime.now()
             obj = rlist[0]
+        obj.creation_time = datetime.now()
         obj.put()
         return obj
 
@@ -1853,12 +1938,16 @@ class Rating(PFmodel):
         - key: the ndb key identifying the object to retrieve.
 
         Return value: Rating
-
+        Exceptions: TypeError if the input parameter is of the wrong type
         """
-        if key is not None and isinstance(key, ndb.Key) and key.kind().find('Rating') > -1:
-            return key.get()
+        if key is not None:
+            if isinstance(key, ndb.Key) and key.kind().find('Rating') > -1:
+                return key.get()
+            else:
+                raise TypeError('key must be a valid key for a Rating, it is ' + str(key))
         else:
             return None
+
 
     @staticmethod
     def get_list(filters):
@@ -1876,75 +1965,79 @@ class Rating(PFmodel):
         - 'purpose': the purpose
             setting only 'purpose', the function retrieves all the ratings added to any place by any user about this purpose
             usually it is used in combination with other filters
-        //- 'lat', latitude of user's position  REMOVED
-        //- 'lon', longitude of user's position  REMOVED
-        //- 'max_dist', maximum distance from user's position in meters  REMOVED
         - 'users' : list of user ids we are interested in
         - 'places' : list of place ids we are interested in
         Return value: list of Ratings.
+        Exceptions: TypeError if input parameters are of the wrong type;
+                    ValueError if the filters values are not valid;
+            exceptions are raised from "make_key" functions too.
         """
-        
-        if filters is not None and not isinstance(filters, dict):
-            return None
 
-        
-        
-#         if filters is not None and 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
-#             #the three parameters must come all together
-#             
-#             #map all place fields to document and add all other filters here.
-#             index = search.Index(name="places")
-#             query = "distance(location, geopoint(%s, %s)) < %s" % (filters['lat'], filters['lon'], filters['max_dist'])
-#             result = index.search(query)
-#             places = [ Place.make_key(None, d.doc_id) for d in result.results]
-#             
-#             dblist = Rating.query(Rating.place.IN(places))
-#             
-#             if 'purpose' in filters:
-#                 dblist = dblist.filter(Rating.purpose == filters['purpose'])
-#             
-#         else :
+        if filters is not None and not isinstance(filters, dict):
+            logging.error(
+                'Filters MUST be stored in a dictionary!! The received filters are wrong!!')
+            raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
+
+        if 'purpose' in filters:
+            if not filters['purpose'] in Rating._valid_purpose:
+                raise ValueError('filters->purpose is not one of the valid purposes: ' + str(filters['purpose']))
+
         dblist = Rating.query()
         if filters is not None and 'purpose' in filters:
             dblist = dblist.filter(Rating.purpose == filters['purpose'])
         if filters is not None and 'user' in filters:
-            dblist = dblist.filter(Rating.user == PFuser.make_key(filters['user'], None))
+            dblist = dblist.filter(
+                Rating.user == PFuser.make_key(filters['user'], None))
         if filters is not None and 'place' in filters:
-            dblist = dblist.filter(Rating.place == Place.make_key(None, filters['place']))
+            dblist = dblist.filter(
+                Rating.place == Place.make_key(None, filters['place']))
         if filters is not None and 'users' in filters:
-            dblist = dblist.filter(Rating.user.IN([PFuser.make_key(user, None) for user in filters['users']]))
+            dblist = dblist.filter(
+                Rating.user.IN([PFuser.make_key(user, None) for user in filters['users']]))
         if filters is not None and 'places' in filters:
-            dblist = dblist.filter(Rating.place.IN([Place.make_key(place, None) for place in filters['places']]))
-            
-        
+            dblist = dblist.filter(
+                Rating.place.IN([Place.make_key(place, None) for place in filters['places']]))
+
         # executes query only once and stores the results
         # Never use fetch()!
         dblist = list(dblist)
 
         return dblist
-    
+
     @staticmethod
-    def count(user_key = None, place_key = None):
+    def count(user_key=None, place_key=None):
+        """
+        Counts how many ratings a user added, a place received or a user added for a place.
+        
+        Parameters:
+        - user_key: a ndb.Key for the PFuser
+        - place_key: a ndb.Key for the Place
+        
+        Return value: int, the number of ratings
+        Exceptions: TypeError if the input parameters are of the wrong type
+        """
+        
         if user_key is not None and place_key is not None:
             if not isinstance(user_key, ndb.Key) or user_key.kind().find('PFuser') < 0 or not isinstance(place_key, ndb.Key) or place_key.kind().find('Place') < 0:
-                return None
+                raise TypeError("At least one of the input keys is not ndb.Key or is key for a different class: user=" + str(user_key) + " - place=" + str(place_key))
             return Rating.query(ndb.AND(Rating.user == user_key, Rating.place == place_key)).count()
-        elif user_key is not None: 
+        elif user_key is not None:
             if not isinstance(user_key, ndb.Key) or user_key.kind().find('PFuser') < 0:
-                return None
+                raise TypeError("user_key is not ndb.Key or is key for a different class: " + str(user_key))
             return Rating.query(Rating.user == user_key).count()
         elif place_key is not None:
             if not isinstance(place_key, ndb.Key) or place_key.kind().find('Place') < 0:
-                return None
+                raise TypeError("palce_key is not ndb.Key or is key for a different class: " + str(place_key))
             return Rating.query(Rating.place == place_key).count()
         else:
             return None
-    
+
+
 class Cluster(PFmodel):
     # id is stored in key: cluster_<number>
     # user= keys of users in the cluster
     users = ndb.StringProperty(repeated=True, indexed=True)
-    
+
     @staticmethod
     def to_json(obj):
         """ 
@@ -1956,9 +2049,13 @@ class Cluster(PFmodel):
         Return value: dict representation of the Cluster.
 
         Of 'key', only the id appears in the dict.
+        
+        Exceptions: TypeError
         """
-        if not isinstance(obj, Cluster):
+        if obj is None:
             return None
+        if not isinstance(obj, Cluster):
+            raise TypeError('obj must be a Cluster, instead it is ' + str(type(obj)))
 
         base_dict = obj.to_dict()
         res = {}
@@ -1974,35 +2071,37 @@ class Cluster(PFmodel):
         - json_dict: the dict containing the information received from a json string.
 
         Return value: Cluster.
+        Exceptions: TypeError, ValueError
         """
         if not isinstance(json_dict, dict):
-            return None
+            raise TypeError('json_dict must be a dict, instead it is ' + str(type(json_dict)))
         if len(json_dict.keys()) != 1:
-            return None
+            raise ValueError('json_dict must contain at least a key')
 
         cl_id = json_dict.keys()[0]
         cl = Cluster(key=Cluster.make_key(cl_id))
         cl.users = json_dict[cl_id]
         return cl
-        
+
     @staticmethod
     def make_key(obj_id):
         """
         It creates a Key object for this Cluster, with id obj_id.
 
         Parameters:
-        - obj_id: the object id. It can be a string or a long.
+        - obj_id: the Cluster id.
 
         Return value: ndb.Key.
+        Exceptions: TypeError
         """
         if obj_id is not None:
-            if not isinstance(obj_id, (str, unicode, long)):
-                return None
+            if not isinstance(obj_id, (str, unicode)):  # long?
+                raise TypeError('obj_id must be a string or a unicode, insead it is ' + str(type(obj_id)))
             else:
                 return ndb.Key(Cluster, obj_id)
         else:
             return None
-    
+
     @staticmethod
     def is_valid(obj):
         """
@@ -2014,18 +2113,18 @@ class Cluster(PFmodel):
         Return value: (boolean, list of strings representing invalid properties).
 
         It is empty in the parent class.
-        
+
         TODO (maybe not needed)
         """
         pass
-    
+
     @staticmethod
     def upload_all_to_memcache():
         """
         It get all clusters from the datastore and stores them in memcache after being converted to a dict.
-        
+
         It has no parameters.
-        
+
         Returns True if the clusters are added to memcache successfully and False if an error happens
         """
         client = memcache.Client()
@@ -2034,27 +2133,28 @@ class Cluster(PFmodel):
         for cl in clusters:
             cldict.update(Cluster.to_json(cl))
         # no expire time, we want it in memcache as long as possible
-        client.set(key='clusters', value = cldict)
+        client.set(key='clusters', value=cldict)
         return True
-        
+
     @staticmethod
-    def update_in_memcache(clusters, remove_old = False):
+    def update_in_memcache(clusters, remove_old=False):
         """
         Updates a list of clusters in the full list of clusters stored in memcache.
-        
+
         Parameters:
         - clusters: a list of clusters to be updated in the memcache. They should already be stored in the datastore. 
             If no clusters are found in memcache, they are collected from skratch from datastore and the input data is ignored.
-        
+
         Returns True if the update is successful and False if an error happens
+        Exceptions: TypeError, ValueError
         """
         if not isinstance(clusters, list):
-            return False
+            raise TypeError('clusters must be a list!')
         if len(clusters) < 1:
-            return False
-        if not isinstance(clusters[0], Cluster):
-            return False
-        
+            raise ValueError('clusters must contain at least one cluster to be updated!')
+        if not all(isinstance(cluster, Cluster) for cluster in clusters):
+            raise TypeError('elements in clusters must all be Cluster object!')
+
         client = memcache.Client()
         mc_clusters = client.gets('clusters')
         if mc_clusters is None:
@@ -2065,15 +2165,15 @@ class Cluster(PFmodel):
                 mc_clusters = {}
             for cl in clusters:
                 mc_clusters.update(Cluster.to_json(cl))
-            i = 0;
-            #try 20 times to save
-            while i<20:
-                i+=1
-                logging.info('CLUSTERS UPDATED TO STORE IN MEMCACHE: ' + str(mc_clusters))
+            i = 0
+            # try 20 times to save
+            while i < 20:
+                i += 1
+                logging.info(
+                    'CLUSTERS UPDATED TO STORE IN MEMCACHE: ' + str(mc_clusters))
                 if client.cas('clusters', mc_clusters):
                     return True
             return False
-        
 
     @staticmethod
     def store(obj, key):
@@ -2085,48 +2185,62 @@ class Cluster(PFmodel):
         - key: key for the object. If a Cluster with same key already exists, it is updated; otherwise, it is created.
 
         Return value: Cluster
+        Exceptions: TypeError, ValueError
         """
         if not isinstance(obj, Cluster):
-            return None
+            raise TypeError('obj must be a Cluster, instead it is ' + str(type(obj)))
         if key is None or not isinstance(key, ndb.Key) or key.kind().find('Cluster') < 0:
-            #key is required, but the input one is not valid
-            return None
+            # key is required, but the input one is not valid
+            raise TypeError('key must be set, must be a ndb.Key and must be a key for a Cluster object.')
         #save in datastore
         cluster = key.get()
         if cluster is not None:
             cluster.users = obj.users
         else:
-            cluster = Cluster(key=key, users = obj.users)
+            cluster = Cluster(key=key, users=obj.users)
         future = cluster.put_async()
-        
+
         #save in memcache
         done = Cluster.update_in_memcache([cluster])
         if not done:
-            #TODO: what do we do if the cluster is not updated in memcache?
+            # TODO: what do we do if the cluster is not updated in memcache?
             pass
         key = future.get_result()
         return cluster
-    
+
     @staticmethod
     def store_all(clusters_dict):
+        """
+        Makes the set of clusters be exactly the one in input, removing the missing ones and adding the new ones.
+        
+        Parameters:
+        - clusters_dict: a dictionary of clusters, each key refers to a cluster.
+        
+        Return value: no return value
+        Exceptions: TypeError, ValueError (from Cluster.from_json), 
+        """
         clusters = []
         if clusters_dict is None:
-            Cluster.update_in_memcache(clusters, remove_old=True)
+            #TODO: remove from datastore too?
+            Cluster.delete_all()
+#             Cluster.update_in_memcache(clusters, remove_old=True)
             return
-        
+        elif not isinstance(clusters_dict, dict):
+            raise TypeError('clusters_dict must be a dict, instead it is ' + str(type(clusters_dict)))
+
         for clid in clusters_dict:
             cldict = {clid: clusters_dict[clid]}
             cluster = Cluster.from_json(cldict)
             clusters.append(cluster)
-        
+
         futures = ndb.put_multi_async(clusters)
-        
-        #update memcache
+
+        # update memcache
         done = Cluster.update_in_memcache(clusters, remove_old=True)
         if not done:
-            #TODO: what do we do if the cluster is not updated in memcache?
+            # TODO: what do we do if the clusters are not updated in memcache?
             pass
-        
+
         for future in futures:
             future.get_result()
 
@@ -2139,14 +2253,14 @@ class Cluster(PFmodel):
         - key: the ndb key identifying the object to retrieve.
 
         Return value: dict representation of cluster
-
+        Exceptions: TypeError
         """
         if not isinstance(key, ndb.Key):
-            return None
-        
+            raise TypeError('key must be a ndb.Key, instead it is ' + str(type(key)))
+
         cid = key.id()
         client = memcache.Client()
-        
+
         clusters = client.get('clusters')
         if clusters is not None:
             logging.info('clusters loaded from memcache: ' + str(clusters))
@@ -2157,49 +2271,61 @@ class Cluster(PFmodel):
             Cluster.upload_all_to_memcache()
             return Cluster.to_json(cluster)
 
-        
     @staticmethod
     def get_cluster_for_user(user_id):
         """
         It gets the cluster in which the user is present.
-        
-        Return: dict representation of cluster 
+
+        Parameters:
+        - user_id: the id of the user whose cluster must be retrieved
+
+        Return value: dict representation of cluster 
+        Exceptions: TypeError
         """
-        logging.info('Cluster.get_cluster_for_user START - user:' + str(user_id))
+        logging.info(
+            'Cluster.get_cluster_for_user START - user:' + str(user_id))
         if not isinstance(user_id, (str, unicode)):
-            #wrong input for user_id
-            return None
+            raise TypeError('user_id should be a string or a unicode id for a PFuser')
+            
         client = memcache.Client()
         clusters = client.get('clusters')
         if clusters is not None:
-            logging.info('Cluster.get_cluster_for_user -- found clusters in memcache: ' + str(clusters))
+            logging.info(
+                'Cluster.get_cluster_for_user -- found clusters in memcache: ' + str(clusters))
             for clid in clusters:
                 users = clusters[clid]
                 if user_id in users:
-                    logging.info('Cluster.get_cluster_for_user -- found user cluster memcache: ' + str(clid))
+                    logging.info(
+                        'Cluster.get_cluster_for_user -- found user cluster memcache: ' + str(clid))
                     return {clid: users}
             # not found, search in datastore
-            cluster = Cluster.query(Cluster.users == user_id).fetch(1)
-            logging.info('Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
+            cluster = Cluster.query(Cluster.users == user_id).get()
+            logging.info(
+                'Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
             Cluster.upload_all_to_memcache()
-            
+
             return Cluster.to_json(cluster)
         else:
-            cluster = Cluster.query(Cluster.users == user_id).fetch(1)
-            logging.info('Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
+            cluster = Cluster.query(Cluster.users == user_id).get()
+            logging.info(
+                'Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
             Cluster.upload_all_to_memcache()
-            
+
             return Cluster.to_json(cluster)
-        
+
     @staticmethod
     def get_all_clusters_dict():
+        """
+        Retrieves all clusters as a dict.
+        
+        Return value: dict representation of clusters
+        """
         client = memcache.Client()
         clusters = client.get('clusters')
         if clusters is None:
             Cluster.upload_all_to_memcache()
             clusters = client.get('clusters')
         return clusters
-
 
     @staticmethod
     def delete(key):
@@ -2212,19 +2338,21 @@ class Cluster(PFmodel):
         Return value: boolean.
 
         It returns True if the Cluster has been deleted, False if an error happened.
+        
+        Exceptions: TypeError
         """
         logging.info('Cluster.delete START - key: ' + str(key))
         if not isinstance(key, ndb.Key) or key.kind().find('Cluster') < 0:
             logging.info('Cluster.delete END - invalid key')
-            return None
+            raise TypeError('key must be a ndb.Key for a Cluster object')
 
-        #delete from datastore
+        # delete from datastore
         future = key.delete_async()
-        
-        #delete from memcache
+
+        # delete from memcache
         client = memcache.Client()
         clusters = client.gets('clusters')
-        
+
         if clusters is None or len(clusters) < 1:
             future.get_result()
             Cluster.upload_all_to_memcache()
@@ -2234,38 +2362,44 @@ class Cluster(PFmodel):
             if key.id() in clusters:
                 del clusters[key.id()]
                 i = 0
-                while i< 20:
-                    i+=1
+                while i < 20:
+                    i += 1
                     if client.cas('clusters', clusters):
                         break
-            logging.info('Cluster.delete END - updated memcache: ' + str(client.get('clusters')))
+            logging.info(
+                'Cluster.delete END - updated memcache: ' + str(client.get('clusters')))
             future.get_result()
-            return True 
-            
-        
+            return True
+
     @staticmethod
     def delete_all():
         """
         It deletes all clusters. 
         Empty result
         """
-        #TODO: is fetch the fastest way to get them?
+        # TODO: is fetch the fastest way to get them?
         keys = ndb.gql('SELECT __key__ FROM Cluster').fetch()
         if keys is None:
+            # no clusters are stored, nothing to do
             return
         futures = ndb.delete_multi_async(keys)
-        
+
         client = memcache.Client()
         client.delete('clusters')
-        
+
         for future in futures:
             future.get_result()
-        
+
     @staticmethod
     def get_next_id():
+        """
+        Retrieves the id to be used for a new cluster.
+        
+        Return value: int, "cluster_<int>" will be the id for the next cluster that will be created
+        """
         logging.info('Cluster.get_next_id START')
         client = memcache.Client()
-        
+
         next_id = client.gets('next_cluster_id')
         if next_id is None:
             keys = ndb.gql('SELECT __key__ FROM Cluster').fetch()
@@ -2284,18 +2418,812 @@ class Cluster(PFmodel):
             else:
                 next_id = last_cluster_id + 1
             i = 0
-            while i<20: 
-                i+=1
+            while i < 20:
+                i += 1
                 if client.cas('next_cluster_id', next_id):
                     break
-        logging.info('Cluster.get_next_id - saved in memcache: ' + str(client.get('next_cluster_id'))) 
+        logging.info(
+            'Cluster.get_next_id - saved in memcache: ' + str(client.get('next_cluster_id')))
         logging.info('Cluster.get_next_id END - ' + str(next_id))
         return next_id
-    
+
     @staticmethod
     def increment_next_id():
+        """
+        Adds one to 'next_cluster_id' as it is stored in memcache.
+        Return value: int, next cluster id.
+        """
         client = memcache.Client()
-        next_id = client.incr('next_cluster_id', initial_value = 0)
+        next_id = client.incr('next_cluster_id', initial_value=0)
         return next_id
+
+
+class Coupon(PFmodel):
+    """
+    Represents the coupon given to a user that decided to take advantage of a Discount offered in a place.
+    """
+    user = ndb.KeyProperty(kind=PFuser)
+    code = ndb.StringProperty()
+    buy_time = ndb.DateTimeProperty(auto_now_add=True)
+    used = ndb.BooleanProperty(default=False)
+    usage_time = ndb.DateTimeProperty()
+    deleted = ndb.BooleanProperty(default=False)
+    delete_time = ndb.DateTimeProperty()
+
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Coupon in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of Coupon to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
+        """
+        res = PFmodel.to_json(obj, Coupon, allowed, hidden)
+        if res is not None and 'user' in res:
+            res['user'] = res['user'].urlsafe()
+        if 'buy_time' in res.keys():
+            res['buy_time'] = res[
+                'buy_time'].strftime('%Y-%m-%d %H:%M')
+        if 'usage_time' in res.keys():
+            res['usage_time'] = res[
+                'usage_time'].strftime('%Y-%m-%d %H:%M')
+        if 'delete_time' in res.keys():
+            res['delete_time'] = res[
+                'delete_time'].strftime('%Y-%m-%d %H:%M')
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Coupon.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Coupon or None if the input dict contains wrong data.
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
+        """
+        if not isinstance(json_dict, dict):
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
+
+        if 'user' in json_dict:
+            json_dict['user'] = PFuser.make_key(None, json_dict['user'])
+
+        if 'buy_time' in json_dict.keys():
+            try:
+                json_dict['buy_time'] = datetime.strptime(
+                    json_dict['buy_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['buy_time']
+        if 'usage_time' in json_dict.keys():
+            try:
+                json_dict['usage_time'] = datetime.strptime(
+                    json_dict['usage_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['usage_time']
+        if 'delete_time' in json_dict.keys():
+            try:
+                json_dict['delete_time'] = datetime.strptime(
+                    json_dict['delete_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['delete_time']
+
+        res = Coupon()
+
+#         try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+        res.populate(**json_dict)
+#         except Exception as e:
+#             logging.info("Error while creating Coupon from json: " + str(e))
+#             return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Coupon')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of <False, []> means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Coupon):
+            return False, wrong_list
+
+        if obj.user is None:
+            wrong_list.append('user')
+        else:
+            user = PFuser.get_by_key(obj.user)
+            if user is None:
+                wrong_list.append('user')
+
+        if obj.buy_time is None:
+            wrong_list.append('buy_time')
+        else:
+            if obj.usage_time is not None and obj.usage_time < obj.buy_time:
+                wrong_list.append('buy_time')
+                wrong_list.append('usage_time')
+            if obj.delete_time is not None and obj.delete_time < obj.buy_time:
+                wrong_list.append('buy_time')
+                wrong_list.append('delete_time')
+
+        if obj.used and obj.usage_time is None:
+            wrong_list.append('usage_time')
+            wrong_list.append('used')
+
+        if obj.used and obj.deleted:
+            wrong_list.append('deleted')
+
+        if obj.deleted and obj.delete_time is None:
+            wrong_list.append('delete_time')
+            wrong_list.append('deleted')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+# Coupon is never used outside of other models, never created alone.
+#     @staticmethod
+#     def store(obj, key):
+#         """
+#         It creates or updates the Coupon, according to presence and validity of the key.
+# 
+#         Parameters:
+#         - obj: the coupon to store
+#         - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+# 
+#         For updates, only allowed attributes are updated, while the others are ignored.
+# 
+#         Return value: Coupon
+#         Exceptions: TypeError if the input parameters are of the wrong type;
+#                     ValueError if the input obj has wrong values;
+#                     InvalidKeyException if the key does not correspond to a valid Coupon;
+#         """
+#         valid, wrong_list = Coupon.is_valid(obj)
+#         if not valid:
+#             logging.error("Invalid input data: " + str(wrong_list))
+#             if len(wrong_list)<1:
+#                 raise TypeError('obj must be Coupon, instead it is ' + str(type(obj)))
+#             else :
+#                 raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
+# 
+#         if key is not None:
+#             if not(isinstance(key, ndb.Key) and key.kind().find('Coupon') > -1):
+#                 raise TypeError('key must be a valid key for a Coupon, it is ' + str(key))
+#             # key is valid --> update
+#             db_obj = key.get()
+#             if db_obj is None:
+#                 logging.info("Updating coupon - NOT FOUND " + str(key))
+#                 raise exceptions.InvalidKeyException('key does not correspond to any Coupon')
+# 
+#             objdict = obj.to_dict()
+# 
+#             NOT_ALLOWED = ['id', 'key']
+# 
+#             for key, value in objdict.iteritems():
+#                 if key in NOT_ALLOWED:
+#                     continue
+#                 if hasattr(db_obj, key):
+#                     try:
+#                         setattr(db_obj, key, value)
+#                     except:
+#                         continue
+# 
+#                 else:
+#                     continue
+# 
+#             db_obj.put()
+#             return db_obj
+# 
+#         else:
+#             # key is not valid --> create
+#             obj.put()
+#             return obj
+
+
+class Discount(PFmodel):
+
+    title = ndb.StringProperty()
+    description = ndb.TextProperty()
+    place = ndb.KeyProperty(kind=Place)
+    num_coupons = ndb.IntegerProperty(indexed=False)
+    available_coupons = ndb.IntegerProperty()
+    coupons = ndb.StructuredProperty(Coupon, repeated=True)
+    created_by = ndb.KeyProperty(kind=PFuser)
+    creation_time = ndb.DateTimeProperty(auto_now_add=True)
+    published = ndb.BooleanProperty(default=False)
+    publish_time = ndb.DateTimeProperty()
+    end_time = ndb.DateTimeProperty()
+
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Discount in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of Discount to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
+        """
+        res = PFmodel.to_json(obj, Discount, allowed, hidden)
+        if 'coupons' in res:
+            tmp_coupons = []
+            for coupon in obj.coupons:
+                coupon = Coupon.to_json(coupon, None, None)
+                tmp_coupons.append(coupon)
+            res['coupons'] = tmp_coupons
+        if 'place' in res:
+            res['place'] = res['place'].urlsafe()
+        if 'created_by' in res:
+            res['created_by'] = res['created_by'].urlsafe()
+        if 'creation_time' in res.keys():
+            res['creation_time'] = res[
+                'creation_time'].strftime('%Y-%m-%d %H:%M')
+        if 'publish_time' in res.keys():
+            res['publish_time'] = res[
+                'publish_time'].strftime('%Y-%m-%d %H:%M')
+        if 'end_time' in res.keys():
+            res['end_time'] = res[
+                'end_time'].strftime('%Y-%m-%d %H:%M')
+
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Discount.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Discount or None if the input dict contains wrong data.
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
+        """
+        if not isinstance(json_dict, dict):
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
+
+        if 'place' in json_dict:
+            json_dict['place'] = Place.make_key(None, json_dict['place'])
+        if 'created_by' in json_dict:
+            json_dict['created_by'] = PFuser.make_key(
+                None, json_dict['created_by'])
+        if 'coupons' in json_dict.keys():
+            clist = []
+            for coupon in json_dict['coupons']:
+                coupon = Coupon.from_json(coupon)
+                clist.append(coupon)
+            json_dict['coupons'] = clist
+        if 'num_coupons' in json_dict.keys():
+            if isinstance(json_dict['num_coupons'], (str, unicode)):
+                json_dict['num_coupons'] = long(json_dict['num_coupons'])
+        if 'available_coupons' in json_dict.keys():
+            if isinstance(json_dict['available_coupons'], (str, unicode)):
+                json_dict['available_coupons'] = long(
+                    json_dict['available_coupons'])
+        if 'creation_time' in json_dict.keys():
+            try:
+                json_dict['creation_time'] = datetime.strptime(
+                    json_dict['creation_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['creation_time']
+        if 'publish_time' in json_dict.keys():
+            try:
+                json_dict['publish_time'] = datetime.strptime(
+                    json_dict['publish_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['publish_time']
+        if 'end_time' in json_dict.keys():
+            try:
+                json_dict['end_time'] = datetime.strptime(
+                    json_dict['end_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['end_time']
+
+        res = Discount()
+
+#         try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+        res.populate(**json_dict)
+#         except Exception as e:
+#             logging.info("Error while creating Coupon from json: " + str(e))
+#             return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Discount')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of <False, []> means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Discount):
+            return False, wrong_list
+
+        if obj.created_by is None:
+            wrong_list.append('created_by')
+        else:
+            user = PFuser.get_by_key(obj.created_by)
+            if user is None:
+                wrong_list.append('created_by')
+
+        if obj.place is None:
+            wrong_list.append('place')
+        else:
+            place = Place.get_by_key(obj.place)
+            if place is None:
+                wrong_list.append('place')
+
+        if obj.creation_time is None:
+            wrong_list.append('creation_time')
+        else:
+            if obj.publish_time is not None and obj.publish_time < obj.creation_time:
+                wrong_list.append('publish_time')
+            if obj.end_time is not None and obj.end_time < obj.creation_time:
+                wrong_list.append('end_time')
+
+        if obj.published and obj.publish_time is None:
+            wrong_list.append('publish_time')
+            wrong_list.append('published')
+
+        if obj.num_coupons > 0 and obj.available_coupons > obj.num_coupons:
+            wrong_list.append('available_coupons')
+
+        if obj.coupons is not None and len(obj.coupons) > 0:
+            for coupon in obj.coupons:
+                valid, wrong_coupon = Coupon.is_valid(coupon)
+                if not valid:
+                    for p in wrong_coupon:
+                        wrong_list.append('coupon.' + p)
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key, requester_id):
+        """
+        It creates or updates the Discount, according to presence and validity of the key.
+
+        Parameters:
+        - obj: the coupon to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+        - requester_id: id of the user that is trying to create or update the discount
+
+        For updates, only allowed attributes are updated, while the others are ignored.
+
+        Return value: Discount
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
+                    InvalidKeyException if the key does not correspond to a valid Discount, 
+                        or if the place key in the discount does not refer to a valid Place;
+                    UnauthorizedException if the requester is not the owner of the place
+        """
+        valid, wrong_list = Discount.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            if len(wrong_list)<1:
+                raise TypeError('obj must be Discount, instead it is ' + str(type(obj)))
+            else :
+                raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
+
+        # place should exist
+        place = Place.get_by_key(obj.place)
+        if place is None:
+            raise exceptions.InvalidKeyException("The place for the Discount does not exist!")
+        # only place owner can create/update
+        user_key = PFuser.make_key(requester_id, None)
+        if place.owner != user_key:
+            raise exceptions.UnauthorizedException("Only the owner of the place can create a Discount for it!")
+
+        if key is not None:
+            if not(isinstance(key, ndb.Key) and key.kind().find('Discount') > -1):
+                raise TypeError('key must be a valid key for a Discount, it is ' + str(key))
+            # key is valid --> update
+            db_obj = key.get()
+            if db_obj is None:
+                logging.info("Updating discount - NOT FOUND " + str(key))
+                raise exceptions.InvalidKeyException('key does not correspond to any Discount')
+
+            objdict = obj.to_dict()
+
+            NOT_ALLOWED = ['id', 'key', 'coupons', 'created_by', 'available_coupons',
+                           'publish_time', 'published', 'place', 'creation_time']
+
+            if db_obj.published == True:
+                NOT_ALLOWED.extend(['end_time', 'num_coupons'])
+
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED:
+                    continue
+                if key == 'num_coupons':
+                    setattr(db_obj, key, value)
+                    setattr(db_obj, 'available_coupons', value)
+                elif hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        continue
+
+                else:
+                    continue
+
+            db_obj.put()
+            return db_obj
+
+        else:
+            # key is not valid --> create
+
+            # add created_by
+            obj.created_by = user_key
+            obj.creation_time = datetime.now()
+            obj.coupons = []
+
+            obj.put()
+            return obj
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the Discount by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: Discount.
+        Exceptions: TypeError if the input parameter is of the wrong type
+        """
+        if key is not None:
+            if not ( isinstance(key, ndb.Key) and key.kind().find('Discount') > -1):
+                raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
+            return key.get()
+        else:
+            return None
+
+    @staticmethod
+    def get_list(filters):
+        """
+        It retrieves a list of Discounts satisfying the characteristics described in filter.
+
+        Parameters:
+        - filters: a dict containing the characteristics the objects in the resulting list should have.
+
+        Available filters:
+        - 'place': urlsafe key for the place
+        - 'coupon_user': user key as urlsafe string, returns only discounts for which the user has a coupon
+        - 'published': boolean, retrieves only published (True) or unpublished (False) discounts
+        - 'passed': boolean, retrieves only ended (True) or future (False) discounts
+
+        Return value: list of Discount objects.
+        Exceptions: TypeError if the input parameter is of the wrong type;
+            exceptions are raised also from make_key methods
+        """
+        if not isinstance(filters, dict):
+            raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
         
+        if 'published' in filters:
+            if isinstance(filters['published'], (str, unicode)):
+                if filters['published'].lower() == 'true':
+                    filters['published'] = True
+                elif filters['published'].lower() == 'false':
+                    filters['published'] = False
+            elif not isinstance(filters['published'], bool):
+                raise TypeError('filters->published must be a boolean or a string representation of a boolean value!')
+        if 'passed' in filters:
+            if isinstance(filters['passed'], (str, unicode)):
+                if filters['passed'].lower() == 'true':
+                    filters['passed'] = True
+                elif filters['passed'].lower() == 'false':
+                    filters['passed'] = False
+            elif not isinstance(filters['passed'], bool):
+                raise TypeError('filters->passed must be a boolean or a string representation of a boolean value!')
         
+        q = Discount.query()
+        if 'place' in filters:
+            q = q.filter(
+                Discount.place == Place.make_key(None, filters['place']))
+        if 'coupon_user' in filters:
+            q = q.filter(
+                Discount.coupons.user == PFuser.make_key(None, filters['coupon_user']))
+        if 'published' in filters:
+            q = q.filter(Discount.published == filters['published'])
+        if 'passed' in filters:
+            if filters['passed'] == True:
+                q = q.filter(Discount.end_time <= datetime.now())
+            else:
+                q = q.filter(Discount.end_time > datetime.now())
+        res = list(q)
+
+        return res
+
+    @staticmethod
+    def publish(discount_key, requester_id):
+        """
+        It makes the Discount public identified by the key, users can start to get coupons for it.
+
+        Parameters:
+        - discount_key: the ndb.Key for identifying the discount
+        - requester_id: the id of the user that asks to publish the discount. 
+        Only the owner of the place can publish discounts.
+
+        Return value: Discount, updated with the new values
+        
+        Exceptions: TypeError (from get_by_key())
+                    InvalidKeyException if the Discount does not refer to a valid Place
+                    UnauthorizedException if the requester is not the owner of the related Place
+        """
+
+        if requester_id is None:
+            raise exceptions.UnauthorizedException('The user must login before trying to publish a discount')
+        user_key = PFuser.make_key(requester_id, None)
+        
+        discount = Discount.get_by_key(discount_key)
+        if discount is None:
+            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+#         user = PFuser.get_by_key(user_key)
+#         if user is None:
+#             return None
+        place = Place.get_by_key(discount.place)
+        if place is None:
+            raise exceptions.InvalidKeyException('The discount does not refer to a valid Place!')
+        elif place.owner is None or place.owner != user_key:
+            raise exceptions.UnauthorizedException('Only the owner of the Place can publish discounts for it')
+        discount.published = True
+        discount.publish_time = datetime.now()
+        discount.put()
+        return discount
+
+    @staticmethod
+    def add_coupon(discount_key, user_id):
+        """
+        It creates a coupon for the user for this discount.
+        In a transaction, the coupon is added and the number of available coupons is updated.
+
+        Parameters:
+        - discount_key: the ndb.Key that identifyies the discount ot which the coupon refers to
+        - user_id: the id of the user that is buying the coupon
+
+        Return value: the created coupon
+        Exceptions: TypeError, from make_key and get_by_key
+                    UnauthorizedException if the requester is not the owner of the related Place;
+                    DiscountExpiredException if no more coupons are available for the discount or it already ended;
+                    CouponAlreadyBoughtException if the user already bought a coupon for this discount
+        """
+        if user_id is None:
+            raise exceptions.UnauthorizedException('The user must login before being able to get a coupon for a discount')
+        
+        user_key = PFuser.make_key(user_id, None)
+        
+        discount = Discount.get_by_key(discount_key)
+        if discount is None:
+            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+
+        # check the user is valid
+        user = PFuser.get_by_key(user_key)
+        if user is None:
+            raise exceptions.InvalidKeyException('user_id is not the id of a valid user!')
+
+        if discount.published == False or discount.end_time < datetime.now() or discount.available_coupons < 1:
+            # the discount is no more available
+            raise exceptions.DiscountExpiredException('The discount is ended or no coupons are available.')
+
+        codes = []
+        bought = None
+        if discount.coupons is not None and len(discount.coupons) > 0:
+            for coupon in discount.coupons:
+                codes.append(coupon.code)
+                if bought is None and coupon.user == user_key:
+                    # the user already bought a coupon for this discount
+                    bought = coupon
+        if bought is not None:
+            raise exceptions.CouponAlreadyBoughtException('The user already bought a coupon for this discount')
+
+        coupon = Coupon(
+            user=user_key, buy_time=datetime.now(), code=code_generator(codes))
+
+        discount.available_coupons = discount.available_coupons - 1
+        discount.coupons.append(coupon)
+
+#         if (self.num_coupons - self.available_coupons) == len(self.coupons):
+#             self.put()
+#         else:
+# available coupons and list of coupons do not agree.
+#             return None
+        discount.put()
+        return coupon
+
+    @staticmethod
+    def use_coupon(discount_key, requester_id, code):
+        """
+        Marks the coupon identified by the code as used, so it cannot be used again.
+
+        Parameters:
+        - requester_id: the id of the user that is requesting this operation. Only the place owner is allowed.
+        - code: the string code which uniquely identifies the coupon.
+
+        Return value: the Coupon updated.
+        Exceptions: TypeError if the code in input is of the wrong type;
+                    ValueError if the code in input is not valid;
+                    InvalidKeyException if the discount_key does not refer to a valid Discount 
+                            and if Discount does not refer to a valid Place;
+                    UnauthorizedException if the requester is not the owner of the related Place;
+                    InvalidCouponException if the coupon cannot be used
+        """
+        if requester_id is None:
+            raise exceptions.UnauthorizedException('The user must login before using a coupon.')
+        
+        if code is None or not isinstance(code, (str, unicode)):
+            raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
+        
+        discount = Discount.get_by_key(discount_key)
+        if discount is None:
+            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+        
+        user_key = PFuser.make_key(requester_id, None)
+
+# check the requester is valid
+#         user = PFuser.get_by_key(user_key)
+#         if user is None:
+#             return None
+
+        # only owner can mark the coupon as used
+        place = Place.get_by_key(discount.place)
+        if place is None:
+            raise exceptions.InvalidKeyException('The discount does not refer to a valid Place!')
+        elif user_key != place.owner:
+            raise exceptions.UnauthorizedException('Only the owner of the Place can mark coupons as used.')
+
+        coupon = None
+        if discount.coupons is not None and len(discount.coupons) > 0:
+            for c in discount.counpons:
+                if c.code == code:
+                    coupon = c
+                    break
+        if coupon is None:
+            raise ValueError('code is not valid, it does not refer to a coupon for this discount!')
+
+        if coupon.deleted == True or coupon.used == True:
+            raise exceptions.InvalidCouponException('The coupon was deleted or has already been used!')
+
+        coupon.used = True
+        coupon.usage_time = datetime.now()
+        coupon.put()
+        return coupon
+
+    @staticmethod
+    def delete_coupon(discount_key, requester_id, code):
+        """
+        Deletes a coupon. Only the coupon owner can delete it.
+
+        Parameters:
+        - requester_id: the id of the user that is making this request. Only the owner of the coupon can delete it.
+        - code: identifying the coupon to delete
+
+        Return value: the deleted coupon
+        Exceptions: TypeError if the code in input is of the wrong type;
+                    ValueError if the code in input is not valid;
+                    InvalidKeyException if the discount_key does not refer to a valid Discount;
+                    UnauthorizedException if the requester is not the owner of the coupon;
+        """
+        if requester_id is None:
+            raise exceptions.UnauthorizedException('The user must login before deleting a coupon.')
+        
+        discount = Discount.get_by_key(discount_key)
+        if discount is None:
+            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+        
+        if code is None or not isinstance(code, (str, unicode)):
+            raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
+        user_key = PFuser.make_key(requester_id, None)
+        coupon = None
+        if discount.coupons is not None and len(discount.coupons) > 0:
+            for c in discount.counpons:
+                if c.code == code:
+                    coupon = c
+                    break
+        if coupon is None:
+            raise ValueError('code is not valid, is does not refer to a coupon for this discount.')
+        if coupon.user != user_key:
+            raise exceptions.UnauthorizedException('Only the owner of the coupon can delete it!')
+        coupon.deleted = True
+        coupon.delete_time = datetime.now()
+
+        coupon.put()
+
+        return coupon
+
+    @staticmethod
+    def delete(key, requester_id):
+        """
+        It deletes the Discount referenced by the key.
+
+        Parameters:
+        - key: the ndb.Key that identifies the Discount to delete (both kind and id needed).
+        - requester_id: the id of the user that is requesting this operation. Only the place owner is allowed.
+
+        Return value: boolean.
+
+        It returns True if the Discount has been deleted, False if delete is not allowed.
+        A discount can be deleted only if in has not beed published yet.
+        
+        Exceptions: TypeError if the input is of the wrong type (from get_by_key)
+                    UnauthorizedException if the requester is not the onwer of the discount;
+        """
+        if requester_id is None:
+            raise exceptions.UnauthorizedException('The user must login before deleting a discount.')
+        
+        discount = Discount.get_by_key(key)
+        
+        place = Place.get_by_key(discount.place)
+        # if place is none we let anyone delete it, if it is possible.
+        if place is not None and place.owner != requester_id:
+            raise exceptions.UnauthorizedException('Only the owner of the place which the discount refers to can delete it.')
+        
+        if discount is None:
+            return True
+
+        if discount.published == True:
+            return False
+        key.delete()
+        return True

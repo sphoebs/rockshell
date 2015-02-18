@@ -7,7 +7,7 @@ Created on Sep 15, 2014
 import fix_path
 import json
 
-from models import PFuser, Place, Rating
+from models import PFuser, Place, Rating, Discount
 import logging
 
 from google.appengine.api import urlfetch, memcache, taskqueue
@@ -16,6 +16,7 @@ import urllib2
 # import time
 import config
 import social_login
+import exceptions
 
 
 def get_current_userid(cripted_data):
@@ -97,11 +98,22 @@ def user_login(token, service):
     return user, is_new, "OK"
 
 def user_create(user):
-    res = PFuser.create(user)
-    if res is None:
-        return None, "ERROR: wrong input data"
+    """
+    It creates a user, only for loading data from previous datasets.
+    
+    Returns a tuple: (PFuser, status, HTTP_code), where 
+                        PFuser is the created user, 
+                        status indicates if an error happened and 
+                        HTTP_code indicates which error core it refers to
+    """
+    try:
+        res = PFuser.create(user)
+    except (TypeError, ValueError) as e :
+        #there is a problem with input data
+        return None, str(e), 400
 
-    return res, "OK"
+    return res, "OK", 200
+
 
 def user_update(user, user_id, user_key_str):
     """
@@ -118,13 +130,15 @@ def user_update(user, user_id, user_key_str):
     It returns a tuple: 
     - the user with updated information (or None in case of errors in the input),
     - the status (a string indicating whether an error occurred)
+    - the http code indicating the type of error, if any
     """
-    res = PFuser.store(
-        user, PFuser.make_key(user_id, user_key_str))
-    if res is None:
-        return None, "ERROR: wrong input data"
-
-    return res, "OK"
+    try:
+        res = PFuser.store(
+                           user, PFuser.make_key(user_id, user_key_str))
+    except (TypeError, ValueError, exceptions.InvalidKeyException) as e:
+        return None, str(e), 400
+        
+    return res, "OK", 200
 
 
 def user_get(user_id, user_key_str):
@@ -140,12 +154,15 @@ def user_get(user_id, user_key_str):
     
     It returns a tuple: 
     - the requested user (or None in case of errors in the input),
-    - the status (a string indicating whether an error occurred)
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
     """
-    user = PFuser.get_by_key(PFuser.make_key(user_id, user_key_str))
-    if user is None:
-        return None, "ERROR: no user is associated with the input id or key"
-    return user, "OK"
+    try:
+        user = PFuser.get_by_key(PFuser.make_key(user_id, user_key_str))
+    except TypeError, e:
+        return None, str(e), 400
+    
+    return user, "OK", 200
 
 
 def place_get(place_id, place_key_str):
@@ -161,12 +178,14 @@ def place_get(place_id, place_key_str):
     
     It returns a tuple: 
     - the requested place (or None in case of errors in the input),
-    - the status (a string indicating whether an error occurred)
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
     """
-    place = Place.get_by_key(Place.make_key(place_id, place_key_str))
-    if place is None:
-        return None, "ERROR: no place is associated with the input id or key"
-    return place, "OK"
+    try:
+        place = Place.get_by_key(Place.make_key(place_id, place_key_str))
+    except TypeError as e:
+        return None, str(e), 400
+    return place, "OK", 200
 
 
 def place_create(place):
@@ -178,13 +197,15 @@ def place_create(place):
     
     It returns a tuple: 
     - the created place (or None in case of errors in the input),
-    - the status (a string indicating whether an error occurred)
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
     """
-    res = Place.store(place, None)
-    if res is None:
-        return None, "ERROR: wrong input data"
+    try:
+        res = Place.store(place, None)
+    except (TypeError, ValueError, exceptions.InvalidKeyException) as e:
+        return None, str(e), 400
 
-    return res, "OK"
+    return res, "OK", 200
 
 
 def place_update(in_place, place_id, place_key_str):
@@ -201,14 +222,16 @@ def place_update(in_place, place_id, place_key_str):
     
     It returns a tuple: 
     - the place with updated information (or None in case of errors in the input),
-    - the status (a string indicating whether an error occurred)
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
     """
-    res = Place.store(
-        in_place, Place.make_key(place_id, place_key_str))
-    if res is None:
-        return None, "ERROR: wrong input data"
+    try:
+        res = Place.store(
+                          in_place, Place.make_key(place_id, place_key_str))
+    except (TypeError, ValueError, exceptions.InvalidKeyException) as e:
+        return None, str(e), 400
 
-    return res, "OK"
+    return res, "OK", 200
 
 
 def place_list_get(filters, user_id):
@@ -231,13 +254,14 @@ def place_list_get(filters, user_id):
     Returns a tuple:
     - list of Places that satisfy the filters
     - status message
+    - the http code indicating the type of error, if any
     """
-    res = Place.get_list(filters, user_id)
+    try:
+        res = Place.get_list(filters, user_id)
+    except (TypeError, ValueError) as e:
+        return None, str(e), 400
 
-    if res is None:
-        return None, "ERROR: filters are wrongly defined"
-
-    return res, "OK"
+    return res, "OK", 200
 
 def place_set_owner(place_key_str, user_email, requester_id):
     """
@@ -251,15 +275,22 @@ def place_set_owner(place_key_str, user_email, requester_id):
     Returns a tuple:
     - the Place with owner set
     - status message
+    - the http code indicating the type of error, if any
     """
-    user = PFuser.get_by_email(user_email)
+    try:
+        user = PFuser.get_by_email(user_email)
+    except TypeError, e:
+        return None, str(e), 400
     if user is None:
-        return None, "ERROR: Invalid user email"
+        return None, "Email does not correspond to any user", 400
     
-    place = Place.set_owner(place_key_str, user.key.id(), requester_id)
-    if place is None:
-        return None, "ERROR: either the place is not correct or the requester is not an admin"
-    return place, "OK"
+    try:
+        place = Place.set_owner(place_key_str, user.key.id(), requester_id)
+    except (TypeError, ValueError) as e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+    return place, "OK", 200
 
 
 def place_owner_list(user_id):
@@ -272,10 +303,21 @@ def place_owner_list(user_id):
     Returns a tuple:
     - list of Places owned by the user (empty if the user is not an owner)
     - status message
+    - the http code indicating the type of error, if any
     """
-    places = Place.get_owner_places(user_id)
-    return places, "OK"
+    try:
+        places = Place.get_owner_places(user_id)
+    except TypeError, e:
+        return None, str(e), 400
+    return places, "OK", 200
 
+
+def place_delete(place_id, place_key_str):
+    try:
+        res = Place.delete(Place.make_key(place_id, place_key_str))
+    except TypeError, e:
+        return None, str(e), 400
+    return res, "OK", 200
 
 def rating_create(rating, user_id, user_key_str):
     """
@@ -291,17 +333,25 @@ def rating_create(rating, user_id, user_key_str):
     
     It returns a tuple: 
     - the stored/updated rating (or None in case of errors in the input),
-    - the status (a string indicating whether an error occurred)
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
     """
-#     from recommender import update_clusters
+    
     if user_id is not None or user_key_str is not None:
-        rating.user = PFuser.make_key(user_id, user_key_str)
+        try:
+            rating.user = PFuser.make_key(user_id, user_key_str)
+        except TypeError, e:
+            return None, str(e), 400
+    #TODO: limit only to logged users (need to be commented now to upload data from old datasets)
+#     else:
+#         return None, "The user must login before creating a rating!", 403
 
     logging.info("Rating user: " + str(rating.user))
     
-    res = Rating.store(rating, None)
-    if res == None:
-        return None, "ERROR: invalid input data"
+    try:
+        res = Rating.store(rating, None)
+    except (TypeError, ValueError) as e:
+        return None, str(e), 400
     
     client = memcache.Client()
     users = client.gets('updated_users')
@@ -328,7 +378,7 @@ def rating_create(rating, user_id, user_key_str):
                     break;
 #         logging.info('updated_users: ' + str(users) + ' -- memcache: ' + str(client.get('updated_users')))
     
-        #TODO: countdown should depend on the importance of the new rating for the user
+        #countdown depends on the importance of the new rating for the user
         #  - if the user have very few ratings, the countdown should be small, ~30 seconds
         #  - if the user already have many ratings, the new ones will not influence much 
         #        his/her recommendations and the updated can wait more, ~ 1 hour or more
@@ -343,8 +393,8 @@ def rating_create(rating, user_id, user_key_str):
         q = taskqueue.Queue('update-clusters-queue') 
         task = taskqueue.Task(url='/recommender/update_clusters', method='GET', countdown=time)
         q.add(task)
-#     update_clusters([res.user.id()])
-    return res, "OK"
+
+    return res, "OK", 200
 
 
 def rating_get(rating_id, rating_key_str):
@@ -360,12 +410,14 @@ def rating_get(rating_id, rating_key_str):
     
     It returns a tuple: 
     - the requested rating (or None in case of errors in the input),
-    - the status (a string indicating whether an error occurred)
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
     """
-    res = Rating.get_by_key(Rating.make_key(rating_id, rating_key_str))
-    if res is None:
-        return None, "ERROR: no rating is associated to the input id or key"
-    return res, "OK"
+    try:
+        res = Rating.get_by_key(Rating.make_key(rating_id, rating_key_str))
+    except TypeError as e:
+        return None, str(e), 400
+    return res, "OK", 200
 
 
 def rating_list_get(filters):
@@ -383,22 +435,250 @@ def rating_list_get(filters):
     - 'purpose': the purpose
         setting only 'purpose', the function retrieves all the ratings added to any place by any user about this purpose
         usually it is used in combination with other filters
-    //- 'lat', latitude of user's position  REMOVED
-    //- 'lon', longitude of user's position  REMOVED
-    //- 'max_dist', maximum distance from user's position in meters  REMOVED
     - 'users' : list of user ids we are interested in
     - 'places' : list of place ids we are interested in
 
     It returns a tuple: 
     - the list of Ratings that satisfy the filters (or None in case of errors in the input),
     - the status (a string indicating whether an error occurred)
+    - the http code indicating the type of error, if any
     """
-    #TODO: add filter per city!!
-    res = Rating.get_list(filters)
-    if res is None:
-        return None, "ERROR: filters are wrongly defined"
-    return res, "OK"
+    try:
+        res = Rating.get_list(filters)
+    except (TypeError, ValueError) as e:
+        return None, str(e), 400
+        
+    return res, "OK", 200
 
-def rating_count(user_key = None, place_key = None):
-    count = Rating.count(user_key, place_key);
-    return count;
+def rating_count(user_id = None, user_str = None, place_id = None, place_str):
+    """
+    It counts the number of ratings for a user, a place or both.
+
+    Parameters:
+    - user_id and user_str: key (str = urlsafe) for the PFuser, only one needed
+    - place_id and place_str: key (str = urlsafe) for the Place, only one needed
+
+
+    It returns a tuple: 
+    - the number of ratings,
+    - the status (a string indicating whether an error occurred)
+    - the http code indicating the type of error, if any
+    """
+    try:
+        user_key = PFuser.make_key(user_id, user_str)
+        place_key = Place.make_key(place_id, place_str)
+        count = Rating.count(user_key, place_key);
+    except TypeError as e:
+        return None, str(e), 400
+    
+    return count, "OK", 200
+
+def discount_create(discount, requester_id):
+    """
+    It stores a new Discount.
+    
+    Parameters:
+    - discount: the Discount containing the new information to store.
+    - requester_id: the string id of the user that is making the request
+    
+    It returns a tuple: 
+    - the created Discount (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    
+    try:
+        res = Discount.store(discount, None, requester_id)
+    except (TypeError, ValueError, exceptions.InvalidKeyException) as e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+
+    return res, "OK", 200
+
+def discount_update(discount, discount_key_str, requester_id):
+    """
+    It updates an existing Discount.
+    
+    Parameters:
+    - discount: the Discount containing the new information to store.
+    - discount_key_str: the urlsafe key of the Discount to update
+    - requester_id: the string id of the user that is making the request
+    
+    It returns a tuple: 
+    - the updated discount (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    
+    try:
+        res = Discount.store(discount, Discount.make_key(None, discount_key_str), requester_id)
+    except (TypeError, ValueError, exceptions.InvalidKeyException) as e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+
+    return res, "OK", 200
+
+def discount_publish(discount_key_str, requester_id):
+    """
+    It make a discount public.
+    
+    Parameters:
+    - discount_key_str: a urlsafe key for identifying the discount
+    - requester_id: the id of the user makeing the request
+    
+    It returns a tuple: 
+    - the discount with updated information (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        discount = Discount.publish(Discount.make_key(None, discount_key_str), requester_id)
+    except (TypeError, exceptions.InvalidKeyException), e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+    return discount, "OK", 200
+    
+
+def discount_delete(discount_key_str, requester_id):
+    """
+    It deletes a discount, removing it from the datastore. 
+    Only discounts that have not been published can be deleted.
+    Only the owner of the place the discount refers to can delete a discount.
+    
+    Parameters:
+    - discount_key_str: the urlsafe key of the discount to delete
+    - requester_id: the id of the user that is making the request
+    
+    It returns a tuple: 
+    - the deleted discount (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        res = Discount.delete(Discount.make_key(None, discount_key_str), requester_id)
+    except TypeError, e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+    if res == False:
+        # 409 = conflict: The request could not be completed due to a conflict with the current state of the resource
+        return res, "Discount cannot be deleted", 409
+    return res, "OK", 200
+    
+def discount_get(discount_key_str):
+    """
+    It gets the Discount identified by the input key.
+    
+    Parameters:
+    - discount_key_str: the urlsafe key of the Discount to retrieve
+    
+    It returns a tuple: 
+    - the requested discount (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        res = Discount.get_by_key(Discount.make_key(None, discount_key_str))
+    except TypeError, e:
+        return None, str(e), 400
+    return res, "OK", 200
+    
+def discount_list_get(filters):
+    """
+    It gets a list of discounts identified from the filters.
+    
+    Parameters:
+    - filters: dict containing the required characteristics for the discounts to retrieve
+    
+    Available filters:
+        - 'place': urlsafe key for the place
+        - 'coupon_user': user key as urlsafe string, returns only discounts for which the user has a coupon
+        - 'published': boolean, retrieves only published (True) or unpublished (False) discounts
+        - 'passed': boolean, retrieves only ended (True) or future (False) discounts
+    
+    It returns a tuple: 
+    - the list of discounts satisfying the filters (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        res = Discount.get_list(filters);
+    except TypeError, e:
+        return None, str(e), 400
+    return res, "OK", 200 
+
+def coupon_create(discount_key_str, user_id):
+    """
+    It creates a coupon, letting a user to take advantage of a discount.
+    
+    Parameters:
+    - discount_key_str: the urlsafe key of the discount the user is interested in
+    - user_id: the id of the user who is buying the coupon
+    
+    It returns a tuple: 
+    - the created coupon (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        res = Discount.add_coupon(Discount.make_key(None, discount_key_str), user_id)
+    except TypeError, e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+    except (exceptions.CouponAlreadyBoughtException, exceptions.DiscountExpiredException) as e:
+        return None, str(e), 409
+    return res, "OK", 200
+
+def coupon_use(discount_key_str, requester_id, code):
+    """
+    It marks a coupon as used, so it cannot be used again.
+    Only place owners can mark coupons as used.
+    
+    Parameters:
+    - discount_key_str: the urlsafe key of the discount the coupon refers to
+    - requester_id: the id of the user who is making the request
+    - code: the code identifying the coupon to be marked as used
+    
+    It returns a tuple: 
+    - the coupon with updated information (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        res = Discount.use_coupon(Discount.make_key(None, discount_key_str), requester_id, code)
+    except (TypeError, ValueError, exceptions.InvalidKeyException, exceptions.InvalidCouponException) as e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+    return res, "OK", 200 
+    
+
+def coupon_delete(discount_key_str, requester_id, code):
+    """
+    It deleted a coupon. The coupon is marked as deleted and cannot be used.
+    Only the owner of the coupon can delete it.
+    
+    Parameters:
+    - discount_key_str: the urlsafe key of the discount the coupon belongs to
+    - requester_id: the id of the user who is making the request
+    - code: the code identifying the coupon to be marked as deleted
+    
+    It returns a tuple: 
+    - the deleted coupon (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        res = Discount.delete_coupon(Discount.make_key(None, discount_key_str), requester_id, code)
+    except (TypeError, ValueError, exceptions.InvalidKeyException) as e:
+        return None, str(e), 400
+    except exceptions.UnauthorizedException, e:
+        return None, str(e), 403
+    return res, "OK", 200
+
+    
+    

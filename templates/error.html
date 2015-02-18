@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block main %}
+
+<h1>Error</h1>
+
+<h2>{{error_code}}: {{error_string}}</h2>
+
+<p>We are sorry for the incovenience, we will try to solve the problem as soon as possible.</p>
+
+<button class="img-btn" onclick="window.location = '/'">Go back to home page</button>
+{% endblock %}

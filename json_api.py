@@ -38,12 +38,16 @@ class UserHandler(webapp2.RequestHandler):
             self.response.write("You must login first!")
             return
         
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status == "OK":
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            try:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings', 'role'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
         else:
-            self.response.set_status(400)
+            self.response.set_status(errcode)
             self.response.write(status)
             
     def post(self):
@@ -53,13 +57,27 @@ class UserHandler(webapp2.RequestHandler):
             self.response.write('Missing body')
         
 #         logging.warn('POST DATA: ' + str(post_data))
-        user = PFuser.from_json(post_data)
-        user, status = logic.user_create(user)
-        if status == "OK":
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
-        else:
+        try:
+            user = PFuser.from_json(post_data)
+        except TypeError, e:
             self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        except Exception, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+            
+        user, status, errcode = logic.user_create(user)
+        if status == "OK":
+            try:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings', 'role'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
             self.response.write(status)
         
 
@@ -79,13 +97,17 @@ class UserHandler(webapp2.RequestHandler):
             self.response.write('Missing body')
 
         user = PFuser(post_data)
-        user, status = logic.user_update(user, user_id, None)
+        user, status, errcode = logic.user_update(user, user_id, None)
 
         if status == "OK":
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            try:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings', 'role'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
         else:
-            self.response.set_status(400)
+            self.response.set_status(errcode)
             self.response.write(status)
 
 
@@ -102,13 +124,16 @@ class UserLoginHandler(webapp2.RequestHandler):
                 post_data['token'], post_data['service'])
 
             if status == "OK":
-#                 TODO: set header instead of cookie
-                set_cookie(self.response, 'user',
+                try:
+                    set_cookie(self.response, 'user',
                                         user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
-                self.response.headers['Content-Type'] = 'application/json'
-                tmp = json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender']))
-                tmp['is_new'] = is_new
-                self.response.write(tmp)
+                    self.response.headers['Content-Type'] = 'application/json'
+                    tmp = json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings', 'role'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender']))
+                    tmp['is_new'] = is_new
+                    self.response.write(tmp)
+                except TypeError, e:
+                    self.response.set_status(500)
+                    self.response.write(str(e))
             else:
                 self.response.set_status(400)
                 self.response.write(status)
@@ -123,10 +148,6 @@ class UserLoginHandler(webapp2.RequestHandler):
         user_id = logic.get_current_userid(auth)
         if user_id is None:
             self.response.write('ok')
-        
-        set_cookie(self.response, 'user',
-                                        user_id, expires=0, encrypt=True)
-                
         
         set_cookie(self.response, 'user', user_id, expires=0, encrypt=True)
         self.response.write('ok')
@@ -150,15 +171,15 @@ class PlaceListHandler(webapp2.RequestHandler):
                 filters = {}
                 filters['city'] = get_values.get('city')
             # plist is already in json.
-            plist, status = logic.place_list_get(filters, user_id)
+            plist, status, errcode = logic.place_list_get(filters, user_id)
         else :
-            plist, status = logic.place_owner_list(user_id)
+            plist, status, errcode = logic.place_owner_list(user_id)
 
         if status == "OK":
             self.response.headers['Content-Type'] = 'application/json'
             self.response.write(json.dumps(plist))
         else:
-            self.response.set_status(400)
+            self.response.set_status(errcode)
             self.response.write(status)
 
     def post(self):
@@ -180,14 +201,27 @@ class PlaceListHandler(webapp2.RequestHandler):
 #             return
         
         body = json.loads(self.request.body)
-        place = Place.from_json(body)
-
-        place, status = logic.place_create(place)
-        if status == "OK":
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(Place.to_json(place, ['key', 'name', 'description', 'picture', 'phone', 'price_avg', 'service', 'address', 'hours', 'days_closed'],[])))
-        else:
+        try:
+            place = Place.from_json(body)
+        except TypeError, e:
             self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        except Exception, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+
+        place, status, errcode = logic.place_create(place)
+        if status == "OK":
+            try:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(Place.to_json(place, None, None)))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
             self.response.write(status)
 
 
@@ -198,12 +232,16 @@ class PlaceHandler(webapp2.RequestHandler):
             self.response.set_status(405) 
             return
         logging.info("Received get place : " + str(pid))
-        place, status = logic.place_get(None, pid)
+        place, status, errcode = logic.place_get(None, pid)
         if status == "OK":
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(Place.to_json(place, None,None)))
+            try:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(Place.to_json(place, None,None)))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
         else:
-            self.response.set_status(404)
+            self.response.set_status(errcode)
             self.response.write(status)
         
             
@@ -226,14 +264,28 @@ class PlaceHandler(webapp2.RequestHandler):
         
         #the body contains at least the email of the user to be set as owner of the place
         body = json.loads(self.request.body)
-        user = PFuser.from_json(body)
-        place, status = logic.place_set_owner(pid, user.email, req_id)
-        if status == "OK":
-            self.response.set_status(201)
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(Place.to_json(place, None,None)))
-        else:
+        try:
+            user = PFuser.from_json(body)
+        except TypeError, e:
             self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        except Exception, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        
+        place, status, errcode = logic.place_set_owner(pid, user.email, req_id)
+        if status == "OK":
+            try:
+                self.response.set_status(201)
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(Place.to_json(place, None,None)))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
             self.response.write(status)
 
 
@@ -254,15 +306,29 @@ class PlaceHandler(webapp2.RequestHandler):
 #             return
 
         body = json.loads(self.request.body)
-        place = Place.from_json(body)
-        place, status = logic.place_update(place, None, pid)
-        if status == "OK":
-            self.response.headers['Content-Type'] = 'application/json'
-            place = Place.to_json(place, None,None)
-            logging.info('Place json: ' + str(place))
-            self.response.write(json.dumps(place))
-        else:
+        try:
+            place = Place.from_json(body)
+        except TypeError, e:
             self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        except Exception, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        
+        place, status, errcode = logic.place_update(place, None, pid)
+        if status == "OK":
+            try:
+                self.response.headers['Content-Type'] = 'application/json'
+                place = Place.to_json(place, None,None)
+                logging.info('Place json: ' + str(place))
+                self.response.write(json.dumps(place))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
             self.response.write(status)
 
 
@@ -270,12 +336,16 @@ class PlaceHandler(webapp2.RequestHandler):
         if 'owner' in self.request.url:
             self.response.set_status(405) 
             return
-        res = Place.delete(Place.make_key(None, pid))
-        if res == True:
-            self.response.write("The place " + pid + " has been deleted successfully")
+        #TODO: restrict to only admin or owner
+        res, status, errcode = logic.place_delete(None, pid)
+        if status == "OK":
+            if res == True:
+                self.response.write("The place " + pid + " has been deleted successfully")
+            else:
+                self.response.write("The place " + pid + " cannot be deleted")
         else:
-            self.response.set_status(400)
-            self.response.write("this place cannot be deleted")
+            self.response.set_status(errcode)
+            self.response.write(status)
         
 
 
@@ -295,18 +365,31 @@ class RatingHandler(webapp2.RequestHandler):
 #             return
         
         body = json.loads(self.request.body)
-
-        rating = Rating.from_json(body)
-        if user_id is not None:
-            rating, status = logic.rating_create(rating, user_id, None)
-        else :
-            rating, status = logic.rating_create(rating, None, None)
+        try:
+            rating = Rating.from_json(body)
+        except TypeError, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        except Exception, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        
+#         if user_id is not None:
+        rating, status, errcode = logic.rating_create(rating, user_id, None)
+#         else :
+#             rating, status, errcode = logic.rating_create(rating, None, None)
         logging.info(status)
         if status == "OK":
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.write(json.dumps(Rating.to_json(rating, ['key', 'user', 'place', 'purpose', 'value', 'not_known'], ['creation_time'])))
+            try:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(Rating.to_json(rating, ['key', 'user', 'place', 'purpose', 'value', 'not_known'], ['creation_time'])))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
         else:
-            self.response.set_status(404)
+            self.response.set_status(errcode)
             self.response.write(status)
 
 

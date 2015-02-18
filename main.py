@@ -125,7 +125,9 @@ class LoginHandler(BaseRequestHandler):
             logging.info("GOOGLE request token: " + access_token)
         else:
             logging.error('illegal callback invocation')
-            self.redirect('/error')
+            self.render("error.html", {'error_code': 500, 'error_string': 'illegal callback invocation'})
+        if errors:
+            self.render("error.html", {'error_code': 500, 'error_string': errors})
 
         user, is_new, status = logic.user_login(access_token, service)
         logging.info("user created: " + status)
@@ -138,7 +140,7 @@ class LoginHandler(BaseRequestHandler):
             else:
                 self.redirect('/letsgo')
         else:
-            self.redirect('/error')
+            self.render("error.html", {'error_code': 500, 'error_string': status})
 
 
 class UserHandler(BaseRequestHandler):
@@ -149,7 +151,7 @@ class UserHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status == "OK":
             self.render(
                 'profile.html',
@@ -186,9 +188,10 @@ class UserHandler(BaseRequestHandler):
         user.home = {'city': data.get('locality'), 'province': data.get(
             'administrative_area_level_2'), 'country': data.get('country')}
         
-        user, status = logic.user_update(user, user_id, None)
+        user, status, errcode = logic.user_update(user, user_id, None)
         if status != "OK":
-            self.redirect("/error")
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
 
         self.redirect('/profile/2')
 
@@ -200,7 +203,7 @@ class UserRatingsHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
             self.redirect('/')
 
@@ -221,23 +224,23 @@ class UserRatingsHandler(BaseRequestHandler):
 
         logging.info("Getting places with filters: " + str(filters))
         #plist is already a json list
-        plist, status = logic.place_list_get(filters, user_id)
+        plist, status, errcode = logic.place_list_get(filters, user_id)
 
-        json_list = json.dumps(plist)
-#         logging.info(str(json_list))
-        if 'city' in filters.keys():
-            filters['city'] = user.home.city + ', ' + user.home.province
-        filters['list'] = json_list
-        filters['lang'] = LANG
-#         logging.info("HERE!!!")
         if status == "OK":
+            json_list = json.dumps(plist)
+#         logging.info(str(json_list))
+            if 'city' in filters.keys():
+                filters['city'] = user.home.city + ', ' + user.home.province
+            filters['list'] = json_list
+            filters['lang'] = LANG
+#         logging.info("HERE!!!")
             self.render(
                 'profile_ratings.html',
                 filters
             )
         else:
-            logging.error(status)
-            self.redirect('/error')
+            logging.error(status + ' ' + str(errcode))
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
 
 
 class UserRatingsOtherHandler(BaseRequestHandler):
@@ -247,9 +250,11 @@ class UserRatingsOtherHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.redirect('/')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+#             self.redirect('/')
         self.render('ratings.html', {'profile': True, 'user': user, 'lang' : LANG})
         #self.render('profile_ratings_other.html')
 
@@ -262,17 +267,23 @@ class LetsgoHandler(BaseRequestHandler):
             self.redirect('/')
             return
         places = []
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.redirect('/')
+            logging.info("ERROR: " + status + " - " + errcode)
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
 
         logging.info("USER: " + str(user))
-        json_user = json.dumps(PFuser.to_json(user,
+        try:
+            json_user = json.dumps(PFuser.to_json(user,
                                               ['key', 'first_name', 'last_name', 'full_name',
                                                   'picture', 'home', 'visited_city', 'settings', 'role'],
                                               ['user_id', 'fb_user_id', 'fb_access_token', 'google_user_id', 'google_access_token', 
                                                'created', 'updated,' 'email', 'profile', 'age', 'gender']))
-        logging.info("USER JSON: " + str(json_user))
+            logging.info("USER JSON: " + str(json_user))
+        except TypeError:
+            json_user = '{}'
+            # TODO: handle error
         self.render('letsgo.html', {'list': places, 'user_role': user.role, 'user': json_user, 'lang' : LANG})
 
 
@@ -301,9 +312,10 @@ class SettingsHandler(BaseRequestHandler):
         if data.get('num_places') > 0:
             user.settings.num_places = int(data.get('num_places'))
 
-        user, status = logic.user_update(user, user_id, None)
+        user, status, errcode = logic.user_update(user, user_id, None)
         if status != "OK":
-            self.redirect("/error")
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
 
         self.redirect('/letsgo')
 
@@ -314,9 +326,9 @@ class RatingsPageHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.redirect('/')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
         self.render('ratings.html', {'user': user, 'lang' : LANG })
         
@@ -327,25 +339,31 @@ class RestaurantPageHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.redirect('/')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
         get_values = self.request.GET
         if not get_values:
             logging.info("MISSING GET VALUES")
-            self.redirect('/error')
+            self.render("error.html", {'error_code': 400, 'error_string': "Restaurant id is missing from URL paramters"})
+            return
         else:
             place_key =  get_values.get('id')
-            place, status = logic.place_get(None, place_key)
+            place, status, errcode = logic.place_get(None, place_key)
             if status == 'OK':
-                place = Place.to_json(place, None, None)
-                if 'description_' + LANG_NAME in place:
-                    place['description'] = place['description_' + LANG_NAME]
-                self.render('restaurant.html', {'place': place, 'user': user, 'lang' : LANG });
+                try:
+                    place = Place.to_json(place, None, None)
+                    if 'description_' + LANG_NAME in place:
+                        place['description'] = place['description_' + LANG_NAME]
+                        self.render('restaurant.html', {'place': place, 'user': user, 'lang' : LANG });
+                except TypeError, e:
+                    self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+                    return
             else:
                 logging.info("PLACE NOT FOUND")
-                self.redirect('/error')
+                self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+                return
                 
 class RestaurantEditHandler(BaseRequestHandler):
     
@@ -354,9 +372,9 @@ class RestaurantEditHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.redirect('/')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
         get_values = self.request.GET
         if not get_values:
@@ -366,12 +384,18 @@ class RestaurantEditHandler(BaseRequestHandler):
                 self.render('restaurant_list_edit.html',{'user': user, 'lang' : LANG});
         else:
             place_key =  get_values.get('id')
-            place, status = logic.place_get(None, place_key)
+            place, status, errcode = logic.place_get(None, place_key)
             if status == 'OK':
-                place = Place.to_json(place, None, None)
-                self.render('restaurant_edit.html', {'place': place, 'hours_string': json.dumps(place['hours']), 'closed': json.dumps(place['days_closed']), 'user': user, 'lang' : LANG });
+                try:
+                    place = Place.to_json(place, None, None)
+                    self.render('restaurant_edit.html', {'place': place, 'hours_string': json.dumps(place['hours']), 'closed': json.dumps(place['days_closed']), 'user': user, 'lang' : LANG });
+                except TypeError, e:
+                    # TODO: handle error
+                    self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+                    return
             else:
-                self.redirect('/error')
+                self.render("error.html", {'error_code': errcode, 'error_string': status})
+                return
                 
 class RestaurantNewHandler(BaseRequestHandler):
     
@@ -380,12 +404,12 @@ class RestaurantNewHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.redirect('/')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
         if user.role != 'admin':
-            self.redirect('/error')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
         self.render('restaurant_edit.html', {'place': Place(), 'hours_string': '[]', 'closed': '[]', 'user': user, 'lang' : LANG });
          
@@ -397,22 +421,19 @@ class OwnerListHandler(BaseRequestHandler):
         if user_id is None:
             self.redirect('/')
             return
-        user, status = logic.user_get(user_id, None)
+        user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.redirect('/')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
-        places, status = logic.place_owner_list(user_id)
+        places, status, errcode = logic.place_owner_list(user_id)
         if status != "OK":
-            self.redirect('/error')
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
-        
-        self.render('owner_list.html', {'places': Place.list_to_json(places), 'user': user, 'lang' : LANG });
-         
-
-class ErrorHandler(BaseRequestHandler):
-
-    def get(self):
-        self.write('Error')
+        try:
+            self.render('owner_list.html', {'places': Place.list_to_json(places), 'user': user, 'lang' : LANG });
+        except TypeError, e:
+            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            return
 
 
 class MainHandler(BaseRequestHandler):
@@ -437,6 +458,5 @@ app = webapp2.WSGIApplication([
     ('/restaurant/edit', RestaurantEditHandler),
     ('/restaurant/new', RestaurantNewHandler),
     ('/owner/list', OwnerListHandler),
-    ('/error', ErrorHandler)
 
 ], debug=True)
