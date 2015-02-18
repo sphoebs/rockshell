@@ -27,7 +27,7 @@ import recommender
 import json
 import languages
 
-from models import PFuser, Place, Settings
+from models import PFuser, Place, Settings, Discount
 
 
 # these imports are fine
@@ -352,11 +352,15 @@ class RestaurantPageHandler(BaseRequestHandler):
             place_key =  get_values.get('id')
             place, status, errcode = logic.place_get(None, place_key)
             if status == 'OK':
+                if place is None:
+                    self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+                    return 
                 try:
                     place = Place.to_json(place, None, None)
                     if 'description_' + LANG_NAME in place:
                         place['description'] = place['description_' + LANG_NAME]
-                        self.render('restaurant.html', {'place': place, 'user': user, 'lang' : LANG });
+                    self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG });
+                    return
                 except TypeError, e:
                     self.render("error.html", {'error_code': 500, 'error_string': str(e)})
                     return
@@ -430,7 +434,80 @@ class OwnerListHandler(BaseRequestHandler):
             self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
         try:
-            self.render('owner_list.html', {'places': Place.list_to_json(places), 'user': user, 'lang' : LANG });
+            self.render('owner_list.html', {'places': Place.list_to_json(places, None, None), 'user': user, 'lang' : LANG });
+        except TypeError, e:
+            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            return
+
+class DiscountHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        
+        discount_key_str = self.request.GET.get('id')
+        user, status, errcode = logic.user_get(user_id, None)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+        discount, status, errcode = logic.discount_get(discount_key_str, user_id)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+        try:
+            discount = Discount.to_json(discount, None, None)
+            discount['title'] = discount['title_'+LANG_NAME]
+            discount['description'] = discount['description_'+LANG_NAME]
+            self.render('discount.html', {'discount': discount, 'user': user, 'lang' : LANG });
+        except TypeError, e:
+            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            return
+    
+class DiscountEditHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        
+        discount_key_str = self.request.GET.get('id')
+        user, status, errcode = logic.user_get(user_id, None)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+        discount, status, errcode = logic.discount_get(discount_key_str, user_id)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+        try:
+            discount = Discount.to_json(discount, None, None)
+            self.render('discount_edit.html', {'is_new': 'False', 'discount': discount, 'user': user, 'lang' : LANG });
+        except TypeError, e:
+            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            return
+    
+class DiscountNewHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        
+        rest_key = self.request.GET.get('rest_id')
+        user, status, errcode = logic.user_get(user_id, None)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+        discount = Discount()
+        discount.place = Place.make_key(None, rest_key)
+        
+        try:
+            discount = Discount.to_json(discount, None, None)
+            self.render('discount_edit.html', {'is_new': 'True', 'discount': discount, 'user': user, 'lang' : LANG });
         except TypeError, e:
             self.render("error.html", {'error_code': 500, 'error_string': str(e)})
             return
@@ -458,5 +535,8 @@ app = webapp2.WSGIApplication([
     ('/restaurant/edit', RestaurantEditHandler),
     ('/restaurant/new', RestaurantNewHandler),
     ('/owner/list', OwnerListHandler),
+    ('/discount', DiscountHandler),
+    ('/discount/edit', DiscountEditHandler),
+    ('/discount/new', DiscountNewHandler),
 
 ], debug=True)

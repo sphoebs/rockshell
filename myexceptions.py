@@ -16,6 +16,9 @@ class UnauthorizedException(Exception):
 class DiscountExpiredException(Exception):
     pass
 
+class DiscountAlreadyPublished(Exception):
+    pass
+
 class CouponAlreadyBoughtException(Exception):
     pass
 

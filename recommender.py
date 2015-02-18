@@ -43,8 +43,8 @@ def distance(lat1, lon1, lat2, lon2):
 
     Returns distance in meters
     """
-    if debug:
-        logging.info('recommender.distance START : lat1=' + str(lat1) +
+#     if debug:
+    logging.info('recommender.distance START : lat1=' + str(lat1) +
                  " - lon1=" + str(lon1) + " - lat2=" + str(lat2) + " - lon2=" + str(lon2))
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
@@ -74,6 +74,7 @@ def load_data(filters):
         logging.info('recommender.load_data START - filters=' + str(filters))
     ratings, status, errcode = logic.rating_list_get(filters)
     if status != "OK":
+        logging.error(str(errcode) + ": " + status)
         return None
 
     # map: user - place - purpose --> value
@@ -236,6 +237,8 @@ def compute_user_sim_matrix(ratings, similarity=comealong_similarity):
     if debug:
         logging.info('recommender.compute_user_sim_matrix START')
     user_sim_matrix = {}
+    if ratings is None:
+        return user_sim_matrix
     for u1 in ratings:
         for u2 in ratings:
             if u1 not in user_sim_matrix:
@@ -283,7 +286,7 @@ def update_user_sim_matrix(ratings, user, similarity=comealong_similarity):
         user_sim_matrix = compute_user_sim_matrix(ratings, similarity)
         return user_sim_matrix
 
-    if user in ratings:
+    if ratings is not None and user in ratings:
         for u2 in ratings:
             if user not in user_sim_matrix:
                 user_sim_matrix[user] = {}
@@ -654,15 +657,17 @@ def build_clusters(ratings, clusters=None):
         clusters = Cluster.get_all_clusters_dict()
         if clusters is None:
             clusters = {}
-
-    num = len(ratings)
+    num = 0
+    if ratings is not None:
+        num = len(ratings)
     if num <= 0:
         return None, None
     clusters = {}
     # init clusters: each user in a singleton cluster
-    for user in ratings:
-        clusters['cluster_' + str(Cluster.get_next_id())] = [user]
-        Cluster.increment_next_id()
+    if ratings is not None:
+        for user in ratings:
+            clusters['cluster_' + str(Cluster.get_next_id())] = [user]
+            Cluster.increment_next_id()
 
     if debug:
         logging.info("Build clusters init: " + str(clusters))
@@ -842,7 +847,7 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
         items = {}
         for other in user_cluster:
             if other != user:
-                if other in ratings:
+                if ratings is not None and other in ratings:
                     for item in ratings[other]:
                         if purpose in ratings[other][item]:
                             if item not in items.keys():
@@ -914,6 +919,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         # the system do not know any place within these filters
         if debug:
             logging.info("recommender.recommend END - no places")
+        logging.error(str(errcode) + ": " + status)
         return None
 
     scores = cluster_based(user_id, places, purpose, n, loc_filters=filters)
@@ -935,13 +941,14 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         rating_filters['purpose'] = purpose
         ratings = load_data(rating_filters)
         items = {}
-        for other in ratings:
-            if other != user_id:
-                for item in ratings[other]:
-                    if purpose in ratings[other][item]:
-                        if item not in items.keys():
-                            items[item] = []
-                        items[item].append(ratings[other][item][purpose])
+        if ratings is not None:
+            for other in ratings:
+                if other != user_id:
+                    for item in ratings[other]:
+                        if purpose in ratings[other][item]:
+                            if item not in items.keys():
+                                items[item] = []
+                            items[item].append(ratings[other][item][purpose])
 
         avg_scores = [(sum(items[item]) / len(items[item]), item)
                       for item in items]

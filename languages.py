@@ -107,7 +107,15 @@ en = {
     'close': 'to',
     'add-day': 'Add new day',
     
-    'back': 'Back'
+    'back': 'Back',
+    
+    # DISCOUNT
+    'discount_edit': 'Edit discount',
+    'discount_new': 'New discount',
+    'discount_title': 'Title',
+    'discount_description': 'Description',
+    'discount_num_coupons': 'Number of coupons',
+    'discount_end': 'The discount will be available till',
       
 }
 
@@ -216,7 +224,15 @@ it = {
     'close': 'alle',
     'add-day': 'Aggiungi giorno',
     
-    'back': 'Indietro'
+    'back': 'Indietro',
+    
+    # DISCOUNT
+    'discount_edit': 'Modifica sconto',
+    'discount_new': 'Crea nuovo sconto',
+    'discount_title': 'Titolo',
+    'discount_description': 'Descrizione',
+    'discount_num_coupons': 'Numero di coupon',
+    'discount_end': 'Lo sconto sar&agrave; discpnibile fino a',
     
 }
 

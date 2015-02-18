@@ -8,7 +8,7 @@ import webapp2
 import json
 
 from social_login import set_cookie
-from models import PFuser, Place, Rating
+from models import PFuser, Place, Rating, Discount, Coupon
 # from __builtin__ import list
 import logging
 # from google.appengine.api.datastore_types import GeoPt
@@ -67,7 +67,7 @@ class UserHandler(webapp2.RequestHandler):
             self.response.set_status(400)
             self.response.write(str(e))
             return
-            
+#         logging.warn('USER: ' + str(user)) 
         user, status, errcode = logic.user_create(user)
         if status == "OK":
             try:
@@ -391,6 +391,231 @@ class RatingHandler(webapp2.RequestHandler):
         else:
             self.response.set_status(errcode)
             self.response.write(status)
+            
+class DiscountListHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        #get list of discounts, with filters
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        get_values = self.request.GET
+        filters = {}
+        filters['place'] = get_values.get('place')
+        filters['coupon_user'] = get_values.get('coupon_user')
+        filters['published'] = get_values.get('published')
+        filters['passed'] = get_values.get('passed')
+        
+        dlist, status, errcode = logic.discount_list_get(filters, user_id)
+        if status == "OK":
+            try:
+                dlist = [Discount.to_json(d, None, None) for d in dlist]
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(list))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+        
+    def post(self):
+        #create discount
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        body = json.loads(self.request.body)
+        try:
+            discount = Discount.from_json(body)
+        except TypeError, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        except Exception, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        
+        discount, status, errcode = logic.discount_create(discount, user_id)
+        if status == "OK":
+            try:
+                discount = Discount.to_json(discount, None, None)
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(discount))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+            
+        
+class DiscountHandler(webapp2.RequestHandler):
+    
+    def get(self, key):
+        
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        if 'publish' in self.request.url:
+            #publish discount
+            discount, status, errcode = logic.discount_publish(key, user_id)
+        else:
+            #get discount
+            discount, status, errcode = logic.discount_get(key, user_id)
+        if status == "OK":
+            try:
+                discount = Discount.to_json(discount, None, None)
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(discount))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+    
+    def put(self, key):
+        if 'publish' in self.request.url:
+            self.response.set_status(405) 
+            return
+        #update discount
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        body = json.loads(self.request.body)
+        try:
+            discount = Discount.from_json(body)
+        except TypeError, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        except Exception, e:
+            self.response.set_status(400)
+            self.response.write(str(e))
+            return
+        
+        discount, status, errcode = logic.discount_update(discount, key, user_id)
+        if status == "OK":
+            try:
+                discount = Discount.to_json(discount, None, None)
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(discount))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+    
+    def delete(self, key):
+        if 'publish' in self.request.url:
+            self.response.set_status(405) 
+            return
+        #delete discount
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        res, status, errcode = logic.discount_delete(key, user_id)
+        if status == "OK":
+            if res == True:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write('{}')
+            elif res == False:
+                self.response.set_status(409)
+            self.response.write("The discount cannot be deleted!")
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+    
+class CouponHandler(webapp2.RequestHandler):
+    
+    def get(self, dkey):
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+
+        code = self.request.GET.get('code')
+                
+        if 'use' in self.request.url:
+            #use coupon
+            coupon, status, errcode = logic.coupon_use(dkey, user_id, code)
+        else:
+            #get coupon
+            coupon, status, errcode = logic.coupon_get_by_code(dkey, user_id, code)
+        
+        if status == "OK":
+            try:
+                coupon = Coupon.to_json(coupon, None, None)
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(coupon))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+        
+    
+    def post(self, dkey):
+        if 'use' in self.request.url:
+            self.response.set_status(405) 
+            return
+        #create coupon
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        coupon, status, errcode = logic.coupon_create(dkey, user_id)
+        if status == "OK":
+            try:
+                coupon = Coupon.to_json(coupon, None, None)
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(coupon))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+        
+    def delete(self, dkey):
+        if 'use' in self.request.url:
+            self.response.set_status(405) 
+            return
+        #delete coupon
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        code = self.request.GET.get('code')
+        
+        coupon, status, errcode = logic.coupon_delete(dkey, user_id, code)
+        if status == "OK":
+            try:
+                coupon = Coupon.to_json(coupon, None, None)
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.write(json.dumps(coupon))
+            except TypeError, e:
+                self.response.set_status(500)
+                self.response.write(str(e))
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
+
 
 
 app = webapp2.WSGIApplication([
@@ -401,7 +626,13 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/place/owned', handler=PlaceListHandler),
     webapp2.Route(r'/api/place/<pid>', handler=PlaceHandler),
     webapp2.Route(r'/api/place/<pid>/owner', handler=PlaceHandler),
-    webapp2.Route(r'/api/rating', handler=RatingHandler)
+    webapp2.Route(r'/api/rating', handler=RatingHandler),
+    webapp2.Route(r'/api/discount', handler=DiscountListHandler),
+    webapp2.Route(r'/api/discount/<key>', handler=DiscountHandler),
+    webapp2.Route(r'/api/discount/<key>/publish', handler=DiscountHandler),
+    webapp2.Route(r'/api/discount/<dkey>/coupon', handler=CouponHandler),
+    webapp2.Route(r'/api/discount/<dkey>/coupon/use', handler=CouponHandler),
+    
 ],
     debug=True
 )

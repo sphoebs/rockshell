@@ -5,7 +5,7 @@ Created on Sep 15, 2014
 '''
 import fix_path
 import types
-import exceptions
+from myexceptions import *
 from datetime import datetime
 from google.appengine.ext import ndb
 from google.appengine.api.datastore_types import GeoPt
@@ -35,7 +35,7 @@ def code_generator(used_codes):
     i = 1
     while res in used_codes:
         if i > 20:
-            raise exceptions.CodeException(
+            raise CodeException(
                 "Not able to generate a new code in reasonable time.")
         res = ''.join(random.SystemRandom().choice(
             string.ascii_uppercase + string.digits) for _ in range(5))
@@ -382,7 +382,7 @@ class Address(PFmodel):
 #             db_obj = key.get()
 #             if db_obj is None:
 #                 logging.info("Updating address - NOT FOUND " + str(key))
-#                 raise exceptions.InvalidKeyException('key does not correspond to any Address')
+#                 raise InvalidKeyException('key does not correspond to any Address')
 #
 #             objdict = obj.to_dict()
 #
@@ -609,7 +609,7 @@ class Hours(PFmodel):
 #             db_obj = key.get()
 #             if db_obj is None:
 #                 logging.info("Updating hours - NOT FOUND " + str(key))
-#                 raise exceptions.InvalidKeyException('key does not correspond to a valid Hours')
+#                 raise InvalidKeyException('key does not correspond to a valid Hours')
 # 
 #             objdict = obj.to_dict()
 # 
@@ -773,7 +773,7 @@ class Settings(PFmodel):
 #             db_obj = key.get()
 #             if db_obj is None:
 #                 logging.info("Updating settings - NOT FOUND " + str(key))
-#                 raise exceptions.InvalidKeyException('key does not correspond to any Settings')
+#                 raise InvalidKeyException('key does not correspond to any Settings')
 # 
 #             objdict = obj.to_dict()
 # 
@@ -1018,7 +1018,7 @@ class PFuser(PFmodel):
 #         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
-            res.populate(**json_dict)
+        res.populate(**json_dict)
 #         except Exception as e:
 #             logging.info("Error while creating PFuser from json: " + str(e))
 #             return None
@@ -1083,7 +1083,7 @@ class PFuser(PFmodel):
             if not valid:
                 for p in wrong_settings:
                     wrong_list.append('settings.' + p)
-
+                
         if len(wrong_list) > 0:
             return False, wrong_list
         else:
@@ -1108,7 +1108,7 @@ class PFuser(PFmodel):
                 raise TypeError('obj must be PFuser, instead it is ' + str(type(obj)))
             else :
                 raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
-            
+        
         user_id = "CA_" + obj.user_id
         key = ndb.Key('PFuser', user_id)
         user = PFuser(key=key)
@@ -1138,7 +1138,6 @@ class PFuser(PFmodel):
                     ValueError if the input obj has wrong values;
                     InvalidKeyException if the key does not correspond to a valid PFuser;
         """
-
         valid, wrong_list = PFuser.is_valid(obj)
         if not valid:
             logging.error("Invalid input data: " + str(wrong_list))
@@ -1157,7 +1156,7 @@ class PFuser(PFmodel):
             db_obj = key.get()
             if db_obj is None:
                 logging.info("Updating PFuser - NOT FOUND " + str(key))
-                raise exceptions.InvalidKeyException('key does not correspond to any PFuser')
+                raise InvalidKeyException('key does not correspond to any PFuser')
 
             objdict = obj.to_dict()
 
@@ -1345,7 +1344,7 @@ class Place(PFmodel):
 #         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
-            res.populate(**json_dict)
+        res.populate(**json_dict)
 #         except Exception as e:
 #             logging.info("Error while creating Place from json: " + str(e))
 #             return None
@@ -1435,7 +1434,7 @@ class Place(PFmodel):
             db_obj = key.get()
             if db_obj is None:
                 logging.info("Updating place - NOT FOUND " + str(key))
-                raise exceptions.InvalidKeyException('key does not correspond to any Place')
+                raise InvalidKeyException('key does not correspond to any Place')
 
             objdict = obj.to_dict()
 
@@ -1524,29 +1523,32 @@ class Place(PFmodel):
         if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
             # the three parameters must come all together
             if isinstance(filters['lat'], float):
-                filters['lat'] = str(filters['lat'])
+                #correct
+                pass
             elif isinstance(filters['lat'], (str, unicode)):
                 try:
-                    float(filters['lat'])
+                    filters['lat'] = float(filters['lat'])
                 except ValueError:
                     raise ValueError('filters->lat should be a string representing a float, instead it is a string: ' + str(filters['lat']))
             else:        
                 raise TypeError('filters->lat should be a float or a string representing a float, instead it is ' + str(type(filters['lat'])))
             
             if isinstance(filters['lon'], float):
-                filters['lon'] = str(filters['lon'])
+                #correct
+                pass
             elif isinstance(filters['lon'], (str, unicode)):
                 try:
-                    float(filters['lon'])
+                    filters['lon'] = float(filters['lon'])
                 except ValueError:
                     raise ValueError('filters->lon should be a string representing a float, instead it is a string: ' + str(filters['lon']))
             else:        
                 raise TypeError('filters->lon should be a float or a string representing a float, instead it is ' + str(type(filters['lon'])))
                  
-            if isinstance(filters['max_dist'], float):
-                filters['max_dist'] = str(filters['max_dist'])
-            elif isinstance(filters['max_dist'], int):
-                filters['max_dist'] = str(filters['max_dist'])
+            if isinstance(filters['max_dist'], int):
+                max_dist = float(str(filters['max_dist']) + '.0')
+            elif isinstance(filters['max_dist'], float):
+                #correct
+                max_dist = filters['max_dist']
             elif isinstance(filters['max_dist'], (str, unicode)):
                 try:
                     max_dist = float(filters['max_dist'])
@@ -1626,7 +1628,7 @@ class Place(PFmodel):
         # executes query only once and store the results
         # Never use fetch()!
         dblist = list(dblist)
-        reslist = Place.list_to_json(dblist)
+        reslist = Place.list_to_json(dblist, None, None)
         futures = []
         if user_id is not None:
             for place in dblist:
@@ -1636,7 +1638,7 @@ class Place(PFmodel):
 
             for future in futures:
                 ratings = future.get_result()
-                ratings = Rating.list_to_json(ratings)
+                ratings = Rating.list_to_json(ratings, None, None)
 
                 if len(ratings) > 0:
                     place_key = ratings[0]['place']
@@ -1688,7 +1690,7 @@ class Place(PFmodel):
         #validation of make_key parame is done within the function, no need to redo here
         requester = PFuser.make_key(requester_id, None).get()
         if requester is None or requester.role != 'admin':
-            raise exceptions.UnauthorizedException("Only admins can perform set_owner for a Place, the requester has role " + str(requester.role))
+            raise UnauthorizedException("Only admins can perform set_owner for a Place, the requester has role " + str(requester.role))
 
         place = Place.make_key(None, place_key_str).get()
         if place is None:
@@ -1770,7 +1772,7 @@ class Rating(PFmodel):
         return res
 
     @staticmethod
-    def list_to_json(rating_list):
+    def list_to_json(rating_list, allowed, hidden):
         """
         It converts a list of Rating into a list of dict objects, ready for transformation into json string
         Exceptions: TypeError if parameters are of the wrong type (also from Rating.to_json())
@@ -1780,7 +1782,7 @@ class Rating(PFmodel):
 
         res = []
         for rating in rating_list:
-            res.append(Rating.to_json(rating, None, None))
+            res.append(Rating.to_json(rating, allowed, hidden))
         return res
 
     @staticmethod
@@ -1825,7 +1827,7 @@ class Rating(PFmodel):
 #         try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
-            res.populate(**json_dict)
+        res.populate(**json_dict)
 #         except Exception as e:
 #             logging.info("Error while creating Rating from json: " + str(e))
 #             return None
@@ -1920,7 +1922,7 @@ class Rating(PFmodel):
                     'Wrong values for the following attributes: ' + str(wrong_list))
 
         rlist = Rating.get_list(
-            {'user': obj.user.id(), 'place': obj.place.id(), 'purpose': obj.purpose})
+            {'user': obj.user.urlsafe(), 'place': obj.place.urlsafe(), 'purpose': obj.purpose})
         if len(rlist) == 1:
             rlist[0].value = obj.value
             rlist[0].not_known = obj.not_known
@@ -1977,8 +1979,8 @@ class Rating(PFmodel):
             logging.error(
                 'Filters MUST be stored in a dictionary!! The received filters are wrong!!')
             raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
-
-        if 'purpose' in filters:
+        
+        if filters is not None and 'purpose' in filters:
             if not filters['purpose'] in Rating._valid_purpose:
                 raise ValueError('filters->purpose is not one of the valid purposes: ' + str(filters['purpose']))
 
@@ -2114,7 +2116,6 @@ class Cluster(PFmodel):
 
         It is empty in the parent class.
 
-        TODO (maybe not needed)
         """
         pass
 
@@ -2377,7 +2378,7 @@ class Cluster(PFmodel):
         It deletes all clusters. 
         Empty result
         """
-        # TODO: is fetch the fastest way to get them?
+        # TODO: is fetch the fastest way to get them? --> NO, usually an iteration is better
         keys = ndb.gql('SELECT __key__ FROM Cluster').fetch()
         if keys is None:
             # no clusters are stored, nothing to do
@@ -2625,7 +2626,7 @@ class Coupon(PFmodel):
 #             db_obj = key.get()
 #             if db_obj is None:
 #                 logging.info("Updating coupon - NOT FOUND " + str(key))
-#                 raise exceptions.InvalidKeyException('key does not correspond to any Coupon')
+#                 raise InvalidKeyException('key does not correspond to any Coupon')
 # 
 #             objdict = obj.to_dict()
 # 
@@ -2654,8 +2655,10 @@ class Coupon(PFmodel):
 
 class Discount(PFmodel):
 
-    title = ndb.StringProperty()
-    description = ndb.TextProperty()
+    title_en = ndb.StringProperty()
+    title_it = ndb.StringProperty()
+    description_en = ndb.TextProperty()
+    description_it = ndb.TextProperty()
     place = ndb.KeyProperty(kind=Place)
     num_coupons = ndb.IntegerProperty(indexed=False)
     available_coupons = ndb.IntegerProperty()
@@ -2800,9 +2803,7 @@ class Discount(PFmodel):
         if not isinstance(obj, Discount):
             return False, wrong_list
 
-        if obj.created_by is None:
-            wrong_list.append('created_by')
-        else:
+        if obj.created_by is not None:
             user = PFuser.get_by_key(obj.created_by)
             if user is None:
                 wrong_list.append('created_by')
@@ -2814,9 +2815,7 @@ class Discount(PFmodel):
             if place is None:
                 wrong_list.append('place')
 
-        if obj.creation_time is None:
-            wrong_list.append('creation_time')
-        else:
+        if obj.creation_time is not None:
             if obj.publish_time is not None and obj.publish_time < obj.creation_time:
                 wrong_list.append('publish_time')
             if obj.end_time is not None and obj.end_time < obj.creation_time:
@@ -2871,11 +2870,11 @@ class Discount(PFmodel):
         # place should exist
         place = Place.get_by_key(obj.place)
         if place is None:
-            raise exceptions.InvalidKeyException("The place for the Discount does not exist!")
+            raise InvalidKeyException("The place for the Discount does not exist!")
         # only place owner can create/update
         user_key = PFuser.make_key(requester_id, None)
         if place.owner != user_key:
-            raise exceptions.UnauthorizedException("Only the owner of the place can create a Discount for it!")
+            raise UnauthorizedException("Only the owner of the place can create a Discount for it!")
 
         if key is not None:
             if not(isinstance(key, ndb.Key) and key.kind().find('Discount') > -1):
@@ -2884,7 +2883,7 @@ class Discount(PFmodel):
             db_obj = key.get()
             if db_obj is None:
                 logging.info("Updating discount - NOT FOUND " + str(key))
-                raise exceptions.InvalidKeyException('key does not correspond to any Discount')
+                raise InvalidKeyException('key does not correspond to any Discount')
 
             objdict = obj.to_dict()
 
@@ -2919,35 +2918,60 @@ class Discount(PFmodel):
             obj.created_by = user_key
             obj.creation_time = datetime.now()
             obj.coupons = []
+            obj.available_coupons = obj.num_coupons
 
             obj.put()
             return obj
 
     @staticmethod
-    def get_by_key(key):
+    def get_by_key(key, requester_id):
         """
         It retrieves the Discount by key.
 
         Parameters:
         - key: the ndb key identifying the object to retrieve.
+        - requester_id: id of the user which is making the request. 
+        Only the place owner can access the past discounts and the ones that have not been published yet.
 
         Return value: Discount.
         Exceptions: TypeError if the input parameter is of the wrong type
+                    UnauthorizedException
         """
+  
         if key is not None:
             if not ( isinstance(key, ndb.Key) and key.kind().find('Discount') > -1):
                 raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
-            return key.get()
+            discount = key.get()
+            if requester_id is None:
+                if discount.published == False:
+                    # the user cannot see it since it is not public!
+                    raise UnauthorizedException('The discount is not public, access is garanted only to the owner of the place to which it refers to. Login is needed.')
+            else:
+                user_key = PFuser.make_key(requester_id, None)
+                place = Place.get_by_key(discount.place)
+                if place is None:
+                    raise InvalidKeyException("The place for the Discount does not exist!")
+                if place.owner != user_key and discount.published == False:
+                    raise UnauthorizedException("Only the owner of the place can access a Discount that is not public!")
+                if place.owner != user_key:
+                    # this is a normal user, he cannot see the coupons of other users
+                    for coupon in discount.coupons:
+                        if coupon.user != user_key:
+                            del coupon
+            return discount 
+            
         else:
             return None
 
     @staticmethod
-    def get_list(filters):
+    def get_list(filters, requester_id):
         """
         It retrieves a list of Discounts satisfying the characteristics described in filter.
 
         Parameters:
         - filters: a dict containing the characteristics the objects in the resulting list should have.
+        - requester_id: id of the user which is making the request. 
+        Only the place owner can access the past discounts and the ones that have not been published yet.
 
         Available filters:
         - 'place': urlsafe key for the place
@@ -2961,7 +2985,7 @@ class Discount(PFmodel):
         """
         if not isinstance(filters, dict):
             raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
-        
+
         if 'published' in filters:
             if isinstance(filters['published'], (str, unicode)):
                 if filters['published'].lower() == 'true':
@@ -2979,6 +3003,8 @@ class Discount(PFmodel):
             elif not isinstance(filters['passed'], bool):
                 raise TypeError('filters->passed must be a boolean or a string representation of a boolean value!')
         
+        
+        
         q = Discount.query()
         if 'place' in filters:
             q = q.filter(
@@ -2994,6 +3020,24 @@ class Discount(PFmodel):
             else:
                 q = q.filter(Discount.end_time > datetime.now())
         res = list(q)
+        
+        for discount in res:
+            if requester_id is None:
+            
+                if discount.published == False:
+                    del discount
+            else:
+                user_key = PFuser.make_key(requester_id, None)
+                place = Place.get_by_key(discount.place)
+                if place is None:
+                    del discount
+                if place.owner != user_key and discount.published == False:
+                    del discount
+                if place.owner != user_key:
+                    # this is a normal user, he cannot see the coupons of other users
+                    for coupon in discount.coupons:
+                        if coupon.user != user_key:
+                            del coupon
 
         return res
 
@@ -3012,23 +3056,26 @@ class Discount(PFmodel):
         Exceptions: TypeError (from get_by_key())
                     InvalidKeyException if the Discount does not refer to a valid Place
                     UnauthorizedException if the requester is not the owner of the related Place
+                    DiscountAlreadyPublished if the requester is trying to publish an already piblic Discount
         """
 
         if requester_id is None:
-            raise exceptions.UnauthorizedException('The user must login before trying to publish a discount')
+            raise UnauthorizedException('The user must login before trying to publish a discount')
         user_key = PFuser.make_key(requester_id, None)
         
-        discount = Discount.get_by_key(discount_key)
+        discount = Discount.get_by_key(discount_key, requester_id)
         if discount is None:
-            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+            raise InvalidKeyException('discount_key is not the key of a valid discount!') 
 #         user = PFuser.get_by_key(user_key)
 #         if user is None:
 #             return None
         place = Place.get_by_key(discount.place)
         if place is None:
-            raise exceptions.InvalidKeyException('The discount does not refer to a valid Place!')
+            raise InvalidKeyException('The discount does not refer to a valid Place!')
         elif place.owner is None or place.owner != user_key:
-            raise exceptions.UnauthorizedException('Only the owner of the Place can publish discounts for it')
+            raise UnauthorizedException('Only the owner of the Place can publish discounts for it')
+        elif discount.published == True:
+            raise DiscountAlreadyPublished('The discount is already public, it cannot be published again!')
         discount.published = True
         discount.publish_time = datetime.now()
         discount.put()
@@ -3051,22 +3098,22 @@ class Discount(PFmodel):
                     CouponAlreadyBoughtException if the user already bought a coupon for this discount
         """
         if user_id is None:
-            raise exceptions.UnauthorizedException('The user must login before being able to get a coupon for a discount')
+            raise UnauthorizedException('The user must login before being able to get a coupon for a discount')
         
         user_key = PFuser.make_key(user_id, None)
         
         discount = Discount.get_by_key(discount_key)
         if discount is None:
-            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+            raise InvalidKeyException('discount_key is not the key of a valid discount!') 
 
         # check the user is valid
         user = PFuser.get_by_key(user_key)
         if user is None:
-            raise exceptions.InvalidKeyException('user_id is not the id of a valid user!')
+            raise InvalidKeyException('user_id is not the id of a valid user!')
 
         if discount.published == False or discount.end_time < datetime.now() or discount.available_coupons < 1:
             # the discount is no more available
-            raise exceptions.DiscountExpiredException('The discount is ended or no coupons are available.')
+            raise DiscountExpiredException('The discount is ended or no coupons are available.')
 
         codes = []
         bought = None
@@ -3077,7 +3124,7 @@ class Discount(PFmodel):
                     # the user already bought a coupon for this discount
                     bought = coupon
         if bought is not None:
-            raise exceptions.CouponAlreadyBoughtException('The user already bought a coupon for this discount')
+            raise CouponAlreadyBoughtException('The user already bought a coupon for this discount')
 
         coupon = Coupon(
             user=user_key, buy_time=datetime.now(), code=code_generator(codes))
@@ -3092,7 +3139,49 @@ class Discount(PFmodel):
 #             return None
         discount.put()
         return coupon
+    
+    @staticmethod
+    def get_coupon(discount_key, requester_id, code):
+        """
+        Retrieves a coupon. Only the coupon owner and the owner of the place the discount refers to can retrieve the coupon.
 
+        Parameters:
+        - discount_key: the ndb.Key identifying the discount the coupon refers to
+        - requester_id: the id of the user that is making this request. Only the owner of the coupon can delete it.
+        - code: identifying the coupon to retrieve
+
+        Return value: the requested coupon
+        Exceptions: TypeError if the code in input is of the wrong type;
+                    ValueError if the code in input is not valid;
+                    InvalidKeyException if the discount_key does not refer to a valid Discount;
+                    UnauthorizedException if the requester is not the owner of the coupon or the owner fo the place;
+        """
+        
+        if requester_id is None:
+            raise UnauthorizedException('The user must login before deleting a coupon.')
+        
+        discount = Discount.get_by_key(discount_key)
+        if discount is None:
+            raise InvalidKeyException('discount_key is not the key of a valid discount!') 
+        place = Place.get_by_key(discount.place)
+        if place is None:
+            raise InvalidKeyException('The discount does not refer to a valid place!')
+        
+        if code is None or not isinstance(code, (str, unicode)):
+            raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
+        user_key = PFuser.make_key(requester_id, None)
+        coupon = None
+        if discount.coupons is not None and len(discount.coupons) > 0:
+            for c in discount.counpons:
+                if c.code == code:
+                    coupon = c
+                    break
+        if coupon is None:
+            raise ValueError('code is not valid, is does not refer to a coupon for this discount.')
+        if coupon.user != user_key and place.owner != user_key:
+            raise UnauthorizedException('Only the owner of the coupon or the owner of the place can get it!')
+        return coupon
+        
     @staticmethod
     def use_coupon(discount_key, requester_id, code):
         """
@@ -3111,14 +3200,14 @@ class Discount(PFmodel):
                     InvalidCouponException if the coupon cannot be used
         """
         if requester_id is None:
-            raise exceptions.UnauthorizedException('The user must login before using a coupon.')
+            raise UnauthorizedException('The user must login before using a coupon.')
         
         if code is None or not isinstance(code, (str, unicode)):
             raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
         
         discount = Discount.get_by_key(discount_key)
         if discount is None:
-            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+            raise InvalidKeyException('discount_key is not the key of a valid discount!') 
         
         user_key = PFuser.make_key(requester_id, None)
 
@@ -3130,9 +3219,9 @@ class Discount(PFmodel):
         # only owner can mark the coupon as used
         place = Place.get_by_key(discount.place)
         if place is None:
-            raise exceptions.InvalidKeyException('The discount does not refer to a valid Place!')
+            raise InvalidKeyException('The discount does not refer to a valid Place!')
         elif user_key != place.owner:
-            raise exceptions.UnauthorizedException('Only the owner of the Place can mark coupons as used.')
+            raise UnauthorizedException('Only the owner of the Place can mark coupons as used.')
 
         coupon = None
         if discount.coupons is not None and len(discount.coupons) > 0:
@@ -3144,7 +3233,7 @@ class Discount(PFmodel):
             raise ValueError('code is not valid, it does not refer to a coupon for this discount!')
 
         if coupon.deleted == True or coupon.used == True:
-            raise exceptions.InvalidCouponException('The coupon was deleted or has already been used!')
+            raise InvalidCouponException('The coupon was deleted or has already been used!')
 
         coupon.used = True
         coupon.usage_time = datetime.now()
@@ -3157,6 +3246,7 @@ class Discount(PFmodel):
         Deletes a coupon. Only the coupon owner can delete it.
 
         Parameters:
+        - discount_key: the ndb.Key identifying the discount the coupon refers to
         - requester_id: the id of the user that is making this request. Only the owner of the coupon can delete it.
         - code: identifying the coupon to delete
 
@@ -3167,11 +3257,11 @@ class Discount(PFmodel):
                     UnauthorizedException if the requester is not the owner of the coupon;
         """
         if requester_id is None:
-            raise exceptions.UnauthorizedException('The user must login before deleting a coupon.')
+            raise UnauthorizedException('The user must login before deleting a coupon.')
         
         discount = Discount.get_by_key(discount_key)
         if discount is None:
-            raise exceptions.InvalidKeyException('discount_key is not the key of a valid discount!') 
+            raise InvalidKeyException('discount_key is not the key of a valid discount!') 
         
         if code is None or not isinstance(code, (str, unicode)):
             raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
@@ -3185,7 +3275,7 @@ class Discount(PFmodel):
         if coupon is None:
             raise ValueError('code is not valid, is does not refer to a coupon for this discount.')
         if coupon.user != user_key:
-            raise exceptions.UnauthorizedException('Only the owner of the coupon can delete it!')
+            raise UnauthorizedException('Only the owner of the coupon can delete it!')
         coupon.deleted = True
         coupon.delete_time = datetime.now()
 
@@ -3211,14 +3301,16 @@ class Discount(PFmodel):
                     UnauthorizedException if the requester is not the onwer of the discount;
         """
         if requester_id is None:
-            raise exceptions.UnauthorizedException('The user must login before deleting a discount.')
+            raise UnauthorizedException('The user must login before deleting a discount.')
         
-        discount = Discount.get_by_key(key)
+        discount = Discount.get_by_key(key, requester_id)
         
         place = Place.get_by_key(discount.place)
+        user_key = PFuser.make_key(requester_id, None)
         # if place is none we let anyone delete it, if it is possible.
-        if place is not None and place.owner != requester_id:
-            raise exceptions.UnauthorizedException('Only the owner of the place which the discount refers to can delete it.')
+        logging.info(str(place.owner) + " == " + str(user_key))
+        if place is not None and place.owner != user_key:
+            raise UnauthorizedException('Only the owner of the place which the discount refers to can delete it.')
         
         if discount is None:
             return True
