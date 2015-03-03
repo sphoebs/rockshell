@@ -1520,7 +1520,7 @@ class Place(PFmodel):
                 'Filters MUST be stored in a dictionary!! The received filters are wrong!!')
             raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
 
-        if 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
+        if filters is not None and 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
             # the three parameters must come all together
             if isinstance(filters['lat'], float):
                 #correct
@@ -1562,6 +1562,20 @@ class Place(PFmodel):
            
             
             places = []
+            index = search.Index(name='places')
+            logging.info("INDEX: " + str(len(index.search("").results)))
+            if len(index.search("").results)<1:
+                logging.info("INDEX SEARCH IS EMPTY!!")
+                tmp_places = Place.query()
+                tmp_places = list(tmp_places)
+                for p in tmp_places:
+                    geopoint = search.GeoPoint(
+                                               p.address.location.lat, p.address.location.lon)
+                    fields = [search.GeoField(name='location', value=geopoint)]
+                    d = search.Document(doc_id=p.key.urlsafe(), fields=fields)
+                    index.put(d)
+
+            
 #             logging.info("Place.get_list -- found places " + str(len(places)))
             num = 0
             # request places until one is obtained, increasing the distance.
@@ -1589,7 +1603,7 @@ class Place(PFmodel):
         else:
             dblist = Place.query()
 
-        if 'city' in filters.keys():
+        if filters is not None and 'city' in filters:
             if not isinstance(filters['city'], (str, unicode)):
                 raise TypeError('filters->city must be a string, it is ' + str(type(filters['city'])))
             pieces = filters['city'].split("!")
@@ -2986,7 +3000,9 @@ class Discount(PFmodel):
         if not isinstance(filters, dict):
             raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
 
-        if 'published' in filters:
+        logging.info("Loading discounts with filters: " + str(filters))
+
+        if 'published' in filters and filters['published'] is not None:
             if isinstance(filters['published'], (str, unicode)):
                 if filters['published'].lower() == 'true':
                     filters['published'] = True
@@ -2994,7 +3010,7 @@ class Discount(PFmodel):
                     filters['published'] = False
             elif not isinstance(filters['published'], bool):
                 raise TypeError('filters->published must be a boolean or a string representation of a boolean value!')
-        if 'passed' in filters:
+        if 'passed' in filters and filters['passed'] is not None:
             if isinstance(filters['passed'], (str, unicode)):
                 if filters['passed'].lower() == 'true':
                     filters['passed'] = True
@@ -3006,15 +3022,15 @@ class Discount(PFmodel):
         
         
         q = Discount.query()
-        if 'place' in filters:
+        if 'place' in filters and filters['place'] is not None:
             q = q.filter(
                 Discount.place == Place.make_key(None, filters['place']))
-        if 'coupon_user' in filters:
+        if 'coupon_user' in filters and filters['coupon_user'] is not None:
             q = q.filter(
                 Discount.coupons.user == PFuser.make_key(None, filters['coupon_user']))
-        if 'published' in filters:
+        if 'published' in filters and filters['published'] is not None:
             q = q.filter(Discount.published == filters['published'])
-        if 'passed' in filters:
+        if 'passed' in filters and filters['passed'] is not None:
             if filters['passed'] == True:
                 q = q.filter(Discount.end_time <= datetime.now())
             else:
@@ -3102,7 +3118,7 @@ class Discount(PFmodel):
         
         user_key = PFuser.make_key(user_id, None)
         
-        discount = Discount.get_by_key(discount_key)
+        discount = Discount.get_by_key(discount_key, user_id)
         if discount is None:
             raise InvalidKeyException('discount_key is not the key of a valid discount!') 
 

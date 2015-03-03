@@ -137,6 +137,8 @@ class LoginHandler(BaseRequestHandler):
             if is_new == True:
                 # goto profile page
                 self.redirect('/profile/1')
+            elif user.role == 'owner':
+                self.redirect('/owner/list')
             else:
                 self.redirect('/letsgo')
         else:
@@ -359,7 +361,7 @@ class RestaurantPageHandler(BaseRequestHandler):
                     place = Place.to_json(place, None, None)
                     if 'description_' + LANG_NAME in place:
                         place['description'] = place['description_' + LANG_NAME]
-                    self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG });
+                    self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
                     return
                 except TypeError, e:
                     self.render("error.html", {'error_code': 500, 'error_string': str(e)})
@@ -456,11 +458,20 @@ class DiscountHandler(BaseRequestHandler):
         if status != "OK":
             self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
+        place, status, errcode = logic.place_get(None, discount.place.urlsafe())
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
         try:
             discount = Discount.to_json(discount, None, None)
             discount['title'] = discount['title_'+LANG_NAME]
             discount['description'] = discount['description_'+LANG_NAME]
-            self.render('discount.html', {'discount': discount, 'user': user, 'lang' : LANG });
+            
+            if place.owner is not None and place.owner == user.key:
+                owner = True
+            else:
+                owner  = False
+            self.render('discount.html', {'discount': discount, 'place_name': place.name, 'owner' : owner, 'user': user, 'lang' : LANG });
         except TypeError, e:
             self.render("error.html", {'error_code': 500, 'error_string': str(e)})
             return
@@ -511,7 +522,55 @@ class DiscountNewHandler(BaseRequestHandler):
         except TypeError, e:
             self.render("error.html", {'error_code': 500, 'error_string': str(e)})
             return
-
+        
+class DiscountListHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        
+        user, status, errcode = logic.user_get(user_id, None)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+         
+        place, status, errcode = logic.place_get(None, self.request.GET.get('rest_id'))
+        if status == 'OK':
+            if place is None:
+                self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+                return 
+            try:
+                place = Place.to_json(place, None, None)
+                if 'description_' + LANG_NAME in place:
+                    place['description'] = place['description_' + LANG_NAME]
+                self.render('discount_manage.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
+                return
+            except TypeError, e:
+                self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+                return
+        else:
+            logging.info("PLACE NOT FOUND")
+            self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+            return
+        
+class UserCouponsHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        
+        user, status, errcode = logic.user_get(user_id, None)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+        
+        self.render('my_coupons.html', {'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
+        
+        
 
 class MainHandler(BaseRequestHandler):
 
@@ -538,5 +597,7 @@ app = webapp2.WSGIApplication([
     ('/discount', DiscountHandler),
     ('/discount/edit', DiscountEditHandler),
     ('/discount/new', DiscountNewHandler),
+    ('/discount/list', DiscountListHandler),
+    ('/my-coupons', UserCouponsHandler)
 
 ], debug=True)

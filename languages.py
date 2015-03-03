@@ -116,6 +116,13 @@ en = {
     'discount_description': 'Description',
     'discount_num_coupons': 'Number of coupons',
     'discount_end': 'The discount will be available till',
+    'discount_list_all': 'Manage discounts',
+    
+    'discount_strings': {
+                         'last': 'Last',
+                         'coupons_available_till': 'coupons, available till'
+    },
+    'no_discounts': 'Currently, there are no discounts available for this restaurant.'
       
 }
 
@@ -233,6 +240,13 @@ it = {
     'discount_description': 'Descrizione',
     'discount_num_coupons': 'Numero di coupon',
     'discount_end': 'Lo sconto sar&agrave; discpnibile fino a',
+    'discount_list_all': 'Gestisci sconti',
+    
+    'discount_strings': {
+                         'last': 'Ultimi',
+                         'coupons_available_till': 'coupons, disponibili fino a'
+    },
+    'no_discounts': 'Al momento, non ci sono sconti disponibili per questo ristorante.'
     
 }
 

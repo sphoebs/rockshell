@@ -21,7 +21,8 @@
 	$(window).ready(function() {
 		var logo_height = $('.home-logo').width();
 		$('.home-container').height(logo_height);
-		
+		localStorage.removeItem("reclist");
+		localStorage.removeItem("reclist_time");
 	});
 </script>
 

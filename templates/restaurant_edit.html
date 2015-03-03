@@ -395,17 +395,18 @@ $(window).ready(function() {
 									if(window.console){
 										console.log('owner saved with success');
 									}
+									window.location = '/restaurant?id=' + place.key
 								},
 								error: function(resp){
 									if(window.console){
 										console.log(resp);
 									}
-									alert("Error saving owner: " + resp.status);
+									alert("Error saving owner: " + resp);
 								}
 							});
 						}
 						
-						window.location = '/restaurant?id=' + place.key
+						
 					},
 					error : function(resp) {
 						

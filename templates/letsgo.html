@@ -21,6 +21,48 @@
 		</div>
 	</div>
 	
+	<div class="left-menu scrollable">
+		<div class="user-menu clickable">
+			<div class="user-picture"></div>
+			<h2 class="text-bold user-name">{{ lang['welcome']}}</h2>
+		</div>
+		<br/>
+		
+		<ul class="menu-items">
+			<li><button class="img-btn" id="coupons">My coupons</button></li>
+			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+			<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
+			<!-- <li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li> -->
+			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
+			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
+			<li><button class="img-btn" id="settings">{{ lang['search_settings']}}</button></li>
+			{% if user_role == 'admin' %}
+				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
+				<li><button class="img-btn" id="edit-rest">Manage restaurants</button></li>
+			{% endif %}
+			{% if user_role == 'owner' %}
+				<li><button class="img-btn" id="edit-rest-owner">Manage restaurants</button></li>
+			{% endif %}
+			
+			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+		</ul>
+	
+	</div>
+	
+	
+	
+	<div class="disc-details">
+		<div class="main clickable">
+			<p class="title"></p>
+			<p class="coupons"></p>
+			<p class="end-time"></p>
+			<p class="center-text first"><small>Discount!</small></p>
+			<input type="hidden" id="disc-key"/>
+		</div>
+	</div>
+	
+	
+	
 	<div class="rest-details">
 		<button class="img-btn prev"></button>
 		<div class="main clickable">
@@ -32,32 +74,7 @@
 		<button class="img-btn next"></button>
 	</div>
 	
-	<div class="left-menu scrollable">
-		<div class="user-menu clickable">
-			<div class="user-picture"></div>
-			<h2 class="text-bold user-name">{{ lang['welcome']}}</h2>
-		</div>
-		<br/>
-		
-		<ul class="menu-items">
-			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
-			<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
-			<!-- <li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li> -->
-			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
-			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
-			<li><button class="img-btn" id="settings">{{ lang['search_settings']}}</button></li>
-			{% if user_role == 'admin' %}
-				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
-				<li><button class="img-btn" id="edit-rest">{{ lang['rest_edit'] }}</button></li>
-			{% endif %}
-			{% if user_role == 'owner' %}
-				<li><button class="img-btn" id="edit-rest-owner">{{ lang['rest_edit'] }}</button></li>
-			{% endif %}
-			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
-		</ul>
 	
-	</div>
-
 </div>
 
 <div class="popup-area"></div>
@@ -110,7 +127,8 @@ $(window).load(function() {
 			localStorage.removeItem("reclist_time");
 			reclist = undefined;
 		}
-	} else {
+	}
+	if (reclist == undefined){
 		if (navigator.geolocation) {
 			$('.loading-message').html('Getting your position');
 	    	navigator.geolocation.getCurrentPosition(showRecommendations);
@@ -153,6 +171,22 @@ $(window).load(function() {
 			$('.rest-details .distance').show();
 		} else {
 			$('.rest-details .distance').hide();
+		}
+		
+		if(p.discounts && p.discounts.length > 0){
+			discount = p.discounts[0];
+			$('.disc-details .title').html(discount.title_en);
+			if(discount.coupons != undefined && discount.coupons.length == 1 && discount.coupons[0].user == user.key){
+				$('.disc-details .coupons').html('<small>Your coupon has code '+ discount.coupons[0].code+'</small>');
+			} else {
+				$('.disc-details .coupons').html('<small>'+discount.available_coupons + ' coupons available </small>');
+				$('.disc-details .end-time').html('<small> Available till ' + discount.end_time + '</small>');
+			}
+			$('.disc-details #disc-key').val(discount.key);
+			
+			$('.disc-details').show()
+		} else {
+			$('.disc-details').hide()
 		}
 		
 		var picture = p.picture;
@@ -238,6 +272,10 @@ $(window).load(function() {
 		var p = places[pos];
 		window.location = '/restaurant?id=' + p.key;
 	});
+	$('.disc-details .main').click(function(){
+		key = $('.disc-details #disc-key').val();
+		window.location = '/discount?id=' + key;
+	});
 	
 	
 	
@@ -281,6 +319,10 @@ $(window).load(function() {
 	
 	$('.user-menu, .user-menu-small').click(function(){
 		window.location = '/profile/1';
+	});
+	
+	$('#coupons').click(function(){
+		window.location = '/my-coupons';
 	});
 	
 	$('#logout').click(function(){

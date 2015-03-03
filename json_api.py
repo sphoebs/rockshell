@@ -278,7 +278,7 @@ class PlaceHandler(webapp2.RequestHandler):
         place, status, errcode = logic.place_set_owner(pid, user.email, req_id)
         if status == "OK":
             try:
-                self.response.set_status(201)
+                self.response.set_status(200)
                 self.response.headers['Content-Type'] = 'application/json'
                 self.response.write(json.dumps(Place.to_json(place, None,None)))
             except TypeError, e:
@@ -413,7 +413,7 @@ class DiscountListHandler(webapp2.RequestHandler):
             try:
                 dlist = [Discount.to_json(d, None, None) for d in dlist]
                 self.response.headers['Content-Type'] = 'application/json'
-                self.response.write(json.dumps(list))
+                self.response.write(json.dumps(dlist))
             except TypeError, e:
                 self.response.set_status(500)
                 self.response.write(str(e))

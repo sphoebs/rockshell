@@ -117,7 +117,7 @@ $(window).ready(function() {
 			
 		});
 		
-		var userpic = user.picture;
+		var userpic = '{{user.picture|safe}}';
 		if(userpic != undefined && userpic.length > 0){	
 			$('.user-picture').css('background-image', 'url(' + userpic + ')');
 		}

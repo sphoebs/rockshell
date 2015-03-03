@@ -36,7 +36,7 @@
 
 		<div class="rest-container scrollable">
 		
-			<h2 class="center-text">{{ discount.title }}</h2>
+			<h2 class="center-text">{{ discount.title }} - for {{place_name}}</h2>
 			
 			<p>{{discount.description}}</p>
 			
@@ -44,12 +44,37 @@
 			
 			<p>Coupons available: {{discount.available_coupons}} / {{discount.num_coupons}}</p>
 			
-			<p>Published: <input type="checkbox" id="published" {{'checked' if discount.published}} onclick="return false;"></p>
+			{% if owner %}
+				<p id="published">{{ 'Published' if discount.published else 'Not published' }}</p>
 			
+				<button class="img-btn red-button" id="edit">Edit</button>
+				<button class="img-btn red-button" id="publish">Publish</button>
+				<button class="img-btn red-button" id="delete">Delete</button>
 			
-			<button class="img-btn" id="edit">Edit</button>
-			<button class="img-btn" id="publish">Publish</button>
-			<button class="img-btn" id="delete">Delete</button>
+				<br/>
+				{% if not discount.coupons is none and discount.coupons|length > 0 %}
+					<ul class="coupon-list">
+						{% for coupon in discount.coupons %}
+							<li class="coupon">
+								<p>{{coupon.code}}, bought {{coupon.buy_time}}, {% if used %} used at {{coupon.usage_time}} {% endif %}</p>
+							</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+			
+			{% else %}
+				{% if discount.coupons is none or discount.coupons|length < 1 or discount.coupons[0].deleted %}
+					<button class="img-btn red-button" id="buy">Buy</button>
+				{% else %}
+					<br/>
+					<div class="coupon">
+						<p> You have a coupon, with code {{discount.coupons[0].code}}</p>
+						{% if discount.coupons[0].used %}
+							<p> The coupon has been already used in date: {{discount.coupons[0].usage_time}}
+						{% endif %}					
+					</div>
+				{% endif %}
+			{% endif %}
 		</div>
 </div>
 
@@ -85,8 +110,7 @@ $(window).ready(function() {
 				type : 'GET',
 				url : '/api/discount/{{discount.key}}/publish',
 				success : function() {
-					alert('discount published with success!')
-					$('#published').attr('checked', true);
+					$('#published').html('Published');
 				},
 				error : function(resp) {
 					if(window.console){
@@ -114,6 +138,26 @@ $(window).ready(function() {
 			});
 		}
 		
+		function create_coupon(){
+			$.ajax({
+				type : 'POST',
+				url : '/api/discount/{{discount.key}}/coupon',
+				body : '{}',
+				success : function(coupon) {
+					if(window.console){
+						console.log('Coupon created: ' + JSON.stringify(coupon));
+					}
+					location.reload();
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		}
+		
 		
 		$('.rest-container.scrollable').enscroll({
 		    showOnHover: false,
@@ -124,7 +168,7 @@ $(window).ready(function() {
 		    verticalHandleClass: 'handle-red'
 		});
 		
-		var userpic = "{{ user.picture|e }}";
+		var userpic = "{{ user.picture if not user.picture is none }}";
 		if(userpic != undefined && userpic.length > 0){	
 			$('.user-picture').css('background-image', 'url(' + userpic + ')');
 		}
@@ -194,6 +238,10 @@ $(window).ready(function() {
 		
 		$('#delete').click(function(){
 			disc_delete();
+		});
+		
+		$('#buy').click(function(){
+			create_coupon();
 		});
 		
 

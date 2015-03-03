@@ -31,4 +31,6 @@ libraries:
   
   
 builtins:
+- remote_api: on
 #- appstats: on TODO
+

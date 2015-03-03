@@ -16,7 +16,7 @@
 #
 import webapp2
 import logic
-from models import Place, Cluster
+from models import Place, Cluster, Discount
 import math
 import logging
 import json
@@ -114,20 +114,24 @@ def comealong_similarity(ratings, person1, person2):
             for purpose in ratings[person1][item]:
                 if purpose in ratings[person2][item]:
                     si[str(item) + str(purpose)] = 1
+#                     if debug:
+#                         logging.info("Common rating: " + str(item) + " - " + str(purpose) + 
+#                                     " - u1:" + str(ratings[person1][item][purpose]) + " - u2:" + str(ratings[person2][item][purpose]))
 
     # if they have no ratings in common, return 0
     if len(si) == 0:
         return 0
-
-#     logging.info('Euclidean distance - SI length: ' + str(len(si)))
+#     if debug:
+#         logging.info('comealong similarity - SI length: ' + str(len(si)))
 
     # Add up all the squares of the differences
-    sum_of_squares = sum([pow((ratings[person1][item][purpose] - ratings[person2][item][purpose])/(5-1), 2)
+    sum_of_squares = sum([pow((ratings[person1][item][purpose] - ratings[person2][item][purpose])/(5.0-1.0), 2.0)
                           for item in ratings[person1] if item in ratings[person2]
                           for purpose in ratings[person1][item] if purpose in ratings[person2][item]])
 
-#     logging.info('comealong - sum of squares: ' + str(sum_of_squares))
-    res = 2 * (1 / (1 + sum_of_squares / len(si)) - (1/2))
+#     if debug:
+#         logging.info('comealong - sum of squares: ' + str(sum_of_squares))
+    res = 2.0 * ( (1.0 / (1.0 + (sum_of_squares / float(len(si))))) - 0.5)
     if debug:
         logging.info('recommender.comealong_similarity END - ' + str(res))
     return res
@@ -895,7 +899,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     - n: number of recommended places requested by the user
 
     Available filters:
-    - 'city': 'city!province!state!country'
+    //- 'city': 'city!province!state!country'
         The 'city' filter contains the full description of the city, with values separated with a '!'. 
         This string is split and used to retrieve only the places that are in the specified city. 
         'null' is used if part of the full city description is not available [example: 'Trento!TN!null!Italy'
@@ -1013,7 +1017,11 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     
     places_scores = places_scores[0:n]
 #     logging.info('recommender.recommend - places_scores: ' + str(places_scores))
-    items = [place for (score, place) in places_scores]
+    items = []
+    for (score, place) in places_scores:
+        place['predicted'] = score
+        items.append(place)
+
 #     logging.info("Recommended items: " + str(items))
     logging.info("recommender.recommend END - items: " + str(items))
     return items
@@ -1109,7 +1117,14 @@ class UpdatesHandler(webapp2.RequestHandler):
                     # update similarity of this cluster, since now it has one
                     # user less (1 row and 1 column)
                     clusters = Cluster.get_all_clusters_dict()
+                    clusters[clid] = clusers
                     update_cluster_sim_matrix(ratings, clusters, clid)
+            
+            if cluster is None:
+                clusters = Cluster.get_all_clusters_dict()
+                if clusters is None:
+                    compute_user_sim_matrix(ratings)
+                    build_clusters(ratings)
 
             # update user_sim_matrix for this user (1 row and 1 column of the
             # matrix)
@@ -1225,11 +1240,23 @@ class RecommenderHandler(webapp2.RequestHandler):
             return
 
         json_list = places
-        # add distance to user for each place
-        if 'lat' in filters and 'lon' in filters:
-            for item in json_list:
+        
+        for item in json_list:
+            if 'lat' in filters and 'lon' in filters and filters['lat'] is not None and filters['lon'] is not None:
+                # add distance to user for each place
                 item['distance'] = distance(
                     item['address']['lat'], item['address']['lon'], filters['lat'], filters['lon'])
+            disc_filters = {'place': item['key'], 'published': 'True', 'passed': 'False'}
+            discounts, status, errcode = logic.discount_list_get(disc_filters, user_id)
+            logging.info("discounts loaded: " + str(errcode) + " - " + status)
+            if discounts is not None and status == "OK":
+                try:
+                    json_discounts = [Discount.to_json(d, None, None) for d in discounts]
+                    item['discounts'] = json_discounts
+                except (TypeError, ValueError) as e:
+                    #do nothing
+                    logging.error('Discounts not loaded: ' + str(e))
+                    pass
 
 #         logging.info(str(json_list))
         self.response.headers['Content-Type'] = 'application/json'

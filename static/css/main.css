@@ -893,6 +893,26 @@ li.rest-item {
 	z-index: 10;
 }
 
+.letsgo .disc-details{
+	width: 240px;
+	padding-left: 25px;
+	padding-right: 25px;
+	max-width: 60%;
+	background-image: url(../images/rest_back_white_down.png);
+	background-repeat: no-repeat;
+	background-position: top;
+	-webkit-background-size: 100% 100%;
+	-moz-background-size: 100% 100%;
+	-o-background-size: 100% 100%;
+	background-size: 100% 100%;
+	position: absolute;
+	top: 55;
+	left: 50%;
+	-webkit-transform: translate(-50%, 0);
+	transform: translate(-50%, 0);
+	z-index: 10;
+}
+
 .letsgo .rest-details .first {
 	margin-top: 10px;
 	margin-bottom: -5px;
@@ -1300,9 +1320,10 @@ input.days-input {
 	/* profile ratings end */
 	
 	/* letsgo */
-	.letsgo .rest-details {
+	.letsgo .rest-details, .letsgo .disc-details {
 		width: 350px;
 	}
+	
 	/* letsgo end */
 	
 	/* restaurant */
@@ -1477,10 +1498,11 @@ input.days-input {
 	}
 	/* profile ratings end */
 	
-		/* letsgo */
-	.letsgo .rest-details {
+	/* letsgo */
+	.letsgo .rest-details, .letsgo .disc-details {
 		width: 450px;
 	}
+	
 	/* letsgo end */
 	
 	/* restaurant */

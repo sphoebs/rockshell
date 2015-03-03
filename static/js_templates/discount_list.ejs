@@ -1,0 +1,29 @@
+<ul class="disc-list">
+
+	<% _.each(discounts, function(discount){ %>
+		<li class="disc-item">
+			<div>
+				<h4><% if(lang == 'it'){%> <%=discount.title_it%> <%} else {%> <%=discount.title_en%> <% } %></h4>
+				<p><% if(lang == 'it'){%> <%=discount.description_it%> <%} else {%> <%=discount.description_en%> <%} %></p>
+				<p><%= strings.last %> <%= discount.available_coupons %> <%= strings.coupons_available_till %> <%= discount.end_time %></p>
+				<% if(!owner){ %><button class="img-btn red-button" id="buy" discount-id="<%= discount.key %>">Buy</button> <% } %>
+			</div>
+			
+			<% if(owner){ %>
+			<div class="coupons">
+				<% _.each(discount.coupons, function(coupon){ %>
+					<div>
+						<p> Code: <%= coupon.code %></p>
+						<p> Status: <% if(coupon.deleted){ %> Deleted <%} else if(coupon.used){ %> Used <% } else { %> Not used yet <% } %> </p>
+						<button class="img-btn red-button" id="use" discount-id="<%= discount.key %>" coupon-code="<%= coupon.code%>">Use</button>
+					</div>
+				<% }) %>
+			</div>
+			
+			<% } %>
+		</li>
+	
+	<% }) %>
+
+
+</ul>
