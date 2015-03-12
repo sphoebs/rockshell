@@ -22,33 +22,25 @@
 			<br/>
 		
 			<ul class="menu-items">
-				<li><button class="img-btn" id="back">{{ lang['back']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 	
 		</div>
 		
 		<div class="rest-container ">
-			<h2 id="title">Your restaurants: </h2>
-			<ul class="rest-list scrollable">
+			<h2 id="title" class="center-text"> {{ lang['welcome'] }}! </h2>
+			<h3 id="title" class="center-text"> {{ lang['owner_choose_rest'] }} </h3>
+			<ul class="owner-rest-list">
 				{% for rest in places %}
-				<li class="rest-item">
-					<div class="rest-details">
+				<li class="owner-rest-item img-btn clickable" rest-key="{{rest.key}}">
+					<img class="rest-image" src="{{ rest.picture if not rest.picture is none else '/static/images/empty_small.png'}}" />
+					<div class="rest-info">
 						<div class="text-bold name">{{ rest.name if not rest.name is none }}</div>
 						<div class=" address">
 							{{ rest.address.street~', '~ rest.address.city if not rest.address is none}}
 						</div>
-						<img class="rest-image" src="{{ rest.picture if not rest.picture is none else '/static/images/empty_small.png'}}" />
 					</div>
-					<div class="rest-actions">
-						<form action="/restaurant">
-							<input type="hidden" name="id" value="{{rest.key|e}}"/>
-							<input type="submit" class="img-btn" value="View" />
-						</form>
-						<form action="/restaurant/edit">
-							<input type="hidden" name="id" value="{{rest.key|e}}"/>
-							<input type="submit" class="img-btn" value="Edit" />
-						</form>
-					</div>
+						
 				</li>
 				{% endfor %}
 			</ul>
@@ -96,7 +88,7 @@ $(window).ready(function() {
 				if(window_width > 600){
 					$('.user-menu-small').hide();
 				}
-				$('.scrollable').enscroll({
+				$('.left-menu .scrollable').enscroll({
 				    showOnHover: false,
 				    verticalScrolling: true,
 					horizontalScrolling: false,
@@ -126,6 +118,26 @@ $(window).ready(function() {
 			window.location = '/profile/1';
 		});
 		
+		$('#logout').click(function(){
+			$.ajax({
+				type : 'DELETE',
+				url : '/api/user/login',
+				success : function() {
+					window.location = '/';
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		});
+		
+		$('li.owner-rest-item').click(function(){
+			var rest_key = $(this).attr('rest-key');
+			window.location = '/restaurant?id=' + rest_key;
+		});
 
 	});
 </script>

@@ -49,9 +49,15 @@
 	
 	</div>
 	
+	<div class="discount-container">
+		<ul class="letsgo-rest-list">
+		
+		</ul>
+	</div>
 	
 	
-	<div class="disc-details">
+	
+	<!-- <div class="disc-details">
 		<div class="main clickable">
 			<p class="title"></p>
 			<p class="coupons"></p>
@@ -72,7 +78,7 @@
 			<p class="distance">{{ lang['distance']}}: 100 m</p>
 		</div>
 		<button class="img-btn next"></button>
-	</div>
+	</div> -->
 	
 	
 </div>
@@ -121,7 +127,7 @@ $(window).load(function() {
 		if (reclist.length > 0 && (localStorage.reclist_time + reclist_cachetime) > Date.now()){
 			places = reclist;
 			$('.loading').hide();
-			renderPlace(pos);
+			renderPlaces();
 		} else {
 			localStorage.removeItem("reclist");
 			localStorage.removeItem("reclist_time");
@@ -137,7 +143,7 @@ $(window).load(function() {
 		}
 	}
 
-	function renderPlace(pos){
+	/* function renderPlace(pos){
 		if(window.console){
 			console.log("Showing place " + pos + " of " + places.length);
 		}
@@ -195,7 +201,7 @@ $(window).load(function() {
 		}
 		$('.letsgo').css('background-image', 'url(' + picture + ')');
 	}
-
+ */
 	function showRecommendations(position) {
 		$('.loading-message').html('Loading your search settings');
 		var settings = user.settings; 
@@ -229,7 +235,8 @@ $(window).load(function() {
 				} else {
 					localStorage.reclist = JSON.stringify(places);
 					localStorage.reclist_time = Date.now();
-					renderPlace(pos);
+					renderPlaces();
+					
 				}
 			},
 			error : function(resp) {
@@ -241,12 +248,71 @@ $(window).load(function() {
 		}); 
 	}
 	
+	function renderPlaces(){
+		console.log("Loading html for places: " + places.length);
+	
+		//load underscore template
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET","/static/js_templates/letsgo_rest_item.ejs",false);
+		xmlhttp.send(null);
+		var template = xmlhttp.responseText;
+		var compiled = _.template(template);
+		
+		for(var i=0; i< places.length; i++){
+			var p = places[i];
+			var discount = undefined;
+			var distance = '';
+			if(p.distance){
+				
+				var meters = Math.round(p.distance);
+				
+				if(meters < 1000){
+					distance += meters + ' m';
+				} else {
+					km = meters / 1000;
+					distance += km.toFixed(2) + ' km';
+				}
+			/* } else {
+				$('.rest-info .distance').hide(); */
+			}
+			
+			if(p.discounts && p.discounts.length > 0){
+				discount = p.discounts[0];
+				
+			}
+			console.log(compiled);
+			
+			var html = compiled({
+				p : p,
+				disc: discount,
+				distance: distance,
+				distance_str : "{{lang['distance']}}",
+				lang_name : "{{lang_name}}",
+				coupons_available_till: "{{lang['discount_strings']['coupons_available_till']}}"
+			});
+			
+			$('.letsgo-rest-list').append(html);
+			
+		}
+		
+		$('.rest-info').click(function(){
+			var key = $(this).attr('rest-key');
+			window.location = '/restaurant?id=' + key;
+		});
+		$('.discount').click(function(){
+			var key = $(this).attr('disc-key');
+			window.location = '/discount?id=' + key;
+		});
+		
+		
+	}
+	
 	$('.user-name').append(' '+user.first_name);
 	
 	
 	
 	
-	function onNext(){
+	/* function onNext(){
 		if(pos < places.length-1){
 			pos += 1;
 			renderPlace(pos);
@@ -264,19 +330,11 @@ $(window).load(function() {
 			//there are no places before the one already shown
 			//do nothing
 		}
-	}
+	} */
 	
-	$('.rest-details .next').click(onNext);
-	$('.rest-details .prev').click(onPrev);
-	$('.rest-details .main').click(function(){
-		var p = places[pos];
-		window.location = '/restaurant?id=' + p.key;
-	});
-	$('.disc-details .main').click(function(){
-		key = $('.disc-details #disc-key').val();
-		window.location = '/discount?id=' + key;
-	});
-	
+	/* $('.rest-details .next').click(onNext);
+	$('.rest-details .prev').click(onPrev); */
+
 	
 	
 	

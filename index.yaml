@@ -63,9 +63,3 @@ indexes:
   - name: place
   - name: published
   - name: end_time
-
-- kind: Discount
-  properties:
-  - name: place
-  - name: published
-  - name: end_time

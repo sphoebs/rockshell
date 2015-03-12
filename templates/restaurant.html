@@ -27,35 +27,26 @@
 				{% endif %}
 				{% if place.owner == user.key %}
 					<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
+					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+				{% else %}
+					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				{% endif %}
 				{% if user.role == 'admin' %}
 					<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
 				{% endif %}
-				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
-				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 	
 		</div>
 	
-		<div class="rest-container scrollable">
-			<img class="picture" style="background-image: url(/static/images/empty_small.png)">
-		
+		<div class="discount-container">
 			<h2>{{place.name}}</h2>
 			
-			<div class="discounts"><p>Loading...</p></div>
+			<div class="discounts"><p>{{lang['loading']}}...</p></div>
 			
-			<div class="rest-right">
-				<div class="rest-map">
-					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
-				</div>
-				<a href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a>
-			</div>
-		
-			<div class="rest-left">
-				<p class="black-text desc">{{place.description}}</p>
-				
-				{% if place.address %}
+			<div class="info">
+			{% if place.address %}
 				<img class="icon-address"></img>
 				<p class="iconed black-text">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
 				{% endif %}
@@ -112,7 +103,19 @@
 				{% endif %}
 			</div>
 			
-			
+			<div class="rest-right">
+				<div class="rest-map">
+					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
+				</div>
+				<a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a>
+			</div>
+		
+			<div class="rest-left">
+				<img class="picture" style="background-image: url(/static/images/empty_small.png)">
+				
+			</div>
+			<div class=".clear-float"></div>
+			<p class="black-text desc">{{place.description}}</p>			
 
 		</div>
 </div>
@@ -218,12 +221,16 @@ $(window).ready(function() {
 		
 		
 		$('#edit').click(function(){
-			window.location = 'restaurant/edit?id={{place.key|e}}';
+			window.location = '/restaurant/edit?id={{place.key|e}}';
 		});
 		
 		$('#disc_list').click(function(){
-			window.location = 'discount/list?rest_id={{place.key|e}}';
-		})
+			window.location = '/discount/list?rest_id={{place.key|e}}';
+		});
+		
+		$('#change_rest').click(function(){
+			window.location = '/owner/list';
+		});
 		
 		$('#new-rest').click(function(){
 			window.location = '/restaurant/new';

@@ -39,6 +39,7 @@ en = {
       
     # LETSGO
     'welcome': 'Welcome',
+    'loading': 'Loading',
     'in_this_picture' : 'In this picture',
     'restaurant_name' : 'Restaurant name',
     'address' : 'Address',
@@ -83,7 +84,7 @@ en = {
     'done': 'I\'m done',
     'city_mandatory': 'The city must be set!!',
     
-    # RESTAURANT PAGE
+    # RESTAURANT PAGE + EDIT
     'rest_opening_hours': 'Opening hours',
     'rest_closed': 'Closed',
     'rest_name': 'Restaurant name',
@@ -108,6 +109,12 @@ en = {
     'add-day': 'Add new day',
     
     'back': 'Back',
+    'back_to_rest' : 'Back to restaurant',
+    'back_to_dlist' : 'Back to discounts',
+    
+    # OWNER RESTAURANT CHOICE
+    'owner_choose_rest' : 'Choose the restaurant you want to manage.',
+    'change_rest' : 'Change restaurant',
     
     # DISCOUNT
     'discount_edit': 'Edit discount',
@@ -120,10 +127,32 @@ en = {
     
     'discount_strings': {
                          'last': 'Last',
-                         'coupons_available_till': 'coupons, available till'
+                         'coupons_available_till': 'coupons, available till',
+                         'coupons': 'Coupons',
+                         'available_till': 'Available till',
+                         'edit' : 'Edit',
+                         'publish': 'Publish',
+                         'delete': 'Delete',
+                         'buy': 'Get coupon'
     },
-    'no_discounts': 'Currently, there are no discounts available for this restaurant.'
-      
+    'disc_publish_popup': {
+                        'title': 'Confirm publication',
+                        'message': 'Do you really want to publish this discount? <br/> After publication you will not be able to delete it.',
+                        'cancel': 'Cancel',
+                        'ok': 'Yes, publish'
+    },
+    'disc_delete_popup': {
+                        'title': 'Confirm delete',
+                        'message': 'Do you really want to delete this discount?',
+                        'cancel': 'Cancel',
+                        'ok': 'Yes, delete'
+    },
+    'no_discounts': 'Currently, there are no discounts available for this restaurant.',
+    'no_discounts_list': 'No discounts',
+    'discounts' : 'Discounts',
+    'for' : 'for',
+    'phone_short' : 'Tel.',
+    'create_new_discount': 'Create new',
 }
 
 
@@ -163,6 +192,7 @@ it = {
       
     # LETSGO
     'welcome': 'Benvenuto',
+    'loading': 'Caricamento',
     'in_this_picture' : 'In questa immagine',
     'restaurant_name' : 'Nome del ristorante',
     'address' : 'Indirizzo',
@@ -207,7 +237,7 @@ it = {
     'done': 'Ho finito',
     'city_mandatory': 'La citta` deve essere selezionata!!',
     
-    # RESTAURANT PAGE
+    # RESTAURANT PAGE + EDIT
     'rest_opening_hours': 'Orario d\'apertura',
     'rest_closed': 'Chiuso',
     'rest_name': 'Nome del ristorante',
@@ -233,6 +263,13 @@ it = {
     
     'back': 'Indietro',
     
+    'back_to_rest' : 'Torna al ristorante',
+    'back_to_dlist' : 'Torna alle offerte',
+    
+    # OWNER RESTAURANT CHOICE
+    'owner_choose_rest' : 'Scegli il ristorante che vuoi gestire.',
+    'change_rest' : 'Cambia ristorante',
+    
     # DISCOUNT
     'discount_edit': 'Modifica sconto',
     'discount_new': 'Crea nuovo sconto',
@@ -244,9 +281,31 @@ it = {
     
     'discount_strings': {
                          'last': 'Ultimi',
-                         'coupons_available_till': 'coupons, disponibili fino a'
+                         'coupons_available_till': 'coupons, disponibili fino a',
+                         'available_till': 'Disponibile fino a',
+                         'edit' : 'Modifica',
+                         'publish': 'Pubblica',
+                         'delete': 'Cancella',
+                         'buy': 'Prendi coupon'
     },
-    'no_discounts': 'Al momento, non ci sono sconti disponibili per questo ristorante.'
+    'disc_publish_popup': {
+                        'title': 'Conferma pubblicazione',
+                        'message': 'Vuoi davvero pubblicare questa offerta? <br/> Dopo la pubblicazione non potrai pi&ugrave; cancellare questa offerta.',
+                        'cancel': 'Annulla',
+                        'ok': 'S&igrave;, pubblica'
+    },
+    'disc_delete_popup': {
+                        'title': 'Conferma pubblicazione',
+                        'message': 'Vuoi davvero cancellare questa offerta?',
+                        'cancel': 'Annulla',
+                        'ok': 'S&igrave;, cancella'
+    },
+    'no_discounts': 'Al momento, non ci sono sconti disponibili per questo ristorante.',
+    'no_discounts_list': 'Nessune offerte',
+    'discounts' : 'Offerte',
+    'for' : 'per',
+    'phone_short' : 'Tel.',
+    'create_new_discount': 'Crea nuova offerta',
     
 }
 

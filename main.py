@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+  #!/usr/bin/env python
 #
 # Copyright 2007 Google Inc.
 #
@@ -89,13 +89,13 @@ class BaseRequestHandler(webapp2.RequestHandler):
     def render(self, template_name, template_vars={}):
         values = {}
         values.update(template_vars)
-        try:
-            template = JINJA_ENVIRONMENT.get_template(template_name)
-            self.write(template.render(**values))
-        except Exception, e:
-            logging.error(
-                "Rendering Exception for " + template_name + " -- " + str(e))
-            self.abort(500)
+#         try:
+        template = JINJA_ENVIRONMENT.get_template(template_name)
+        self.write(template.render(**values))
+#         except Exception, e:
+#             logging.error(
+#                 "Rendering Exception for " + template_name + " -- " + str(e))
+#             self.abort(500)
 #             self.redirect('/error')
 
     def dispatch(self):
@@ -286,7 +286,7 @@ class LetsgoHandler(BaseRequestHandler):
         except TypeError:
             json_user = '{}'
             # TODO: handle error
-        self.render('letsgo.html', {'list': places, 'user_role': user.role, 'user': json_user, 'lang' : LANG})
+        self.render('letsgo.html', {'list': places, 'user_role': user.role, 'user': json_user, 'lang' : LANG, 'lang_name' : LANG_NAME })
 
 
 class SettingsHandler(BaseRequestHandler):

@@ -24,39 +24,42 @@
 			<br />
 
 			<ul class="menu-items">
-				<li><button class="img-btn" id="rate-more">{{
-						lang['rate_more']}}</button></li>
-				<li><button class="img-btn" id="near-me">{{
-						lang['near_me']}}</button></li>
-				<li><button class="img-btn" id="logout">{{
-						lang['log_out']}}</button></li>
+				{% if owner %}
+					<li><button class="img-btn" id="back_dlist">{{ lang['back_to_dlist']}}</button></li>
+					<li><button class="img-btn" id="back_rest">{{ lang['back_to_rest']}}</button></li>
+					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+				{% else %}
+					<li><button class="img-btn" id="back_rest">{{ lang['back_to_rest']}}</button></li>
+				{% endif %}
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 
 		</div>
 
-		<div class="rest-container scrollable">
+		<div class="discount-container">
 		
 			<h2 class="center-text">{{ discount.title }} - for {{place_name}}</h2>
 			
 			<p>{{discount.description}}</p>
 			
-			<p>Available till {{discount.end_time}}</p>
+			<p>{{ lang['discount_strings']['available_till']}} {{discount.end_time}}</p>
 			
-			<p>Coupons available: {{discount.available_coupons}} / {{discount.num_coupons}}</p>
+			<p>{{lang['discount_strings']['coupons']}}: {{discount.available_coupons}} / {{discount.num_coupons}}</p>
 			
 			{% if owner %}
 				<p id="published">{{ 'Published' if discount.published else 'Not published' }}</p>
 			
-				<button class="img-btn red-button" id="edit">Edit</button>
-				<button class="img-btn red-button" id="publish">Publish</button>
-				<button class="img-btn red-button" id="delete">Delete</button>
+				<button class="img-btn red-button" id="edit">{{lang['discount_strings']['edit']}}</button>
+				<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="publish">{{lang['discount_strings']['publish']}}</button>
+				<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="delete">{{lang['discount_strings']['delete']}}</button>
 			
 				<br/>
 				{% if not discount.coupons is none and discount.coupons|length > 0 %}
 					<ul class="coupon-list">
 						{% for coupon in discount.coupons %}
 							<li class="coupon">
-								<p>{{coupon.code}}, bought {{coupon.buy_time}}, {% if used %} used at {{coupon.usage_time}} {% endif %}</p>
+								<p>{{coupon.code}}, bought {{coupon.buy_time}}, {% if coupon.used %} used at {{coupon.usage_time}} {% endif %}</p>
+								{% if not coupon.used %}<button class="img-btn red-button" coupon-code="{{coupon.code}}" id="use">Use</button>{% endif %}
 							</li>
 						{% endfor %}
 					</ul>
@@ -64,7 +67,7 @@
 			
 			{% else %}
 				{% if discount.coupons is none or discount.coupons|length < 1 or discount.coupons[0].deleted %}
-					<button class="img-btn red-button" id="buy">Buy</button>
+					<button class="img-btn red-button" id="buy">{{lang['discount_strings']['buy']}}</button>
 				{% else %}
 					<br/>
 					<div class="coupon">
@@ -136,7 +139,7 @@ $(window).ready(function() {
 					alert("Error " + resp.status);
 				}
 			});
-		}
+		};
 		
 		function create_coupon(){
 			$.ajax({
@@ -146,6 +149,25 @@ $(window).ready(function() {
 				success : function(coupon) {
 					if(window.console){
 						console.log('Coupon created: ' + JSON.stringify(coupon));
+					}
+					location.reload();
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		};
+		
+		function use_coupon(code){
+			$.ajax({
+				type : 'GET',
+				url : '/api/discount/{{discount.key}}/coupon/use?code=' + code,
+				success : function(coupon) {
+					if(window.console){
+						console.log('Coupon used: ' + JSON.stringify(coupon));
 					}
 					location.reload();
 				},
@@ -202,11 +224,14 @@ $(window).ready(function() {
 			}
 			
 		});
-		$('#rate-more').click(function(){
-			window.location = '/ratings'
+		$('#back_dlist').click(function(){
+			window.location = 'discount/list?rest_id={{discount.place}}'		
 		});
-		$('#near-me').click(function(){
-			window.location = '/letsgo'
+		$('#back_rest').click(function(){
+			window.location = '/restaurant?id={{discount.place}}'		
+		});
+		$('#change_rest').click(function(){
+			window.location = '/owner/list';
 		});
 		$('#logout').click(function(){
 			$.ajax({
@@ -242,6 +267,11 @@ $(window).ready(function() {
 		
 		$('#buy').click(function(){
 			create_coupon();
+		});
+		
+		$('#use').click(function(){
+			var code = $(this).attr('coupon-code');
+			use_coupon(code);
 		});
 		
 

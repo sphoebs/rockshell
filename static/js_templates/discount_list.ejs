@@ -1,27 +1,55 @@
-<ul class="disc-list">
+<ul>
 
-	<% _.each(discounts, function(discount){ %>
-		<li class="disc-item">
-			<div>
-				<h4><% if(lang == 'it'){%> <%=discount.title_it%> <%} else {%> <%=discount.title_en%> <% } %></h4>
-				<p><% if(lang == 'it'){%> <%=discount.description_it%> <%} else {%> <%=discount.description_en%> <%} %></p>
-				<p><%= strings.last %> <%= discount.available_coupons %> <%= strings.coupons_available_till %> <%= discount.end_time %></p>
-				<% if(!owner){ %><button class="img-btn red-button" id="buy" discount-id="<%= discount.key %>">Buy</button> <% } %>
+	<% _.each(discounts, function(discount, i){ %>
+		<li class="disc-item <% if(i%2 == 0){ %> even <% } else { %> odd <% } %>" >
+			
+			<div class="desc clickable img-btn" discount-id="<%= discount.key %>">
+				<h4 class="title"><% if(lang == 'it'){%> <%=discount.title_it%> <%} else {%> <%=discount.title_en%> <% } %></h4>
+				<p> <%= strings.available_till %> <%= discount.end_time %> </p>
+			</div>
+			<div class="actions">
+				<% if(owner){ %>
+					<button class="img-btn red-button" id="edit" discount-id="<%= discount.key %>"><%= strings.edit %></button>
+					<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %>" id="publish" discount-id="<%= discount.key %>"><%= strings.publish %></button>
+					<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %>" id="delete" discount-id="<%= discount.key %>"><%= strings.delete %></button>
+				<% } else { %>
+					<button class="img-btn red-button" id="buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
+				<% } %>
+			</div>
+			<div class="coupon-num">
+				<%= strings.coupons %> <br/><span class="num"> <%= discount.available_coupons %> / <%= discount.num_coupons%></span>
 			</div>
 			
-			<% if(owner){ %>
-			<div class="coupons">
-				<% _.each(discount.coupons, function(coupon){ %>
-					<div>
-						<p> Code: <%= coupon.code %></p>
-						<p> Status: <% if(coupon.deleted){ %> Deleted <%} else if(coupon.used){ %> Used <% } else { %> Not used yet <% } %> </p>
-						<button class="img-btn red-button" id="use" discount-id="<%= discount.key %>" coupon-code="<%= coupon.code%>">Use</button>
-					</div>
-				<% }) %>
-			</div>
+			<div class="clear-float"></div>
+			
+			
+			<!--  -->
+			
+			<!-- <div class="disc-item-ext">
+				<p class="description"><% if(lang == 'it'){%> <%=discount.description_it%> <%} else {%> <%=discount.description_en%> <% } %></p>
+				
+				<p>Other language:</p>
+				<p><% if(lang == 'it'){%> <%=discount.title_en%> <%} else {%> <%=discount.title_it%> <% } %></p>
+				<p><% if(lang == 'it'){%> <%=discount.description_en%> <%} else {%> <%=discount.description_it%> <% } %></p>
+				
+				
+				<% if(owner){ %>
+				<div class="coupons">
+					<h4> Coupons</h4> 
+					<% _.each(discount.coupons, function(coupon){ %>
+						<div>
+							<p> Code: <%= coupon.code %></p>
+							<p>Status: <% if(coupon.deleted){ %> Deleted <%} else if(coupon.used){ %> Used <% } else { %> Not used yet <% } %> </p>
+							<button class="img-btn red-button" id="use" discount-id="<%= discount.key %>" coupon-code="<%= coupon.code%>">Use</button>
+						</div>
+					<% }) %>
+				</div>
 			
 			<% } %>
+				
+			</div> -->
 		</li>
+		
 	
 	<% }) %>
 

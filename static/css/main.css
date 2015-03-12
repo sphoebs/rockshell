@@ -3,23 +3,13 @@ body {
 	font-family: "Lato";
 	color: #DC3D3D;
 	margin: 0;
+	overflow: auto;
+	min-height: 100%;
+	background-color: #F7F8CD;
 }
 
 h1, h2, h3, h4, h5, h6, p {
 	margin: 5px;
-}
-
-.full-background {
-	position: fixed;
-	width: 100%;
-	height: 100%;
-	background-repeat: no-repeat;
-	background-position: center center;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
-	background-size: cover;
-	z-index: -1;
 }
 
 .text-bold {
@@ -281,6 +271,16 @@ button.disabled {
 /* HOME PAGE */
 .full-background.home {
 	background-image: url(../images/home_background.png);
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	z-index: -1;
 }
 
 .home-container {
@@ -381,18 +381,18 @@ button.disabled {
 /* HOME PAGE END */
 
 /* PROFILE PAGE */
-.full-background.profile {
+/* .full-background.profile {
 	background-image: none;
 	background-color: #F7F8CD;
-}
+} */
 
-.profile-container {
+/* .profile-container {
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-}
+} */
 
 .step {
 	margin-top: 30px;
@@ -443,6 +443,10 @@ button.disabled {
 	position: relative;
 }
 
+.form-explanation {
+	font-size: smaller;
+}
+
 .save {
 	text-align: center;
 	margin-top: 10px;
@@ -482,10 +486,9 @@ li.rest-item {
 	margin: 0 0 5px 0;
 }
 
-.rest-item .rest-details .rest-image{
-	max-height: 230px;
-	width: 90%;
-	height: auto;
+.rest-item .rest-details .rest-image {
+	width: 300px;
+	height: 200px;
 }
 
 .rest-item div.rest-ratings {
@@ -781,12 +784,16 @@ li.rest-item {
 /* RATINGS END */
 
 /* LETS GO */
-.full-background.letsgo {
+/* .full-background.letsgo {
 	background-image: url(../images/empty_big.png);
-}
+} */
 
 .top-bar {
-	position: relative;
+	position: fixed;
+	top: 0;
+	left:0;
+	right: 0;
+	width: 100%;
 	height: 50px;
 	background-color: #DC3D3D;
 	border-bottom: solid 2px #881e1e;
@@ -873,7 +880,53 @@ li.rest-item {
 	left: 110px;
 }
 
-.letsgo .rest-details {
+.letsgo-rest-list {
+	list-style: none;
+	width: 320px;
+	max-width: 100%;
+	padding: 5px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.letsgo-rest-item {
+	display: inline-block;
+	border: solid 1px #DC3D3D;
+	background-color: #fff;
+	width: 310px;
+	max-width: 100%;
+	margin: 10px;
+	
+}
+
+.letsgo-rest-item .rest-image {
+	width: 300px;
+	height: 200px;
+	margin: 5px;
+}
+
+.letsgo-rest-item .rest-info {
+	padding: 0 10px 10px 10px;
+}
+
+.letsgo-rest-item .rest-info .name, .letsgo-rest-item .discount .title {
+	font-size: larger;
+}
+
+.letsgo-rest-item .discount {
+	margin: 5px;
+	background-color: #ffdebe;
+	padding: 10px;
+}
+
+
+
+
+
+
+
+
+/* .letsgo .rest-details {
 	width: 240px;
 	max-width: 60%;
 	padding-left: 25px;
@@ -921,9 +974,9 @@ li.rest-item {
 .letsgo .rest-details .prev {
 	position: absolute;
 	bottom: 15px;
-	/* left: -50px; 
+	left: -50px; 
 	width: 50px;
-	height: 75px; */
+	height: 75px;
 	left: -40px;
 	width: 40px;
 	height: 60px;
@@ -940,9 +993,9 @@ li.rest-item {
 .letsgo .rest-details .next {
 	position: absolute;
 	bottom: 15px;
-	/* right: -50px; 
+	right: -50px; 
 	width: 50px;
-	height: 75px; */
+	height: 75px;
 	right: -40px;
 	width: 40px;
 	height: 60px;
@@ -955,7 +1008,7 @@ li.rest-item {
 	-o-background-size: contain;
 	background-size: contain;
 }
-
+ */
 .letsgo .left-menu, .rest .left-menu {
 	width: 250px;
 	max-width: 80%;
@@ -1014,6 +1067,8 @@ li.rest-item {
 /* RESTAURANT */
 
 .full-background.rest {
+	position: inherit;
+	min-height: 100%;
 	background-color: rgba(247, 248, 205, 1);
 }
 
@@ -1022,8 +1077,13 @@ li.rest-item {
 }
 
 .rest .picture {
-	width: 100%;
+	display: block;
+	width: 300px;
 	height: 200px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
 	border: 0;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -1035,25 +1095,48 @@ li.rest-item {
 
 .rest .rest-right{
 	width: 100%;
-	height: 300px;
-	max-height: 80%;
+	/* height: 300px; */
+	/* max-height: 80%; */
 }
 
-.rest .rest-right .rest-map{
+.rest .rest-right{
 	margin-bottom: 10px;
 }
 
 .rest .rest-right .rest-map img{
-	width: 100%;
-	height: 300px;
+	display: block;
+	width: 300px;
+	height: 200px;
 	max-height: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
 	background-repeat: no-repeat;
 	background-position: center;
 	-webkit-background-size: auto;
 	-moz-background-size: auto;
 	-o-background-size: auto;
 	background-size: auto;
-	margin-bottom: 10px;
+	
+}
+
+.rest .rest-right .map-link{
+	display: block;
+	width: 300px;
+	margin-top: 0;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: right;
+	color: #999;
+}
+
+.rest .rest-right .map-link:hover{
+	color: #bbb;
+}
+
+.rest .rest-right .map-link:active{
+	color: #777;
 }
 
 .rest .rest-left{
@@ -1166,7 +1249,7 @@ p.time-label {
 	display: inline-block;
 	padding: 0;
 	margin: 0;
-	font-size: small;
+	font-size: smaller;
 }
 
 .days-item {
@@ -1216,19 +1299,117 @@ input.days-input {
 	filter: brightness(150%);
 }
 
+.discounts ul{
+	list-style: none;
+	padding: 0px;
+}
+
 /* RESTAURANT END */
 
 /* OWNER REST LIST */
 
-.rest-item div.rest-actions {
-	display: block;
-	width: 100%;
-	margin-top: 15px;
+.owner-rest-list {
+	list-style: none;
+	width: 1000px;
+	max-width: 90%;
+	margin-left: auto;
+	margin-right: auto;
 }
 
+.owner-rest-item {
+	display: inline-block;
+	border: solid 1px #DC3D3D;
+	background-color: #fff;
+	width: 310px;
+	margin: 10px;
+	
+}
 
+.owner-rest-item .rest-image {
+	width: 300px;
+	height: 200px;
+	margin: 5px;
+}
+
+.owner-rest-item .rest-info {
+	padding: 0 10px 10px 10px;
+}
+
+.owner-rest-item .rest-info .address{
+	font-size: smaller;
+}
 
 /* OWNER REST LIST END */
+
+/* DISCOUNT MANAGE */
+
+.discount-container {
+	padding: 60px 10px 10px 10px;
+}
+
+.disc-list {
+	margin-top: 30px;
+	padding-left: 20px;
+	padding-right: 20px;
+	color: #444;
+}
+
+.disc-list .list ul{
+	list-style: none;
+	margin: 10px;
+	padding: 0;
+}
+
+.disc-list .list .disc-item {
+	padding: 10px;
+	border: solid 1px #444;
+}
+
+.disc-item.even {
+	background-color: #fff;
+}
+
+.disc-item.odd{
+	background-color: #ddd;
+}
+
+.disc-item .desc{
+	float: left;
+}
+
+.disc-item .desc:hover{
+	color: #DC3D3D
+}
+
+.disc-item .coupon-num{
+	float: right;
+	width: 70px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	text-align: center;
+}
+
+.disc-item .desc .title {
+	font-size: larger;
+}
+
+.disc-item .actions{
+	float: right;
+	margin-top: 10px;
+	margin-right: 10px;
+	margin-left: 10px;
+}
+
+.clear-float{
+	clear: both
+}
+
+button.new-discount{
+	float : right;
+	margin-right: 10px;
+}
+
+/* DISCOUNT MANAGE END*/
 
 
 /* media queries*/
@@ -1250,10 +1431,10 @@ input.days-input {
 	}
 
 	/* profile */
-	.full-background.profile {
+	/* .full-background.profile {
 		background-image: url(../images/home_background.png);
-	}
-	.profile-container {
+	} */
+	/* .profile-container {
 		position: fixed;
 		top: 45px;
 		left: 20px;
@@ -1261,7 +1442,7 @@ input.days-input {
 		bottom: 20px;
 		background-color: rgba(247, 248, 205, 0.95);
 		z-index: 1;
-	}
+	} */
 	.profile-logo {
 		width: 250px;
 		height: 110px;
@@ -1274,7 +1455,6 @@ input.days-input {
 		background-size: contain;
 		margin-left: auto;
 		margin-right: auto;
-		margin-top: -50px;
 		margin-bottom: 20px;
 	}
 	.step {
@@ -1320,28 +1500,58 @@ input.days-input {
 	/* profile ratings end */
 	
 	/* letsgo */
-	.letsgo .rest-details, .letsgo .disc-details {
+	/* .letsgo .rest-details, .letsgo .disc-details {
 		width: 350px;
+	} */
+	
+	.letsgo-rest-list {
+		width: 420px;
+	}
+
+	.letsgo-rest-item {
+		width: 410px;
+	}
+
+	.letsgo-rest-item .rest-image {
+		width: 400px;
+		height: 267px;
 	}
 	
 	/* letsgo end */
 	
 	/* restaurant */
 	.rest .rest-right{
-		width: 40%;
-		height: 300px;
-		max-height: 80%;
+		width: 50%;
 		float: right;
 	}
 	
 	.rest .rest-left{
-		width: 60%;
+		width: 50%;
 		float: left;
 	}
+	
+	.rest .picture {
+		width: 220px;
+		height: 147px;
+	}
+
+	.rest .rest-right .rest-map img{
+		width: 220px;
+		height: 147px;
+	}
+
+	.rest .rest-right .map-link{
+		width: 220px;
+	}
+	
 	/* restaurant end */
+	
+	.disc-item .coupon-num{
+		width: 80px;
+	}
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 650px) {
 	/* profile ratings */
 	.rest-item {
 		max-width: 750px;
@@ -1363,6 +1573,10 @@ input.days-input {
 		width: 45%;
 		margin-left: 10px;
 	}
+/* 	.rest-item .rest-details .rest-image {
+		width: 300px;
+		height: 200px;
+	} */
 	/* profile ratings end */
 	.city-search label {
 		width: 45%;
@@ -1386,6 +1600,19 @@ input.days-input {
 	.top-bar .menu-button .user-menu-small {
 		display: block;
 	}
+	
+	.letsgo-rest-list {
+		width: 520px;
+	}
+
+	.letsgo-rest-item {
+		width: 510px;
+	}
+
+	.letsgo-rest-item .rest-image {
+		width: 500px;
+		height: 333px;
+	}
 	/* letsgo end */
 	
 	/* owner list */
@@ -1395,6 +1622,36 @@ input.days-input {
 		margin-left: 10px;
 	}
 	/* owner list end */
+	
+	.rest .picture {
+		width: 300px;
+		height: 200px;
+	}
+
+	.rest .rest-right .rest-map img{
+		width: 300px;
+		height: 200px;
+	}
+
+	.rest .rest-right .map-link{
+		width: 300px;
+	}
+}
+
+@media screen and (min-width: 800px) {
+	.rest .picture {
+		width: 380px;
+		height: 253px;
+	}
+
+	.rest .rest-right .rest-map img{
+		width: 380px;
+		height: 253px;
+	}
+
+	.rest .rest-right .map-link{
+		width: 380px;
+	}
 }
 
 @media screen and (min-width: 980px) {
@@ -1415,7 +1672,7 @@ input.days-input {
 	}
 
 	/* profile */
-	.full-background.profile {
+	/* .full-background.profile {
 		background-image: url(../images/home_background.png);
 	}
 	.profile-container {
@@ -1426,7 +1683,7 @@ input.days-input {
 		bottom: 20px;
 		background-color: rgba(247, 248, 205, 0.95);
 		z-index: 1;
-	}
+	} */
 	.profile-logo {
 		width: 350px;
 		height: 150px;
@@ -1439,7 +1696,6 @@ input.days-input {
 		background-size: contain;
 		margin-left: auto;
 		margin-right: auto;
-		margin-top: -50px;
 		margin-bottom: 20px;
 	}
 	.step {
@@ -1499,23 +1755,52 @@ input.days-input {
 	/* profile ratings end */
 	
 	/* letsgo */
-	.letsgo .rest-details, .letsgo .disc-details {
+/* 	.letsgo .rest-details, .letsgo .disc-details {
 		width: 450px;
-	}
+	} */
 	
+	.letsgo-rest-list {
+		width: 900px;
+	}
+
+	.letsgo-rest-item {
+		width: 410px;
+		vertical-align: middle;
+	}
+
+	.letsgo-rest-item .rest-image {
+		width: 400px;
+		height: 267px;
+	}
 	/* letsgo end */
 	
 	/* restaurant */
 	.rest .rest-right{
-		width: 40%;
-		height: 300px;
-		max-height: 80%;
+		width: 50%;
 		float: right;
 	}
 	
 	.rest .rest-left{
-		width: 60%;
+		width: 50%;
 		float: left;
 	}
+	
+	.rest .picture {
+		width: 450px;
+		height: 300px;
+	}
+
+	.rest .rest-right .rest-map img{
+		width: 450px;
+		height: 300px;
+	}
+
+	.rest .rest-right .map-link{
+		width: 450px;
+	}
 	/* restaurant end */
+	
+	.disc-item .coupon-num{
+		width: 100px;
+	}
 }

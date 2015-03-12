@@ -533,7 +533,7 @@ class DiscountHandler(webapp2.RequestHandler):
                 self.response.write('{}')
             elif res == False:
                 self.response.set_status(409)
-            self.response.write("The discount cannot be deleted!")
+                self.response.write("{'error': 'The discount cannot be deleted!'}")
         else:
             self.response.set_status(errcode)
             self.response.write(status)

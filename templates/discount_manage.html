@@ -2,7 +2,6 @@
 
 <div class="full-background rest">
 		<div class="top-bar rest-bar">
-			<div class="bar-background"></div>
 			<div class="menu-button">
 				<button class="img-btn"></button>
 				<div class="user-menu-small clickable">
@@ -24,41 +23,59 @@
 			<br />
 
 			<ul class="menu-items">
-				<li><button class="img-btn" id="disc_new">{{ lang['discount_new']}}</button></li>
-				<li><button class="img-btn" id="rate-more">{{
-						lang['rate_more']}}</button></li>
-				<li><button class="img-btn" id="near-me">{{
-						lang['near_me']}}</button></li>
-				<li><button class="img-btn" id="logout">{{
-						lang['log_out']}}</button></li>
+				<li><button class="img-btn" id="back">{{ lang['back_to_rest']}}</button></li>
+				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 
 		</div>
 
-		<div class="rest-container scrollable">
-			<h3>You are managing discounts for {{place.name|e}}</h3>
+		<div class="discount-container">
+			
+			<h2 class="center-text">{{ lang['discounts']}} {{lang['for']}} {{ place.name if not place.name is none }}</h2>
+			<p class="subtitle center-text">
+				{{ place.address.street~', '~ place.address.city if not place.address is none}}
+			</p>
+			
+			
+			<div class="disc-list">
+				<button class="img-btn red-button new-discount" id="new-discount">{{ lang['create_new_discount']}}</button>
+				<div class="title">
+					New discounts (not published yet):
+				</div>
+				
+				<div id="not_published" class="list"></div>
+			</div>
 		
-			Currently available discounts:
-			<div id="current_available"></div>
+			<div class="disc-list">
+				<div class="title">
+					Currently available discounts:
+				</div>
+				
+				<div id="current_available" class="list"></div>
+			</div>
 			
-			New discounts (not published yet):
-			<div id="not_published"></div>
+			<div class="disc-list">
+				<div class="title">
+					Old discounts:
+				</div>
+				
+				<div id="passed" class="list"></div>
+			</div>
 			
-			Old discounts:
-			<div id="passed"></div>
-			
+			<div class="popup-area"></div>
 		</div>
 </div>
 
 {% endblock %} {% block scripts %}
 <script type="text/javascript">
 
-$(window).ready(function() {
+/* $(window).ready(function() {
 	var window_height = $('.rest').height();
 	var bar_height = $('.top-bar').height();
-	$('.rest-container.scrollable').height(window_height - bar_height - 40);
+	$('.discount-container.scrollable').height(window_height - bar_height - 40);
 	
-});
+}); */
 
 	$(window).load(function() {
 		
@@ -77,10 +94,83 @@ $(window).ready(function() {
 		
 		var auth = getCookie('user');
 		
+		function disc_publish(key){
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/confirm_popup.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({
+				strings: {{lang['disc_publish_popup']|safe}},
+			});
+			$('.popup-area').html(html);
+			
+			$('#cancel').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#close-popup').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#ok').click(function(){
+				$('.popup-area').html('');
+				$.ajax({
+					type : 'GET',
+					url : '/api/discount/'+key+'/publish',
+					success : function() {
+						window.refresh();
+					},
+					error : function(resp) {
+						if(window.console){
+							console.log(resp);
+						}
+						alert("Error " + resp.status);
+					}
+				});
+			});
+			
+		};
+		
+		function disc_delete(key, div){
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/confirm_popup.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({
+				strings: {{lang['disc_delete_popup']|safe}},
+			});
+			$('.popup-area').html(html);
+			
+			$('#cancel').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#ok').click(function(){
+				$('.popup-area').html('');
+				$.ajax({
+					type : 'DELETE',
+					url : '/api/discount/' + key,
+					success : function() {
+						alert('discount deleted with success!');
+						$(div).remove();
+						//TODO: delete discount from list, do not change place
+					},
+					error : function(resp) {
+						if(window.console){
+							console.log(resp);
+						}
+						alert("Error " + resp.status);
+					}
+				});
+			});
+		};
+		
 		function loadDiscounts(){
 			$.ajax({
 				type : 'GET',
-				url : '/api/discount?place={{place.key|e}}&published=true&passed=false',
+				url : '/api/discount?place={{place.key|e}}',
 				success : function(data) {
 					$('.loading').hide();
 					discounts = data;
@@ -120,8 +210,9 @@ $(window).ready(function() {
 					var compiled = _.template(template);
 					
 					if(avail_disc_list == null || avail_disc_list.length < 1){
-						$('#current_available').html('<p>{{ lang['no_discounts']}}</p>');
+						$('#current_available').html('<p>{{ lang['no_discounts_list']}}</p>');
 					} else {
+						$('#disc-stats').html('Currently there are ' + avail_disc_list.length + ' available discounts.');
 						var html = compiled({
 							discounts : avail_disc_list, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: true
 						});
@@ -129,7 +220,7 @@ $(window).ready(function() {
 					}
 					
 					if(new_disc_list == null || new_disc_list.length < 1){
-						$('#not_published').html('<p>{{ lang['no_discounts']}}</p>');
+						$('#not_published').html('<p>{{ lang['no_discounts_list']}}</p>');
 					} else {
 						var html = compiled({
 							discounts : new_disc_list, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: true
@@ -138,13 +229,40 @@ $(window).ready(function() {
 					}
 					
 					if(old_disc_list == null || old_disc_list.length < 1){
-						$('#passed').html('<p>{{ lang['no_discounts']}}</p>');
+						$('#passed').html('<p>{{ lang['no_discounts_list']}}</p>');
 					} else {
 						var html = compiled({
 							discounts : old_disc_list, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: true
 						});
 						$('#passed').html(html);
 					}
+					
+					//add handlers for actions
+					$('#edit').click(function(){
+						var disc_id = $(this).attr('discount-id');
+						window.location = '/discount/edit?id=' + disc_id;
+					});
+					
+					$('#publish').click(function(){
+						if(! $(this).hasClass('disabled')){
+							var disc_id = $(this).attr('discount-id');
+							disc_publish(disc_id);
+						}
+					});
+					
+					$('#delete').click(function(){
+						if(! $(this).hasClass('disabled')){
+							var disc_id = $(this).attr('discount-id');
+							disc_delete(disc_id, $(this).parent().parent());
+						}
+					});
+					
+					$('.disc-item .desc').click(function(){
+						var disc_id = $(this).attr('discount-id');
+						window.location = '/discount?id=' + disc_id;
+					});
+					
+					
 				},
 				error : function(resp) {
 					if(window.console){
@@ -158,14 +276,14 @@ $(window).ready(function() {
 		loadDiscounts();
 		
 		
-		$('.rest-container.scrollable').enscroll({
+		/* $('.discount-container.scrollable').enscroll({
 		    showOnHover: false,
 		    verticalScrolling: true,
 			horizontalScrolling: false,
 			zIndex: 100,
 		    verticalTrackClass: 'track-red',
 		    verticalHandleClass: 'handle-red'
-		});
+		}); */
 		
 		var userpic = "{{ user.picture if not user.picture is none }}";
 		if(userpic != undefined && userpic.length > 0){	
@@ -201,16 +319,14 @@ $(window).ready(function() {
 			}
 			
 		});
-
-		$('#disc_new').click(function(){
-			window.location = '/discount/new?rest_id={{place.key|e}}';
+		$('#back').click(function(){
+			window.location = '/restaurant?id={{place.key|e}}'		
 		});
-		$('#rate-more').click(function(){
-			window.location = '/ratings'
+			
+		$('#change_rest').click(function(){
+			window.location = '/owner/list';
 		});
-		$('#near-me').click(function(){
-			window.location = '/letsgo'
-		});
+		
 		$('#logout').click(function(){
 			$.ajax({
 				type : 'DELETE',
@@ -230,6 +346,14 @@ $(window).ready(function() {
 		$('.user-menu, .user-menu-small').click(function(){
 			window.location = '/profile/1';
 		});
+		
+		
+		$('#new-discount').click(function(){
+			var rest_id = "{{place.key if not place is none else '0'}}";
+			window.location = '/discount/new?rest_id=' +rest_id;
+			
+		});
+		
 		
 	});
 </script>

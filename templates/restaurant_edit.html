@@ -24,10 +24,8 @@
 			<br />
 
 			<ul class="menu-items">
-				<li><button class="img-btn" id="rate-more">{{
-						lang['rate_more']}}</button></li>
-				<li><button class="img-btn" id="near-me">{{
-						lang['near_me']}}</button></li>
+				<li><button class="img-btn" id="back">{{
+						lang['back_to_rest']}}</button></li>
 				<li><button class="img-btn" id="logout">{{
 						lang['log_out']}}</button></li>
 			</ul>
@@ -61,6 +59,7 @@
 					<label class="form-label">{{ lang['rest_picture']}}: </label>
 					<div class="form-input">
 						<input type="text" id="rest_picture" name="rest_picture" value="{{place.picture if not place.picture is none}}">
+						<p class="form-explanation">The picture should have 3:2 ratio, with minimum resolution of 600x400 px.</p>
 					</div>
 				</div>
 				<div>
@@ -98,8 +97,7 @@
 				</div>
 
 				<div>
-					<label class="form-label">{{ lang['rest_opening_hours']}}:
-					</label>
+					<label class="form-label">{{ lang['rest_opening_hours']}}: </label>
 					<div class="form-input opening"></div>
 				</div>
 
@@ -466,12 +464,14 @@ $(window).ready(function() {
 			}
 			
 		});
-		$('#rate-more').click(function(){
-			window.location = '/ratings'
+		
+		$('#back').click(function(){
+			//TODO: modal, are you sure you want to go back? All the changes will be discarded
+			url = window.location + '';
+			window.location = url.replace('/edit', '');		
+			
 		});
-		$('#near-me').click(function(){
-			window.location = '/letsgo'
-		});
+		
 		$('#logout').click(function(){
 			$.ajax({
 				type : 'DELETE',

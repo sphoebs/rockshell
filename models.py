@@ -3221,7 +3221,7 @@ class Discount(PFmodel):
         if code is None or not isinstance(code, (str, unicode)):
             raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
         
-        discount = Discount.get_by_key(discount_key)
+        discount = Discount.get_by_key(discount_key, requester_id)
         if discount is None:
             raise InvalidKeyException('discount_key is not the key of a valid discount!') 
         
@@ -3241,7 +3241,7 @@ class Discount(PFmodel):
 
         coupon = None
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for c in discount.counpons:
+            for c in discount.coupons:
                 if c.code == code:
                     coupon = c
                     break

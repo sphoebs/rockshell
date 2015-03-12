@@ -1,0 +1,22 @@
+<li class="letsgo-rest-item">
+	<div>
+		<% if(p.picture != undefined){%>
+			<img class="rest-image" src="<%= p.picture %>"/>
+		<% } else {%>
+			<img class="rest-image" src="/static/images/empty_small.png" />
+		<% } %>
+		<div class="rest-info clickable" rest-key="<%= p.key %>">
+			<div class="text-bold name"><% if(p.name != undefined){ %> <%=p.name %> <% } %></div>
+			<div class="address"><% if(p.address != undefined){ %> <%=p.address.street %>, <%=p.address.city %> <% } %></div>
+			<div class="address distance"><% if(distance != undefined){ %> <%= distance_str %>: <%=distance%> <% } %></div>
+		</div>
+		
+		<% if(disc != undefined){ %>
+			<div class="discount clickable" disc-key="<%= disc.key%>">
+				<!-- <p>Discount available!</p> -->
+				<div class="title text-bold"><% if(disc['title_' +lang_name] != undefined){ %> <%=disc['title_' +lang_name]%> <% } %></div>
+				<div class="more"><%= disc.available_coupons %> <%= coupons_available_till %> <%= disc.end_time %></div>
+			</div> 
+		<% } %>
+	</div>
+</li>
