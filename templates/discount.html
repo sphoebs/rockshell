@@ -38,8 +38,9 @@
 
 		<div class="discount-container">
 		
-			<h2 class="center-text">{{ discount.title }} - for {{place_name}}</h2>
+			<h2 class="center-text">{{ discount.title }} - for <a class="title" href="/restaurant?id={{discount.place}}">{{place_name}}</a></h2>
 			
+			<div class="black-text">
 			<p>{{discount.description}}</p>
 			
 			<p>{{ lang['discount_strings']['available_till']}} {{discount.end_time}}</p>
@@ -74,22 +75,21 @@
 						<p> You have a coupon, with code {{discount.coupons[0].code}}</p>
 						{% if discount.coupons[0].used %}
 							<p> The coupon has been already used in date: {{discount.coupons[0].usage_time}}
+						{% else %}
+							<button class="img-btn red-button" id="delete" discount-id="{{ discount.key }}" coupon-code="{{discount.coupons[0].code}}">{{lang['discount_strings']['delete']}} {{lang['discount_strings']['coupon']}}</button>
+						
 						{% endif %}					
 					</div>
 				{% endif %}
 			{% endif %}
+			</div>
 		</div>
+		
+		<div class="popup-area"></div>
 </div>
 
 {% endblock %} {% block scripts %}
 <script type="text/javascript">
-
-$(window).ready(function() {
-	var window_height = $('.rest').height();
-	var bar_height = $('.top-bar').height();
-	$('.rest-container.scrollable').height(window_height - bar_height - 40);
-	
-});
 
 	$(window).load(function() {
 		
@@ -109,35 +109,77 @@ $(window).ready(function() {
 		var auth = getCookie('user');
 		
 		function disc_publish(){
-			$.ajax({
-				type : 'GET',
-				url : '/api/discount/{{discount.key}}/publish',
-				success : function() {
-					$('#published').html('Published');
-				},
-				error : function(resp) {
-					if(window.console){
-						console.log(resp);
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/confirm_popup.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({
+				strings: {{lang['disc_publish_popup']|safe}},
+			});
+			$('.popup-area').html(html);
+			
+			$('#cancel').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#close-popup').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#ok').click(function(){
+				$('.popup-area').html('');
+				$.ajax({
+					type : 'GET',
+					url : '/api/discount/{{discount.key}}/publish',
+					success : function() {
+						$('#published').html('Published');
+					},
+					error : function(resp) {
+						if(window.console){
+							console.log(resp);
+						}
+						alert("Error " + resp.status);
 					}
-					alert("Error " + resp.status);
-				}
+				});
 			});
 		};
 		
 		function disc_delete(){
-			$.ajax({
-				type : 'DELETE',
-				url : '/api/discount/{{discount.key}}',
-				success : function() {
-					alert('discount deleted with success!')
-					window.location = '/restaurant?id={{discount.place}}'
-				},
-				error : function(resp) {
-					if(window.console){
-						console.log(resp);
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/confirm_popup.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({
+				strings: {{lang['disc_delete_popup']|safe}},
+			});
+			$('.popup-area').html(html);
+			
+			$('#cancel').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#close-popup').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#ok').click(function(){
+				$('.popup-area').html('');
+				$.ajax({
+					type : 'DELETE',
+					url : '/api/discount/{{discount.key}}',
+					success : function() {
+						alert('discount deleted with success!')
+						window.location = '/restaurant?id={{discount.place}}'
+					},
+					error : function(resp) {
+						if(window.console){
+							console.log(resp);
+						}
+						alert("Error " + resp.status);
 					}
-					alert("Error " + resp.status);
-				}
+				});
 			});
 		};
 		
@@ -162,32 +204,84 @@ $(window).ready(function() {
 		};
 		
 		function use_coupon(code){
-			$.ajax({
-				type : 'GET',
-				url : '/api/discount/{{discount.key}}/coupon/use?code=' + code,
-				success : function(coupon) {
-					if(window.console){
-						console.log('Coupon used: ' + JSON.stringify(coupon));
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/confirm_popup.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({
+				strings: {{lang['disc_usecoupon_popup']|safe}},
+			});
+			$('.popup-area').html(html);
+			
+			$('#cancel').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#close-popup').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#ok').click(function(){
+				$('.popup-area').html('');
+				$.ajax({
+					type : 'GET',
+					url : '/api/discount/{{discount.key}}/coupon/use?code=' + code,
+					success : function(coupon) {
+						if(window.console){
+							console.log('Coupon used: ' + JSON.stringify(coupon));
+						}
+						location.reload();
+					},
+					error : function(resp) {
+						if(window.console){
+							console.log(resp);
+						}
+						alert("Error " + resp.status);
 					}
-					location.reload();
-				},
-				error : function(resp) {
-					if(window.console){
-						console.log(resp);
-					}
-					alert("Error " + resp.status);
-				}
+				});
 			});
 		}
 		
-		
-		$('.rest-container.scrollable').enscroll({
-		    showOnHover: false,
-		    verticalScrolling: true,
-			horizontalScrolling: false,
-			zIndex: 100,
-		    verticalTrackClass: 'track-red',
-		    verticalHandleClass: 'handle-red'
+		$('#delete').click(function(){
+			var key = $(this).attr('discount-id');
+			var code = $(this).attr('coupon-code');
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/confirm_popup.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({
+				strings: {{lang['coup_delete_popup']|safe}},
+			});
+			$('.popup-area').html(html);
+			
+			$('#cancel').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#close-popup').click(function(){
+				$('.popup-area').html('');
+			});
+			
+			$('#ok').click(function(){
+				$('.popup-area').html('');
+				$.ajax({
+					type : 'DELETE',
+					url : '/api/discount/'+key+'/coupon?code=' + code,
+					success : function() {
+						alert('coupon deleted with success!');
+						location.reload();
+						
+					},
+					error : function(resp) {
+						if(window.console){
+							console.log(resp);
+						}
+						alert("Error " + resp.status);
+					}
+				});
+			});
 		});
 		
 		var userpic = "{{ user.picture if not user.picture is none }}";

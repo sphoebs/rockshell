@@ -29,6 +29,7 @@
 					<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
 					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 				{% else %}
+					<li><button class="img-btn" id="coupons">My coupons</button></li>
 					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				{% endif %}
@@ -114,9 +115,9 @@
 				<img class="picture" style="background-image: url(/static/images/empty_small.png)">
 				
 			</div>
-			<div class=".clear-float"></div>
+			<div class="clear-float"></div>
 			<p class="black-text desc">{{place.description}}</p>			
-
+			<div class="popup-area"></div>
 		</div>
 </div>
 
@@ -183,12 +184,31 @@ $(window).ready(function() {
 			
 		});
 		
+		function create_coupon(key){
+			$.ajax({
+				type : 'POST',
+				url : '/api/discount/'+key+'/coupon',
+				body : '{}',
+				success : function(coupon) {
+					if(window.console){
+						console.log('Coupon created: ' + JSON.stringify(coupon));
+					}
+					window.location = '/discount?id=' + key;
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		};
+		
 		function loadDiscounts(){
 			$.ajax({
 				type : 'GET',
-				url : '/api/discount?place={{place.key|e}}&published=true&passed=false',
+				url : '/api/discount?place={{place.key|e}}',
 				success : function(data) {
-					$('.loading').hide();
 					discounts = data;
 					
 					if(discounts == null || discounts.length < 1){
@@ -205,6 +225,11 @@ $(window).ready(function() {
 							discounts : discounts, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: false
 						});
 						$('.discounts').html(html);
+						
+						$('#buy').click(function(){
+							var key = $(this).attr('discount-id');
+							create_coupon(key);
+						});
 					}
 				},
 				error : function(resp) {
@@ -220,7 +245,7 @@ $(window).ready(function() {
 		
 		
 		
-		$('#edit').click(function(){
+		$('.menu-items #edit').click(function(){
 			window.location = '/restaurant/edit?id={{place.key|e}}';
 		});
 		
@@ -230,6 +255,10 @@ $(window).ready(function() {
 		
 		$('#change_rest').click(function(){
 			window.location = '/owner/list';
+		});
+		
+		$('#coupons').click(function(){
+			window.location = '/my-coupons';
 		});
 		
 		$('#new-rest').click(function(){

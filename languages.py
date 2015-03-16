@@ -133,7 +133,13 @@ en = {
                          'edit' : 'Edit',
                          'publish': 'Publish',
                          'delete': 'Delete',
-                         'buy': 'Get coupon'
+                         'buy': 'Get coupon',
+                         'code': 'Code',
+                         'status': 'Status',
+                         'deleted': 'Deleted',
+                         'used': 'Already used',
+                         'not_used': 'Available',
+                         'coupon': 'coupon',
     },
     'disc_publish_popup': {
                         'title': 'Confirm publication',
@@ -147,12 +153,30 @@ en = {
                         'cancel': 'Cancel',
                         'ok': 'Yes, delete'
     },
+    'disc_usecoupon_popup' :{
+                        'title': 'Confirm use of coupon',
+                        'message': 'Do you really want to mark this coupon as used?',
+                        'cancel': 'Cancel',
+                        'ok': 'Yes, mark as used'
+    },
+    'coup_delete_popup' :{
+                        'title': 'Confirm delete of coupon',
+                        'message': 'Do you really want to delete this coupon?',
+                        'cancel': 'Cancel',
+                        'ok': 'Yes, delete it'
+    },
     'no_discounts': 'Currently, there are no discounts available for this restaurant.',
     'no_discounts_list': 'No discounts',
     'discounts' : 'Discounts',
     'for' : 'for',
     'phone_short' : 'Tel.',
     'create_new_discount': 'Create new',
+    
+    'no_coupons': 'No coupons',
+    'your_coupons': 'Your coupons',
+    'active_coupons': 'Active coupons',
+    'used_coupons': 'Used coupons',
+    
 }
 
 
@@ -286,7 +310,13 @@ it = {
                          'edit' : 'Modifica',
                          'publish': 'Pubblica',
                          'delete': 'Cancella',
-                         'buy': 'Prendi coupon'
+                         'buy': 'Prendi coupon',
+                         'code': 'Codice',
+                         'status': 'Stato',
+                         'deleted': 'Cancellato',
+                         'used': 'Usato',
+                         'not_used': 'Disponibile',
+                         'coupon': 'coupon',
     },
     'disc_publish_popup': {
                         'title': 'Conferma pubblicazione',
@@ -295,8 +325,20 @@ it = {
                         'ok': 'S&igrave;, pubblica'
     },
     'disc_delete_popup': {
-                        'title': 'Conferma pubblicazione',
+                        'title': 'Conferma cancellazione',
                         'message': 'Vuoi davvero cancellare questa offerta?',
+                        'cancel': 'Annulla',
+                        'ok': 'S&igrave;, cancella'
+    },
+    'disc_usecoupon_popup' :{
+                        'title': 'Conferma uso del coupon',
+                        'message': 'Vuoi davvero marcare questo coupon come usato?',
+                        'cancel': 'Annulla',
+                        'ok': 'S&igrave;, usa'     
+    },
+    'coup_delete_popup' :{
+                        'title': 'Conferma cancellazione del coupon',
+                        'message': 'Vuoi davvero cancellare questo coupon?',
                         'cancel': 'Annulla',
                         'ok': 'S&igrave;, cancella'
     },
@@ -306,6 +348,11 @@ it = {
     'for' : 'per',
     'phone_short' : 'Tel.',
     'create_new_discount': 'Crea nuova offerta',
+    
+    'no_coupons': 'Nessun coupon',
+    'your_coupons': 'I tuoi coupon',
+    'active_coupons': 'Coupon attivi',
+    'used_coupons': 'Coupon usati',
     
 }
 

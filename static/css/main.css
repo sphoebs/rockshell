@@ -16,6 +16,23 @@ h1, h2, h3, h4, h5, h6, p {
 	font-weight: 700; /* or 900, if more. Other weights are not provided */
 }
 
+a.title{
+	text-decoration: none;
+	color: #DC3D3D;
+}
+
+a.title:hover{
+	-webkit-filter: brightness(120%);
+	-moz-filter: brightness(120%);
+	filter: brightness(120%);
+}
+
+a.title:active{
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
 .center-text {
 	text-align: center;
 	padding-left: 5px;
@@ -1410,6 +1427,39 @@ button.new-discount{
 }
 
 /* DISCOUNT MANAGE END*/
+
+
+/* MY COUPONS */
+
+.coupon-list .used{
+	max-height: 400px;
+}
+
+ul.coupon-list {
+	padding-left: 20px;
+	padding-right: 20px;
+	color: #444;
+	list-style: none;
+	margin: 10px;
+	padding: 0;
+}
+
+ul.coupon-list .disc-item {
+	padding: 10px;
+	border: solid 1px #444;
+}
+
+.coupon-item {
+	float: right;
+	text-align: right;
+}
+
+.coupon-list-title{
+	font-size: larger;
+}
+
+
+/* MY COUPONS END*/
 
 
 /* media queries*/

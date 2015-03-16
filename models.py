@@ -2969,9 +2969,8 @@ class Discount(PFmodel):
                     raise UnauthorizedException("Only the owner of the place can access a Discount that is not public!")
                 if place.owner != user_key:
                     # this is a normal user, he cannot see the coupons of other users
-                    for coupon in discount.coupons:
-                        if coupon.user != user_key:
-                            del coupon
+                    coupons = [coupon for coupon in discount.coupons if coupon.user != user_key or coupon.deleted == True]
+                    discount.coupons = coupons
             return discount 
             
         else:
@@ -3051,9 +3050,8 @@ class Discount(PFmodel):
                     del discount
                 if place.owner != user_key:
                     # this is a normal user, he cannot see the coupons of other users
-                    for coupon in discount.coupons:
-                        if coupon.user != user_key:
-                            del coupon
+                    coupons = [coupon for coupon in discount.coupons if coupon.user != user_key or coupon.deleted == True]
+                    discount.coupons = coupons
 
         return res
 
@@ -3188,11 +3186,11 @@ class Discount(PFmodel):
         user_key = PFuser.make_key(requester_id, None)
         coupon = None
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for c in discount.counpons:
+            for c in discount.coupons:
                 if c.code == code:
                     coupon = c
                     break
-        if coupon is None:
+        if coupon is None or coupon.deleted:
             raise ValueError('code is not valid, is does not refer to a coupon for this discount.')
         if coupon.user != user_key and place.owner != user_key:
             raise UnauthorizedException('Only the owner of the coupon or the owner of the place can get it!')
@@ -3275,7 +3273,7 @@ class Discount(PFmodel):
         if requester_id is None:
             raise UnauthorizedException('The user must login before deleting a coupon.')
         
-        discount = Discount.get_by_key(discount_key)
+        discount = Discount.get_by_key(discount_key, requester_id)
         if discount is None:
             raise InvalidKeyException('discount_key is not the key of a valid discount!') 
         
@@ -3284,7 +3282,7 @@ class Discount(PFmodel):
         user_key = PFuser.make_key(requester_id, None)
         coupon = None
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for c in discount.counpons:
+            for c in discount.coupons:
                 if c.code == code:
                     coupon = c
                     break
