@@ -95,18 +95,16 @@ $(window).load(function() {
 						
 						if(Date.parse(d.end_time) < new Date() || coupon.used ){
 							used_coupons.push(d);
-							console.log('saved in used')
 						} else {
 							//compute time till end
 							avail_disc_list.push(d);
-							console.log('saved in avail')
 						}
 					}
 				}
 				
-				if(window.console){
+				/* if(window.console){
 					console.log("Lists: " + avail_disc_list.length + ", " + used_coupons.length );
-				}
+				} */
 				
 				//load underscore template
 				var xmlhttp = new XMLHttpRequest();
@@ -188,7 +186,6 @@ $(window).load(function() {
 							type : 'DELETE',
 							url : '/api/discount/'+key+'/coupon?code=' + code,
 							success : function() {
-								alert('coupon deleted with success!');
 								location.reload();
 								
 							},
@@ -238,6 +235,7 @@ $(window).load(function() {
 	    verticalTrackClass: 'track-white',
 	    verticalHandleClass: 'handle-white'
 	});
+	$('.enscroll-track').css('position', 'fixed');
 	$('.menu-button button').click(function(){
 		if(count % 2 == 1){
 			//odd time --> open left menu

@@ -41,7 +41,7 @@
 			<div class="disc-list">
 				<button class="img-btn red-button new-discount" id="new-discount">{{ lang['create_new_discount']}}</button>
 				<div class="title">
-					New discounts (not published yet):
+					{{ lang['new_discounts']}}:
 				</div>
 				
 				<div id="not_published" class="list"></div>
@@ -49,7 +49,7 @@
 		
 			<div class="disc-list">
 				<div class="title">
-					Currently available discounts:
+					{{ lang['available_discounts']}}:
 				</div>
 				
 				<div id="current_available" class="list"></div>
@@ -57,7 +57,7 @@
 			
 			<div class="disc-list">
 				<div class="title">
-					Old discounts:
+					{{ lang['old_discounts']}}:
 				</div>
 				
 				<div id="passed" class="list"></div>
@@ -278,7 +278,7 @@
 						$('#passed').html(html);
 						$('#passed .countdown').each(function(){
 							var end = $(this).attr('end-time');
-							var date_str = new Date(end).format('{{lang['date_format']}}');
+							var date_str = format_date(new Date(end), '{{lang['date_format']}}');
 							$(this).html(date_str);						
 						});
 					}
@@ -301,6 +301,12 @@
 							var disc_id = $(this).attr('discount-id');
 							disc_delete(disc_id, $(this).parent().parent());
 						}
+					});
+					
+					
+					$('#new-similar').click(function(){
+						var disc_id = $(this).attr('discount-id');
+						window.location = '/discount/edit?id=' + disc_id +'&new=true';
 					});
 					
 					$('.disc-item .desc').click(function(){
@@ -353,6 +359,7 @@
 				    verticalTrackClass: 'track-white',
 				    verticalHandleClass: 'handle-white'
 				});
+				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu
@@ -400,6 +407,23 @@
 			
 		});
 		
+		
+		function format_date(date, format){
+			var day = date.getDate();
+			if (day < 10){
+				day = '0'+ day;
+			}
+			
+			var month = date.getMonth()+1;
+			if (month < 10){
+				month = '0'+ month;
+			}
+			
+			var year = date.getFullYear();
+			
+			var res = format.replace('mm', month).replace('dd', day).replace('yy', year);
+			return res;
+		};
 		
 	});
 </script>

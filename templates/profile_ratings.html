@@ -6,7 +6,7 @@
 		<div class="step">{{ lang['step']}} 2/3</div>
 		<div class="profile-logo"></div>
 
-		<div class="">
+		<div class="main">
 			<div class="center-text">
 				{{ lang['profile2_text1']}}: <span class="text-bold">{{city}}</span>
 			</div>
@@ -35,12 +35,6 @@
 {% endblock %} {% block scripts %}
 
 <script type="text/javascript">
-$(window).ready(function() {
-	var window_height = $('.profile').height();
-	var logo_height = $('.profile-logo').height();
-	$('.scrollable').height(window_height - logo_height - 40);
-	
-});
 
 	$(window).load(function() {
 		
@@ -50,14 +44,7 @@ $(window).ready(function() {
 			tooltipClass: 'my-tooltip'
 		}); */
 		
-		$('.scrollable').enscroll({
-		    showOnHover: false,
-		    verticalScrolling: true,
-			horizontalScrolling: false,
-			zIndex: 100,
-		    verticalTrackClass: 'track-red',
-		    verticalHandleClass: 'handle-red'
-		});
+
 		
 		var ratingsAdded = 0;
 		
@@ -105,7 +92,7 @@ $(window).ready(function() {
 				
 			}
 			$('.rating').click(saveRating);
-			$('.scrollable').scrollTop(0);
+			$('.main').scrollTop(0);
 			$('.rating' ).tooltip({
 				tooltipClass: 'my-tooltip'
 			});

@@ -155,6 +155,7 @@
 					$('.user-menu-small').hide();
 				}
 				$('.left-menu.scrollable').enscroll({
+					
 				    showOnHover: false,
 				    verticalScrolling: true,
 					horizontalScrolling: false,
@@ -162,6 +163,7 @@
 				    verticalTrackClass: 'track-white',
 				    verticalHandleClass: 'handle-white'
 				});
+				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu
@@ -198,7 +200,7 @@
 		function loadDiscounts(){
 			$.ajax({
 				type : 'GET',
-				url : '/api/discount?place={{place.key|e}}',
+				url : '/api/discount?place={{place.key|e}}&published=true&passed=false',
 				success : function(data) {
 					discounts = data;
 					
@@ -213,7 +215,7 @@
 						var compiled = _.template(template);
 						
 						var html = compiled({
-							discounts : discounts, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: owner, actions: false
+							discounts : discounts, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: owner, actions: false, available: true
 						});
 						$('.discounts').html(html);
 						$('.countdown').each(function(){

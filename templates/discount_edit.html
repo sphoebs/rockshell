@@ -24,10 +24,8 @@
 			<br />
 
 			<ul class="menu-items">
-				<li><button class="img-btn" id="rate-more">{{
-						lang['rate_more']}}</button></li>
-				<li><button class="img-btn" id="near-me">{{
-						lang['near_me']}}</button></li>
+				<li><button class="img-btn" id="back" onclick="window.history.back()">{{
+						lang['back']}}</button></li>
 				<li><button class="img-btn" id="logout">{{
 						lang['log_out']}}</button></li>
 			</ul>
@@ -179,6 +177,7 @@
 				    verticalTrackClass: 'track-white',
 				    verticalHandleClass: 'handle-white'
 				});
+				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu

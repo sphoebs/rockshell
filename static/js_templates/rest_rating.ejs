@@ -14,8 +14,8 @@
 		<div class="rest-ratings">
 			<p><%= strings.tourists %></p>
 			<div class="purpose-buttons">
-				<img class="purpose-icon"
-					src="/static/images/ratings/guest_selected.png">
+				<div class="purpose-icon"
+					style="background-image: url(/static/images/ratings/guest_selected.png)"></div>
 				<button class="rating rating-btn noidea <% if(ratings != undefined && ratings['dinner with tourists'] == 0){ %> selected <% } %>"
 					place_id="<%= rest.key %>" purpose="dinner with tourists"
 					data-toggle="tooltip" data-placement="bottom"
@@ -37,8 +37,8 @@
 
 			<p><%= strings.partner %></p>
 			<div class="purpose-buttons">
-				<img class="purpose-icon"
-					src="/static/images/ratings/romantic_selected.png">
+				<div class="purpose-icon"
+					style="background-image: url(/static/images/ratings/romantic_selected.png)"></div>
 				<button class="rating rating-btn noidea <% if(ratings != undefined && ratings['romantic dinner'] == 0){ %> selected <% } %>"
 					place_id="<%= rest.key %>" purpose="romantic dinner"
 					data-toggle="tooltip" data-placement="bottom"
@@ -59,8 +59,8 @@
 
 			<p><%= strings.friends %></p>
 			<div class="purpose-buttons">
-				<img class="purpose-icon"
-					src="/static/images/ratings/friends_selected.png">
+				<div class="purpose-icon"
+					style="background-image: url(/static/images/ratings/friends_selected.png)"></div>
 				<button class="rating rating-btn noidea <% if(ratings != undefined && ratings['dinner with friends'] == 0){ %> selected <% } %>"
 					place_id="<%= rest.key %>" purpose="dinner with friends"
 					data-toggle="tooltip" data-placement="bottom"
@@ -81,8 +81,8 @@
 
 			<p><%= strings.price_quality %></p>
 			<div class="purpose-buttons">
-				<img class="purpose-icon"
-					src="/static/images/ratings/lunch_selected.png">
+				<div class="purpose-icon"
+					style="background-image: url(/static/images/ratings/lunch_selected.png)"></div>
 				<button class="rating rating-btn noidea <% if(ratings != undefined && ratings['best price/quality ratio'] == 0){ %> selected <% } %>"
 					place_id="<%= rest.key %>" purpose="best price/quality ratio"
 					data-toggle="tooltip" data-placement="bottom"

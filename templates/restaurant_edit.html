@@ -59,7 +59,7 @@
 					<label class="form-label">{{ lang['rest_picture']}}: </label>
 					<div class="form-input">
 						<input type="text" id="rest_picture" name="rest_picture" value="{{place.picture if not place.picture is none}}">
-						<p class="form-explanation">The picture should have 3:2 ratio, with minimum resolution of 600x400 px.</p>
+						<p class="form-explanation">{{ lang['picture_help']}}</p>
 					</div>
 				</div>
 				<div>
@@ -136,14 +136,6 @@
 <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
-
-$(window).ready(function() {
-	var window_height = $('.rest').height();
-	var bar_height = $('.top-bar').height();
-	$('.rest-container.scrollable').height(window_height - bar_height - 40);
-	
-});
-
 	$(window).load(function() {
 		
 		displayHours();
@@ -421,15 +413,6 @@ $(window).ready(function() {
 			
 		}
 		
-		$('.rest-container.scrollable').enscroll({
-		    showOnHover: false,
-		    verticalScrolling: true,
-			horizontalScrolling: false,
-			zIndex: 100,
-		    verticalTrackClass: 'track-red',
-		    verticalHandleClass: 'handle-red'
-		});
-		
 		var userpic = "{{ user.picture|e }}";
 		if(userpic != undefined && userpic.length > 0){	
 			$('.user-picture').css('background-image', 'url(' + userpic + ')');
@@ -452,6 +435,7 @@ $(window).ready(function() {
 				    verticalTrackClass: 'track-white',
 				    verticalHandleClass: 'handle-white'
 				});
+				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu

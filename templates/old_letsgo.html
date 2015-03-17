@@ -29,8 +29,8 @@
 		<br/>
 		
 		<ul class="menu-items">
-			<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
-			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']|e}}</button></li>
+			<li><button class="img-btn" id="coupons">My coupons</button></li>
+			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 			<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
 			<!-- <li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li> -->
 			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
@@ -38,10 +38,10 @@
 			<li><button class="img-btn" id="settings">{{ lang['search_settings']}}</button></li>
 			{% if user_role == 'admin' %}
 				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
-				<li><button class="img-btn" id="edit-rest">{{ lang['manage_rests'] }}</button></li>
+				<li><button class="img-btn" id="edit-rest">Manage restaurants</button></li>
 			{% endif %}
 			{% if user_role == 'owner' %}
-				<li><button class="img-btn" id="edit-rest-owner">{{ lang['manage_rests']}}</button></li>
+				<li><button class="img-btn" id="edit-rest-owner">Manage restaurants</button></li>
 			{% endif %}
 			
 			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
@@ -49,15 +49,9 @@
 	
 	</div>
 	
-	<div class="discount-container">
-		<ul class="letsgo-rest-list">
-		
-		</ul>
-	</div>
 	
 	
-	
-	<!-- <div class="disc-details">
+	<div class="disc-details">
 		<div class="main clickable">
 			<p class="title"></p>
 			<p class="coupons"></p>
@@ -78,7 +72,7 @@
 			<p class="distance">{{ lang['distance']}}: 100 m</p>
 		</div>
 		<button class="img-btn next"></button>
-	</div> -->
+	</div>
 	
 	
 </div>
@@ -127,7 +121,7 @@ $(window).load(function() {
 		if (reclist.length > 0 && (localStorage.reclist_time + reclist_cachetime) > Date.now()){
 			places = reclist;
 			$('.loading').hide();
-			renderPlaces();
+			renderPlace(pos);
 		} else {
 			localStorage.removeItem("reclist");
 			localStorage.removeItem("reclist_time");
@@ -136,14 +130,14 @@ $(window).load(function() {
 	}
 	if (reclist == undefined){
 		if (navigator.geolocation) {
-			$('.loading-message').html('{{ lang['getting_position']}}');
+			$('.loading-message').html('Getting your position');
 	    	navigator.geolocation.getCurrentPosition(showRecommendations);
 		} else { 
 	    	alert('{{ lang['no_geolocation']}}');
 		}
 	}
 
-	/* function renderPlace(pos){
+	function renderPlace(pos){
 		if(window.console){
 			console.log("Showing place " + pos + " of " + places.length);
 		}
@@ -201,9 +195,9 @@ $(window).load(function() {
 		}
 		$('.letsgo').css('background-image', 'url(' + picture + ')');
 	}
- */
+
 	function showRecommendations(position) {
-		$('.loading-message').html('{{ lang['loading_settings']}}');
+		$('.loading-message').html('Loading your search settings');
 		var settings = user.settings; 
 		if(settings == undefined){
 			settings = {purpose: 'dinner with tourists', max_distance: 1000, num_places: 5};
@@ -222,7 +216,7 @@ $(window).load(function() {
 		
 		url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + 
 				'&max_dist='+ settings.max_distance+'&purpose=' + settings.purpose + '&n=' + settings.num_places;
-		$('.loading-message').html('{{ lang['loading_places']}}');
+		$('.loading-message').html('Loading the places around you');
 	    $.ajax({
 			type : 'GET',
 			url : url,
@@ -235,8 +229,7 @@ $(window).load(function() {
 				} else {
 					localStorage.reclist = JSON.stringify(places);
 					localStorage.reclist_time = Date.now();
-					renderPlaces();
-					
+					renderPlace(pos);
 				}
 			},
 			error : function(resp) {
@@ -248,84 +241,12 @@ $(window).load(function() {
 		}); 
 	}
 	
-	function renderPlaces(){
-		//load underscore template
-		var xmlhttp = new XMLHttpRequest();
-		xmlhttp.open("GET","/static/js_templates/letsgo_rest_item.ejs",false);
-		xmlhttp.send(null);
-		var template = xmlhttp.responseText;
-		var compiled = _.template(template);
-		
-		for(var i=0; i< places.length; i++){
-			var p = places[i];
-			var discount = undefined;
-			var distance = '';
-			if(p.distance){
-				
-				var meters = Math.round(p.distance);
-				
-				if(meters < 1000){
-					distance += meters + ' m';
-				} else {
-					km = meters / 1000;
-					distance += km.toFixed(2) + ' km';
-				}
-			}
-			
-			if(p.discounts && p.discounts.length > 0){
-				discount = p.discounts[0];
-			}
-			
-			var html = compiled({
-				p : p,
-				disc: discount,
-				distance: distance,
-				distance_str : "{{lang['distance']}}",
-				lang_name : "{{lang_name}}",
-				coupons_available_till: "{{lang['discount_strings']['coupons_available_till']}}"
-			});
-			
-			$('.letsgo-rest-list').append(html);
-			
-			$('.countdown').each(function(){
-				var end = $(this).attr('end-time');
-				var diff = Math.floor((new Date(end) - new Date())/1000);
-				$(this).countdown({
-					until: '+'+diff+'s',
-					format: 'dHMS',
-					significant: 2,
-					layout: '{d<}{dn} {dl} {d>}{h<}{hn} {hl} {h>}{m<}{mn} {ml} {m>}{s<}{sn} {sl}{s>}',
-					{% if lang_name == 'it' %}
-						labels: ['anni', 'mesi', 'settimane', 'giorni', 'ore', 'minuti', 'secondi'],
-						labels1: ['anno', 'mese', 'settimana', 'giorno', 'ora', 'minuto', 'secondo'],
-					{% else %}
-						labels: ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'],
-						labels1: ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'],
-					{% endif %}
-				});
-				
-			});
-			
-		}
-		
-		$('.rest-info').click(function(){
-			var key = $(this).attr('rest-key');
-			window.location = '/restaurant?id=' + key;
-		});
-		$('.discount').click(function(){
-			var key = $(this).attr('disc-key');
-			window.location = '/discount?id=' + key;
-		});
-		
-		
-	}
-	
 	$('.user-name').append(' '+user.first_name);
 	
 	
 	
 	
-	/* function onNext(){
+	function onNext(){
 		if(pos < places.length-1){
 			pos += 1;
 			renderPlace(pos);
@@ -343,10 +264,22 @@ $(window).load(function() {
 			//there are no places before the one already shown
 			//do nothing
 		}
-	} */
+	}
 	
-	/* $('.rest-details .next').click(onNext);
-	$('.rest-details .prev').click(onPrev); */	
+	$('.rest-details .next').click(onNext);
+	$('.rest-details .prev').click(onPrev);
+	$('.rest-details .main').click(function(){
+		var p = places[pos];
+		window.location = '/restaurant?id=' + p.key;
+	});
+	$('.disc-details .main').click(function(){
+		key = $('.disc-details #disc-key').val();
+		window.location = '/discount?id=' + key;
+	});
+	
+	
+	
+	
 	
 	$('.left-menu').hide();
 	var window_width = $('.letsgo').width();
@@ -366,7 +299,6 @@ $(window).load(function() {
 			    verticalTrackClass: 'track-white',
 			    verticalHandleClass: 'handle-white'
 			});
-			$('.enscroll-track').css('position', 'fixed');
 			count++;
 		} else {
 			//even time --> close left menu
@@ -386,7 +318,7 @@ $(window).load(function() {
 	}
 	
 	$('.user-menu, .user-menu-small').click(function(){
-		window.location = '/profile';
+		window.location = '/profile/1';
 	});
 	
 	$('#coupons').click(function(){
@@ -409,13 +341,13 @@ $(window).load(function() {
 		});
 	});
 
-/* 	$('#discounts').click(function(){
+	$('#discounts').click(function(){
 		alert('{{ lang['coming_soon']}}');
 	});
 	
 	$('#inspire-me').click(function(){
 		alert('{{ lang['coming_soon']}}');
-	}); */
+	});
 	
 	$('#settings').click(function(){
 		

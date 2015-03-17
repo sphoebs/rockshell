@@ -382,6 +382,8 @@ class RestaurantPageHandler(BaseRequestHandler):
                     place = Place.to_json(place, None, None)
                     if 'description_' + LANG_NAME in place:
                         place['description'] = place['description_' + LANG_NAME]
+                    place['days_closed'] = [datetime.date(day).strftime(LANG['python_date']) for day in place['days_closed']]
+                            
                     self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
                     return
                 except TypeError, e:
@@ -493,7 +495,7 @@ class DiscountHandler(BaseRequestHandler):
                 owner = True
             else:
                 owner  = False
-            self.render('discount.html', {'discount': discount, 'place_name': place.name, 'owner' : owner, 'user': user, 'lang' : LANG });
+            self.render('discount.html', {'discount': discount, 'place_name': place.name, 'owner' : owner, 'user': user, 'lang' : LANG, 'lang_name': LANG_NAME });
         except TypeError, e:
             self.render("error.html", {'error_code': 500, 'error_string': str(e)})
             return
@@ -517,7 +519,10 @@ class DiscountEditHandler(BaseRequestHandler):
             return
         try:
             discount = Discount.to_json(discount, None, None)
-            self.render('discount_edit.html', {'is_new': 'False', 'discount': discount, 'user': user, 'lang' : LANG });
+            is_new = False
+            if self.request.GET.get('new') == True:
+                is_new = True
+            self.render('discount_edit.html', {'is_new': is_new, 'discount': discount, 'user': user, 'lang' : LANG });
         except TypeError, e:
             self.render("error.html", {'error_code': 500, 'error_string': str(e)})
             return

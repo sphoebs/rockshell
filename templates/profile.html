@@ -25,6 +25,15 @@
 				</div>
 				<div>
 					<label class="form-label">{{ lang['home_city']}}: </label>
+					{% if user.home %}
+					<div class="form-input">
+						<input type="text" name="auto-city"
+							id="city" value="{{user.home.city}}, {{user.home.province}} ({{user.home.country}})">
+						<input type="hidden" name="locality" id="locality" value="{{user.home.city}}"/> 
+						<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" value="{{user.home.province}}"/> 
+						<input type="hidden" name="country" id="country" value="{{user.home.country}}"/>
+					</div>
+					{% else %}
 					<div class="form-input">
 						<input type="text" name="auto-city"
 							id="city" >
@@ -32,6 +41,7 @@
 						<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
 						<input type="hidden" name="country" id="country"/>
 					</div>
+					{% endif %}
 				</div>
 				
 				<div>

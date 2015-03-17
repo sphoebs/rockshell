@@ -27,7 +27,7 @@
 	
 		</div>
 		
-		<div class="rest-container scrollable">
+		<div class="discount-container ">
 			<div class="city-search">
 				<label class="text-bold">Select a city for searching the places you want to edit: </label>
 				<div class="input">
@@ -62,13 +62,6 @@
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
 
-$(window).ready(function() {
-	var window_height = $('.rest').height();
-	var bar_height = $('.top-bar').height();
-	$('.rest-container.scrollable').height(window_height - bar_height - 40);
-	
-});
-
 	$(window).load(function() {
 		var pageSize = 50;
 		var all_places = [];
@@ -90,15 +83,6 @@ $(window).ready(function() {
 		};
 		
 		var auth = getCookie('user');
-		
-		$('.scrollable').enscroll({
-		    showOnHover: false,
-		    verticalScrolling: true,
-			horizontalScrolling: false,
-			zIndex: 100,
-		    verticalTrackClass: 'track-red',
-		    verticalHandleClass: 'handle-red'
-		});
 		
 		var input = document.getElementById('city');
 		var options = {
@@ -287,6 +271,7 @@ $(window).ready(function() {
 				    verticalTrackClass: 'track-white',
 				    verticalHandleClass: 'handle-white'
 				});
+				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu

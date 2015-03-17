@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 '''
 Created on Dec 26, 2014
 
@@ -5,8 +7,18 @@ Created on Dec 26, 2014
 '''
 
 en = {
-    'date_format': 'mm-dd-yy',
+    'date_format': 'mm/dd/yy',
+    'python_date': '%m/%d/%Y',
+    # MENU ITEMS
     'my_coupons': 'My coupons',
+    'rate_more': 'Rate more places',
+    'near_me' : 'Near me',
+    'refresh' : 'Refresh recommendations',
+    'discounts': 'Discounts',
+    'inspire_me': 'Inspire me',
+    'search_settings': 'Recommendation settings',
+    'manage_rests': 'Manage restaurants',
+    'log_out': 'Log out',
     # PROFILE SUMMARY
     'profile_edit': 'Edit profile',
     'profile_title': 'Your personal data',
@@ -53,17 +65,13 @@ en = {
     # LETSGO
     'welcome': 'Welcome',
     'loading': 'Loading',
+    'loading_places': 'Loading the places around you',
+    'loading_settings': 'Loading search settings',
+    'getting_position': 'Getting your position',
     'in_this_picture' : 'In this picture',
     'restaurant_name' : 'Restaurant name',
     'address' : 'Address',
     'distance' : 'Distance',
-    'rate_more': 'Rate more places',
-    'near_me' : 'Near me',
-    'refresh' : 'Refresh recommendations',
-    'discounts': 'Discounts',
-    'inspire_me': 'Inspire me',
-    'search_settings': 'Recommendation settings',
-    'log_out': 'Log out',
     'no_geolocation' : 'Geolocation is not supported by this browser.',
     'no_places_position' : 'We are sorry, we found no places around your current position.',
     'coming_soon' : 'Coming soon.',
@@ -120,6 +128,7 @@ en = {
     'open': 'from',
     'close': 'to',
     'add-day': 'Add new day',
+    'picture_help': 'The picture should have 3:2 ratio (width/height), with minimum resolution of 600x400 px.',
     
     'back': 'Back',
     'back_to_rest' : 'Back to restaurant',
@@ -137,6 +146,8 @@ en = {
     'discount_num_coupons': 'Number of coupons',
     'discount_end': 'The discount will be available till',
     'discount_list_all': 'Manage discounts',
+    'published': 'Published',
+    'not_published': 'Not published',
     
     'discount_strings': {
                          'last': 'Last',
@@ -148,6 +159,7 @@ en = {
                          'edit' : 'Edit',
                          'publish': 'Publish',
                          'delete': 'Delete',
+                         'new_similar': 'Repropose it',
                          'buy': 'Get coupon',
                          'code': 'Code',
                          'status': 'Status',
@@ -187,16 +199,37 @@ en = {
     'phone_short' : 'Tel.',
     'create_new_discount': 'Create new',
     
+    'new_discounts': 'New discounts (not published yet)',
+    'available_discounts': 'Currently available discounts',
+    'old_discounts': 'Expired discounts',
+    
     'no_coupons': 'No coupons',
     'your_coupons': 'Your coupons',
     'active_coupons': 'Active coupons',
     'used_coupons': 'Used coupons',
+    'bought': 'bought on',
+    'used': 'used on',
+    'use': 'Use',
+    'you_have_coupon_code': 'You have a coupon, with code',
+    'coupon_used_date': 'The coupon has already been used in date',
     
 }
 
 
 it = {
-    'date_format': 'dd-mm-yy',
+    'date_format': 'dd/mm/yy',
+    'python_date': '%d/%m/%Y',
+    # MENU ITEMS
+    'my_coupons': 'I miei coupons',
+    'rate_more': u'Vota più posti',
+    'near_me' : 'Vicino a me',
+    'refresh' : 'Aggiorna raccomandazioni',
+    'discounts': 'Offerte',
+    'inspire_me': 'Ispirami',
+    'search_settings': 'Impostazioni',
+    'manage_rests': 'Gestisci ristoranti',
+    'log_out': 'Esci',
+    
     # PROFILE SUMMARY
     'profile_edit': 'Modifica profilo',
     'profile_title': 'I tuoi dati personali',
@@ -213,24 +246,24 @@ it = {
     'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di alcune indormazioni su di te.',
     'first_name': 'Nome',
     'last_name': 'Cognome',
-    'home_city': 'Citta` di origine',
+    'home_city': u'Città di origine',
     'gender': 'Genere',
-    'age': 'Eta`',
+    'age': u'Età',
     '<18_years': 'Meno di 18 anni',
     'years_old' : 'anni',
-    '>55_years': 'Piu` di 55 anni',
+    '>55_years': u'Più di 55 anni',
     'save': 'Salva',
       
     # PROFILE 2
     'profile2_text1': 'Questi sono i posti che abbiamo trovato per',
-    'profile2_text2': 'Dicci cosa ne pensi dei ristoranti della tua citta`',
-    'profile_feedback': 'Le tue opinioni aiuteranno le persone che visiteranno la tua citta`!! Nessuno li conosce meglio di uno del posto :) ',
-    'no_places_city': 'Siamo spiacenti, non conosciamo nessun posto nella tua citta`.',
+    'profile2_text2': u'Dicci cosa ne pensi dei ristoranti della tua città',
+    'profile_feedback': u'Le tue opinioni aiuteranno le persone che visiteranno la tua città!! Nessuno li conosce meglio di uno del posto :) ',
+    'no_places_city': u'Siamo spiacenti, non conosciamo nessun posto nella tua città.',
     'prev': 'Indietro',
     'next': 'Avanti',
     'continue': 'Continua', 
     'rating_purposes' : {
-        'tourists': 'Per una cena con degli ospiti da fuori citta`',
+        'tourists': 'Per una cena con degli ospiti da fuori citt&agrave;',
         'partner': 'Per una cena romantica con il/la tuo/a compagno/a',
         'friends': 'Per una cena con gli amici',
         'price_quality': 'Per la pausa pranzo',
@@ -243,25 +276,21 @@ it = {
     # LETSGO
     'welcome': 'Benvenuto',
     'loading': 'Caricamento',
+    'loading_places': 'Sto cercando i posti vicino a te',
+    'loading_settings': 'Sto caricando le impostazioni',
+    'getting_position': 'Sto ottenendo la tua posizione',
     'in_this_picture' : 'In questa immagine',
     'restaurant_name' : 'Nome del ristorante',
     'address' : 'Indirizzo',
     'distance' : 'Distanza',
-    'rate_more': 'Vota piu` posti',
-    'near_me' : 'Vicino a me',
-    'refresh' : 'Aggiorna raccomandazioni',
-    'discounts': 'Offerte',
-    'inspire_me': 'Ispirami',
-    'search_settings': 'Impostazioni',
-    'log_out': 'Log out',
-    'no_geolocation' : 'La geolocalizzazione non e` supportata da questo browser.',
+    'no_geolocation' : u'La geolocalizzazione non è supportata da questo browser.',
     'no_places_position' : 'Siamo spiacenti, non abbiamo trovato alcun posto vicino alla tua posizione.',
     'coming_soon' : 'Presto disponibile.',
       
     'search_settings_popup' : {
         'title': 'Impostazioni di ricerca',
         'purpose': 'Motivo',
-        'tourists': 'Cena con degli ospiti da fuori citta`',
+        'tourists': 'Cena con degli ospiti da fuori citt&agrave;',
         'partner': 'Cena romantica con il/la tuo/a compagno/a',
         'friends': 'Cena con gli amici',
         'price_quality': 'Pausa pranzo',
@@ -278,14 +307,14 @@ it = {
         'save': 'Salva'
     },
     'ratings_text1': 'Vota alcuni ristoranti e permettici di conoscere meglio i tuoi gusti.',
-    'city_select': 'Per favore, seleziona una citta` che hai visitato',
-    'no_places_selected': 'Siamo spiacenti, non conosciamo ristoranti nella citta` selezionata.',
+    'city_select': u'Per favore, seleziona una città che hai visitato',
+    'no_places_selected': u'Siamo spiacenti, non conosciamo ristoranti nella città selezionata.',
     'create_place_button': 'Se non trovi il ristorante che stai cercando, lo puoi aggiungere!',
     'add_place': 'Aggiungi posto',
     'search_name': 'Cerca per nome',
     'map_search': 'Cerca nella mappa',
     'done': 'Ho finito',
-    'city_mandatory': 'La citta` deve essere selezionata!!',
+    'city_mandatory': u'La città deve essere selezionata!!',
     
     # RESTAURANT PAGE + EDIT
     'rest_opening_hours': 'Orario d\'apertura',
@@ -310,9 +339,9 @@ it = {
     'open': 'dalle',
     'close': 'alle',
     'add-day': 'Aggiungi giorno',
+    'picture_help': 'L\'immagine deve avere un rapporto 3:2 (larghezza/altezza), con risoluzione minima di 600x400px.',
     
     'back': 'Indietro',
-    
     'back_to_rest' : 'Torna al ristorante',
     'back_to_dlist' : 'Torna alle offerte',
     
@@ -321,23 +350,27 @@ it = {
     'change_rest' : 'Cambia ristorante',
     
     # DISCOUNT
-    'discount_edit': 'Modifica sconto',
-    'discount_new': 'Crea nuovo sconto',
+    'discount_edit': 'Modifica offerta',
+    'discount_new': 'Crea nuova offerta',
     'discount_title': 'Titolo',
     'discount_description': 'Descrizione',
     'discount_num_coupons': 'Numero di coupon',
-    'discount_end': 'Lo sconto sar&agrave; discpnibile fino a',
-    'discount_list_all': 'Gestisci sconti',
+    'discount_end': u'L\'offerta sarà disponibile fino a',
+    'discount_list_all': 'Gestisci offerte',
+    'published': 'Pubblicata',
+    'not_published': 'Non pubblicata',
     
     'discount_strings': {
                          'last': 'Ultimi',
                          'coupons_available_till': 'coupons, disponibili per',
                          'coupons_expired_at': 'coupons, scaduti il',
+                         'coupons': 'Coupons',
                          'available_till': 'Disponibile per',
-                         'expired_at': 'Scaduta il',
+                         'expired_at': 'Scaduto il',
                          'edit' : 'Modifica',
                          'publish': 'Pubblica',
                          'delete': 'Cancella',
+                         'new_similar': 'Rinnova',
                          'buy': 'Prendi coupon',
                          'code': 'Codice',
                          'status': 'Stato',
@@ -370,17 +403,26 @@ it = {
                         'cancel': 'Annulla',
                         'ok': 'S&igrave;, cancella'
     },
-    'no_discounts': 'Al momento, non ci sono sconti disponibili per questo ristorante.',
-    'no_discounts_list': 'Nessune offerte',
+    'no_discounts': 'Al momento, non ci sono offerte disponibili per questo ristorante.',
+    'no_discounts_list': 'Nessuna offerta',
     'discounts' : 'Offerte',
     'for' : 'per',
     'phone_short' : 'Tel.',
     'create_new_discount': 'Crea nuova offerta',
     
+    'new_discounts': 'Nuove offerte (ancora non pubblicate)',
+    'available_discounts': 'Offerte attualmente disponibili',
+    'old_discounts': 'Offerte scadute',
+    
     'no_coupons': 'Nessun coupon',
     'your_coupons': 'I tuoi coupon',
     'active_coupons': 'Coupon attivi',
     'used_coupons': 'Coupon usati',
+    'bought': 'acquistato il',
+    'used': 'usato il',
+    'use': 'Usa',
+    'you_have_coupon_code': 'Hai un coupon, con codice',
+    'coupon_used_date': u'Il coupon è già stato usato il ',
     
 }
 

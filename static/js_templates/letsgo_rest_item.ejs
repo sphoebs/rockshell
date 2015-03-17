@@ -15,7 +15,7 @@
 			<div class="discount clickable" disc-key="<%= disc.key%>">
 				<!-- <p>Discount available!</p> -->
 				<div class="title text-bold"><% if(disc['title_' +lang_name] != undefined){ %> <%=disc['title_' +lang_name]%> <% } %></div>
-				<div class="more"><%= disc.available_coupons %> <%= coupons_available_till %> <span class="countdown" end-time="<%= discount.end_time %>"></span></div>
+				<div class="more"><%= disc.available_coupons %> <%= coupons_available_till %> <span class="countdown" end-time="<%= disc['end_time'] %>"></span></div>
 			</div> 
 		<% } %>
 	</div>

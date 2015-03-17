@@ -148,7 +148,7 @@ button.disabled {
 
 /* SCROLL BAR */
 .scrollable, .popup-scrollable {
-	/* max-height: 75%; */
+	max-height: 75%;
 	overflow: hidden;
 	/* margin-bottom: 10px; */
 }
@@ -539,8 +539,15 @@ li.rest-item {
 .rest-item .purpose-icon {
 	width: 32px;
 	height: 32px;
+	display: inline-block;
 	vertical-align: top;
 	margin-right: 20px;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
 }
 
 .rest-item button.rating-btn {
@@ -1049,7 +1056,7 @@ li.rest-item {
 	/* max-height: 95%; */
 	color: white;
 	background: rgba(220, 61, 61, 1);
-	position: absolute;
+	position: fixed;
 	top: 50px;
 	left: 0;
 	padding-top: 10px;
@@ -1257,7 +1264,11 @@ div.icon-email{
 }
 
 p.iconed{
-	display: inline-block;
+	display: block;
+	margin-left: 30px;
+	margin-top: -24px;
+	margin-bottom: 5px;
+	
 }
 
 .black-text{
@@ -1470,6 +1481,25 @@ ul.coupon-list .disc-item {
 
 .coupon-list-title{
 	font-size: larger;
+}
+
+.coupons-title {
+	color: #DC3D3D;
+	margin-top: 25px;
+}
+
+.disc-coupon-list p{
+	float: left;
+	margin: 5px;
+}
+
+.disc-coupon-list .use-button{
+	float: right;
+	margin: 5px;
+}
+
+.disc-coupon-list li{
+	border-bottom: dashed 2px #DC3D3D;
 }
 
 
