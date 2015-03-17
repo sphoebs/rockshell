@@ -43,7 +43,7 @@
 			<div class="black-text">
 			<p>{{discount.description}}</p>
 			
-			<p>{{ lang['discount_strings']['available_till']}} {{discount.end_time}}</p>
+			<p><span class="countdown-text"></span> <span class="countdown" end-time="{{discount.end_time}}"></span></p>
 			
 			<p>{{lang['discount_strings']['coupons']}}: {{discount.available_coupons}} / {{discount.num_coupons}}</p>
 			
@@ -107,6 +107,33 @@
 		};
 		
 		var auth = getCookie('user');
+		
+		$('.countdown').each(function(){
+			var end = $(this).attr('end-time');
+			var diff = Math.floor((new Date(end) - new Date())/1000);
+			if(diff >= 0){
+				$(this).parent().find('.countdown-text').html('{{ lang['discount_strings']['available_till']}}');
+				$(this).countdown({
+					until: '+'+diff+'s',
+					format: 'dHMS',
+					significant: 2,
+					layout: '{d<}{dn} {dl} {d>}{h<}{hn} {hl} {h>}{m<}{mn} {ml} {m>}{s<}{sn} {sl}{s>}',
+					{% if lang_name == 'it' %}
+					labels: ['anni', 'mesi', 'settimane', 'giorni', 'ore', 'minuti', 'secondi'],
+					labels1: ['anno', 'mese', 'settimana', 'giorno', 'ora', 'minuto', 'secondo'],
+					{% else %}
+					labels: ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'],
+					labels1: ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'],
+					{% endif %}
+				});
+			} else {
+				$(this).parent().find('.countdown-text').html('{{ lang['discount_strings']['expired_at']}}');
+				var date_str = new Date(end).format('{{lang['date_format']}}');
+				$(this).html(date_str);
+			}
+			
+		});
+		
 		
 		function disc_publish(){
 			var xmlhttp = new XMLHttpRequest();
@@ -344,7 +371,7 @@
 		});
 		
 		$('.user-menu, .user-menu-small').click(function(){
-			window.location = '/profile/1';
+			window.location = '/profile';
 		});
 		
 		$('#edit').click(function(){

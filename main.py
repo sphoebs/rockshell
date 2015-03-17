@@ -26,6 +26,7 @@ import logic
 import recommender
 import json
 import languages
+from datetime import datetime
 
 from models import PFuser, Place, Settings, Discount
 
@@ -155,14 +156,34 @@ class UserHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status == "OK":
-            self.render(
-                'profile.html',
-                {'user': user, 'lang' : LANG}
-            )
+            
+            if '1' in self.request.url:
+                self.render(
+                            'profile.html',
+                            {'user': user, 'requester': None, 'lang' : LANG}
+                )
+            else:
+                num_ratings, status, errcode = logic.user_get_num_ratings(user_id)
+                if status == "OK":
+                    user.num_ratings = num_ratings
+                else: 
+                    user.num_ratings = 0
+                num_coupons, status, errcode = logic.user_get_num_coupons(user_id)
+                if status == "OK":
+                    user.num_coupons = num_coupons
+                else: 
+                    user.num_coupons = 0
+                self.render(
+                            'profile_sum.html',
+                            {'user': user, 'lang' : LANG}
+                            )
         else:
             self.redirect('/')
 
     def post(self):
+        if '1' not in self.request.url:
+            self.response.set_status(405) 
+            return
         # this method updates user information (from profile page)
         # request body contain the form values
         data = self.request
@@ -463,6 +484,7 @@ class DiscountHandler(BaseRequestHandler):
             self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
         try:
+            
             discount = Discount.to_json(discount, None, None)
             discount['title'] = discount['title_'+LANG_NAME]
             discount['description'] = discount['description_'+LANG_NAME]
@@ -584,6 +606,7 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/fb/oauth_callback/?', LoginHandler),
     ('/google/oauth_callback/?', LoginHandler),
+    ('/profile', UserHandler),
     ('/profile/1', UserHandler),
     ('/profile/2', UserRatingsHandler),
     ('/profile/3', UserRatingsOtherHandler),

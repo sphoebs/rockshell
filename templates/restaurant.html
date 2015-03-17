@@ -29,7 +29,7 @@
 					<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
 					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 				{% else %}
-					<li><button class="img-btn" id="coupons">My coupons</button></li>
+					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
 					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				{% endif %}
@@ -42,23 +42,23 @@
 		</div>
 	
 		<div class="discount-container">
-			<h2>{{place.name}}</h2>
+			<h2 class="center-text">{{place.name}}</h2>
 			
 			<div class="discounts"><p>{{lang['loading']}}...</p></div>
 			
 			<div class="info">
 			{% if place.address %}
-				<img class="icon-address"></img>
+				<div class="icon-address"></div>
 				<p class="iconed black-text">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
 				{% endif %}
 				
 				{% if place.phone %}
-				<img class="icon-phone"></img>
+				<div class="icon-phone"></div>
 				<p class="iconed black-text">{{place.phone}}</p>
 				{% endif %}
 				
 				{% if place.hours %}
-				<img class="icon-hours"></img>
+				<div class="icon-hours"></div>
 				<p class="iconed black-text">{{ lang['rest_opening_hours'] }}: 
 				{% for h in place.hours %}
 					{% if h.weekday == '1' %}
@@ -85,7 +85,7 @@
 				{% endif %}
 				
 				{% if place.days_closed %}
-				<img class="icon-closed"></img>
+				<div class="icon-closed"></div>
 				<p class="iconed black-text">{{ lang['rest_closed'] }}: 
 					{% for d in place.days_closed %}
 						{{ d ~ ', '}}
@@ -94,14 +94,19 @@
 				{% endif %}
 				
 				{% if place.website %}
-				<img class="icon-web"></img>
+				<div class="icon-web"></div>
 				<p class="iconed black-text">{{place.website}}</p>
 				{% endif %}
 				
 				{% if place.email %}
-				<img class="icon-email"></img>
+				<div class="icon-email"></div>
 				<p class="iconed black-text">{{place.email}}</p>
 				{% endif %}
+			</div>
+			
+			<div class="rest-left">
+				<div class="picture" style="background-image: url(/static/images/empty_small.png)"></div>
+				
 			</div>
 			
 			<div class="rest-right">
@@ -111,10 +116,6 @@
 				<a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a>
 			</div>
 		
-			<div class="rest-left">
-				<img class="picture" style="background-image: url(/static/images/empty_small.png)">
-				
-			</div>
 			<div class="clear-float"></div>
 			<p class="black-text desc">{{place.description}}</p>			
 			<div class="popup-area"></div>
@@ -124,29 +125,19 @@
 {% endblock %} {% block scripts %}
 <!-- <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script> -->
-<script src="/static/js/enquire.min.js"></script>
+<!-- <script src="/static/js/enquire.min.js"></script> -->
 <script type="text/javascript">
-
-$(window).ready(function() {
-	var window_height = $('.rest').height();
-	var bar_height = $('.top-bar').height();
-	$('.rest-container.scrollable').height(window_height - bar_height - 40);
-	
-});
 
 	$(window).load(function() {
 		
+		var user_role = "{{user.role if not user.role is none}}";
+		var owner = false;
+		if (user_role == 'owner'){
+			owner = true;
+		}
+		
 		var rest_picture = '{{place.picture if not place.picture is none}}';
 		$('.picture').css('background-image','url('+ rest_picture +')')
-		
-		$('.rest-container.scrollable').enscroll({
-		    showOnHover: false,
-		    verticalScrolling: true,
-			horizontalScrolling: false,
-			zIndex: 100,
-		    verticalTrackClass: 'track-red',
-		    verticalHandleClass: 'handle-red'
-		});
 		
 		var userpic = "{{ user.picture|e }}";
 		if(userpic != undefined && userpic.length > 0){	
@@ -212,19 +203,42 @@ $(window).ready(function() {
 					discounts = data;
 					
 					if(discounts == null || discounts.length < 1){
-						$('.discounts').html('<p>{{ lang['no_discounts']}}</p>');
+						$('.discounts').html('');
 					} else {
-						//TODO: store discounts in localstorage
 						//load underscore template
 						var xmlhttp = new XMLHttpRequest();
 						xmlhttp.open("GET","/static/js_templates/discount_list.ejs",false);
 						xmlhttp.send(null);
 						var template = xmlhttp.responseText;
 						var compiled = _.template(template);
+						
 						var html = compiled({
-							discounts : discounts, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: false
+							discounts : discounts, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: owner, actions: false
 						});
 						$('.discounts').html(html);
+						$('.countdown').each(function(){
+							var end = $(this).attr('end-time');
+							var diff = Math.floor((new Date(end) - new Date())/1000);
+							$(this).countdown({
+								until: '+'+diff+'s',
+								format: 'dHMS',
+								significant: 2,
+								layout: '{d<}{dn} {dl} {d>}{h<}{hn} {hl} {h>}{m<}{mn} {ml} {m>}{s<}{sn} {sl}{s>}',
+								{% if lang_name == 'it' %}
+									labels: ['anni', 'mesi', 'settimane', 'giorni', 'ore', 'minuti', 'secondi'],
+									labels1: ['anno', 'mese', 'settimana', 'giorno', 'ora', 'minuto', 'secondo'],
+								{% else %}
+									labels: ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'],
+									labels1: ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'],
+								{% endif %}
+							});
+							
+						});
+						
+						$('.disc-item .desc').click(function(){
+							var disc_id = $(this).attr('discount-id');
+							window.location = '/discount?id=' + disc_id;
+						});
 						
 						$('#buy').click(function(){
 							var key = $(this).attr('discount-id');
@@ -265,10 +279,10 @@ $(window).ready(function() {
 			window.location = '/restaurant/new';
 		});
 		$('#rate-more').click(function(){
-			window.location = '/ratings'
+			window.location = '/ratings';
 		});
 		$('#near-me').click(function(){
-			window.location = '/letsgo'
+			window.location = '/letsgo';
 		});
 		$('#logout').click(function(){
 			$.ajax({
@@ -286,16 +300,16 @@ $(window).ready(function() {
 			});
 		});
 		
-		enquire.register("screen and (max-width:500px)", {
+		/* enquire.register("screen and (max-width:500px)", {
 			match : function() {
 				$('.picture').insertAfter('.rest-left');
 				$('.rest-right').insertAfter('.picture');
 			}, 
 			
-		});
+		}); */
 		
 		$('.user-menu, .user-menu-small').click(function(){
-			window.location = '/profile/1';
+			window.location = '/profile';
 		});
 		
 		

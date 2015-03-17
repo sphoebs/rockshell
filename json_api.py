@@ -188,6 +188,7 @@ class PlaceListHandler(webapp2.RequestHandler):
             return
         
         logging.info("Received new place to save: " + self.request.body)
+        # TODO: only an admin can create new places
 #         auth = self.request.headers.get("Authorization")
 #         if auth is None or len(auth) < 1:
 #             auth = self.request.cookies.get("user")
@@ -199,6 +200,7 @@ class PlaceListHandler(webapp2.RequestHandler):
 #             self.response.set_status(403)
 #             self.response.write("You must login first!")
 #             return
+        
         
         body = json.loads(self.request.body)
         try:

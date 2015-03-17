@@ -2671,8 +2671,8 @@ class Discount(PFmodel):
 
     title_en = ndb.StringProperty()
     title_it = ndb.StringProperty()
-    description_en = ndb.TextProperty()
-    description_it = ndb.TextProperty()
+    description_en = ndb.TextProperty(indexed=False)
+    description_it = ndb.TextProperty(indexed=False)
     place = ndb.KeyProperty(kind=Place)
     num_coupons = ndb.IntegerProperty(indexed=False)
     available_coupons = ndb.IntegerProperty()
@@ -2954,12 +2954,14 @@ class Discount(PFmodel):
   
         if key is not None:
             if not ( isinstance(key, ndb.Key) and key.kind().find('Discount') > -1):
-                raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
+                raise TypeError('key must be a valid key for a Discount, it is ' + str(key))
             discount = key.get()
             if requester_id is None:
                 if discount.published == False:
                     # the user cannot see it since it is not public!
                     raise UnauthorizedException('The discount is not public, access is garanted only to the owner of the place to which it refers to. Login is needed.')
+                #hide coupons
+                discount.coupons = None
             else:
                 user_key = PFuser.make_key(requester_id, None)
                 place = Place.get_by_key(discount.place)
@@ -3333,3 +3335,44 @@ class Discount(PFmodel):
             return False
         key.delete()
         return True
+    
+    
+    
+    
+# extra functions
+def get_user_num_ratings(key):
+        
+    """
+    It retrieves the number of ratings the user already gave.
+    
+    Parameters:
+    - key: the key of the PFuser
+    
+    It returns the requested number or None.
+    Exceptions:  TypeError, if the input is of the wrong type
+    """
+    if key is None:
+        raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
+    if not ( isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1):
+        raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
+    
+    num = Rating.query().filter(Rating.user == key).count()
+    return num
+
+def get_user_num_coupons(key):
+        
+    """
+    It retrieves the number of coupons the user already used/requested.
+    
+    Parameters:
+    - key: the key of the PFuser
+    
+    It returns the requested number or None.
+    Exceptions:  TypeError, if the input is of the wrong type
+    """
+    if key is None:
+        raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
+    if not ( isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1):
+        raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
+    discounts = Discount.get_list({'coupon_user': key.urlsafe()}, key.id())
+    return len(discounts)

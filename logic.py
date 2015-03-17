@@ -7,7 +7,7 @@ Created on Sep 15, 2014
 import fix_path
 import json
 
-from models import PFuser, Place, Rating, Discount
+from models import PFuser, Place, Rating, Discount, get_user_num_ratings, get_user_num_coupons
 import logging
 
 from google.appengine.api import urlfetch, memcache, taskqueue
@@ -166,6 +166,42 @@ def user_get(user_id, user_key_str):
 
     return user, "OK", 200
 
+def user_get_num_ratings(user_id):
+    """
+    It retrieves the number of ratings the user already gave.
+    
+    Parameters:
+    - user_id: the string id of the PFuser
+    
+    It returns a tuple: 
+    - the requested number (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        num = get_user_num_ratings(PFuser.make_key(user_id, None))
+    except TypeError, e:
+        return None, str(e), 400
+    return num, "OK", 200
+
+
+def user_get_num_coupons(user_id):
+    """
+    It retrieves the number of coupons the user already used/requested.
+    
+    Parameters:
+    - user_id: the string id of the PFuser
+    
+    It returns a tuple: 
+    - the requested number (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        num = get_user_num_coupons(PFuser.make_key(user_id, None))
+    except TypeError, e:
+        return None, str(e), 400
+    return num, "OK", 200
 
 def place_get(place_id, place_key_str):
     """

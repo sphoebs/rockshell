@@ -5,13 +5,22 @@
 			
 			<div class="desc clickable img-btn" discount-id="<%= discount.key %>">
 				<h4 class="title"><% if(lang == 'it'){%> <%=discount.title_it%> <%} else {%> <%=discount.title_en%> <% } %></h4>
-				<p> <%= strings.available_till %> <%= discount.end_time %> </p>
+				<p> 
+					<% if(available){ %>
+						<%= strings.available_till %> <span class="countdown" end-time="<%= discount.end_time %>"></span>
+					<% } else { %>
+						<%= strings.expired_at %> <span class="countdown" end-time="<%= discount.end_time %>"></span>
+					<% } %>
+					 
+				</p>
 			</div>
 			<div class="actions">
 				<% if(owner){ %>
+					<% if(actions){ %>
 					<button class="img-btn red-button" id="edit" discount-id="<%= discount.key %>"><%= strings.edit %></button>
 					<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %>" id="publish" discount-id="<%= discount.key %>"><%= strings.publish %></button>
 					<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %>" id="delete" discount-id="<%= discount.key %>"><%= strings.delete %></button>
+					<% } %>
 				<% } else { %>
 					<button class="img-btn red-button" id="buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
 				<% } %>

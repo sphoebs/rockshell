@@ -10,6 +10,7 @@
 			<div class="center-text">{{ lang['profile_intro']}} </div>
 	
 			<form action="/profile/1" method="post">
+				{% if requester is none %}
 				<div>
 					<label class="form-label">{{ lang['first_name']}}: </label>
 					<div class="form-input"><input type="text" name="first_name"
@@ -75,12 +76,14 @@
 					</div>
 				</div>
 				<!-- TODO: remove role editing!! -->
+				{% elif requester.role == 'admin' %}
 				<div>
 					<label class="form-label">Role: </label>
 					<div class="form-input"><input type="text" name="role"
 						value="{{user.role|e}}">
 					</div>
 				</div>
+				{% endif %}
 				<input type="submit" class="img-btn save " value="{{ lang['save']}}" />
 			</form>
 		</div>
@@ -93,25 +96,13 @@
 <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
-$(window).ready(function() {
-	var window_height = $('.profile').height();
-	var logo_height = $('.profile-logo').height();
-	$('.scrollable').height(window_height - logo_height - 40);
-	
-});
+
 
 	$(window)
 			.load(
 					function() {
 						
-						$('.scrollable').enscroll({
-						    showOnHover: false,
-						    verticalScrolling: true,
-							horizontalScrolling: false,
-							zIndex: 100,
-						    verticalTrackClass: 'track-red',
-						    verticalHandleClass: 'handle-red'
-						});
+						
 						
 						var input = document.getElementById('city');
 						var options = {

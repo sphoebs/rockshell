@@ -5,6 +5,19 @@ Created on Dec 26, 2014
 '''
 
 en = {
+    'date_format': 'mm-dd-yy',
+    'my_coupons': 'My coupons',
+    # PROFILE SUMMARY
+    'profile_edit': 'Edit profile',
+    'profile_title': 'Your personal data',
+    'you_gave': 'You gave',
+    'ratings': 'ratings',
+    'you_used': 'You used',
+    'coupons': 'coupons',
+    'have_role': 'You have role',
+    'admin': 'administrator of PlanFree',
+    'owner': 'owner of restaurants',
+    
     # PROFILE 1
     'step' : 'step',
     'profile_intro': 'Hey there!! To offer you a personalized experience we need to know some information about you.',
@@ -127,9 +140,11 @@ en = {
     
     'discount_strings': {
                          'last': 'Last',
-                         'coupons_available_till': 'coupons, available till',
+                         'coupons_available_till': 'coupons, available for',
+                         'coupons_expired_at': 'coupons, expired at',
                          'coupons': 'Coupons',
-                         'available_till': 'Available till',
+                         'available_till': 'Available for',
+                         'expired_at': 'Expired at',
                          'edit' : 'Edit',
                          'publish': 'Publish',
                          'delete': 'Delete',
@@ -181,7 +196,18 @@ en = {
 
 
 it = {
-      
+    'date_format': 'dd-mm-yy',
+    # PROFILE SUMMARY
+    'profile_edit': 'Modifica profilo',
+    'profile_title': 'I tuoi dati personali',
+    'you_gave': 'Hai assegnato',
+    'ratings': 'voti',
+    'you_used': 'Hai usato',
+    'coupons': 'coupons',
+    'have_role': 'Hai il ruolo di',
+    'admin': 'amministratore di PlanFree',
+    'owner': 'proprietario di ristoranti',
+    
     # PROFILE 1
     'step' : 'passo',
     'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di alcune indormazioni su di te.',
@@ -305,8 +331,10 @@ it = {
     
     'discount_strings': {
                          'last': 'Ultimi',
-                         'coupons_available_till': 'coupons, disponibili fino a',
-                         'available_till': 'Disponibile fino a',
+                         'coupons_available_till': 'coupons, disponibili per',
+                         'coupons_expired_at': 'coupons, scaduti il',
+                         'available_till': 'Disponibile per',
+                         'expired_at': 'Scaduta il',
                          'edit' : 'Modifica',
                          'publish': 'Pubblica',
                          'delete': 'Cancella',

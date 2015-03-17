@@ -293,6 +293,25 @@ $(window).load(function() {
 			
 			$('.letsgo-rest-list').append(html);
 			
+			$('.countdown').each(function(){
+				var end = $(this).attr('end-time');
+				var diff = Math.floor((new Date(end) - new Date())/1000);
+				$(this).countdown({
+					until: '+'+diff+'s',
+					format: 'dHMS',
+					significant: 2,
+					layout: '{d<}{dn} {dl} {d>}{h<}{hn} {hl} {h>}{m<}{mn} {ml} {m>}{s<}{sn} {sl}{s>}',
+					{% if lang_name == 'it' %}
+						labels: ['anni', 'mesi', 'settimane', 'giorni', 'ore', 'minuti', 'secondi'],
+						labels1: ['anno', 'mese', 'settimana', 'giorno', 'ora', 'minuto', 'secondo'],
+					{% else %}
+						labels: ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'],
+						labels1: ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'],
+					{% endif %}
+				});
+				
+			});
+			
 		}
 		
 		$('.rest-info').click(function(){
@@ -376,7 +395,7 @@ $(window).load(function() {
 	}
 	
 	$('.user-menu, .user-menu-small').click(function(){
-		window.location = '/profile/1';
+		window.location = '/profile';
 	});
 	
 	$('#coupons').click(function(){

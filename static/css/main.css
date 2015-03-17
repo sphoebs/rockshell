@@ -109,7 +109,7 @@ input[type=text], input[type=number], select {
 	box-shadow: none;
 	background-color: rgba(255, 255, 255, 0.6);
 	/* color: #DC3D3D; */
-	width: 100%;
+	width: 90%;
 }
 
 textarea {
@@ -121,7 +121,7 @@ textarea {
 	box-shadow: none;
 	background-color: rgba(255, 255, 255, 0.6);
 	/* color: #DC3D3D; */
-	width: 100%;
+	width: 90%;
 }
 
 button.disabled {
@@ -410,6 +410,23 @@ button.disabled {
 	right: 0;
 	bottom: 0;
 } */
+
+
+.profile-picture{
+	width: 90px;
+	height: 90px;
+	float: left;
+	margin: 5px;
+	margin-right: 15px;
+	border: solid 1px #DC3D3D;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
 
 .step {
 	margin-top: 30px;
@@ -1101,7 +1118,7 @@ li.rest-item {
 	margin-right: auto;
 	margin-top: 5px;
 	margin-bottom: 5px;
-	border: 0;
+	border: solid 1px #DC3D3D;
 	background-repeat: no-repeat;
 	background-position: center;
 	-webkit-background-size: cover;
@@ -1112,8 +1129,7 @@ li.rest-item {
 
 .rest .rest-right{
 	width: 100%;
-	/* height: 300px; */
-	/* max-height: 80%; */
+	display: block;
 }
 
 .rest .rest-right{
@@ -1135,6 +1151,7 @@ li.rest-item {
 	-moz-background-size: auto;
 	-o-background-size: auto;
 	background-size: auto;
+	border: solid 1px #DC3D3D;
 	
 }
 
@@ -1145,6 +1162,7 @@ li.rest-item {
 	margin-left: auto;
 	margin-right: auto;
 	text-align: right;
+	text-decoration: none;
 	color: #999;
 }
 
@@ -1156,13 +1174,12 @@ li.rest-item {
 	color: #777;
 }
 
-.rest .rest-left{
-	width: 60%;
-	float: left;
+.rest .info {
+	min-height: 24px;
 }
 
-img.icon-address{
-	display: inline;
+div.icon-address{
+	display: inline-block;
 	width: 24px;
 	height: 24px;
 	border: 0;
@@ -1175,8 +1192,8 @@ img.icon-address{
 	background-size: cover;
 }
 
-img.icon-phone{
-	display: inline;
+div.icon-phone{
+	
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/phone.png);
@@ -1188,8 +1205,8 @@ img.icon-phone{
 	background-size: contain;
 }
 
-img.icon-hours{
-	display: inline;
+div.icon-hours{
+	
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/hours.png);
@@ -1201,8 +1218,8 @@ img.icon-hours{
 	background-size: contain;
 }
 
-img.icon-closed{
-	display: inline;
+div.icon-closed{
+	
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/calendar.png);
@@ -1214,8 +1231,8 @@ img.icon-closed{
 	background-size: contain;
 }
 
-img.icon-web{
-	display: inline;
+div.icon-web{
+	
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/web.png);
@@ -1227,8 +1244,7 @@ img.icon-web{
 	background-size: contain;
 }
 
-img.icon-email{
-	display: inline;
+div.icon-email{
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/mail.png);
@@ -1241,9 +1257,7 @@ img.icon-email{
 }
 
 p.iconed{
-	margin-left: 30px;
-	margin-top: -24px;
-	margin-bottom: 10px;
+	display: inline-block;
 }
 
 .black-text{
@@ -1493,6 +1507,12 @@ ul.coupon-list .disc-item {
 		background-color: rgba(247, 248, 205, 0.95);
 		z-index: 1;
 	} */
+	
+	.profile-picture{
+		width: 120px;
+		height: 120px;
+	}
+	
 	.profile-logo {
 		width: 250px;
 		height: 110px;
@@ -1734,6 +1754,11 @@ ul.coupon-list .disc-item {
 		background-color: rgba(247, 248, 205, 0.95);
 		z-index: 1;
 	} */
+	
+	.profile-picture{
+		width: 140px;
+		height: 140px;
+	}
 	.profile-logo {
 		width: 350px;
 		height: 150px;

@@ -66,12 +66,12 @@
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
 
-$(window).ready(function() {
+/* $(window).ready(function() {
 	var window_height = $('.profile').height();
 	var logo_height = $('.profile-logo').height();
 	$('.scrollable').height(window_height - logo_height - 40);
 	
-});
+}); */
 
 	$(window).load(function() {
 		var pageSize = 5;
@@ -97,14 +97,14 @@ $(window).ready(function() {
 		
 		var auth = getCookie('user');
 		
-		$('.scrollable').enscroll({
+		/* $('.scrollable').enscroll({
 		    showOnHover: false,
 		    verticalScrolling: true,
 			horizontalScrolling: false,
 			zIndex: 100,
 		    verticalTrackClass: 'track-red',
 		    verticalHandleClass: 'handle-red'
-		});
+		}); */
 		
 		var input = document.getElementById('city');
 		var options = {
