@@ -954,10 +954,20 @@ li.rest-item {
 	font-size: larger;
 }
 
-.letsgo-rest-item .discount {
+.letsgo-rest-item ul.discounts{
+	list-style: none;
 	margin: 5px;
+	padding: 0px;
+}
+
+.letsgo-rest-item .discount {
 	background-color: #ffdebe;
 	padding: 10px;
+	border-bottom: dashed 1px #ff9d3e;
+}
+
+.letsgo-rest-item .discount.no-border{
+	border: 0px;
 }
 
 
@@ -1321,6 +1331,7 @@ p.time-label {
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	vertical-align: text-top;
 }
 
 input.days-input {
@@ -1328,17 +1339,18 @@ input.days-input {
 	width: 150px;
 }
 
-.rest-item.no-border{
+.admin-rest-item.no-border{
 	border: none;	
 }
 
-.rest-item a{
+.admin-rest-item a{
 	text-decoration: none;
 	color: #DC3D3D;
 }
 
-.rest-item a:hover{
+.admin-rest-item a:hover{
 	filter: brightness(150%);
+	background-color: #ffdebe;
 }
 
 .discounts ul{

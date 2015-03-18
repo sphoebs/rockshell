@@ -213,6 +213,12 @@ en = {
     'you_have_coupon_code': 'You have a coupon, with code',
     'coupon_used_date': 'The coupon has already been used in date',
     
+    
+    # ADMIN
+    'select_city': 'Select a city for searching the places you want to edit',
+    'rest_owner': 'Restaurant owner (email)',
+    
+    
 }
 
 
@@ -423,6 +429,11 @@ it = {
     'use': 'Usa',
     'you_have_coupon_code': 'Hai un coupon, con codice',
     'coupon_used_date': u'Il coupon è già stato usato il ',
+    
+    
+    # ADMIN
+    'select_city': u'Seleziona una città per cercare i posti che vuoi modificare',
+    'rest_owner': 'Proprietario del ristorante (email)',
     
 }
 

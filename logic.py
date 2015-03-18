@@ -203,6 +203,27 @@ def user_get_num_coupons(user_id):
         return None, str(e), 400
     return num, "OK", 200
 
+def user_get_admins(user_id):
+    """
+    It retrieves the list of admins of the project
+    
+    Parameters:
+    - user_id: the string id of the PFuser that makes the request
+    
+    It returns a tuple: 
+    - the list of admins (or None in case the user_id does not refer to an admin),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        admin_list = PFuser.get_admins(PFuser.make_key(user_id, None))
+    except TypeError, e:
+        return None, str(e), 400
+    except UnauthorizedException, e:
+        return None, str(e), 403
+    return admin_list, "OK", 200
+
+
 def place_get(place_id, place_key_str):
     """
     It retrieves the place.

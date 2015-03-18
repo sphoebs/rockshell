@@ -24,10 +24,8 @@
 			<br />
 
 			<ul class="menu-items">
-				<li><button class="img-btn" id="back">{{
-						lang['back_to_rest']}}</button></li>
-				<li><button class="img-btn" id="logout">{{
-						lang['log_out']}}</button></li>
+				<li><button class="img-btn" id="back" onclick="window.history.back()">{{lang['back']}}</button></li>
+				<li><button class="img-btn" id="logout">{{lang['log_out']}}</button></li>
 			</ul>
 
 		</div>
@@ -118,7 +116,7 @@
 				
 				{% if user.role == 'admin' %}
 				<div>
-					<label class="form-label">Restaurant owner (email): </label>
+					<label class="form-label">{{lang['rest_owner']}}: </label>
 					<div class="form-input">
 						<input type="text" id="owner_email" name="owner_email" value="">
 					</div>
@@ -446,13 +444,6 @@
 				}
 				count++;
 			}
-			
-		});
-		
-		$('#back').click(function(){
-			//TODO: modal, are you sure you want to go back? All the changes will be discarded
-			url = window.location + '';
-			window.location = url.replace('/edit', '');		
 			
 		});
 		

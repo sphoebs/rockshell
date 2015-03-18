@@ -27,9 +27,9 @@
 	
 		</div>
 		
-		<div class="discount-container ">
+		<div class="discount-container main">
 			<div class="city-search">
-				<label class="text-bold">Select a city for searching the places you want to edit: </label>
+				<label class="text-bold">{{lang['select_city']}}: </label>
 				<div class="input">
 					<input type="text" name="auto-city" id="city" >
 					<input type="hidden" name="locality" id="locality" /> 
@@ -127,8 +127,8 @@
 			
 			if(place.geometry.viewport){
 				var bounds = place.geometry.viewport;
-				var southWest = new google.maps.LatLng( bounds.Da.k, bounds.wa.j );
-				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.wa.k );
+				var southWest = new google.maps.LatLng( bounds.Ca.k, bounds.va.j );
+				var northEast = new google.maps.LatLng( bounds.Ca.j, bounds.va.k );
 				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
 				
 			}
@@ -225,7 +225,7 @@
 				
 				
 			}
-			$('.scrollable').scrollTop(0);
+			$('.main').scrollTop(0);
 			$('.navigation-buttons').show();
 			$('.rest-list').show();
 			
@@ -285,7 +285,7 @@
 			
 		});
 		
-		var userpic = user.picture;
+		var userpic = '{{user.picture if not user.picture is none}}';
 		if(userpic != undefined && userpic.length > 0){	
 			$('.user-picture').css('background-image', 'url(' + userpic + ')');
 		}

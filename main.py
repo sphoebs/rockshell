@@ -137,7 +137,7 @@ class LoginHandler(BaseRequestHandler):
                                     user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
             if is_new == True:
                 # goto profile page
-                self.redirect('/profile/1')
+                self.redirect('/profile/edit?new=true')
             elif user.role == 'owner':
                 self.redirect('/owner/list')
             else:
@@ -157,10 +157,11 @@ class UserHandler(BaseRequestHandler):
         user, status, errcode = logic.user_get(user_id, None)
         if status == "OK":
             
-            if '1' in self.request.url:
+            if 'edit' in self.request.url:
+                is_new = self.request.GET.get('new')
                 self.render(
                             'profile.html',
-                            {'user': user, 'requester': None, 'lang' : LANG}
+                            {'user': user, 'lang' : LANG, 'is_new': is_new }
                 )
             else:
                 num_ratings, status, errcode = logic.user_get_num_ratings(user_id)
@@ -181,7 +182,7 @@ class UserHandler(BaseRequestHandler):
             self.redirect('/')
 
     def post(self):
-        if '1' not in self.request.url:
+        if 'edit' not in self.request.url:
             self.response.set_status(405) 
             return
         # this method updates user information (from profile page)
@@ -197,6 +198,8 @@ class UserHandler(BaseRequestHandler):
 #             self.redirect("/error")
 
         user = PFuser()
+        if data.get('new') != '':
+            is_new = data.get('new')
         if data.get('first_name') != '':
             user.first_name = data.get('first_name')
         if data.get('role') != '':
@@ -215,8 +218,11 @@ class UserHandler(BaseRequestHandler):
         if status != "OK":
             self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
-
-        self.redirect('/profile/2')
+        if is_new == True or is_new == "true":
+            self.redirect('/profile/2')
+        else:
+            self.redirect('/profile')
+            
 
 
 class UserRatingsHandler(BaseRequestHandler):
@@ -597,7 +603,26 @@ class UserCouponsHandler(BaseRequestHandler):
         
         self.render('my_coupons.html', {'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
         
+      
+class AdminsHandler(BaseRequestHandler):
+    
+    def get(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        user, status, errcode = logic.user_get(user_id, None)
+        if status != "OK":
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
+        if user.role != 'admin':
+            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            return
         
+        admins, status, errcode = logic.user_get_admins(user_id)
+        
+        self.render('admins_management.html', { 'admins': admins, 'user': user, 'lang' : LANG });
+         
 
 class MainHandler(BaseRequestHandler):
 
@@ -612,7 +637,7 @@ app = webapp2.WSGIApplication([
     ('/fb/oauth_callback/?', LoginHandler),
     ('/google/oauth_callback/?', LoginHandler),
     ('/profile', UserHandler),
-    ('/profile/1', UserHandler),
+    ('/profile/edit', UserHandler),
     ('/profile/2', UserRatingsHandler),
     ('/profile/3', UserRatingsOtherHandler),
     ('/letsgo', LetsgoHandler),
@@ -626,6 +651,7 @@ app = webapp2.WSGIApplication([
     ('/discount/edit', DiscountEditHandler),
     ('/discount/new', DiscountNewHandler),
     ('/discount/list', DiscountListHandler),
-    ('/my-coupons', UserCouponsHandler)
+    ('/my-coupons', UserCouponsHandler),
+    ('/admins', AdminsHandler)
 
 ], debug=True)

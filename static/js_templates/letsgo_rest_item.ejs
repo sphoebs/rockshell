@@ -11,12 +11,17 @@
 			<div class="address distance"><% if(distance != undefined){ %> <%= distance_str %>: <%=distance%> <% } %></div>
 		</div>
 		
-		<% if(disc != undefined){ %>
-			<div class="discount clickable" disc-key="<%= disc.key%>">
-				<!-- <p>Discount available!</p> -->
-				<div class="title text-bold"><% if(disc['title_' +lang_name] != undefined){ %> <%=disc['title_' +lang_name]%> <% } %></div>
-				<div class="more"><%= disc.available_coupons %> <%= coupons_available_till %> <span class="countdown" end-time="<%= disc['end_time'] %>"></span></div>
-			</div> 
+		<% if(p.discounts != undefined){ %>
+		<ul class="discounts">
+			<% _.each(p.discounts, function(disc, i){ %>
+				<li class="discount clickable <% if(i == p.discounts.length-1){%> no-border <% } %>" disc-key="<%= disc.key%>" >
+					<!-- <p>Discount available!</p> -->
+					<div class="title text-bold"><% if(disc['title_' +lang_name] != undefined){ %> <%=disc['title_' +lang_name]%> <% } %></div>
+					<div class="more"><%= disc.available_coupons %> <%= coupons_available_till %> <span class="countdown" end-time="<%= disc['end_time'] %>"></span></div>
+				</li> 
+			<% });%>
+		
+		</ul>
 		<% } %>
 	</div>
 </li>

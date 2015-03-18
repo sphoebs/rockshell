@@ -1227,7 +1227,30 @@ class PFuser(PFmodel):
             raise TypeError('email must be str or unicode and it should contain at least some characters, it is ' + str(email))
         user = PFuser.query().filter(PFuser.email == email).get()
         return user
-
+    
+    @staticmethod
+    def get_admins(requester_key):
+        """
+        It retrieves the list of admins of the project
+    
+        Parameters:
+        - user_id: the string id of the PFuser that makes the request
+    
+        It returns a list of PFuser
+        Exceptions: TypeError, if the input is of the wrong type;
+                    UnauthorizedException if the reuqester is not an admin
+        """
+        if requester_key is not None:
+            if not ( isinstance(requester_key, ndb.Key) and requester_key.kind().find('PFuser') > -1):
+                raise TypeError('key must be a valid key for a PFuser, it is ' + str(requester_key))
+            requester = requester_key.get()
+            if requester.role != 'admin':
+                raise UnauthorizedException('Only an admin can get the list of admins')
+            dblist = PFuser.query().filter(PFuser.role == 'admin')
+            dblist = list(dblist)
+            return dblist
+        else:
+            raise TypeError('key must be a valid key for a PFuser, it is ' + str(requester_key))
 
 
 class Place(PFmodel):
