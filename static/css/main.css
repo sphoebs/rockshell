@@ -1312,14 +1312,14 @@ p.time-label {
 	margin: 7px;
 }
 
-.days-item p{
+.days-item p, .admin-list li p{
 	display: inline-block;
 	color: #000;
 	margin-right: 5px;
 
 }
 
-.days-item .delete-small {
+.delete-small {
 	width: 16px;
 	height: 16px;
 	border: none;
@@ -1498,6 +1498,12 @@ ul.coupon-list .disc-item {
 .coupons-title {
 	color: #DC3D3D;
 	margin-top: 25px;
+}
+
+.disc-coupon-list {
+	list-style: none;
+	padding: 5px;
+	margin: 5px;
 }
 
 .disc-coupon-list p{

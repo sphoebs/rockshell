@@ -12,7 +12,7 @@
 			<button class="img-btn"></button>
 			<div class="user-menu-small clickable">
 				<div class="user-picture"></div>
-				<div class="text-bold user-name">{{ lang['welcome']}}<br/> </div>
+				<div class="text-bold user-name"> </div>
 			</div>
 		</div>
 		<div class="rest-logo"></div>
@@ -24,7 +24,7 @@
 	<div class="left-menu scrollable">
 		<div class="user-menu clickable">
 			<div class="user-picture"></div>
-			<h2 class="text-bold user-name">{{ lang['welcome']}}</h2>
+			<h2 class="text-bold user-name"></h2>
 		</div>
 		<br/>
 		
@@ -39,6 +39,7 @@
 			{% if user_role == 'admin' %}
 				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
 				<li><button class="img-btn" id="edit-rest">{{ lang['manage_rests'] }}</button></li>
+				<li><button class="img-btn" id="edit-admins">{{ lang['manage_admins'] }}</button></li>
 			{% endif %}
 			{% if user_role == 'owner' %}
 				<li><button class="img-btn" id="edit-rest-owner">{{ lang['manage_rests']}}</button></li>
@@ -455,6 +456,10 @@ $(window).load(function() {
 			localStorage.removeItem("reclist_time");
 			$('.settings-popup form').submit();
 		});
+	});
+	
+	$('#edit-admins').click(function(){
+		window.location = '/admins';		
 	});
 	
 	$('#rate-more').click(function(){

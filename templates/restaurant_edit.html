@@ -8,7 +8,7 @@
 				<div class="user-menu-small clickable">
 					<div class="user-picture"></div>
 					<div class="text-bold user-name">
-						{{ lang['welcome']}}<br />{{user.first_name}}
+						{{user.first_name}}
 					</div>
 				</div>
 			</div>
@@ -18,7 +18,7 @@
 		<div class="left-menu scrollable">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-bold user-name">{{ lang['welcome']}}
+				<h2 class="text-bold user-name">
 					{{user.first_name}}</h2>
 			</div>
 			<br />
@@ -374,7 +374,7 @@
 					url : url,
 					data : JSON.stringify(place),
 					success : function(place) {
-						if( owner_email != undefined){
+						if( owner_email != undefined && owner_email != ''){
 							$.ajax({
 								type : 'POST',
 								url : '/api/place/'+place.key+'/owner',

@@ -2974,11 +2974,12 @@ class Discount(PFmodel):
         Exceptions: TypeError if the input parameter is of the wrong type
                     UnauthorizedException
         """
-  
+        
         if key is not None:
             if not ( isinstance(key, ndb.Key) and key.kind().find('Discount') > -1):
                 raise TypeError('key must be a valid key for a Discount, it is ' + str(key))
             discount = key.get()
+            
             if requester_id is None:
                 if discount.published == False:
                     # the user cannot see it since it is not public!
@@ -2986,6 +2987,9 @@ class Discount(PFmodel):
                 #hide coupons
                 discount.coupons = None
             else:
+                if requester_id == 'API':
+                    return discount
+                
                 user_key = PFuser.make_key(requester_id, None)
                 place = Place.get_by_key(discount.place)
                 if place is None:
@@ -2994,7 +2998,7 @@ class Discount(PFmodel):
                     raise UnauthorizedException("Only the owner of the place can access a Discount that is not public!")
                 if place.owner != user_key:
                     # this is a normal user, he cannot see the coupons of other users
-                    coupons = [coupon for coupon in discount.coupons if coupon.user != user_key or coupon.deleted == True]
+                    coupons = [coupon for coupon in discount.coupons if coupon.user == user_key and coupon.deleted == False]
                     discount.coupons = coupons
             return discount 
             
@@ -3075,7 +3079,7 @@ class Discount(PFmodel):
                     del discount
                 if place.owner != user_key:
                     # this is a normal user, he cannot see the coupons of other users
-                    coupons = [coupon for coupon in discount.coupons if coupon.user != user_key or coupon.deleted == True]
+                    coupons = [coupon for coupon in discount.coupons if coupon.user == user_key and coupon.deleted == False]
                     discount.coupons = coupons
 
         return res
@@ -3141,7 +3145,7 @@ class Discount(PFmodel):
         
         user_key = PFuser.make_key(user_id, None)
         
-        discount = Discount.get_by_key(discount_key, user_id)
+        discount = Discount.get_by_key(discount_key, 'API')
         if discount is None:
             raise InvalidKeyException('discount_key is not the key of a valid discount!') 
 
@@ -3155,15 +3159,29 @@ class Discount(PFmodel):
             raise DiscountExpiredException('The discount is ended or no coupons are available.')
 
         codes = []
+        #check if the user already have a coupon
         bought = None
+        index = -1;
+#         logging.info('DISCOUNT: ' + str(discount))
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for coupon in discount.coupons:
+            for idx, coupon in enumerate(discount.coupons):
                 codes.append(coupon.code)
-                if bought is None and coupon.user == user_key:
+#                 logging.info('COUPON: ' + str(coupon.user) + ' == ' + str(user.key) )
+                if coupon.user == user.key:
                     # the user already bought a coupon for this discount
                     bought = coupon
+                    index = idx
+                    break
+#         logging.info('BOUGHT: ' + str(bought))
         if bought is not None:
-            raise CouponAlreadyBoughtException('The user already bought a coupon for this discount')
+            if bought.deleted == True:
+                bought.deleted = False
+                discount.available_coupons = discount.available_coupons - 1
+                discount.coupons[index] = bought
+                discount.put()
+                return bought
+            else:
+                raise CouponAlreadyBoughtException('The user already bought a coupon for this discount')
 
         coupon = Coupon(
             user=user_key, buy_time=datetime.now(), code=code_generator(codes))
@@ -3263,10 +3281,12 @@ class Discount(PFmodel):
             raise UnauthorizedException('Only the owner of the Place can mark coupons as used.')
 
         coupon = None
+        index = 0
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for c in discount.coupons:
+            for idx, c in enumerate(discount.coupons):
                 if c.code == code:
                     coupon = c
+                    index = idx
                     break
         if coupon is None:
             raise ValueError('code is not valid, it does not refer to a coupon for this discount!')
@@ -3276,7 +3296,8 @@ class Discount(PFmodel):
 
         coupon.used = True
         coupon.usage_time = datetime.now()
-        coupon.put()
+        discount.coupons[index] = coupon        
+        discount.put()
         return coupon
 
     @staticmethod
@@ -3306,10 +3327,12 @@ class Discount(PFmodel):
             raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
         user_key = PFuser.make_key(requester_id, None)
         coupon = None
+        index = 0
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for c in discount.coupons:
+            for idx, c in enumerate(discount.coupons):
                 if c.code == code:
                     coupon = c
+                    index = idx
                     break
         if coupon is None:
             raise ValueError('code is not valid, is does not refer to a coupon for this discount.')
@@ -3317,8 +3340,9 @@ class Discount(PFmodel):
             raise UnauthorizedException('Only the owner of the coupon can delete it!')
         coupon.deleted = True
         coupon.delete_time = datetime.now()
-
-        coupon.put()
+        discount.available_coupons = discount.available_coupons + 1
+        discount.coupons[index] = coupon
+        discount.put()
 
         return coupon
 

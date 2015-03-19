@@ -8,7 +8,7 @@
 				<button class="img-btn"></button>
 				<div class="user-menu-small clickable">
 					<div class="user-picture"></div>
-					<div class="text-bold user-name">{{ lang['welcome']}}<br/>{{user.first_name}} </div>
+					<div class="text-bold user-name">{{user.first_name}} </div>
 				</div>
 			</div>
 			<div class="rest-logo"></div>
@@ -17,7 +17,7 @@
 		<div class="left-menu scrollable">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-bold user-name">{{ lang['welcome']}} {{user.first_name}}</h2>
+				<h2 class="text-bold user-name"> {{user.first_name}}</h2>
 			</div>
 			<br/>
 		
@@ -192,7 +192,12 @@
 					if(window.console){
 						console.log(resp);
 					}
-					alert("Error " + resp.status);
+					if(resp.status == 409){
+						alert('{{ lang['already_have_coupon']}}');
+					} else {
+						alert("Error " + resp.status);
+					}
+					
 				}
 			});
 		};
@@ -242,9 +247,14 @@
 							window.location = '/discount?id=' + disc_id;
 						});
 						
-						$('#buy').click(function(){
+						$('.buy').click(function(){
 							var key = $(this).attr('discount-id');
 							create_coupon(key);
+						});
+						
+						$('.see').click(function(){
+							var key = $(this).attr('discount-id');
+							window.location = '/discount?id=' + key;
 						});
 					}
 				},

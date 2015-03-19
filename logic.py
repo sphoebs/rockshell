@@ -166,6 +166,26 @@ def user_get(user_id, user_key_str):
 
     return user, "OK", 200
 
+def user_get_by_email(email):
+    """
+    It retrieves the user.
+
+    Parameters:
+    - email: the email of the PFuser
+
+    It returns a tuple: 
+    - the requested user (or None in case of errors in the input),
+    - the status (a string indicating whether an error occurred),
+    - the http code indicating the type of error, if any
+    """
+    try:
+        user = PFuser.get_by_email(email);
+    except TypeError, e:
+        return None, str(e), 400
+
+    return user, "OK", 200
+    
+
 def user_get_num_ratings(user_id):
     """
     It retrieves the number of ratings the user already gave.

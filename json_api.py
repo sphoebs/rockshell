@@ -28,7 +28,10 @@ class MainHandler(webapp2.RequestHandler):
 
 class UserHandler(webapp2.RequestHandler):
 
-    def get(self):  
+    def get(self): 
+        if 'role' in self.request.url:
+            self.response.set_status(405) 
+            return 
         auth = self.request.headers.get("Authorization")
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
@@ -55,33 +58,73 @@ class UserHandler(webapp2.RequestHandler):
         if post_data is None:
             self.response.set_status(400)
             self.response.write('Missing body')
-        
-#         logging.warn('POST DATA: ' + str(post_data))
-        try:
-            user = PFuser.from_json(post_data)
-        except TypeError, e:
-            self.response.set_status(400)
-            self.response.write(str(e))
-            return
-        except Exception, e:
-            self.response.set_status(400)
-            self.response.write(str(e))
-            return
-#         logging.warn('USER: ' + str(user)) 
-        user, status, errcode = logic.user_create(user)
-        if status == "OK":
-            try:
-                self.response.headers['Content-Type'] = 'application/json'
-                self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings', 'role'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
-            except TypeError, e:
-                self.response.set_status(500)
-                self.response.write(str(e))
+            return;
+            
+            
+        if 'role' in self.request.url:
+            if 'key' in post_data:
+                user, status, errcode = logic.user_get(None, post_data['key'])
+            elif 'email' in post_data:
+                user, status, errcode = logic.user_get_by_email(post_data['email'])
+            else:
+                self.response.set_status(400)
+                self.response.write('Missing email or user key')
+                return;
+            if status != "OK":
+                self.response.set_status(errcode)
+                self.response.write(status)
+            
+            if 'role' in post_data:
+                if post_data['role'] == 'None':
+                    user.role = None
+                elif post_data['role'] == 'admin':
+                    user.role = 'admin'
+            else:
+                self.response.set_status(400)
+                self.response.write('Missing role')
+                return;
+            
+            user, status, errcode = logic.user_update(user, user.key.id(), None)
+            if status == "OK":
+                try:
+                    self.response.headers['Content-Type'] = 'application/json'
+                    self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings', 'role'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+                except TypeError, e:
+                    self.response.set_status(500)
+                    self.response.write(str(e))
+            else:
+                self.response.set_status(errcode)
+                self.response.write(status)
         else:
-            self.response.set_status(errcode)
-            self.response.write(status)
+#         logging.warn('POST DATA: ' + str(post_data))
+            try:
+                user = PFuser.from_json(post_data)
+            except TypeError, e:
+                self.response.set_status(400)
+                self.response.write(str(e))
+                return
+            except Exception, e:
+                self.response.set_status(400)
+                self.response.write(str(e))
+                return
+#         logging.warn('USER: ' + str(user)) 
+            user, status, errcode = logic.user_create(user)
+            if status == "OK":
+                try:
+                    self.response.headers['Content-Type'] = 'application/json'
+                    self.response.write(json.dumps(PFuser.to_json(user, ['key','first_name','last_name','full_name', 'picture', 'home', 'visited_city', 'settings', 'role'], ['user_id', 'fb_user_id', 'fb_access_token','google_user_id', 'google_access_token', 'created', 'updated,' 'email', 'profile', 'age', 'gender'])))
+                except TypeError, e:
+                    self.response.set_status(500)
+                    self.response.write(str(e))
+            else:
+                self.response.set_status(errcode)
+                self.response.write(status)
         
 
     def put(self):
+        if 'role' in self.request.url:
+            self.response.set_status(405) 
+            return 
         auth = self.request.headers.get("Authorization")
         if auth is None or len(auth) < 1:
             auth = self.request.cookies.get("user")
@@ -623,6 +666,7 @@ class CouponHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/', handler=MainHandler),
     webapp2.Route(r'/api/user', handler=UserHandler),
+    webapp2.Route(r'/api/user/role', handler=UserHandler),
     webapp2.Route(r'/api/user/login', handler=UserLoginHandler),
     webapp2.Route(r'/api/place', handler=PlaceListHandler),
     webapp2.Route(r'/api/place/owned', handler=PlaceListHandler),

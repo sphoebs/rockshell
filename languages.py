@@ -148,6 +148,7 @@ en = {
     'discount_list_all': 'Manage discounts',
     'published': 'Published',
     'not_published': 'Not published',
+    'already_have_coupon': 'You alreaady have a coupon for this discount!',
     
     'discount_strings': {
                          'last': 'Last',
@@ -167,6 +168,7 @@ en = {
                          'used': 'Already used',
                          'not_used': 'Available',
                          'coupon': 'coupon',
+                         'see_coupon': 'See my coupon',
     },
     'disc_publish_popup': {
                         'title': 'Confirm publication',
@@ -209,6 +211,7 @@ en = {
     'used_coupons': 'Used coupons',
     'bought': 'bought on',
     'used': 'used on',
+    'deleted': 'deleted on',
     'use': 'Use',
     'you_have_coupon_code': 'You have a coupon, with code',
     'coupon_used_date': 'The coupon has already been used in date',
@@ -217,6 +220,7 @@ en = {
     # ADMIN
     'select_city': 'Select a city for searching the places you want to edit',
     'rest_owner': 'Restaurant owner (email)',
+    'manage_admins': 'Manage admins',
     
     
 }
@@ -365,6 +369,7 @@ it = {
     'discount_list_all': 'Gestisci offerte',
     'published': 'Pubblicata',
     'not_published': 'Non pubblicata',
+    'already_have_coupon': u'Hai già un coupon per questa offerta!',
     
     'discount_strings': {
                          'last': 'Ultimi',
@@ -384,6 +389,7 @@ it = {
                          'used': 'Usato',
                          'not_used': 'Disponibile',
                          'coupon': 'coupon',
+                         'see_coupon': 'Accedi al mio coupon',
     },
     'disc_publish_popup': {
                         'title': 'Conferma pubblicazione',
@@ -434,6 +440,7 @@ it = {
     # ADMIN
     'select_city': u'Seleziona una città per cercare i posti che vuoi modificare',
     'rest_owner': 'Proprietario del ristorante (email)',
+    'manage_admins': 'Gestisci admins',
     
 }
 

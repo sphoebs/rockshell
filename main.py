@@ -621,7 +621,9 @@ class AdminsHandler(BaseRequestHandler):
         
         admins, status, errcode = logic.user_get_admins(user_id)
         
-        self.render('admins_management.html', { 'admins': admins, 'user': user, 'lang' : LANG });
+        admins = [PFuser.to_json(admin, ['key','full_name', 'email'], []) for admin in admins]
+        
+        self.render('admins_management.html', { 'admins': admins, 'user': user, 'lang' : LANG })
          
 
 class MainHandler(BaseRequestHandler):

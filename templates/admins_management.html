@@ -1,0 +1,190 @@
+{% extends "base.html" %} {% block main %}
+
+<div class="full-background rest">
+		<div class="top-bar rest-bar">
+			<div class="bar-background"></div>
+			<div class="menu-button">
+				<button class="img-btn"></button>
+				<div class="user-menu-small clickable">
+					<div class="user-picture"></div>
+					<div class="text-bold user-name">
+						{{user.first_name}}
+					</div>
+				</div>
+			</div>
+			<div class="rest-logo"></div>
+		</div>
+		
+		<div class="left-menu scrollable">
+			<div class="user-menu clickable">
+				<div class="user-picture"></div>
+				<h2 class="text-bold user-name">{{user.first_name}}</h2>
+			</div>
+			<br />
+
+			<ul class="menu-items">
+				<li><button class="img-btn" id="back" onclick="window.history.back()">{{
+						lang['back']}}</button></li>
+				<li><button class="img-btn" id="logout">{{
+						lang['log_out']}}</button></li>
+			</ul>
+
+		</div>
+		
+		<div class="discount-container">
+			<h2 class="center-text">Manage admins</h2>
+			
+			<div>
+				<label class="form-label">Add new admin: </label>
+				<div class="form-input">
+					<input type="text" id="admin_email" name="admin_email" value="">
+				</div>
+			</div>
+
+			<input type="button" class="img-btn save"
+					value="{{ lang['save']}}" />
+					
+			
+			<h3>Current admins:</h3>		
+			<ul class="admin-list black-text">
+				{% for admin in admins %}
+					<li>
+						<p>{{ admin.full_name }}</p> 
+						<button class="img-btn delete-small" admin-id="{{admin.key}}" admin-email="{{admin.email}}"></button>
+					</li>
+				{% endfor %}
+			
+			</ul>
+			
+			
+		</div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+	$(window).load(function() {
+		
+		
+		$('.left-menu').hide();
+		var window_width = $('.letsgo').width();
+		var count = 1;
+		$('.menu-button button').click(function(){
+			if(count % 2 == 1){
+				//odd time --> open left menu
+				$('.left-menu').show();
+				if(window_width > 600){
+					$('.user-menu-small').hide();
+				}
+				$('.scrollable').enscroll({
+				    showOnHover: false,
+				    verticalScrolling: true,
+					horizontalScrolling: false,
+					zIndex: 100,
+				    verticalTrackClass: 'track-white',
+				    verticalHandleClass: 'handle-white'
+				});
+				$('.enscroll-track').css('position', 'fixed');
+				count++;
+			} else {
+				//even time --> close left menu
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+				count++;
+			}
+			
+		});
+		
+		var userpic = '{{ user.picture}}';
+		if(userpic != undefined && userpic.length > 0){	
+			$('.user-picture').css('background-image', 'url(' + userpic + ')');
+		}
+		
+		$('.user-menu, .user-menu-small').click(function(){
+			window.location = '/profile';
+		});
+		
+		$('#logout').click(function(){
+			$.ajax({
+				type : 'DELETE',
+				url : '/api/user/login',
+				success : function() {
+					window.location = '/';
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		});
+		
+		function delete_admin(div){
+			var key = $(div).attr('admin-id');
+			var email = $(div).attr('admin-email');
+			$.ajax({
+				type : 'POST',
+				url : '/api/user/role',
+				data: JSON.stringify({key: key, email: email, role: 'None'}),
+				success: function(user){
+					if(window.console){
+						console.log('role changed with success');
+					}
+					$(div).parent().remove();
+				},
+				error: function(resp){
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error deleting admin: " + resp.status);
+				}
+			});
+		}
+		
+		$('.delete-small').click(function(){
+			var div = $(this);
+			delete_admin(div);
+		});
+		
+		$('.save').click(function(){
+			var email = $('#admin_email').val();
+			if(email == undefined || email.length < 1){
+				alert('Insert email first!');
+				return;
+			}
+			
+			$.ajax({
+				type : 'POST',
+				url : '/api/user/role',
+				data: JSON.stringify({email: email, role: 'admin'}),
+				success: function(user){
+					if(window.console){
+						console.log('role changed with success');
+					}
+					$('.admin-list').append(
+							'<li><p>'+user.full_name+'</p> <button class="img-btn delete-small" admin-id="'+user.key+'" admin-email="'+user.email+'"></button></li>'
+					);
+					$('.delete-small').click(function(){
+						var div = $(this);
+						delete_admin(div);
+					});
+				},
+				error: function(resp){
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error saving admin: " + resp.status);
+				}
+			});
+			
+		});
+		
+		
+	});
+</script>
+{% endblock %}

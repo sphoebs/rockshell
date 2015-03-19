@@ -8,7 +8,7 @@
 				<div class="user-menu-small clickable">
 					<div class="user-picture"></div>
 					<div class="text-bold user-name">
-						{{ lang['welcome']}}<br />{{user.first_name}}
+						{{user.first_name}}
 					</div>
 				</div>
 			</div>
@@ -18,7 +18,7 @@
 		<div class="left-menu scrollable">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-bold user-name">{{ lang['welcome']}}
+				<h2 class="text-bold user-name">
 					{{user.first_name}}</h2>
 			</div>
 			<br />
@@ -60,8 +60,8 @@
 					<ul class="disc-coupon-list">
 						{% for coupon in discount.coupons %}
 							<li class="coupon">
-								{% if not coupon.used %}<button class="img-btn red-button use-button" coupon-code="{{coupon.code}}" id="use">{{ lang['use']}}</button>{% endif %}
-								<p>{{coupon.code}}, {{lang['bought']}} {{coupon.buy_time}}{% if coupon.used %}, {{ lang['used']}} {{coupon.usage_time}} {% endif %}</p>
+								{% if not coupon.used and not coupon.deleted %}<button class="img-btn red-button use-button" coupon-code="{{coupon.code}}" id="use">{{ lang['use']}}</button>{% endif %}
+								<p>{{coupon.code}}, {{lang['bought']}} {{coupon.buy_time}}{% if coupon.used %}, {{ lang['used']}} {{coupon.usage_time}} {% endif %}{% if coupon.deleted %}, {{ lang['deleted']}} {{coupon.delete_time}} {% endif %}</p>
 								<div class="clear-float"></div>
 							</li>
 						{% endfor %}
@@ -78,7 +78,7 @@
 						{% if discount.coupons[0].used %}
 							<p> {{lang['coupon_used_date']}}: {{discount.coupons[0].usage_time}}
 						{% else %}
-							<button class="img-btn red-button" id="delete" discount-id="{{ discount.key }}" coupon-code="{{discount.coupons[0].code}}">{{lang['discount_strings']['delete']}} {{lang['discount_strings']['coupon']}}</button>
+							<button class="img-btn red-button" id="delete-coupon" discount-id="{{ discount.key }}" coupon-code="{{discount.coupons[0].code}}">{{lang['discount_strings']['delete']}} {{lang['discount_strings']['coupon']}}</button>
 						
 						{% endif %}					
 					</div>
@@ -227,7 +227,11 @@
 					if(window.console){
 						console.log(resp);
 					}
-					alert("Error " + resp.status);
+					if(resp.status == 409){
+						alert('{{ lang['already_have_coupon']}}');
+					} else {
+						alert("Error " + resp.status);
+					}
 				}
 			});
 		};
@@ -272,7 +276,7 @@
 			});
 		}
 		
-		$('#delete').click(function(){
+		$('#delete-coupon').click(function(){
 			var key = $(this).attr('discount-id');
 			var code = $(this).attr('coupon-code');
 			var xmlhttp = new XMLHttpRequest();

@@ -27,7 +27,11 @@
 						
 					<% } %>
 				<% } else { %>
-					<button class="img-btn red-button" id="buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
+					<% if(discount.coupons != undefined && discount.coupons.length > 0){ %>
+						<button class="img-btn red-button see" discount-id="<%= discount.key %>"><%= strings.see_coupon %></button>
+					<% } else { %>
+						<button class="img-btn red-button buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
+					<% } %>
 				<% } %>
 			</div>
 			<div class="coupon-num">
