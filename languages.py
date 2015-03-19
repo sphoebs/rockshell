@@ -63,6 +63,8 @@ en = {
     },
       
     # LETSGO
+    'letsgo_title': 'Recommended restaurants around you',
+    'letsgo_subtitle': 'Here you find some restaurants close to your position, recommended to you. We analyzed your tastes, expressed through your ratings, and we think that you should like these places. ',
     'welcome': 'Welcome',
     'loading': 'Loading',
     'loading_places': 'Loading the places around you',
@@ -95,7 +97,8 @@ en = {
         'picture_placeholder': 'URL of restaurant picture',
         'save': 'Save'
     },
-    'ratings_text1': 'Rate some restaurants and let us understand better your tastes!!',
+    'ratings_text1': 'Rate some restaurants and let us understand better your tastes.',
+    'ratings_text2': 'Have you been in a restaurant that you already voted? Update your rating!',
     'city_select': 'Please, select a city you visited',
     'no_places_selected': 'We are sorry, we don\'t know places for the selected city.',
     'create_place_button': 'If you are not able to find the place you are searching, you can create it!',
@@ -284,6 +287,8 @@ it = {
     },
       
     # LETSGO
+    'letsgo_title': 'Ristoranti intorno a te che ti potrebbero piacere',
+    'letsgo_subtitle': 'Qui trovi alcuni dei ristoranti attorno a te, che ti raccomandiamo. Abbiamo analizzato i tuoi gusti, espressi tramite i tuoi voti, e pensiamo che questi posti ti potrebbero piacere. ',
     'welcome': 'Benvenuto',
     'loading': 'Caricamento',
     'loading_places': 'Sto cercando i posti vicino a te',
@@ -317,6 +322,7 @@ it = {
         'save': 'Salva'
     },
     'ratings_text1': 'Vota alcuni ristoranti e permettici di conoscere meglio i tuoi gusti.',
+    'ratings_text2': 'Sei stato di nuovo in un ristorante che hai già votato? Aggiorna il tuo voto!',
     'city_select': u'Per favore, seleziona una città che hai visitato',
     'no_places_selected': u'Siamo spiacenti, non conosciamo ristoranti nella città selezionata.',
     'create_place_button': 'Se non trovi il ristorante che stai cercando, lo puoi aggiungere!',

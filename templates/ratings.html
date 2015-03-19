@@ -6,8 +6,9 @@
 		<div class="step" {{ 'style=display:none;' if not profile else ""}} >{{ lang['step']}} 3/3</div>
 		<div class="profile-logo"></div>
 		
-		<div class="">
+		<div class="main">
 			<div class=" center-text"> {{lang['ratings_text1']}}</div>
+			<div class=" center-text" {{ 'style=display:none;' if profile else ""}}> {{lang['ratings_text2']}}</div>
 			<div class="city-search">
 				<label class="text-bold">{{lang['city_select']}}: </label>
 				<div class="input">
@@ -255,7 +256,9 @@
 				
 			}
 			$('.rating').click(saveRating);
-			$('.scrollable').scrollTop(0);
+			$('html, body').animate({
+	            scrollTop: $('.rest-list').offset().top + 'px'
+	        }, 'fast');
 			$('.navigation-buttons').show();
 			$('.create-places').show();
 			$('.rest-list').show();

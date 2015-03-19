@@ -3,7 +3,7 @@
 	<% _.each(discounts, function(discount, i){ %>
 		<li class="disc-item <% if(i%2 == 0){ %> even <% } else { %> odd <% } %>" >
 			
-			<div class="desc clickable img-btn" discount-id="<%= discount.key %>">
+			<div class="desc disc-clickable" discount-id="<%= discount.key %>">
 				<h4 class="title"><% if(lang == 'it'){%> <%=discount.title_it%> <%} else {%> <%=discount.title_en%> <% } %></h4>
 				<p> 
 					<% if(available){ %>

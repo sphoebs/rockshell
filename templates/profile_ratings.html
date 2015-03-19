@@ -92,7 +92,9 @@
 				
 			}
 			$('.rating').click(saveRating);
-			$('.main').scrollTop(0);
+			$('html, body').animate({
+	            scrollTop: $('.rest-list').offset().top + 'px'
+	        }, 'fast');
 			$('.rating' ).tooltip({
 				tooltipClass: 'my-tooltip'
 			});

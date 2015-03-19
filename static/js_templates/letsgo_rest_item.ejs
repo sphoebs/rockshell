@@ -1,11 +1,11 @@
 <li class="letsgo-rest-item">
 	<div>
 		<% if(p.picture != undefined){%>
-			<img class="rest-image" src="<%= p.picture %>"/>
+			<img class="rest-image clickable" rest-key="<%= p.key %>" src="<%= p.picture %>"/>
 		<% } else {%>
-			<img class="rest-image" src="/static/images/empty_small.png" />
+			<img class="rest-image clickable" rest-key="<%= p.key %>" src="/static/images/empty_small.png" />
 		<% } %>
-		<div class="rest-info clickable" rest-key="<%= p.key %>">
+		<div class="rest-info rest-clickable" rest-key="<%= p.key %>">
 			<div class="text-bold name"><% if(p.name != undefined){ %> <%=p.name %> <% } %></div>
 			<div class="address"><% if(p.address != undefined){ %> <%=p.address.street %>, <%=p.address.city %> <% } %></div>
 			<div class="address distance"><% if(distance != undefined){ %> <%= distance_str %>: <%=distance%> <% } %></div>
@@ -14,7 +14,7 @@
 		<% if(p.discounts != undefined){ %>
 		<ul class="discounts">
 			<% _.each(p.discounts, function(disc, i){ %>
-				<li class="discount clickable <% if(i == p.discounts.length-1){%> no-border <% } %>" disc-key="<%= disc.key%>" >
+				<li class="discount disc-clickable <% if(i == p.discounts.length-1){%> no-border <% } %>" disc-key="<%= disc.key%>" >
 					<!-- <p>Discount available!</p> -->
 					<div class="title text-bold"><% if(disc['title_' +lang_name] != undefined){ %> <%=disc['title_' +lang_name]%> <% } %></div>
 					<div class="more"><%= disc.available_coupons %> <%= coupons_available_till %> <span class="countdown" end-time="<%= disc['end_time'] %>"></span></div>

@@ -4,7 +4,7 @@
 		<div class="top-bar rest-bar">
 			<div class="bar-background"></div>
 			<div class="menu-button">
-				<button class="img-btn"></button>
+				<button class="img-btn" id="menu-button"></button>
 				<div class="user-menu-small clickable">
 					<div class="user-picture"></div>
 					<div class="text-bold user-name">
@@ -15,7 +15,7 @@
 			<div class="rest-logo"></div>
 		</div>
 		
-		<div class="left-menu scrollable">
+		<div class="left-menu scrollable" id="left-menu">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
 				<h2 class="text-bold user-name">{{user.first_name}}</h2>
@@ -97,6 +97,19 @@
 				count++;
 			}
 			
+		});
+		window.addEventListener('mouseup', function(event){
+			var box = document.getElementById('left-menu');
+			var button = document.getElementById('menu-button');
+			
+			if (event.target != box && event.target != button && event.target.parentNode != box && event.target.parentNode != button){
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+					count++;
+			}
 		});
 		
 		var userpic = '{{ user.picture}}';
