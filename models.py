@@ -1359,8 +1359,8 @@ class Place(PFmodel):
                 try:
                     day = datetime.strptime(day, '%d-%m-%Y').date()
                     dlist.append(day)
-                except ValueError:
-                    # TODO: handle error
+                except ValueError, e:
+                    logging.error('PLACE FROM JSON _ days closed day error: ' + str(e))
                     del day
             json_dict['days_closed'] = dlist
 

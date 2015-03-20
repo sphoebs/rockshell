@@ -388,7 +388,7 @@ class RestaurantPageHandler(BaseRequestHandler):
                     place = Place.to_json(place, None, None)
                     if 'description_' + LANG_NAME in place:
                         place['description'] = place['description_' + LANG_NAME]
-                    place['days_closed'] = [datetime.date(day).strftime(LANG['python_date']) for day in place['days_closed']]
+                    place['days_closed'] = [datetime.date(datetime.strptime(day, '%d-%m-%Y')).strftime(LANG['python_date']) for day in place['days_closed']]
                             
                     self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
                     return

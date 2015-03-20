@@ -61,6 +61,7 @@
 				<div class="icon-hours"></div>
 				<p class="iconed black-text">{{ lang['rest_opening_hours'] }}: 
 				{% for h in place.hours %}
+					<p class="day black-text">
 					{% if h.weekday == '1' %}
 						{{ lang['opening_mon']}}:
 					{% elif h.weekday == '2' %}
@@ -80,6 +81,7 @@
 					{{ '%s-%s'|format(h.open1, h.close1) if h.open1 and h.close1 else lang['rest_closed_wday']}}
 					{{ ', %s-%s'|format(h.open2, h.close2) if h.open2 and h.close2 }}
 					{{ '; ' if not h.weekday == '7' }}
+					</p>
 				{% endfor %}
 				</p>
 				{% endif %}
@@ -88,19 +90,19 @@
 				<div class="icon-closed"></div>
 				<p class="iconed black-text">{{ lang['rest_closed'] }}: 
 					{% for d in place.days_closed %}
-						{{ d ~ ', '}}
+						{{ d }}{% if loop.index != loop.length %}, {% endif %}
 					{% endfor %}	
 				</p>
 				{% endif %}
 				
 				{% if place.website %}
 				<div class="icon-web"></div>
-				<p class="iconed black-text">{{place.website}}</p>
+				<p class="iconed black-text rest-clickable" onclick="window.open('{{place.website}}');">{{place.website}}</p>
 				{% endif %}
 				
 				{% if place.email %}
 				<div class="icon-email"></div>
-				<p class="iconed black-text">{{place.email}}</p>
+				<p class="iconed black-text rest-clickable">{{place.email}}</p>
 				{% endif %}
 			</div>
 			

@@ -21,7 +21,7 @@ a.title{
 	color: #DC3D3D;
 }
 
-a.title:hover{
+/* a.title:hover{
 	-webkit-filter: brightness(120%);
 	-moz-filter: brightness(120%);
 	filter: brightness(120%);
@@ -31,7 +31,7 @@ a.title:active{
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
-}
+} */
 
 .center-text {
 	text-align: center;
@@ -934,7 +934,7 @@ li.rest-item {
 	color: white;
 	float: left;
 	position: fixed;
-	top: 2px;
+	top: 12px;
 	left: 110px;
 }
 
@@ -1147,8 +1147,8 @@ li.rest-item {
 
 .rest .picture {
 	display: block;
-	width: 300px;
-	height: 200px;
+	width: 290px;
+	height: 193px;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 5px;
@@ -1173,8 +1173,8 @@ li.rest-item {
 
 .rest .rest-right .rest-map img{
 	display: block;
-	width: 300px;
-	height: 200px;
+	width: 290px;
+	height: 193px;
 	max-height: 100%;
 	margin-left: auto;
 	margin-right: auto;
@@ -1192,7 +1192,7 @@ li.rest-item {
 
 .rest .rest-right .map-link{
 	display: block;
-	width: 300px;
+	width: 290px;
 	margin-top: 0;
 	margin-left: auto;
 	margin-right: auto;
@@ -1240,6 +1240,7 @@ div.icon-phone{
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	margin-top: 10px;
 }
 
 div.icon-hours{
@@ -1253,6 +1254,7 @@ div.icon-hours{
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	margin-top: 10px;
 }
 
 div.icon-closed{
@@ -1266,6 +1268,7 @@ div.icon-closed{
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	margin-top: 10px;
 }
 
 div.icon-web{
@@ -1279,6 +1282,7 @@ div.icon-web{
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	margin-top: 10px;
 }
 
 div.icon-email{
@@ -1291,14 +1295,20 @@ div.icon-email{
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
+	margin-top: 10px;
 }
 
 p.iconed{
 	display: block;
 	margin-left: 30px;
 	margin-top: -24px;
-	margin-bottom: 5px;
+	margin-bottom: 15px;
 	
+	
+}
+
+p.day {
+	margin-left: 50px;
 }
 
 .black-text{
@@ -1306,7 +1316,6 @@ p.iconed{
 }
 
 .rest p.desc{
-	font-size: 20px;
 	margin-bottom: 10px;
 	margin-top: 5px;
 }

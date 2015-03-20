@@ -30,6 +30,9 @@
 					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 				{% else %}
 					<li><button class="img-btn" id="back_rest">{{ lang['back_to_rest']}}</button></li>
+					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
+					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				{% endif %}
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
@@ -38,7 +41,7 @@
 
 		<div class="discount-container">
 		
-			<h2 class="center-text">{{ discount.title }} - <a class="title" href="/restaurant?id={{discount.place}}">{{place_name}}</a></h2>
+			<h2 class="center-text">{{ discount.title }} - <a class="title rest-clickable" href="/restaurant?id={{discount.place}}">{{place_name}}</a></h2>
 			
 			<div class="black-text">
 			<p>{{discount.description}}</p>
@@ -375,6 +378,15 @@
 		$('#change_rest').click(function(){
 			window.location = '/owner/list';
 		});
+		$('#coupons').click(function(){
+			window.location = '/my-coupons';
+		});
+		$('#rate-more').click(function(){
+			window.location = '/ratings';
+		});
+		$('#near-me').click(function(){
+			window.location = '/letsgo';
+		});
 		$('#logout').click(function(){
 			$.ajax({
 				type : 'DELETE',
@@ -415,6 +427,8 @@
 			var code = $(this).attr('coupon-code');
 			use_coupon(code);
 		});
+		
+		
 		
 
 	});
