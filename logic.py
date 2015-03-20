@@ -260,13 +260,13 @@ def place_get(place_id, place_key_str):
     - the status (a string indicating whether an error occurred),
     - the http code indicating the type of error, if any
     """
-#     try:
-    key = Place.make_key(place_id, place_key_str)
-    logging.info("KEY: " + str(key))
-    place = Place.get_by_key(key)
-#     except TypeError as e:
-#         logging.error("TypeError on Place.get_by_key: " + str(e))
-#         return None, str(e), 400
+    try:
+        key = Place.make_key(place_id, place_key_str)
+        logging.info("KEY: " + str(key))
+        place = Place.get_by_key(key)
+    except TypeError as e:
+        logging.error("TypeError on Place.get_by_key: " + str(e))
+        return None, str(e), 400
     return place, "OK", 200
 
 
