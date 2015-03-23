@@ -15,26 +15,29 @@
 			<div class="rest-logo"></div>
 		</div>
 		
-		<div class="left-menu scrollable" id="left-menu">
+		<div class="left-menu scrollable" id="left-menu" style="display: none;">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-bold user-name">
-					{{user.first_name}}</h2>
+				<h3 class="text-bold user-name">
+					{{user.first_name}}</h3>
 			</div>
-			<br />
 
 			<ul class="menu-items">
 				<li><button class="img-btn" id="back" onclick="window.history.back()">{{
 						lang['back']}}</button></li>
-				<li><button class="img-btn" id="logout">{{
-						lang['log_out']}}</button></li>
+				<li><button class="img-btn" id="back-rest">{{ lang['back_to_rest']}}</button></li>
+				<li class="separation"></li>
+				<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+				<li><button class="img-btn" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
+				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 
 		</div>
 
 		<div class="discount-container">
 		
-			<h2 class="center-text">{{ lang['discount_edit'] if is_new == 'True' else lang['discount_new'] }}</h2>
+			<h2 class="center-text">{{ lang['discount_edit'] if is_new != 'True' else lang['discount_new'] }}</h2>
 
 			
 				<div>
@@ -162,6 +165,15 @@
 		$('.left-menu').hide();
 		var window_width = $('.rest').width();
 		var count = 1;
+		$('.left-menu.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-white',
+		    verticalHandleClass: 'handle-white'
+		});
+		$('.enscroll-track').css('position', 'fixed');
 		$('.menu-button button').click(function(){
 			if(count % 2 == 1){
 				//odd time --> open left menu
@@ -169,15 +181,6 @@
 				if(window_width > 600){
 					$('.user-menu-small').hide();
 				}
-				$('.left-menu.scrollable').enscroll({
-				    showOnHover: false,
-				    verticalScrolling: true,
-					horizontalScrolling: false,
-					zIndex: 100,
-				    verticalTrackClass: 'track-white',
-				    verticalHandleClass: 'handle-white'
-				});
-				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu
@@ -203,12 +206,19 @@
 					count++;
 			}
 		});
-		$('#rate-more').click(function(){
-			window.location = '/ratings'
+		
+		$('#back-rest').click(function(){
+			window.location = '/restaurant?id={{discount.place|e}}'		
 		});
-		$('#near-me').click(function(){
-			window.location = '/letsgo'
+		
+		$('#back_dlist').click(function(){
+			window.location = '/discount/list?rest_id={{discount.place|e}}'
 		});
+			
+		$('#change_rest').click(function(){
+			window.location = '/owner/list';
+		});
+		
 		$('#logout').click(function(){
 			$.ajax({
 				type : 'DELETE',
@@ -229,7 +239,7 @@
 			saveDiscount();
 		});
 		
-		$('.user-menu, .user-menu-small').click(function(){
+		$('.user-menu, .user-menu-small, #profile').click(function(){
 			window.location = '/profile';
 		});
 		

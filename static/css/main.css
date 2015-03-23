@@ -173,7 +173,7 @@ button.disabled {
 .track-red {
 	width: 7px;
 	background: rgba(220, 61, 61, 0.15);
-	margin-right: 2px;
+	margin-right: -2px;
 	border-radius: 10px;
 	-webkit-transition: background 200ms linear;
 	transition: background 200ms linear;
@@ -197,7 +197,7 @@ button.disabled {
 .track-white {
 	width: 7px;
 	background: rgba(255, 255, 255, 0.15);
-	margin-right: 2px;
+	margin-left: -8px;
 	border-radius: 10px;
 	-webkit-transition: background 200ms linear;
 	transition: background 200ms linear;
@@ -938,6 +938,8 @@ li.rest-item {
 	left: 110px;
 }
 
+
+
 .letsgo-rest-list {
 	list-style: none;
 	width: 295px;
@@ -1105,24 +1107,38 @@ li.rest-item {
 	float: left;
 	border: solid 2px white;
 	border-radius: 24px;
+	vertical-align: middle;
 }
 
-.letsgo .menu-items, .rest .menu-items {
+.user-menu .user-name {
+	float: left;
+	margin-top: 15px;
+}
+
+.menu-items{
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.letsgo .menu-items li button, .rest .menu-items li button {
+.menu-items li button {
 	width: 100%;
 	text-align: left;
-	/* font-size: 16pt; */
-	font-size: larger;
+/*  font-size: larger; */
 	color: white;
 	background: rgba(220, 61, 61, 1);
 	padding: 10px;
 	padding-left: 30px;
 	border-top: solid 2px #B03131;
+}
+
+.menu-items li.separation {
+	background: rgba(255, 255, 255, 0.8);
+	height: 10px;
+}
+
+.menu-items .selected {
+	font-style: italic;
 }
 
 /* .letsgo .menu-items .selected, .rest .menu-items .selected {
@@ -1461,7 +1477,6 @@ input.days-input {
 }
 
 .disc-item .desc{
-	float: left;
 }
 
 .disc-item .desc:hover{
@@ -1469,10 +1484,9 @@ input.days-input {
 }
 
 .disc-item .coupon-num{
-	float: right;
+	float: left;
 	width: 70px;
-	margin-top: 5px;
-	margin-bottom: 5px;
+	margin: 5px;
 	text-align: center;
 }
 
@@ -1482,10 +1496,9 @@ input.days-input {
 
 .disc-item .actions{
 	float: right;
-	margin-top: 10px;
-	margin-right: 10px;
-	margin-left: 10px;
+	margin: 5px;
 }
+
 
 .clear-float{
 	clear: both
@@ -1519,10 +1532,14 @@ ul.coupon-list .disc-item {
 	border: solid 1px #444;
 }
 
-.coupon-item {
-	float: right;
-	text-align: right;
+/* .coupon-item {
+
 }
+
+.disc-item .disc-left {
+
+} */
+
 
 .coupon-list-title{
 	font-size: larger;
@@ -1563,8 +1580,8 @@ ul.coupon-list .disc-item {
 		font-size: 11pt;
 	}
 	.red-button, input[type=button], input[type=submit], input[type=text],
-		input[type=number], select, textarea {
-		font-size: 12pt;
+		input[type=number], select, textarea, .menu-items button {
+		font-size: 12pt !important;
 	}
 	.login h4 {
 		margin-top: 10px;
@@ -1697,8 +1714,24 @@ ul.coupon-list .disc-item {
 	
 	/* restaurant end */
 	
+	.disc-item .desc{
+		float: left;
+		max-width: 70%;
+	}
+	
 	.disc-item .coupon-num{
 		width: 80px;
+		float: right;
+	}
+	
+	.coupon-item {
+		float: right;
+		text-align: right;
+	}
+
+	.disc-item .disc-left {
+		float: left;
+		max-width: 80%;
 	}
 }
 
@@ -1810,7 +1843,7 @@ ul.coupon-list .disc-item {
 		font-size: 13pt;
 	}
 	.red-button, input[type=button], input[type=submit], input[type=text],
-		input[type=number], select, textarea {
+		input[type=number], select, textarea, .menu-items button{
 		font-size: 14pt;
 	}
 	.login h4 {
@@ -1957,7 +1990,24 @@ ul.coupon-list .disc-item {
 	}
 	/* restaurant end */
 	
+	.disc-item .desc{
+		float: left;
+		max-width: 70%;
+	}
+	
 	.disc-item .coupon-num{
 		width: 100px;
+		float: right;
 	}
+	
+	.coupon-item {
+		float: right;
+		text-align: right;
+	}
+
+	.disc-item .disc-left {
+		float: left;
+		max-width: 80%;
+	}
+	
 }

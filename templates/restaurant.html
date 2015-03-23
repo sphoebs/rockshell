@@ -14,27 +14,30 @@
 			<div class="rest-logo"></div>
 		</div>
 		
-		<div class="left-menu scrollable" id="left-menu">
+		<div class="left-menu scrollable" id="left-menu" style="display: none;">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-bold user-name"> {{user.first_name}}</h2>
+				<h3 class="text-bold user-name"> {{user.first_name}}</h3>
+				<div class="clear-float"></div>
 			</div>
-			<br/>
 		
 			<ul class="menu-items">
+				{% if user.role == 'admin' %}
+					<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
+				{% endif %}
 				{% if user.role == 'admin' or place.owner == user.key %}
 					<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
+					<li class="separation"></li>
 				{% endif %}
+					<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
 				{% if place.owner == user.key %}
-					<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
+				<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
 					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
-				{% else %}
+				{% endif %}
+				{% if place.owner != user.key %}
 					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
 					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
-				{% endif %}
-				{% if user.role == 'admin' %}
-					<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
 				{% endif %}
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
@@ -102,7 +105,7 @@
 				
 				{% if place.email %}
 				<div class="icon-email"></div>
-				<p class="iconed black-text rest-clickable">{{place.email}}</p>
+				<p class="iconed black-text">{{place.email}}</p>
 				{% endif %}
 			</div>
 			
@@ -149,6 +152,16 @@
 		$('.left-menu').hide();
 		var window_width = $('.rest').width();
 		var count = 1;
+		$('.left-menu.scrollable').enscroll({
+			
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-white',
+		    verticalHandleClass: 'handle-white'
+		});
+		$('.enscroll-track').css('position', 'fixed');
 		$('.menu-button button').click(function(){
 			if(count % 2 == 1){
 				//odd time --> open left menu
@@ -156,16 +169,6 @@
 				if(window_width > 600){
 					$('.user-menu-small').hide();
 				}
-				$('.left-menu.scrollable').enscroll({
-					
-				    showOnHover: false,
-				    verticalScrolling: true,
-					horizontalScrolling: false,
-					zIndex: 100,
-				    verticalTrackClass: 'track-white',
-				    verticalHandleClass: 'handle-white'
-				});
-				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu
@@ -335,7 +338,7 @@
 			
 		}); */
 		
-		$('.user-menu, .user-menu-small').click(function(){
+		$('.user-menu, .user-menu-small, #profile').click(function(){
 			window.location = '/profile';
 		});
 		

@@ -164,9 +164,11 @@ class UserHandler(BaseRequestHandler):
                             {'user': user, 'lang' : LANG, 'is_new': is_new }
                 )
             else:
-                num_ratings, status, errcode = logic.user_get_num_ratings(user_id)
+                tuple, status, errcode = logic.user_get_num_ratings(user_id)
                 if status == "OK":
+                    num_ratings, num_places = tuple
                     user.num_ratings = num_ratings
+                    user.num_places = num_places
                 else: 
                     user.num_ratings = 0
                 num_coupons, status, errcode = logic.user_get_num_coupons(user_id)

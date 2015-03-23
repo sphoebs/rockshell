@@ -194,15 +194,15 @@ def user_get_num_ratings(user_id):
     - user_id: the string id of the PFuser
     
     It returns a tuple: 
-    - the requested number (or None in case of errors in the input),
+    - the tuple (number of ratings, number of places rated) (or None in case of errors in the input),
     - the status (a string indicating whether an error occurred),
     - the http code indicating the type of error, if any
     """
     try:
-        num = get_user_num_ratings(PFuser.make_key(user_id, None))
+        res = get_user_num_ratings(PFuser.make_key(user_id, None))
     except TypeError, e:
         return None, str(e), 400
-    return num, "OK", 200
+    return res, "OK", 200
 
 
 def user_get_num_coupons(user_id):

@@ -21,21 +21,15 @@
 		</div>
 	</div>
 	
-	<div class="left-menu scrollable" id="left-menu">
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
 		<div class="user-menu clickable">
 			<div class="user-picture"></div>
-			<h2 class="text-bold user-name"></h2>
+			<h3 class="text-bold user-name"></h3>
+			<div class="clear-float"></div>
 		</div>
-		<br/>
 		
 		<ul class="menu-items">
-			<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
-			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']|e}}</button></li>
-			<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
-			<!-- <li><button class="img-btn selected" id="near-me">{{ lang['near_me']}}</button></li> -->
-			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
-			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
-			<li><button class="img-btn" id="settings">{{ lang['search_settings']}}</button></li>
+			<li><button class="img-btn page-menu" id="settings">{{ lang['search_settings']}}</button></li>
 			{% if user_role == 'admin' %}
 				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
 				<li><button class="img-btn" id="edit-rest">{{ lang['manage_rests'] }}</button></li>
@@ -44,7 +38,14 @@
 			{% if user_role == 'owner' %}
 				<li><button class="img-btn" id="edit-rest-owner">{{ lang['manage_rests']}}</button></li>
 			{% endif %}
-			
+			<li class="separation"></li>
+			<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+			<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
+			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']|e}}</button></li>
+			<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
+			<li><button class="img-btn selected" id="near-me"> > {{ lang['near_me']}}</button></li>
+			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
+			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
 			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 		</ul>
 	
@@ -401,7 +402,7 @@ $(window).load(function() {
 		$('.user-picture').css('background-image', 'url(' + userpic + ')');
 	}
 	
-	$('.user-menu, .user-menu-small').click(function(){
+	$('.user-menu, .user-menu-small, #profile').click(function(){
 		window.location = '/profile';
 	});
 	

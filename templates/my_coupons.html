@@ -14,14 +14,16 @@
 		<div class="rest-logo"></div>
 	</div>
 	
-	<div class="left-menu scrollable" id="left-menu">
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
 		<div class="user-menu clickable">
 			<div class="user-picture"></div>
-			<h2 class="text-bold user-name"> {{user.first_name}}</h2>
+			<h3 class="text-bold user-name"> {{user.first_name}}</h3>
+			<div class="clear-float"></div>
 		</div>
-		<br/>
-		
 		<ul class="menu-items">
+			<!-- <li class="separation"></li> -->
+			<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+			<li><button class="img-btn selected" id="coupons"> > {{lang['my_coupons']}}</button></li>
 			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 			<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
@@ -159,6 +161,12 @@ $(window).load(function() {
 					window.location = '/discount?id='+key;
 				});
 				 */
+				 
+				 
+				$('.rest-link').click(function(){
+					var key = $(this).attr('rest-id');
+					window.location= '/restaurant?id=' + key;
+				});
 				$('#delete').click(function(){
 					var key = $(this).attr('discount-id');
 					var code = $(this).attr('coupon-code');
@@ -292,7 +300,7 @@ $(window).load(function() {
 		});
 	});
 	
-	$('.user-menu, .user-menu-small').click(function(){
+	$('.user-menu, .user-menu-small, #profile').click(function(){
 		window.location = '/profile';
 	});
 	

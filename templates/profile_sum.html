@@ -14,18 +14,24 @@
 			<div class="rest-logo"></div>
 		</div>
 		
-		<div class="left-menu scrollable" id="left-menu">
+		<div class="left-menu scrollable" id="left-menu" style="display: none;">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-bold user-name"> {{user.first_name}}</h2>
+				<h3 class="text-bold user-name"> {{user.first_name}}</h3>
+				<div class="clear-float"></div>
 			</div>
-			<br/>
 		
 			<ul class="menu-items">
-				<li><button class="img-btn" id="edit">{{ lang['profile_edit']}}</button></li>
-				<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
-				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
-				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+				<li><button class="img-btn page-menu" id="edit">{{ lang['profile_edit']}}</button></li>
+				<li class="separation"></li>
+				{% if user_role == 'owner' %}
+					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+				{% else %}
+					<li><button class="img-btn selected" id="profile"> > {{lang['my_profile']}}</button></li>
+					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
+					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+				{% endif %}
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 	
@@ -47,7 +53,7 @@
 			<div class="clear-float"></div>
 			
 			<div class="rating-info">
-				<p><span class="title">{{lang['you_gave']}} {{user.num_ratings}} {{lang['ratings']}}</span></p>
+				<p><span class="title">{{lang['you_gave']}} {{user.num_ratings}} {{lang['ratings']}} {{lang['for']}} {{user.num_places}} {{lang['restaurants']}}</span></p>
 			</div>
 			
 			<div class="coupon-info">
@@ -73,6 +79,15 @@
 		} 
 		
 		$('.left-menu').hide();
+		$('.left-menu.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-white',
+		    verticalHandleClass: 'handle-white',
+		});
+		$('.enscroll-track').css('position', 'fixed');
 		var window_width = $('.rest').width();
 		var count = 1;
 		$('.menu-button button').click(function(){
@@ -82,15 +97,6 @@
 				if(window_width > 600){
 					$('.user-menu-small').hide();
 				}
-				$('.left-menu.scrollable').enscroll({
-				    showOnHover: false,
-				    verticalScrolling: true,
-					horizontalScrolling: false,
-					zIndex: 100,
-				    verticalTrackClass: 'track-white',
-				    verticalHandleClass: 'handle-white'
-				});
-				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu
@@ -120,6 +126,10 @@
 		$('#edit').click(function(){
 			window.location = '/profile/edit';
 		});
+		
+		$('#change_rest').click(function(){
+			window.location = '/owner/list';
+		});
 
 		$('#coupons').click(function(){
 			window.location = '/my-coupons';
@@ -131,6 +141,7 @@
 		$('#near-me').click(function(){
 			window.location = '/letsgo';
 		});
+
 		$('#logout').click(function(){
 			$.ajax({
 				type : 'DELETE',

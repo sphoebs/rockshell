@@ -2697,6 +2697,7 @@ class Discount(PFmodel):
     description_en = ndb.TextProperty(indexed=False)
     description_it = ndb.TextProperty(indexed=False)
     place = ndb.KeyProperty(kind=Place)
+    place_name = ndb.StringProperty(indexed = False)
     num_coupons = ndb.IntegerProperty(indexed=False)
     available_coupons = ndb.IntegerProperty()
     coupons = ndb.StructuredProperty(Coupon, repeated=True)
@@ -2952,6 +2953,7 @@ class Discount(PFmodel):
             # key is not valid --> create
 
             # add created_by
+            obj.place_name = place.name
             obj.created_by = user_key
             obj.creation_time = datetime.now()
             obj.coupons = []
@@ -3176,6 +3178,7 @@ class Discount(PFmodel):
         if bought is not None:
             if bought.deleted == True:
                 bought.deleted = False
+                bought.delete_time = None
                 discount.available_coupons = discount.available_coupons - 1
                 discount.coupons[index] = bought
                 discount.put()
@@ -3395,7 +3398,7 @@ def get_user_num_ratings(key):
     Parameters:
     - key: the key of the PFuser
     
-    It returns the requested number or None.
+    It returns a tuple: (number of ratings, number of places rated) or None.
     Exceptions:  TypeError, if the input is of the wrong type
     """
     if key is None:
@@ -3403,8 +3406,10 @@ def get_user_num_ratings(key):
     if not ( isinstance(key, ndb.Key) and key.kind().find('PFuser') > -1):
         raise TypeError('key must be a valid key for a PFuser, it is ' + str(key))
     
-    num = Rating.query().filter(Rating.user == key).count()
-    return num
+    num_ratings = Rating.query().filter(Rating.user == key).count()
+    gql = "SELECT DISTINCT place FROM Rating WHERE user = KEY(:1)"
+    num_places = len(list(ndb.gql(gql, key.urlsafe())))
+    return num_ratings, num_places
 
 def get_user_num_coupons(key):
         

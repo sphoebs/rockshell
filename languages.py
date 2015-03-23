@@ -9,7 +9,9 @@ Created on Dec 26, 2014
 en = {
     'date_format': 'mm/dd/yy',
     'python_date': '%m/%d/%Y',
+    'restaurants': 'restaurants',
     # MENU ITEMS
+    'my_profile': 'My profile',
     'my_coupons': 'My coupons',
     'rate_more': 'Rate more places',
     'near_me' : 'Near me',
@@ -172,6 +174,7 @@ en = {
                          'not_used': 'Available',
                          'coupon': 'coupon',
                          'see_coupon': 'See my coupon',
+                         'goto_restaurant': 'Go to restaurant',
     },
     'disc_publish_popup': {
                         'title': 'Confirm publication',
@@ -232,7 +235,9 @@ en = {
 it = {
     'date_format': 'dd/mm/yy',
     'python_date': '%d/%m/%Y',
+    'restaurants': 'ristoranti',
     # MENU ITEMS
+    'my_profile': 'Il mio profilo',
     'my_coupons': 'I miei coupons',
     'rate_more': u'Vota più posti',
     'near_me' : 'Vicino a me',
@@ -396,6 +401,7 @@ it = {
                          'not_used': 'Disponibile',
                          'coupon': 'coupon',
                          'see_coupon': 'Accedi al mio coupon',
+                         'goto_restaurant': 'Vai al ristorante',
     },
     'disc_publish_popup': {
                         'title': 'Conferma pubblicazione',

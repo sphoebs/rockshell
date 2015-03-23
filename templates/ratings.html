@@ -1,12 +1,47 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background profile">
+<div class="full-background profile rest">
 
+	{% if profile %}
 	<div class="profile-container ratings">
-		<div class="step" {{ 'style=display:none;' if not profile else ""}} >{{ lang['step']}} 3/3</div>
+		<div class="step" >{{ lang['step']}} 3/3</div>
 		<div class="profile-logo"></div>
 		
-		<div class="main">
+	{% else %}
+	
+	<div class="top-bar">
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small clickable">
+				<div class="user-picture"></div>
+				<div class="text-bold user-name">{{user.first_name}}</div>
+			</div>
+		</div>
+		<div class="rest-logo"></div>
+		<div class="refresh-button">
+			<button class="img-btn" id="refresh"></button>
+		</div>
+	</div>
+	
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
+		<div class="user-menu clickable">
+			<div class="user-picture"></div>
+			<h3 class="text-bold user-name">{{user.first_name}}</h3>
+			<div class="clear-float"></div>
+		</div>
+		<ul class="menu-items">
+			<!-- <li class="separation"></li> -->
+			<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+			<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
+			<li><button class="img-btn selected" id="rate-more"> > {{ lang['rate_more']|e}}</button></li>
+			<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+		</ul>
+	
+	</div>
+	
+	{% endif %}
+		<div class="main {{ 'discount-container' if not profile }}">
 			<div class=" center-text"> {{lang['ratings_text1']}}</div>
 			<div class=" center-text" {{ 'style=display:none;' if profile else ""}}> {{lang['ratings_text2']}}</div>
 			<div class="city-search">
@@ -52,7 +87,7 @@
 				<button class="prev"></button>
 				<button class="next"></button>
 				<button class="img-btn continue red-button"
-					onclick="window.location = '/letsgo'">{{ lang['done']}}</button>
+					onclick="window.history.back()">{{ lang['done']}}</button>
 			</div>
 			
 		</div>
@@ -256,9 +291,14 @@
 				
 			}
 			$('.rating').click(saveRating);
-			$('html, body').animate({
-	            scrollTop: $('.rest-list').offset().top + 'px'
-	        }, 'fast');
+			
+			user_pos = $(window).scrollTop();
+			top_list = $('.rest-list').offset().top - 50
+			if(user_pos > top_list){
+				$('html, body').animate({
+	            	scrollTop: top_list + 'px'
+	        	}, 'fast');
+			}
 			$('.navigation-buttons').show();
 			$('.create-places').show();
 			$('.rest-list').show();
@@ -664,6 +704,83 @@
 		
 		$('.new-place').click(function(){
 			addPlace();
+		});
+		
+		
+		//MENU
+		var userpic = "{{ user.picture if not user.picture is none }}";
+		if(userpic != undefined && userpic.length > 0){	
+			$('.user-picture').css('background-image', 'url(' + userpic + ')');
+		}
+		$('.left-menu').hide();
+		var window_width = $('.rest').width();
+		var count = 1;
+		$('.left-menu.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-white',
+		    verticalHandleClass: 'handle-white'
+		});
+		$('.enscroll-track').css('position', 'fixed');
+		$('.menu-button button').click(function(){
+			if(count % 2 == 1){
+				//odd time --> open left menu
+				$('.left-menu').show();
+				if(window_width > 600){
+					$('.user-menu-small').hide();
+				}
+				count++;
+			} else {
+				//even time --> close left menu
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+				count++;
+			}
+			
+		});
+		window.addEventListener('mouseup', function(event){
+			var box = document.getElementById('left-menu');
+			var button = document.getElementById('menu-button');
+			
+			if (event.target != box && event.target != button && event.target.parentNode != box && event.target.parentNode != button){
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+					count++;
+			}
+		});
+		$('#coupons').click(function(){
+			window.location = '/my-coupons';
+		});
+		
+		$('#near-me').click(function(){
+			window.location = '/letsgo'
+		});
+		$('#logout').click(function(){
+			$.ajax({
+				type : 'DELETE',
+				url : '/api/user/login',
+				success : function() {
+					window.location = '/';
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error " + resp.status);
+				}
+			});
+		});
+		
+		$('.user-menu, .user-menu-small, #profile').click(function(){
+			window.location = '/profile';
 		});
 
 	});

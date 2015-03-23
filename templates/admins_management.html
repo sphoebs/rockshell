@@ -15,12 +15,12 @@
 			<div class="rest-logo"></div>
 		</div>
 		
-		<div class="left-menu scrollable" id="left-menu">
+		<div class="left-menu scrollable" id="left-menu" style="display: none;">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
-				<h2 class="text-bold user-name">{{user.first_name}}</h2>
+				<h3 class="text-bold user-name">{{user.first_name}}</h3>
+				<div class="clear-float"></div>
 			</div>
-			<br />
 
 			<ul class="menu-items">
 				<li><button class="img-btn" id="back" onclick="window.history.back()">{{
@@ -70,6 +70,15 @@
 		$('.left-menu').hide();
 		var window_width = $('.letsgo').width();
 		var count = 1;
+		$('.scrollable').enscroll({
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-white',
+		    verticalHandleClass: 'handle-white'
+		});
+		$('.enscroll-track').css('position', 'fixed');
 		$('.menu-button button').click(function(){
 			if(count % 2 == 1){
 				//odd time --> open left menu
@@ -77,15 +86,6 @@
 				if(window_width > 600){
 					$('.user-menu-small').hide();
 				}
-				$('.scrollable').enscroll({
-				    showOnHover: false,
-				    verticalScrolling: true,
-					horizontalScrolling: false,
-					zIndex: 100,
-				    verticalTrackClass: 'track-white',
-				    verticalHandleClass: 'handle-white'
-				});
-				$('.enscroll-track').css('position', 'fixed');
 				count++;
 			} else {
 				//even time --> close left menu
