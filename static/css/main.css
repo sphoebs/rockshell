@@ -98,6 +98,8 @@ button {
 	padding-left: 10px;
 	padding-right: 10px;
 	font-size: 12pt;
+	margin-top: 2px;
+	margin-bottom: 3px;
 }
 
 input[type=text], input[type=number], select {
@@ -942,11 +944,12 @@ li.rest-item {
 
 .letsgo-rest-list {
 	list-style: none;
-	width: 295px;
-	max-width: 100%;
-	padding: 5px;
+	width: 100%;
+	/* max-width: 100%; */
 	margin-left: auto;
 	margin-right: auto;
+	/* margin: 0px; */
+	padding: 0px;
 }
 
 .letsgo-rest-item {
@@ -961,7 +964,7 @@ li.rest-item {
 
 .letsgo-rest-item .rest-image {
 	width: 275px;
-	height: 187px;
+	height: 183px;
 	margin: 5px;
 	max-width: 100%;
 }
@@ -1163,8 +1166,8 @@ li.rest-item {
 
 .rest .picture {
 	display: block;
-	width: 290px;
-	height: 193px;
+	width: 280px;
+	height: 187px;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 5px;
@@ -1189,8 +1192,8 @@ li.rest-item {
 
 .rest .rest-right .rest-map img{
 	display: block;
-	width: 290px;
-	height: 193px;
+	width: 280px;
+	height: 187px;
 	max-height: 100%;
 	margin-left: auto;
 	margin-right: auto;
@@ -1208,7 +1211,7 @@ li.rest-item {
 
 .rest .rest-right .map-link{
 	display: block;
-	width: 290px;
+	width: 280px;
 	margin-top: 0;
 	margin-left: auto;
 	margin-right: auto;
@@ -1414,7 +1417,8 @@ input.days-input {
 .owner-rest-list {
 	list-style: none;
 	width: 1000px;
-	max-width: 90%;
+	max-width: 100%;
+	padding: 0px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -1423,14 +1427,15 @@ input.days-input {
 	display: inline-block;
 	border: solid 1px #DC3D3D;
 	background-color: #fff;
-	width: 310px;
-	margin: 10px;
+	width: 300px;
+	margin-right: 10px;
+	margin-bottom: 10px;
 	
 }
 
 .owner-rest-item .rest-image {
-	width: 300px;
-	height: 200px;
+	width: 290px;
+	height: 193px;
 	margin: 5px;
 }
 
@@ -1721,7 +1726,7 @@ ul.coupon-list .disc-item {
 	
 	.disc-item .coupon-num{
 		width: 80px;
-		float: right;
+		float: left;
 	}
 	
 	.coupon-item {
@@ -1949,7 +1954,7 @@ ul.coupon-list .disc-item {
 	} */
 	
 	.letsgo-rest-list {
-		width: 900px;
+		width: 864px;
 	}
 
 	.letsgo-rest-item {
@@ -1997,7 +2002,7 @@ ul.coupon-list .disc-item {
 	
 	.disc-item .coupon-num{
 		width: 100px;
-		float: right;
+		float: left;
 	}
 	
 	.coupon-item {

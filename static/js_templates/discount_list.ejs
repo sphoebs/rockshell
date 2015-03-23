@@ -14,6 +14,9 @@
 					 
 				</p>
 			</div>
+			<div class="coupon-num">
+				<%= strings.coupons %> <br/><span class="num"> <%= discount.available_coupons %> / <%= discount.num_coupons%></span>
+			</div>
 			<div class="actions">
 				<% if(owner){ %>
 					<% if(actions){ %>
@@ -34,9 +37,7 @@
 					<% } %>
 				<% } %>
 			</div>
-			<div class="coupon-num">
-				<%= strings.coupons %> <br/><span class="num"> <%= discount.available_coupons %> / <%= discount.num_coupons%></span>
-			</div>
+			
 			
 			<div class="clear-float"></div>
 			

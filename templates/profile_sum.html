@@ -24,7 +24,7 @@
 			<ul class="menu-items">
 				<li><button class="img-btn page-menu" id="edit">{{ lang['profile_edit']}}</button></li>
 				<li class="separation"></li>
-				{% if user_role == 'owner' %}
+				{% if user.role == 'owner' %}
 					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 				{% else %}
 					<li><button class="img-btn selected" id="profile"> > {{lang['my_profile']}}</button></li>
@@ -43,6 +43,7 @@
 			
 			<div class="profile-picture" style="background-image: url({{user.picture}})"></div>
 		
+			<div class="black-text">
 			<div class="user-info">
 				<p><span class="title">{{lang['first_name']}}: </span> {{user.first_name}} </p>
 				<p><span class="title">{{lang['last_name']}}: </span> {{user.last_name}} </p>
@@ -65,6 +66,7 @@
 				<p><span class="title">{{lang['have_role']}} {{lang[user.role]}} </span></p>
 			</div>
 			{% endif %}
+			</div>
 		</div>
 </div>
 {% endblock %} 

@@ -8,6 +8,7 @@ Created on Dec 26, 2014
 
 en = {
     'date_format': 'mm/dd/yy',
+    'date_time_format': 'mm/dd/yy hh:MM',
     'python_date': '%m/%d/%Y',
     'restaurants': 'restaurants',
     # MENU ITEMS
@@ -191,6 +192,7 @@ en = {
     'disc_usecoupon_popup' :{
                         'title': 'Confirm use of coupon',
                         'message': 'Do you really want to mark this coupon as used?',
+                        'message_2': 'We remind you that to get the discount to which the coupon refers to, you have to first show the coupon to the restaurant employee, then mark it as used while he/she is watching. If the restaurant employee does not see your coupon before the usage, he/she will not accept it as valid.',
                         'cancel': 'Cancel',
                         'ok': 'Yes, mark as used'
     },
@@ -221,7 +223,7 @@ en = {
     'use': 'Use',
     'you_have_coupon_code': 'You have a coupon, with code',
     'coupon_used_date': 'The coupon has already been used in date',
-    
+    'coupon_deleted_date' : 'The coupon has been deleted in date',
     
     # ADMIN
     'select_city': 'Select a city for searching the places you want to edit',
@@ -234,6 +236,7 @@ en = {
 
 it = {
     'date_format': 'dd/mm/yy',
+    'date_time_format': 'dd/mm/yy hh:MM',
     'python_date': '%d/%m/%Y',
     'restaurants': 'ristoranti',
     # MENU ITEMS
@@ -418,6 +421,7 @@ it = {
     'disc_usecoupon_popup' :{
                         'title': 'Conferma uso del coupon',
                         'message': 'Vuoi davvero marcare questo coupon come usato?',
+                        'message_2': 'Ti ricordiamo che per ottenere l\'offerta a cui questo coupon si riferisce, devi per prima cosa mostrare il coupon all\'addetto del ristorante, quindi segnalare che lo stai usando sotto supervisione dell\'addetto. Se l\'addetto del ristorante non vede il coupon prima del suo utilizzo, il coupon non verr&agrave; accettato come valido.',
                         'cancel': 'Annulla',
                         'ok': 'S&igrave;, usa'     
     },

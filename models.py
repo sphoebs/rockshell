@@ -3280,8 +3280,6 @@ class Discount(PFmodel):
         place = Place.get_by_key(discount.place)
         if place is None:
             raise InvalidKeyException('The discount does not refer to a valid Place!')
-        elif user_key != place.owner:
-            raise UnauthorizedException('Only the owner of the Place can mark coupons as used.')
 
         coupon = None
         index = 0
@@ -3296,6 +3294,9 @@ class Discount(PFmodel):
 
         if coupon.deleted == True or coupon.used == True:
             raise InvalidCouponException('The coupon was deleted or has already been used!')
+        
+        if coupon.user != user_key and user_key != place.owner:
+            raise UnauthorizedException('Only the owner of the Place or the owner of the coupon can mark coupons as used.')
 
         coupon.used = True
         coupon.usage_time = datetime.now()

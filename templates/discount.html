@@ -67,8 +67,8 @@
 					<ul class="disc-coupon-list">
 						{% for coupon in discount.coupons %}
 							<li class="coupon">
-								{% if not coupon.used and not coupon.deleted %}<button class="img-btn red-button use-button" coupon-code="{{coupon.code}}" id="use">{{ lang['use']}}</button>{% endif %}
-								<p>{{coupon.code}}, {{lang['bought']}} {{coupon.buy_time}}{% if coupon.used %}, {{ lang['used']}} {{coupon.usage_time}} {% endif %}{% if coupon.deleted %}, {{ lang['deleted']}} {{coupon.delete_time}} {% endif %}</p>
+								<p>{{coupon.code}}, {{lang['bought']}} <span class="time">{{coupon.buy_time}}</span>{% if coupon.used %}, {{ lang['used']}} <span class="time">{{coupon.usage_time}}</span> {% endif %}{% if coupon.deleted %}, {{ lang['deleted']}} <span class="time">{{coupon.delete_time}}</span> {% endif %}</p>
+								<!-- {% if not coupon.used and not coupon.deleted %}<button class="img-btn red-button use-button" coupon-code="{{coupon.code}}" id="use">{{ lang['use']}}</button>{% endif %} -->
 								<div class="clear-float"></div>
 							</li>
 						{% endfor %}
@@ -83,11 +83,15 @@
 					<div class="coupon">
 						<p> {{lang['you_have_coupon_code']}} {{discount.coupons[0].code}}</p>
 						{% if discount.coupons[0].used %}
-							<p> {{lang['coupon_used_date']}}: {{discount.coupons[0].usage_time}}
-						{% else %}
-							<button class="img-btn red-button" id="delete-coupon" discount-id="{{ discount.key }}" coupon-code="{{discount.coupons[0].code}}">{{lang['discount_strings']['delete']}} {{lang['discount_strings']['coupon']}}</button>
-						
+							<p class="used"> {{lang['coupon_used_date']}}: {{discount.coupons[0].usage_time}}</p>
+						{% endif %}
+						{% if discount.coupons[0].deleted %}
+							<p class="deleted"> {{lang['coupon_deleted_date']}}: {{discount.coupons[0].delete_time}}</p>
 						{% endif %}					
+						{% if not discount.coupons[0].used and not discount.coupons[0].deleted %}
+							<button class="img-btn red-button use-button" coupon-code="{{discount.coupons[0].code}}" id="use">{{ lang['use']}}</button>
+							<button class="img-btn red-button" id="delete-coupon" discount-id="{{ discount.key }}" coupon-code="{{discount.coupons[0].code}}">{{lang['discount_strings']['delete']}} {{lang['discount_strings']['coupon']}}</button>
+						{% endif %}
 					</div>
 				{% endif %}
 			{% endif %}
@@ -101,6 +105,8 @@
 <script type="text/javascript">
 
 	$(window).load(function() {
+		
+		show_dates();
 		
 		function getCookie(cname) {
 			var name = cname + "=";
@@ -432,7 +438,49 @@
 			use_coupon(code);
 		});
 		
+		function show_dates(){
+			var coupon_usage = '{{discount.coupons[0].usage_time}}';
+			var coupon_delete = '{{discount.coupons[0].delete_time}}';
+			
+			var usage_time = format_date(new Date(coupon_usage), '{{lang['date_time_format']}}');
+			var delete_time = format_date(new Date(coupon_delete), '{{lang['date_time_format']}}');
+			
+			$('p.used').html('{{lang['coupon_used_date']}}: ' + usage_time);
+			$('p.deleted').html('{{lang['coupon_deleted_date']}}: ' + delete_time);
+			
+			$('span.time').each(function(){
+				var time = $(this).html();
+				time = format_date(new Date(time), '{{lang['date_time_format']}}');
+				$(this).html(time)
+			});
+		};
 		
+		
+		function format_date(date, format){
+			var day = date.getDate();
+			if (day < 10){
+				day = '0'+ day;
+			}
+			
+			var month = date.getMonth()+1;
+			if (month < 10){
+				month = '0'+ month;
+			}
+			
+			var year = date.getFullYear();
+			
+			var hours = date.getHours();
+			if (hours < 10){
+				hours = '0'+ hours;
+			}
+			var minutes = date.getMinutes();
+			if (minutes < 10){
+				minutes = '0'+ minutes;
+			}
+			
+			var res = format.replace('mm', month).replace('dd', day).replace('yy', year).replace('hh', hours).replace('MM', minutes);
+			return res;
+		};
 		
 
 	});

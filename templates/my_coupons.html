@@ -146,13 +146,13 @@ $(window).load(function() {
 					$('#used').html('<p>{{ lang['no_coupons']}}</p>');
 				} else {
 					var html = compiled({
-						discounts : used_coupons, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}
+						discounts : used_coupons, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, available: false
 					});
 					$('#used').html(html);
 					
 					$('#used .countdown').each(function(){
 						var end = $(this).attr('end-time');
-						var date_str = new Date(end).format('{{lang['date_format']}}');
+						var date_str = format_date(new Date(end), '{{lang['date_format']}}');
 						$(this).html(date_str);						
 					});
 				}
@@ -305,6 +305,31 @@ $(window).load(function() {
 	});
 	
 	
+	function format_date(date, format){
+		var day = date.getDate();
+		if (day < 10){
+			day = '0'+ day;
+		}
+		
+		var month = date.getMonth()+1;
+		if (month < 10){
+			month = '0'+ month;
+		}
+		
+		var year = date.getFullYear();
+		
+		var hours = date.getHours();
+		if (hours < 10){
+			hours = '0'+ hours;
+		}
+		var minutes = date.getMinutes();
+		if (minutes < 10){
+			minutes = '0'+ minutes;
+		}
+		
+		var res = format.replace('mm', month).replace('dd', day).replace('yy', year).replace('hh', hours).replace('MM', minutes);
+		return res;
+	};
 	
 });
 </script>
