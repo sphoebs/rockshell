@@ -330,7 +330,7 @@ it = {
         'save': 'Salva'
     },
     'ratings_text1': 'Vota alcuni ristoranti e permettici di conoscere meglio i tuoi gusti.',
-    'ratings_text2': 'Sei stato di nuovo in un ristorante che hai già votato? Aggiorna il tuo voto!',
+    'ratings_text2': u'Sei stato di nuovo in un ristorante che hai già votato? Aggiorna il tuo voto!',
     'city_select': u'Per favore, seleziona una città che hai visitato',
     'no_places_selected': u'Siamo spiacenti, non conosciamo ristoranti nella città selezionata.',
     'create_place_button': 'Se non trovi il ristorante che stai cercando, lo puoi aggiungere!',

@@ -147,11 +147,11 @@ $(window).load(function() {
 		}
 	}
 
-	/* function renderPlace(pos){
+	 /* function renderPlace(pos){
 		if(window.console){
 			console.log("Showing place " + pos + " of " + places.length);
 		}
-		//enable prev and next buttons
+		
 		$('.rest-details .prev').removeClass('disabled');
 		$('.rest-details .next').removeClass('disabled');
 		if(pos >= places.length-1){
@@ -159,7 +159,7 @@ $(window).load(function() {
 			$('.rest-details .next').addClass('disabled');
 		}
 		if(pos == 0){
-			//disable prev button
+			
 			$('.rest-details .prev').addClass('disabled');
 		}
 		
@@ -204,7 +204,7 @@ $(window).load(function() {
 			picture = '/static/images/empty_big.png';
 		}
 		$('.letsgo').css('background-image', 'url(' + picture + ')');
-	}
+	} 
  */
 	function showRecommendations(position) {
 		$('.loading-message').html('{{ lang['loading_settings']}}');
@@ -253,6 +253,7 @@ $(window).load(function() {
 	}
 	
 	function renderPlaces(){
+		$('.letsgo-rest-list').html('');
 		//load underscore template
 		var xmlhttp = new XMLHttpRequest();
 		xmlhttp.open("GET","/static/js_templates/letsgo_rest_item.ejs",false);
@@ -293,7 +294,7 @@ $(window).load(function() {
 			
 			$('.countdown').each(function(){
 				var end = $(this).attr('end-time');
-				var diff = Math.floor((new Date(end) - new Date())/1000);
+				var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
 				$(this).countdown({
 					until: '+'+diff+'s',
 					format: 'dHMS',
@@ -497,7 +498,7 @@ $(window).load(function() {
 	$('#refresh').click(function(){
 		$('.loading').show();
 		if (navigator.geolocation) {
-			$('.loading-message').html('Getting your position');
+			$('.loading-message').html('{{ lang['getting_position']}}');
 	    	navigator.geolocation.getCurrentPosition(showRecommendations);
 		} else { 
 	    	alert('{{ lang['no_geolocation']}}');

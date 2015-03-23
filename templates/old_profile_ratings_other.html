@@ -126,7 +126,9 @@
 						$(self).find('.rating.selected').each(saveRating(place.key))
 						wait_save_place--;
 					} else {
-						console.log(resp);
+						if(window.console){
+							console.log(resp);
+						}
 						alert("Error" + resp.status);
 					}
 				},
@@ -170,7 +172,9 @@
 						$(btn).parent().find('button').removeClass('selected');				
 						$(btn).addClass('selected');
 					} else {
-						console.log(resp);
+						if(window.console){
+							console.log(resp);
+						}
 						alert("Error" + resp.status);
 					}
 				},

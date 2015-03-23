@@ -95,7 +95,7 @@ $(window).load(function() {
 							continue;
 						}
 						
-						if(Date.parse(d.end_time) < new Date() || coupon.used ){
+						if(new Date(moment(d.end_time)) < new Date() || coupon.used ){
 							used_coupons.push(d);
 						} else {
 							//compute time till end
@@ -124,7 +124,7 @@ $(window).load(function() {
 					$('#current_available').html(html);
 					$('#current_available .countdown').each(function(){
 						var end = $(this).attr('end-time');
-						var diff = Math.floor((new Date(end) - new Date())/1000);
+						var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
 						$(this).countdown({
 							until: '+'+diff+'s',
 							format: 'dHMS',
@@ -152,7 +152,7 @@ $(window).load(function() {
 					
 					$('#used .countdown').each(function(){
 						var end = $(this).attr('end-time');
-						var date_str = format_date(new Date(end), '{{lang['date_format']}}');
+						var date_str = format_date(new Date(moment(end)), '{{lang['date_format']}}');
 						$(this).html(date_str);						
 					});
 				}

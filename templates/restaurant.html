@@ -83,7 +83,7 @@
 					
 					{{ '%s-%s'|format(h.open1, h.close1) if h.open1 and h.close1 else lang['rest_closed_wday']}}
 					{{ ', %s-%s'|format(h.open2, h.close2) if h.open2 and h.close2 }}
-					{{ '; ' if not h.weekday == '7' }}
+					
 					</p>
 				{% endfor %}
 				</p>
@@ -243,7 +243,7 @@
 						$('.discounts').html(html);
 						$('.countdown').each(function(){
 							var end = $(this).attr('end-time');
-							var diff = Math.floor((new Date(end) - new Date())/1000);
+							var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
 							$(this).countdown({
 								until: '+'+diff+'s',
 								format: 'dHMS',

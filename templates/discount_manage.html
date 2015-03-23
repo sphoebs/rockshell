@@ -122,7 +122,7 @@
 					type : 'GET',
 					url : '/api/discount/'+key+'/publish',
 					success : function() {
-						window.refresh();
+						location.reload();
 					},
 					error : function(resp) {
 						if(window.console){
@@ -189,18 +189,14 @@
 					if(discounts != undefined && discounts.length > 0){
 						for(var i=0; i< discounts.length; i++){
 							var d = discounts[i];
-							console.log(JSON.stringify(d))
 							if (d.published){
-								if(Date.parse(d.end_time) < new Date()){
+								if(new Date(moment(d.end_time)) < new Date()){
 									old_disc_list.push(d);
-									console.log('saved in old')
 								} else {
 									avail_disc_list.push(d);
-									console.log('saved in avail')
 								}
 							} else {
 								new_disc_list.push(d);
-								console.log('saved in new')
 							}
 						}
 					}
@@ -226,7 +222,7 @@
 						$('#current_available').html(html);
 						$('#current_available .countdown').each(function(){
 							var end = $(this).attr('end-time');
-							var diff = Math.floor((new Date(end) - new Date())/1000);
+							var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
 							$(this).countdown({
 								until: '+'+diff+'s',
 								format: 'dHMS',
@@ -254,7 +250,7 @@
 						
 						$('#not_published .countdown').each(function(){
 							var end = $(this).attr('end-time');
-							var diff = Math.floor((new Date(end) - new Date())/1000);
+							var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
 							$(this).countdown({
 								until: '+'+diff+'s',
 								format: 'dHMS',
@@ -281,7 +277,7 @@
 						$('#passed').html(html);
 						$('#passed .countdown').each(function(){
 							var end = $(this).attr('end-time');
-							var date_str = format_date(new Date(end), '{{lang['date_format']}}');
+							var date_str = format_date(new Date(moment(end)), '{{lang['date_format']}}');
 							$(this).html(date_str);						
 						});
 					}

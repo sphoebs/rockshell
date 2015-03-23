@@ -18,9 +18,6 @@
 			</div>
 		</div>
 		<div class="rest-logo"></div>
-		<div class="refresh-button">
-			<button class="img-btn" id="refresh"></button>
-		</div>
 	</div>
 	
 	<div class="left-menu scrollable" id="left-menu" style="display: none;">
@@ -253,7 +250,7 @@
 		}
 		
 		function displayPlaces(start){
-			$('.rest-list').html('');
+			/* $('.rest-list').html(''); */
 			
 			//enable prev and next buttons
 			$('.navigation-buttons .prev').removeClass('disabled');
@@ -266,7 +263,7 @@
 				//disable next button
 				$('.navigation-buttons .next').addClass('disabled');
 			}
-			
+			var list_html = "";
 			for(var i=0; start+i<filtered_places.length && i<pageSize; i++){
 				var rest = filtered_places[start+i];
 				var ratings = {};
@@ -286,18 +283,19 @@
 				var html = compiled({
 					rest : rest, ratings: ratings, strings: {{lang['rating_purposes']|safe}}
 				});
-				$('.rest-list').append(html);
+				list_html += html; 
 				
 				
 			}
+			$('.rest-list').html(list_html);
 			$('.rating').click(saveRating);
 			
 			user_pos = $(window).scrollTop();
-			top_list = $('.rest-list').offset().top - 50
+			top_list = $('.rest-list').offset().top - 50;
 			if(user_pos > top_list){
 				$('html, body').animate({
 	            	scrollTop: top_list + 'px'
-	        	}, 'fast');
+	        	}, 'fast').promise();
 			}
 			$('.navigation-buttons').show();
 			$('.create-places').show();

@@ -112,11 +112,13 @@ input[type=text], input[type=number], select {
 	background-color: rgba(255, 255, 255, 0.6);
 	/* color: #DC3D3D; */
 	width: 90%;
+	max-width: 90%;
 }
 
 textarea {
 	outline: 0;
 	border: 0;
+	font-family: "Lato";
 	font-size: 13pt;
 	line-height: 1.3em;
 	border-bottom: solid 2px #DC3D3D;
@@ -513,15 +515,15 @@ button.disabled {
 /* PROFILE RATINGS */
 ul.rest-list, ul.rest-create-list {
 	list-style: none;
-	padding-left: 20px;
-	padding-right: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 li.rest-item {
 	padding-bottom: 5px;
 	padding-top: 5px;
 	border-bottom: solid 2px #DC3D3D;
-	padding-right: 15px;
+	/* padding-right: 15px; */
 }
 
 .rest-item div.rest-details {
@@ -540,8 +542,8 @@ li.rest-item {
 }
 
 .rest-item .rest-details .rest-image {
-	width: 300px;
-	height: 200px;
+	width: 280px;
+	height: 187px;
 }
 
 .rest-item div.rest-ratings {
@@ -795,6 +797,7 @@ li.rest-item {
 
 .name-input-block input, .name-input-block button {
 	display: inline-block;
+	vertical-align: bottom;
 }
 
 .map-search-label {

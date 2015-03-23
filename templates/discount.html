@@ -60,7 +60,6 @@
 				<button class="img-btn red-button" id="edit">{{lang['discount_strings']['edit']}}</button>
 				<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="publish">{{lang['discount_strings']['publish']}}</button>
 				<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="delete">{{lang['discount_strings']['delete']}}</button>
-			
 				<br/>
 				{% if not discount.coupons is none and discount.coupons|length > 0 %}
 				<h4 class="coupons-title">{{lang['discount_strings']['coupons']}}</h4>
@@ -125,7 +124,7 @@
 		
 		$('.countdown').each(function(){
 			var end = $(this).attr('end-time');
-			var diff = Math.floor((new Date(end) - new Date())/1000);
+			var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
 			if(diff >= 0){
 				$(this).parent().find('.countdown-text').html('{{ lang['discount_strings']['available_till']}}');
 				$(this).countdown({
@@ -143,7 +142,7 @@
 				});
 			} else {
 				$(this).parent().find('.countdown-text').html('{{ lang['discount_strings']['expired_at']}}');
-				var date_str = new Date(end).format('{{lang['date_format']}}');
+				var date_str = format_date(new Date(moment(end)), '{{lang['date_format']}}');
 				$(this).html(date_str);
 			}
 			
@@ -439,25 +438,27 @@
 		});
 		
 		function show_dates(){
+			{% if not discount.coupons is none and discount.coupons|length > 0 and not discount.coupons[0].deleted %}
 			var coupon_usage = '{{discount.coupons[0].usage_time}}';
 			var coupon_delete = '{{discount.coupons[0].delete_time}}';
 			
-			var usage_time = format_date(new Date(coupon_usage), '{{lang['date_time_format']}}');
-			var delete_time = format_date(new Date(coupon_delete), '{{lang['date_time_format']}}');
+			var usage_time = format_date(new Date(moment(coupon_usage)), '{{lang['date_time_format']}}');
+			var delete_time = format_date(new Date(moment(coupon_delete)), '{{lang['date_time_format']}}');
 			
 			$('p.used').html('{{lang['coupon_used_date']}}: ' + usage_time);
 			$('p.deleted').html('{{lang['coupon_deleted_date']}}: ' + delete_time);
+			{% endif %}
 			
 			$('span.time').each(function(){
 				var time = $(this).html();
-				time = format_date(new Date(time), '{{lang['date_time_format']}}');
+				time = format_date(new Date(moment(time)), '{{lang['date_time_format']}}');
 				$(this).html(time)
 			});
 		};
 		
 		
 		function format_date(date, format){
-			var day = date.getDate();
+			var day = date.getDay();
 			if (day < 10){
 				day = '0'+ day;
 			}

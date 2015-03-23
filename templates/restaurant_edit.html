@@ -158,7 +158,9 @@
 		        $(this).val('');
 		        var html = '<div class="days-item"><p>'+day+'</p><button class="img-btn delete-small"></button></div>';
 		        $('.closed').append(html);
-		        console.log('Closed: ' + JSON.stringify(closed));
+		        if(window.console){
+		        	console.log('Closed: ' + JSON.stringify(closed));
+		        }
 		       	
 				$('.delete-small').click(function(){
 					removeDay(this);
@@ -176,7 +178,9 @@
 			if (index >= 0) {
 			  closed.splice( index, 1 );
 			}
-			console.log('Closed: ' + JSON.stringify(closed));
+			if(window.console){
+				console.log('Closed: ' + JSON.stringify(closed));
+			}
 			$(btn).parent().remove();
 		}
 		
@@ -193,20 +197,36 @@
 			if(hours != undefined && hours.length > 0){
 				for (var i=0; i< hours.length; i++){
 					var h = hours[i];
+					var val1 = '';
+					if (h.open1 != undefined){
+						val1 = h.open1;
+					}
+					var val2 = '';
+					if (h.close1 != undefined){
+						val2 = h.close1;
+					}
+					var val3 = '';
+					if (h.open2 != undefined){
+						val3 = h.open2;
+					}
+					var val4 = '';
+					if (h.close2 != undefined){
+						val4 = h.close2;
+					}
 					if (h.weekday == '1'){
-						hours_mon = hours_html.replace('DAY', '{{lang['opening_mon']}}').replace('NUM', '1').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+						hours_mon = hours_html.replace('DAY', '{{lang['opening_mon']}}').replace('NUM', '1').replace('VAL1', val1).replace('VAL2', val2).replace('VAL3', val3).replace('VAL4', val4);
 					} else if (h.weekday == '2'){
-						hours_tue = hours_html.replace('DAY', '{{lang['opening_tue']}}').replace('NUM', '2').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+						hours_tue = hours_html.replace('DAY', '{{lang['opening_tue']}}').replace('NUM', '2').replace('VAL1', val1).replace('VAL2', val2).replace('VAL3', val3).replace('VAL4', val4);
 					} else if (h.weekday == '3'){
-						hours_wed = hours_html.replace('DAY', '{{lang['opening_wed']}}').replace('NUM', '3').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+						hours_wed = hours_html.replace('DAY', '{{lang['opening_wed']}}').replace('NUM', '3').replace('VAL1', val1).replace('VAL2', val2).replace('VAL3', val3).replace('VAL4', val4);
 					} else if (h.weekday == '4'){
-						hours_thu = hours_html.replace('DAY', '{{lang['opening_thu']}}').replace('NUM', '4').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+						hours_thu = hours_html.replace('DAY', '{{lang['opening_thu']}}').replace('NUM', '4').replace('VAL1', val1).replace('VAL2', val2).replace('VAL3', val3).replace('VAL4', val4);
 					} else if (h.weekday == '5'){
-						hours_fri = hours_html.replace('DAY', '{{lang['opening_fri']}}').replace('NUM', '5').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+						hours_fri = hours_html.replace('DAY', '{{lang['opening_fri']}}').replace('NUM', '5').replace('VAL1', val1).replace('VAL2', val2).replace('VAL3', val3).replace('VAL4', val4);
 					} else if (h.weekday == '6'){
-						hours_sat = hours_html.replace('DAY', '{{lang['opening_sat']}}').replace('NUM', '6').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+						hours_sat = hours_html.replace('DAY', '{{lang['opening_sat']}}').replace('NUM', '6').replace('VAL1', val1).replace('VAL2', val2).replace('VAL3', val3).replace('VAL4', val4);
 					} else if (h.weekday == '7'){
-						hours_sun = hours_html.replace('DAY', '{{lang['opening_sun']}}').replace('NUM', '7').replace('VAL1', h.open1).replace('VAL2', h.close1).replace('VAL3', h.open2).replace('VAL4', h.close2);
+						hours_sun = hours_html.replace('DAY', '{{lang['opening_sun']}}').replace('NUM', '7').replace('VAL1', val1).replace('VAL2', val2).replace('VAL3', val3).replace('VAL4', val4);
 					} 
 				}
 			}
