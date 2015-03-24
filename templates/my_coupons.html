@@ -201,7 +201,11 @@ $(window).load(function() {
 								if(window.console){
 									console.log(resp);
 								}
-								alert("Error " + resp.status);
+								if(resp.status == 403){
+									show_error({{lang['unauthorized_error']|safe}});
+								} else {
+									show_error({{lang['coupon_delete_error']|safe}});
+								}
 							}
 						});
 					});
@@ -212,7 +216,11 @@ $(window).load(function() {
 				if(window.console){
 					console.log(resp);
 				}
-				alert("Error " + resp.status);
+				if(resp.status == 403){
+					show_error({{lang['unauthorized_error']|safe}});
+				} else {
+					show_error({{lang['coupon_list_load_error']|safe}});
+				}
 			}
 		}); 
 	}
@@ -295,7 +303,7 @@ $(window).load(function() {
 				if(window.console){
 					console.log(resp);
 				}
-				alert("Error " + resp.status);
+				show_error({{lang['logout_error']|safe}});
 			}
 		});
 	});

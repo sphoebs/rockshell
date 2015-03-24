@@ -180,7 +180,11 @@
 						if(window.console){
 							console.log(resp);
 						}
-						alert("Error " + resp.status);
+						if(resp.status == 403){
+							show_error({{lang['unauthorized_error']|safe}});
+						} else {
+							show_error({{lang['discount_publish_error']|safe}});
+						}
 					}
 				});
 			});
@@ -218,7 +222,11 @@
 						if(window.console){
 							console.log(resp);
 						}
-						alert("Error " + resp.status);
+						if(resp.status == 403){
+							show_error({{lang['unauthorized_error']|safe}});
+						} else {
+							show_error({{lang['discount_delete_error']|safe}});
+						}
 					}
 				});
 			});
@@ -239,10 +247,12 @@
 					if(window.console){
 						console.log(resp);
 					}
-					if(resp.status == 409){
-						alert('{{ lang['already_have_coupon']}}');
+					if(resp.status == 403){
+						show_error({{lang['unauthorized_error']|safe}});
+					} else if(resp.status == 409){
+						show_error({{lang['already_have_coupon_error']|safe}});
 					} else {
-						alert("Error " + resp.status);
+						show_error({{lang['coupon_get_error']|safe}});
 					}
 				}
 			});
@@ -282,7 +292,11 @@
 						if(window.console){
 							console.log(resp);
 						}
-						alert("Error " + resp.status);
+						if(resp.status == 403){
+							show_error({{lang['unauthorized_error']|safe}});
+						} else {
+							show_error({{lang['coupon_use_error']|safe}});
+						}
 					}
 				});
 			});
@@ -323,7 +337,11 @@
 						if(window.console){
 							console.log(resp);
 						}
-						alert("Error " + resp.status);
+						if(resp.status == 403){
+							show_error({{lang['unauthorized_error']|safe}});
+						} else {
+							show_error({{lang['coupon_delete_error']|safe}});
+						}
 					}
 				});
 			});
@@ -407,7 +425,7 @@
 					if(window.console){
 						console.log(resp);
 					}
-					alert("Error " + resp.status);
+					show_error({{lang['logout_error']|safe}});
 				}
 			});
 		});

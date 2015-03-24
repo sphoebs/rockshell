@@ -129,9 +129,9 @@ textarea {
 }
 
 button.disabled {
-	-webkit-filter: grayscale(100%);
-	-moz-filter: grayscale(100%);
-	filter: grayscale(100%);
+	background-color: #868686;
+	border-right-color: #363636;
+	border-bottom-color: #363636;
 }
 
 .clickable {

@@ -134,6 +134,7 @@
 			
 
 		</div>
+	<div class="popup-area"></div>
 </div>
 
 {% endblock %} {% block scripts %}
@@ -415,7 +416,11 @@
 									if(window.console){
 										console.log(resp);
 									}
-									alert("Error saving owner: " + resp);
+									if(resp.status == 403){
+										show_error({{lang['unauthorized_error']|safe}});
+									} else {
+										show_error({{lang['owner_save_error']|safe}});
+									}
 								}
 							});
 						} else {
@@ -429,7 +434,11 @@
 							if(window.console){
 								console.log(resp);
 							}
-							alert("Error " + resp.status);
+							if(resp.status == 403){
+								show_error({{lang['unauthorized_error']|safe}});
+							} else {
+								show_error({{lang['place_save_error']|safe}});
+							}
 						
 					},
 					headers : {
@@ -507,7 +516,7 @@
 					if(window.console){
 						console.log(resp);
 					}
-					alert("Error " + resp.status);
+					show_error({{lang['logout_error']|safe}});
 				}
 			});
 		});

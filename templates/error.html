@@ -1,10 +1,10 @@
 {% extends "base.html" %} {% block main %}
 
-<h1>Error</h1>
+<h1>{{lang['error']}}</h1>
 
-<h2>{{error_code}}: {{error_string}}</h2>
+<h3>{{error_code}}: {{error_string}}</h3>
 
-<p>We are sorry for the incovenience, we will try to solve the problem as soon as possible.</p>
+<p>{{lang['error_sorry']}}</p>
 
-<button class="img-btn" onclick="window.location = '/'">Go back to home page</button>
+<button class="img-btn red-button" onclick="window.history.back()">{{ lang['back']}}</button>
 {% endblock %}

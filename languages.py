@@ -230,7 +230,100 @@ en = {
     'rest_owner': 'Restaurant owner (email)',
     'manage_admins': 'Manage admins',
     
-    
+    # ERROR
+    'close_button': 'Close',
+    'error': 'Error',
+    'error_sorry': 'We are sorry for the incovenience, we will try to solve the problem as soon as possible.',
+    'logout_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during logout. Retry again later, in any case the session will expire in 30 minutes.',
+                     'close': 'Close',
+    },
+    'unauthorized_error': {
+                           'title': 'Error',
+                           'message': 'You are not authorized to perform this operation. Check that you are logged in and that you have the right permissions.',
+                           'close': 'Close',
+    },
+    'admin_delete_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the delete of an administrator.',
+                     'close': 'Close',
+    },
+    'admin_save_error': {
+                     'title': 'Error',
+                     'message': 'An error happened saving the new administrator. Verify that the email is correct and try again.',
+                     'close': 'Close',
+    },
+    'discount_save_error': {
+                     'title': 'Error',
+                     'message': 'An error happened saving the discount. Verify that the data are correct and try again.',
+                     'close': 'Close',
+    },
+    'discount_publish_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the publication of the discount.',
+                     'close': 'Close',
+    },
+    'discount_delete_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the delete of the discount.',
+                     'close': 'Close',
+    },
+    'discount_list_load_error' : {
+                     'title': 'Error',
+                     'message': 'An error happened during the loading of the discount list.',
+                     'close': 'Close',
+    },
+    'already_have_coupon_error': {
+                     'title': 'Error',
+                     'message': 'You already have a coupon for this discount! You cannot get another one.',
+                     'close': 'Close',
+    },
+    'coupon_get_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the creation of the new coupon.',
+                     'close': 'Close',
+    },
+    'coupon_use_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the usage of the coupon. The coupon has already been used or is not valid.',
+                     'close': 'Close',
+    },
+    'coupon_delete_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the delete of the coupon.',
+                     'close': 'Close',
+    },
+    'coupon_list_load_error' : {
+                     'title': 'Error',
+                     'message': 'An error happened during the loading of the coupon list.',
+                     'close': 'Close',
+    },
+    'recommendations_get_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the loading of the places recommended for you.',
+                     'close': 'Close',
+    },
+    'rating_save_error': {
+                     'title': 'Error',
+                     'message': 'An error happened while saving your rating.',
+                     'close': 'Close',
+    },
+    'place_list_load_error': {
+                     'title': 'Error',
+                     'message': 'An error happened during the loading of the list of restaurants.',
+                     'close': 'Close',
+    },
+    'place_save_error': {
+                     'title': 'Error',
+                     'message': 'An error happened while saving the restaurant.',
+                     'close': 'Close',
+    },
+    'owner_save_error': {
+                     'title': 'Error',
+                     'message': 'An error happened while saving the owner of the restaurant.',
+                     'close': 'Close',
+    },
 }
 
 
@@ -457,6 +550,101 @@ it = {
     'select_city': u'Seleziona una città per cercare i posti che vuoi modificare',
     'rest_owner': 'Proprietario del ristorante (email)',
     'manage_admins': 'Gestisci admins',
+    
+    # ERROR
+    'close_button': 'Chiudi',
+    'error': 'Errore',
+    'error_sorry': 'Ci scusiamo per l\'inconveniente, cercheremo di risolvere il problema il prima possibile.',
+    'logout_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il logout. Riprovare pi&ugrave; tardi. In ogni caso, la sessione scadr&agrave; in 30 minuti.',
+                     'close': 'Chiudi',
+    },
+    'unauthorized_error': {
+                           'title': 'Errore',
+                           'message': 'Non sei autorizzato ad eseguire questa operazione.Controlla di esserti autenticato e di avere i permessi necessari.',
+                           'close': 'Chiudi',
+    },
+    'admin_delete_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante la cancellazione di un amministratore.',
+                     'close': 'Chiudi',
+    },
+    'admin_save_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il salvataggio di un nuovo amministratore. Controlla che l\'email sia corretta e prova nuovamente.',
+                     'close': 'Chiudi',
+    },
+    'discount_save_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il salvataggio dell\'offerta. Controlla che i dati siano corretti e prova nuovamente.',
+                     'close': 'Chiudi',
+    },
+    'discount_publish_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante la pubblicazione dell\'offerta.',
+                     'close': 'Chiudi',
+    },
+    'discount_delete_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante la cancellazione dell\'offerta.',
+                     'close': 'Chiudi',
+    },
+    'discount_list_load_error' : {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il caricamento delle offerte.',
+                     'close': 'Chiudi',
+    },
+    'already_have_coupon_error': {
+                     'title': 'Errore',
+                     'message': 'Hai gi&agrave; un coupon per questa offerta! Non puoi ottenerne un altro.',
+                     'close': 'Chiudi',
+    },
+    'coupon_get_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante la creazione del nuovo coupon.',
+                     'close': 'Chiudi',
+    },
+    'coupon_use_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante l\'utilizzo del coupon. Il coupon &egrave; gi&agrave; stato usato o non &egrave; valido.',
+                     'close': 'Chiudi',
+    },
+    'coupon_delete_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante la cancellazione del coupon.',
+                     'close': 'Chiudi',
+    },
+    'coupon_list_load_error' : {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il caricamento dei coupons.',
+                     'close': 'Chiudi',
+    },
+    'recommendations_get_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il caricamento dei ristoranti che ti raccomandiamo.',
+                     'close': 'Chiudi',
+    },
+    'rating_save_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il salvataggio del tuo voto.',
+                     'close': 'Chiudi',
+    },
+    'place_list_load_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il caricamento della lista di ristoranti.',
+                     'close': 'Chiudi',
+    },
+    'place_save_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il salvataggio del ristorante.',
+                     'close': 'Chiudi',
+    },
+    'owner_save_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il salvataggio del proprietario del ristorante.',
+                     'close': 'Chiudi',
+    },
     
 }
 

@@ -49,6 +49,7 @@
 			</ul>
 			
 		</div>
+		<div class="popup-area"></div>
 </div>
 
 
@@ -126,7 +127,7 @@
 					if(window.console){
 						console.log(resp);
 					}
-					alert("Error " + resp.status);
+					show_error({{lang['logout_error']|safe}});
 				}
 			});
 		});

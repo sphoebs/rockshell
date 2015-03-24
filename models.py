@@ -882,6 +882,9 @@ class PFuser(PFmodel):
                 return user, ['FB_user_exists']
 
             if not user:
+                if 'id' not in user_response:
+                    logging.error('Missing user id!!')
+                    return None, None
                 user_id = "FB_" + user_response['id']
                 key = ndb.Key('PFuser', user_id)
                 user = PFuser(key=key)
