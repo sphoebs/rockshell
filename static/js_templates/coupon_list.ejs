@@ -20,7 +20,8 @@
 						<p> <%= strings.code %>: <%= coupon.code %></p>
 						<p> <%= strings.status %>: <% if(coupon.deleted){ %> <%= strings.deleted %> <%} else if(coupon.used){ %> <%= strings.used %> <% } else { %> <%= strings.not_used %> <% } %> </p>
 						<% if(!coupon.deleted && !coupon.used){ %>
-							<button class="img-btn red-button" id="delete" discount-id="<%= discount.key %>" coupon-code="<%= coupon.code%>"><%= strings.delete %></button>
+							<button class="img-btn red-button use-button" discount-id="<%= discount.key %>" coupon-code="<%= coupon.code%>"><%= strings.use %></button>
+							<button class="img-btn red-button delete-button"  discount-id="<%= discount.key %>" coupon-code="<%= coupon.code%>"><%= strings.delete %></button>
 						<% } %>
 					</div>
 				<% }) %>

@@ -176,6 +176,7 @@ en = {
                          'coupon': 'coupon',
                          'see_coupon': 'See my coupon',
                          'goto_restaurant': 'Go to restaurant',
+                         'use': 'Use',
     },
     'disc_publish_popup': {
                         'title': 'Confirm publication',
@@ -498,6 +499,7 @@ it = {
                          'coupon': 'coupon',
                          'see_coupon': 'Accedi al mio coupon',
                          'goto_restaurant': 'Vai al ristorante',
+                         'use': 'Usa',
     },
     'disc_publish_popup': {
                         'title': 'Conferma pubblicazione',

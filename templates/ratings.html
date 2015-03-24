@@ -83,8 +83,13 @@
 			<div class="navigation-buttons">
 				<button class="prev"></button>
 				<button class="next"></button>
+				{% if profile %}
+				<button class="img-btn continue red-button"
+					onclick="window.location = '/letsgo'">{{ lang['done']}}</button>
+				{% else %}
 				<button class="img-btn continue red-button"
 					onclick="window.history.back()">{{ lang['done']}}</button>
+				{% endif %}
 			</div>
 			
 		</div>

@@ -167,7 +167,12 @@ $(window).load(function() {
 					var key = $(this).attr('rest-id');
 					window.location= '/restaurant?id=' + key;
 				});
-				$('#delete').click(function(){
+				$('.use-button').click(function(){
+					var key = $(this).attr('discount-id');
+					var code = $(this).attr('coupon-code');
+					use_coupon(key, code);
+				});
+				$('.delete-button').click(function(){
 					var key = $(this).attr('discount-id');
 					var code = $(this).attr('coupon-code');
 					var xmlhttp = new XMLHttpRequest();
@@ -226,6 +231,50 @@ $(window).load(function() {
 	}
 	
 	loadDiscounts();
+	
+	function use_coupon(disc_key, code){
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("GET","/static/js_templates/confirm_popup.ejs",false);
+		xmlhttp.send(null);
+		var template = xmlhttp.responseText;
+		var compiled = _.template(template);
+		var html = compiled({
+			strings: {{lang['disc_usecoupon_popup']|safe}},
+		});
+		$('.popup-area').html(html);
+		
+		$('#cancel').click(function(){
+			$('.popup-area').html('');
+		});
+		
+		$('#close-popup').click(function(){
+			$('.popup-area').html('');
+		});
+		
+		$('#ok').click(function(){
+			$('.popup-area').html('');
+			$.ajax({
+				type : 'GET',
+				url : '/api/discount/'+disc_key+'/coupon/use?code=' + code,
+				success : function(coupon) {
+					if(window.console){
+						console.log('Coupon used: ' + JSON.stringify(coupon));
+					}
+					location.reload();
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					if(resp.status == 403){
+						show_error({{lang['unauthorized_error']|safe}});
+					} else {
+						show_error({{lang['coupon_use_error']|safe}});
+					}
+				}
+			});
+		});
+	}
 	
 	$('.coupon-list.scrollable').enscroll({
 	    showOnHover: false,
