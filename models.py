@@ -2174,8 +2174,10 @@ class Cluster(PFmodel):
         for cl in clusters:
             cldict.update(Cluster.to_json(cl))
         # no expire time, we want it in memcache as long as possible
-        client.set(key='clusters', value=cldict)
-        return True
+        res = client.set(key='clusters', value=cldict)
+        logging.info("Clusters loaded in memcache: " + str(res))
+            
+        return res
 
     @staticmethod
     def update_in_memcache(clusters, remove_old=False):
@@ -2262,7 +2264,6 @@ class Cluster(PFmodel):
         """
         clusters = []
         if clusters_dict is None:
-            #TODO: remove from datastore too?
             Cluster.delete_all()
 #             Cluster.update_in_memcache(clusters, remove_old=True)
             return
@@ -2279,6 +2280,7 @@ class Cluster(PFmodel):
         # update memcache
         done = Cluster.update_in_memcache(clusters, remove_old=True)
         if not done:
+            logging.info('Cluster.store_all: not able to store all clusters in memcache!!')
             # TODO: what do we do if the clusters are not updated in memcache?
             pass
 
@@ -2363,9 +2365,11 @@ class Cluster(PFmodel):
         """
         client = memcache.Client()
         clusters = client.get('clusters')
-        if clusters is None:
+        logging.info('Getting clusters from memcache: ' + str(clusters))
+        if clusters is None or clusters == {}:
             Cluster.upload_all_to_memcache()
             clusters = client.get('clusters')
+            logging.info('Getting clusters from memcache 2: ' + str(clusters))
         return clusters
 
     @staticmethod

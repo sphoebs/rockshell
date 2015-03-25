@@ -21,7 +21,7 @@ import math
 import logging
 import json
 
-from google.appengine.api import memcache
+from google.appengine.api import memcache, taskqueue
 
 # incremental clustering is used, so clusters should be always available
 # and recomputed only when needed
@@ -34,7 +34,7 @@ cluster_threshold = 0.2
 
 from math import radians, cos, sin, asin, sqrt
 
-debug = False
+debug = True
 
 def distance(lat1, lon1, lat2, lon2):
     """
@@ -348,10 +348,13 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
         logging.info('recommender.cluster_similarity START - cluster1_id=' + str(cluster1_id) +
                  ', cluster2_id=' + str(cluster2_id))
     client = memcache.Client()
+    matrix_need_gets = True
     if cluster_sim_matrix is None:
         cluster_sim_matrix = client.gets('cluster_sim_matrix')
         if cluster_sim_matrix is None:
             cluster_sim_matrix = {}
+        else:
+            matrix_need_gets = False
 
     if cluster1_id in cluster_sim_matrix and cluster2_id in cluster_sim_matrix[cluster1_id]:
         sim = cluster_sim_matrix[cluster1_id][cluster2_id]
@@ -360,7 +363,7 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
                          'recommender.cluster_similarity END found in matrix:' + str(sim))
         return sim
     else:
-        if cluster_sim_matrix is not None:
+        if matrix_need_gets is not None:
             client.gets('cluster_sim_matrix')
         # cluster1 and cluster2 are the lists of users within those clusters
         cluster1 = clusters[cluster1_id]
@@ -435,7 +438,7 @@ def init_cluster_sim_matrix(ratings, clusters, similarity=comealong_similarity):
     client.set('cluster_sim_matrix', cluster_sim_matrix)
     if debug:
         logging.info(
-                     'recommender.init_cluster_sim_matrix END ')#- cluster_sim_matrix: ' + str(cluster_sim_matrix))
+                     'recommender.init_cluster_sim_matrix END - cluster_sim_matrix: ' + str(cluster_sim_matrix))
     return cluster_sim_matrix
 
 
@@ -613,12 +616,12 @@ def find_clusters(ratings, clusters):
             clusters[
                 'cluster_' + str(Cluster.get_next_id())] = clusters[cluster1] + clusters[cluster2]
             Cluster.increment_next_id()
-            try:
-                Cluster.delete(Cluster.make_key(cluster1))
-                Cluster.delete(Cluster.make_key(cluster2))
-            except TypeError, e:
-                logging.error("Error deleting clusters or making their keys: " + str(e))
-            
+#             try:
+#                 Cluster.delete(Cluster.make_key(cluster1))
+#                 Cluster.delete(Cluster.make_key(cluster2))
+#             except TypeError, e:
+#                 logging.error("Error deleting clusters or making their keys: " + str(e))
+#             
             try:
                 del clusters[cluster1]
             except KeyError:
@@ -680,6 +683,7 @@ def build_clusters(ratings, clusters=None):
         init_cluster_sim_matrix(ratings, clusters)
         # compute required clusters, according to defined threshold
         find_clusters(ratings, clusters)
+    Cluster.delete_all()
     try:
         Cluster.store_all(clusters)
     except (TypeError, ValueError) as e :
@@ -809,23 +813,26 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
     else:
         if debug:
             logging.info("CLUSTER SCORES computed from skratch")
-        clusters = Cluster.get_all_clusters_dict()
-
-        if clusters is None or len(clusters.keys()) < 1:
-            # there are no clusters, try to build them
-            ratings = load_data(None)
-            compute_user_sim_matrix(ratings)
-            clusters = build_clusters(ratings)
-            if clusters is None or len(clusters) < 1:
-                # no clusters can be built, no personalized recommendation can be
-                # computed
-                if debug:
-                    logging.info('recommender.cluster_based END - no clusters')
-                return None
-
-        # clusters have already been computed.
-        if debug:
-            logging.info("clusters: " + str(clusters))
+#         clusters = Cluster.get_all_clusters_dict()
+# 
+#         if clusters is None or len(clusters.keys()) < 1:
+#             if debug:
+#                 logging.info('recommender.cluster_based END - no clusters - recomputing them')
+#                 
+#             # there are no clusters, try to build them
+#             ratings = load_data(None)
+#             compute_user_sim_matrix(ratings)
+#             clusters = build_clusters(ratings)
+#             if clusters is None or len(clusters) < 1:
+#                 # no clusters can be built, no personalized recommendation can be
+#                 # computed
+#                 if debug:
+#                     logging.info('recommender.cluster_based END - no clusters')
+#                 return None
+# 
+#         # clusters have already been computed.
+#         if debug:
+#             logging.info("clusters: " + str(clusters))
         try:
             user_cluster = Cluster.get_cluster_for_user(user)
         except TypeError, e:
@@ -833,6 +840,35 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
         if user_cluster is None or len(user_cluster.keys()) != 1:
             # the user is not in a cluster, no personalized recommendation can be
             # computed for him
+            client = memcache.Client()
+            users = client.gets('updated_users')
+            if users is None:
+                client.add('updated_users', [])
+                users = client.gets('updated_users')
+            
+            if not user in users:
+                users.append(user)
+                i = 0
+                while i < 20:
+                    i += 1
+                    if client.cas('updated_users', users):
+                        break
+
+                do_recompute = client.gets('recompute_clusters')
+                if do_recompute is None:
+                    client.add('recompute_clusters', True)
+                elif do_recompute == False:
+                    i = 0
+                    while i < 20:
+                        i += 1
+                        if client.cas('recompute_clusters', True):
+                            break
+
+                q = taskqueue.Queue('update-clusters-queue')
+                task = taskqueue.Task(
+                    url='/recommender/update_clusters', method='GET', countdown=0)
+                q.add(task)
+            
             if debug:
                 logging.info('recommender.cluster_based END - user not in cluster')
             return None
@@ -1055,7 +1091,7 @@ class UpdatesHandler(webapp2.RequestHandler):
         It gets the list of users with updates from memcache, together with the ratings added in last hour.
         
         """
-        #TODO: make all changes to clusters in memory and store in datastore and memcache only the result!!
+        #TODO: make all changes to clusters in memory and store in datastore and memcache only the result!! 
         logging.info('updateshandler.get START ')
         
         #check headers to let only tasks execute this method
@@ -1088,6 +1124,20 @@ class UpdatesHandler(webapp2.RequestHandler):
         #         build_clusters(ratings)
         #         num_changes = 0
         #     else:
+        clusters = Cluster.get_all_clusters_dict()
+        if clusters is None or len(clusters) < 1:
+            if debug:
+                logging.info(
+                     'updateshandler.get -- No clusters found!!: ' + str(Cluster.get_all_clusters_dict()))
+        
+            compute_user_sim_matrix(ratings)
+            build_clusters(ratings)
+            if debug:
+                logging.info(
+                     'updateshandler.get -- clusters recomputed from skratch and saved back: ' + str(Cluster.get_all_clusters_dict()))
+        
+            return;
+            
         for user in users:
             # remove memchached recommendations
             client = memcache.Client()
@@ -1116,13 +1166,13 @@ class UpdatesHandler(webapp2.RequestHandler):
                 else:
                     # update similarity of this cluster, since now it has one
                     # user less (1 row and 1 column)
-                    clusters = Cluster.get_all_clusters_dict()
                     clusters[clid] = clusers
                     update_cluster_sim_matrix(ratings, clusters, clid)
             
             if cluster is None:
-                clusters = Cluster.get_all_clusters_dict()
                 if clusters is None:
+                    if debug:
+                        logging.info("No clusters found, recomputing them from skratch.")
                     compute_user_sim_matrix(ratings)
                     build_clusters(ratings)
 
@@ -1133,26 +1183,37 @@ class UpdatesHandler(webapp2.RequestHandler):
             # add new cluster for the updated user
             clid = 'cluster_' + str(Cluster.get_next_id())
             Cluster.increment_next_id()
-            new_cluster = {clid: [user]}
-            try:
-                Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
-            except (TypeError, ValueError) as e:
-                logging.info("Error while saving cluster " + str(e))
-            except Exception, e:
-                logging.info("Error ehile converting cluster from json " + str(e))
+            #new_cluster = {clid: [user]}
+            clusters[clid] = [user]
+#             try:
+#                 Cluster.store(Cluster.from_json(new_cluster), Cluster.make_key(clid))
+#             except (TypeError, ValueError) as e:
+#                 logging.info("Error while saving cluster " + str(e))
+#             except Exception, e:
+#                 logging.info("Error while converting cluster from json " + str(e))
             
 
         # run other steps of hierarchical clustering
-        clusters = Cluster.get_all_clusters_dict()
         if debug:
             logging.info(
                      'updateshandler.get -- user have been moved, iteration still to do: ' + str(clusters))
         clusters = find_clusters(ratings, clusters)
         Cluster.delete_all()
+        
+        if debug:
+            logging.info(
+                     'updateshandler.get -- clusters removed, to be replaced by new ones: ' + str(Cluster.get_all_clusters_dict()))
+        
         try:
             Cluster.store_all(clusters)
         except (TypeError, ValueError) as e:
                 logging.info("Error while saving clusters " + str(e))
+                
+                
+        if debug:
+            logging.info(
+                     'updateshandler.get -- clusters saved back: ' + str(Cluster.get_all_clusters_dict()))
+        
         # TODO: update only new/updated clusters?
         init_cluster_sim_matrix(ratings, clusters)
 
@@ -1160,8 +1221,6 @@ class UpdatesHandler(webapp2.RequestHandler):
 #         for cid in clusters:
 #             for user in clusters[cid]:
 #                 user2cluster_map[user] = cid
-
-        
 
         logging.info(
                      'updateshandler.get END - clusters: ' + str(clusters))
@@ -1178,7 +1237,7 @@ class RecomputeClustersHandler(webapp2.RequestHandler):
             self.response.set_status(403)
             self.response.write("You cannot access this method!!!")
             return
-        
+         
         client = memcache.Client()
         do_recompute = client.gets('recompute_clusters')
         if do_recompute == True:

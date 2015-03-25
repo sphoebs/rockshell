@@ -961,6 +961,8 @@ li.rest-item {
 	background-color: #fff;
 	width: 285px;
 	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
