@@ -90,14 +90,14 @@ class BaseRequestHandler(webapp2.RequestHandler):
     def render(self, template_name, template_vars={}):
         values = {}
         values.update(template_vars)
-#         try:
-        template = JINJA_ENVIRONMENT.get_template(template_name)
-        self.write(template.render(**values))
-#         except Exception, e:
-#             logging.error(
-#                 "Rendering Exception for " + template_name + " -- " + str(e))
-#             self.abort(500)
-#             self.redirect('/error')
+        try:
+            template = JINJA_ENVIRONMENT.get_template(template_name)
+            self.write(template.render(**values))
+        except Exception, e:
+            logging.error(
+                "Rendering Exception for " + template_name + " -- " + str(e))
+            self.abort(500)
+            self.redirect('/error')
 
     def dispatch(self):
         self.pars = {}

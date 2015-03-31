@@ -59,13 +59,8 @@
 						<textarea id="rest_description_it" name="rest_description_it">{{place.description_it if not place.description_it is none}}</textarea>
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['rest_picture']}}: </label>
-					<div class="form-input">
-						<input type="text" id="rest_picture" name="rest_picture" value="{{place.picture if not place.picture is none}}">
-						<p class="form-explanation">{{ lang['picture_help']}}</p>
-					</div>
-				</div>
+				
+				
 				<div>
 					<label class="form-label">{{ lang['rest_address']}}: </label>
 					<div class="form-input">
@@ -99,6 +94,29 @@
 						<input type="text" id="rest_email" name="rest_email" value="{{place.email if not place.email is none}}">
 					</div>
 				</div>
+				
+				<div>
+					<label class="form-label">{{ lang['rest_main_picture']}}: </label>
+					<div class="form-input">
+						<input type="text" id="rest_picture" name="rest_picture" value="{{place.picture if not place.picture is none}}">
+						<p class="form-explanation">{{ lang['picture_help']}}</p>
+					</div>
+				</div>
+				
+				<div>
+					<label class="form-label">{{ lang['rest_other_pictures']}}: </label>
+					<div class="form-input">
+						<input type="text" id="new_picture" name="new_picture" placeholder="{{lang['add_picture']}}"><button class="img-btn add-small"></button>
+					</div>
+					<div id="other-pictures">
+						{% for pic in place.other_pictures %}
+						<div class="form-input other-pic-item">
+							<img class="other-picture preview" src="{{pic}}"/><button class="img-btn delete-small pic"></button>
+						</div>
+						{% endfor %}
+					</div>
+					
+				</div>
 
 				<div>
 					<label class="form-label">{{ lang['rest_opening_hours']}}: </label>
@@ -111,7 +129,7 @@
 						<input type="text" class="days-input" id="datepicker" placeholder="{{ lang['add-day'] }}">
 						{% for day in place.days_closed %}
 						<div class="days-item">
-							<p>{{day}}</p><button class="img-btn delete-small"></button>
+							<p>{{day}}</p><button class="img-btn delete-small day"></button>
 						</div>
 						{% endfor %}
 						
@@ -148,6 +166,28 @@
 		
 		var closed = {{closed|safe}};
 		
+		$('.add-small').click(function(){
+			
+			var html = '<div class="other-pic-item">'+
+				'<img class="other-picture preview" src="PIC"/><button class="img-btn delete-small pic"></button>'+
+				'</div>';
+			
+			var picture = $('#new_picture').val();
+			var html = html.replace('PIC', picture);
+			$('#other-pictures').append(html);
+			$('#new_picture').val('');
+			
+			$('.delete-small.pic').click(function(){
+				console.log('delete pic');
+				$(this).parent().remove();
+			});
+		});
+		
+		$('.delete-small.pic').click(function(){
+			console.log('delete pic');
+			$(this).parent().remove();
+		});
+		
 		
 		$( "#datepicker" ).datepicker({ minDate: -1, dateFormat: 'dd-mm-yy',
 		    onClose: function () {
@@ -157,7 +197,7 @@
 		        }
 		        closed.push(day);
 		        $(this).val('');
-		        var html = '<div class="days-item"><p>'+day+'</p><button class="img-btn delete-small"></button></div>';
+		        var html = '<div class="days-item"><p>'+day+'</p><button class="img-btn delete-small day"></button></div>';
 		        $('.closed').append(html);
 		        if(window.console){
 		        	console.log('Closed: ' + JSON.stringify(closed));
@@ -169,7 +209,7 @@
 		    }
 		});
 		
-		$('.delete-small').click(function(){
+		$('.delete-small.day').click(function(){
 			removeDay(this);
 		});
 		
@@ -264,6 +304,8 @@
 		}
 		
 		
+		
+		
 		function addressAutocomplete(){
 		
 			var input2 = document.getElementById('rest-address');
@@ -328,6 +370,12 @@
 				var description_it = $('#rest_description_it').val();
 				var picture = $('#rest_picture').val();
 				
+				var other_pictures = [];
+				$('#other-pictures').find('img').each(function(){
+					var url = $(this).attr('src');
+					other_pictures.push(url);
+				});
+				
 				var street = $('#route').val() + " " + $('#street_number').val();
 				street = street != " " ? street : undefined;
 				var city = $('#locality').val();
@@ -373,6 +421,7 @@
 					'description_en': description_en,
 					'description_it': description_it,
 					'picture': picture,
+					'other_pictures': other_pictures,					
 					'address' : {
 						'street' : street,
 						'city' : city,

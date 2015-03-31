@@ -32,7 +32,7 @@
 				<% } else { %>
 					<% if(discount.coupons != undefined && discount.coupons.length > 0){ %>
 						<button class="img-btn red-button see" discount-id="<%= discount.key %>"><%= strings.see_coupon %></button>
-					<% } else { %>
+					<% } else if(available){ %>
 						<button class="img-btn red-button buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
 					<% } %>
 				<% } %>

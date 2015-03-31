@@ -580,6 +580,8 @@ li.rest-item {
 
 .rest-item .rating-btn.noidea {
 	background-image: url(../images/ratings/noidea.png);
+	width: 39px;
+	height: 39px;
 }
 
 .rest-item .rating-btn.noidea.selected {
@@ -1387,10 +1389,54 @@ p.time-label {
 	vertical-align: text-top;
 }
 
+.delete-small.pic{
+	width: 24px;
+	height: 24px;
+}
+
+.add-small {
+	width: 24px;
+	height: 24px;
+	margin-left: 10px;
+	border: none;
+	background-color: transparent;
+	background-image: url(../images/add.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	vertical-align: middle;
+}
+
 input.days-input {
 	display: inline-block;
 	width: 150px;
 }
+
+#other-pictures {
+	/* set only for larger screens*/	
+}
+
+.other-pic-item {
+	display: inline-block;
+	margin: 10px;
+}
+
+.other-pic-item .other-picture.preview{
+	width: 150px;
+	height: 100px;
+}
+
+.other-pic-item .delete-small{
+	vertical-align: top;
+	margin-top: 10px;
+	margin-left: -34px;
+}
+
+
+
 
 .admin-rest-item.no-border{
 	border: none;	
@@ -1661,6 +1707,12 @@ ul.coupon-list .disc-item {
 		margin-top: 15px;
 		font-size: 12pt;
 	}
+	
+	#other-pictures {
+		width: 60%;
+		margin-left: 25%;
+		padding-left: 20px;	
+	}
 
 	/* profile end */
 
@@ -1922,6 +1974,12 @@ ul.coupon-list .disc-item {
 		vertical-align: top;
 		margin-top: 15px;
 		font-size: 13pt;
+	}
+	
+	#other-pictures {
+		width: 60%;
+		margin-left: 25%;
+		padding-left: 20px;	
 	}
 
 	/* profile end */

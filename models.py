@@ -284,13 +284,7 @@ class Address(PFmodel):
 
         res = Address()
 
-#         try:
-        # populate raises exceptions if the keys and values in json_dict
-        # are not valid for this object.
         res.populate(**json_dict)
-#         except Exception as e:
-#             logging.error("Error while creating Address from json: " + str(e))
-#             return None
 
         return res
 
@@ -495,13 +489,7 @@ class Hours(PFmodel):
             except ValueError:
                 del json_dict['close2']
 
-#         try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
         res.populate(**json_dict)
-#         except Exception as e:
-#             logging.info("Error while creating Hours from json: " + str(e))
-#             return None
 
         return res
 
@@ -687,13 +675,7 @@ class Settings(PFmodel):
 
         res = Settings()
 
-#         try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
         res.populate(**json_dict)
-#         except Exception as e:
-#             logging.info("Error while creating Settings from json: " + str(e))
-#             return None
 
         return res
 
@@ -1018,13 +1000,7 @@ class PFuser(PFmodel):
         if 'settings' in json_dict.keys():
             json_dict['settings'] = Settings.from_json(json_dict['settings'])
 
-#         try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
         res.populate(**json_dict)
-#         except Exception as e:
-#             logging.info("Error while creating PFuser from json: " + str(e))
-#             return None
 
         return res
 
@@ -1265,6 +1241,7 @@ class Place(PFmodel):
     description_en = ndb.TextProperty(indexed=False)
     description_it = ndb.TextProperty(indexed=False)
     picture = ndb.TextProperty(indexed=False)
+    other_pictures = ndb.TextProperty(indexed=False, repeated=True)
     phone = ndb.TextProperty(indexed=False)
     price_avg = ndb.FloatProperty()
     website = ndb.StringProperty(indexed=False)
@@ -1367,13 +1344,7 @@ class Place(PFmodel):
                     del day
             json_dict['days_closed'] = dlist
 
-#         try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
         res.populate(**json_dict)
-#         except Exception as e:
-#             logging.info("Error while creating Place from json: " + str(e))
-#             return None
 
         return res
 
@@ -1590,6 +1561,7 @@ class Place(PFmodel):
             places = []
             index = search.Index(name='places')
             logging.info("INDEX: " + str(len(index.search("").results)))
+            #if the index is empty, load places into index!
             if len(index.search("").results)<1:
                 logging.info("INDEX SEARCH IS EMPTY!!")
                 tmp_places = Place.query()
@@ -1604,13 +1576,12 @@ class Place(PFmodel):
             
 #             logging.info("Place.get_list -- found places " + str(len(places)))
             num = 0
+            #start from ditance = max_dist
+            dist = max_dist
             # request places until one is obtained, increasing the distance.
             while len(places) < 1 and num < 5:
-                # no places within that area, try to get something by extending
-                # area of max_dist for maximum 5 times.
-                max_dist += max_dist
                 query = "distance(location, geopoint(%s, %s)) < %s" % (
-                    filters['lat'], filters['lon'], max_dist)
+                    filters['lat'], filters['lon'], dist)
                 logging.info(
                     "Place.get_list -- getting places with query " + str(query))
                 result = index.search(query)
@@ -1619,11 +1590,13 @@ class Place(PFmodel):
                 logging.info(
                     "Place.get_list -- found places " + str(len(places)))
                 num += 1
+                #double the distance for next iteration
+                dist += dist
 
             if places is None or len(places) < 1:
                 # even extending the area did not work
                 return None
-
+            
             dblist = Place.query(Place.key.IN(places))
 
         else:
@@ -1856,7 +1829,7 @@ class Rating(PFmodel):
             json_dict['place'] = Place.make_key(None, json_dict['place'])
         if 'value' in json_dict.keys():
             if isinstance(json_dict['value'], (str, unicode)):
-                json_dict['value'] = long(json_dict['value'])
+                json_dict['value'] = float(json_dict['value'])
         if 'creation_time' in json_dict.keys():
             try:
                 json_dict['creation_time'] = datetime.strptime(
@@ -1864,13 +1837,13 @@ class Rating(PFmodel):
             except ValueError:
                 del json_dict['creation_time']
 
-#         try:
+        try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
-        res.populate(**json_dict)
-#         except Exception as e:
-#             logging.info("Error while creating Rating from json: " + str(e))
-#             return None
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Rating from json: " + str(e))
+            return None
 
         return res
 
@@ -2564,13 +2537,13 @@ class Coupon(PFmodel):
 
         res = Coupon()
 
-#         try:
+        try:
             # populate raises exceptions if the keys and values in json_dict
             # are not valid for this object.
-        res.populate(**json_dict)
-#         except Exception as e:
-#             logging.info("Error while creating Coupon from json: " + str(e))
-#             return None
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Coupon from json: " + str(e))
+            return None
 
         return res
 
@@ -2807,13 +2780,9 @@ class Discount(PFmodel):
 
         res = Discount()
 
-#         try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
+        # populate raises exceptions if the keys and values in json_dict
+        # are not valid for this object.
         res.populate(**json_dict)
-#         except Exception as e:
-#             logging.info("Error while creating Coupon from json: " + str(e))
-#             return None
 
         return res
 

@@ -951,6 +951,11 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     
     # places is already a json list
     #TODO: get places for a larger area and filter after, to avoid making multiple queries (check inside the method)
+    user_max_dist = None
+    if filters is not None and 'max_dist' in filters and filters['max_dist'] is not None and filters['max_dist'] > 0:
+        user_max_dist = filters['max_dist']
+        #get places for a larger area
+        filters['max_dist'] = 2 * user_max_dist
     places, status, errcode = logic.place_list_get(filters, user_id)
     if debug:
         logging.info("RECOMMEND places loaded ")
@@ -961,6 +966,25 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
             logging.info("recommender.recommend END - no places")
         logging.error(str(errcode) + ": " + status)
         return None
+    
+    closest = []
+    out_distance = []
+    for p in places:
+        if 'lat' in filters and 'lon' in filters and filters['lat'] is not None and filters['lon'] is not None:
+            # add distance to user for each place
+            p['distance'] = distance(
+                    p['address']['lat'], p['address']['lon'], filters['lat'], filters['lon'])
+        if p['distance'] is not None and user_max_dist is not None and p['distance'] <= user_max_dist:
+            closest.append(p)
+        else:
+            out_distance.append(p)
+    if len(closest) >= n:
+        places = closest
+    elif len(closest) == 0:
+        places = out_distance
+    else:
+        #TODO: fill missing spaces with outliers?
+        places = closest
 
     scores = cluster_based(user_id, places, purpose, n, loc_filters=filters)
 
@@ -1055,6 +1079,20 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
 #     logging.info('recommender.recommend - places_scores: ' + str(places_scores))
     items = []
     for (score, place) in places_scores:
+        
+        #TODO: make discount loading asynchronous in javascript page, after visualization of places!!!
+        
+        disc_filters = {'place': place['key'], 'published': 'True', 'passed': 'False'}
+        discounts, status, errcode = logic.discount_list_get(disc_filters, user_id)
+        logging.info("discounts loaded: " + str(errcode) + " - " + status)
+        if discounts is not None and status == "OK":
+            try:
+                json_discounts = [Discount.to_json(d, None, None) for d in discounts]
+                place['discounts'] = json_discounts
+            except (TypeError, ValueError) as e:
+                #do nothing
+                logging.error('Discounts not loaded: ' + str(e))
+                pass
         place['predicted'] = score
         items.append(place)
 
@@ -1299,24 +1337,6 @@ class RecommenderHandler(webapp2.RequestHandler):
             return
 
         json_list = places
-        
-        for item in json_list:
-            if 'lat' in filters and 'lon' in filters and filters['lat'] is not None and filters['lon'] is not None:
-                # add distance to user for each place
-                item['distance'] = distance(
-                    item['address']['lat'], item['address']['lon'], filters['lat'], filters['lon'])
-            disc_filters = {'place': item['key'], 'published': 'True', 'passed': 'False'}
-            discounts, status, errcode = logic.discount_list_get(disc_filters, user_id)
-            logging.info("discounts loaded: " + str(errcode) + " - " + status)
-            if discounts is not None and status == "OK":
-                try:
-                    json_discounts = [Discount.to_json(d, None, None) for d in discounts]
-                    item['discounts'] = json_discounts
-                except (TypeError, ValueError) as e:
-                    #do nothing
-                    logging.error('Discounts not loaded: ' + str(e))
-                    pass
-
 #         logging.info(str(json_list))
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(json_list))
