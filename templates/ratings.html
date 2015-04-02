@@ -177,19 +177,38 @@
 					$('#'+addressType).val(val);
 				}
 			}
-			if(window.console){
-				console.log('place: ' + JSON.stringify(place.geometry.viewport));
-			}
+			
 			if(place.geometry.location){
 				/* alert(JSON.stringify(place.geometry.location)); */
 				document.getElementById('city-lat').value = place.geometry.location.k;
 				document.getElementById('city-lon').value = place.geometry.location.D;
 			}
-			
+			if(window.console){
+				console.log('place: ' + JSON.stringify(place.geometry.viewport));
+			}
 			if(place.geometry.viewport){
 				var bounds = place.geometry.viewport;
-				var southWest = new google.maps.LatLng( bounds.Da.k, bounds.va.j );
-				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.va.k );
+				var lat = {};
+				var lon = {};
+				for(var key in bounds){
+					if(key.length == 2){	
+						if(key.charAt(0) == key.charAt(0).toUpperCase()){
+							lat = bounds[key];				
+						} else {
+							lon = bounds[key];
+						}
+					}
+					
+				}
+				if(window.console){
+					console.log('lat: ' + JSON.stringify(lat));
+					console.log('lon: ' + JSON.stringify(lon));
+				}
+				
+				var southWest = new google.maps.LatLng( lat.k, lon.j );
+				var northEast = new google.maps.LatLng( lat.j, lon.k );
+				/* var southWest = new google.maps.LatLng( bounds.Da.k, bounds.va.j );
+				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.va.k ); */
 				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
 				
 			}

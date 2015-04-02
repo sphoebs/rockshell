@@ -9,6 +9,8 @@
 			<div class="text-bold name"><% if(p.name != undefined){ %> <%=p.name %> <% } %></div>
 			<div class="address"><% if(p.address != undefined){ %> <%=p.address.street %>, <%=p.address.city %> <% } %></div>
 			<div class="address distance"><% if(distance != undefined){ %> <%= distance_str %>: <%=distance%> <% } %></div>
+			<div class="address opening"><%= open_str %></div>
+			<div class="address prediction"><%= p.predicted %></div>
 		</div>
 		
 		<% if(p.discounts != undefined){ %>

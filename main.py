@@ -315,7 +315,8 @@ class LetsgoHandler(BaseRequestHandler):
         except TypeError:
             json_user = '{}'
             # TODO: handle error
-        self.render('letsgo.html', {'list': places, 'user_role': user.role, 'user': json_user, 'lang' : LANG, 'lang_name' : LANG_NAME })
+        today = datetime.now().strftime(LANG['python_date'])
+        self.render('letsgo.html', {'list': places, 'user_role': user.role, 'user': json_user, 'lang' : LANG, 'lang_name' : LANG_NAME, 'today' : today })
 
 
 class SettingsHandler(BaseRequestHandler):
@@ -391,8 +392,7 @@ class RestaurantPageHandler(BaseRequestHandler):
                     if 'description_' + LANG_NAME in place:
                         place['description'] = place['description_' + LANG_NAME]
                     place['days_closed'] = [datetime.date(datetime.strptime(day, '%d-%m-%Y')).strftime(LANG['python_date']) for day in place['days_closed']]
-                            
-                    self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
+                    self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME});
                     return
                 except TypeError, e:
                     self.render("error.html", {'error_code': 500, 'error_string': str(e)})
@@ -528,7 +528,8 @@ class DiscountEditHandler(BaseRequestHandler):
         try:
             discount = Discount.to_json(discount, None, None)
             is_new = False
-            if self.request.GET.get('new') == True:
+            logging.info("EDIT OR NEW? " + str(self.request.GET.get('new')) + " == true? -- " + str(self.request.GET.get('new') == 'true'))
+            if self.request.GET.get('new') == 'true':
                 is_new = True
             self.render('discount_edit.html', {'is_new': is_new, 'discount': discount, 'user': user, 'lang' : LANG });
         except TypeError, e:

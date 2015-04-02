@@ -231,6 +231,9 @@ $(window).load(function() {
 			type : 'GET',
 			url : url,
 			success : function(data) {
+				/* if(window.console){
+					console.log(JSON.stringify(data));
+				} */
 				$('.loading').hide();
 				places = data;
 				
@@ -281,6 +284,143 @@ $(window).load(function() {
 				}
 			}
 			
+			var open_str = undefined;
+			var today = new Date();
+			if(p.days_closed != undefined && p.days_closed.length > 0){
+				var today_str = "{{today}}";
+				console.log('Today: ' + today_str);
+				for(var i=0; i< p.days_closed.length; i++){
+					var day = p.days_closed[i];
+					if(day == today_str){
+						open_str = "{{lang['today_closed']}}";
+						break;
+					}
+				}
+			}
+			
+			if(open_str == undefined && p.hours){
+				
+				var weekday = today.getDay();
+				var next_day = (weekday+1)%7;
+				if(weekday == 0){
+					weekday = 7;
+				}
+				if(next_day == 0){
+					next_day = 7;
+				}
+				var today_opening = undefined;
+				var today_open = false;
+				var tomorrow_open = false;
+				var tomorrow_opening = undefined;
+				for(h in p.hours){
+					h = p.hours[h];
+					if(h.weekday == weekday){
+						if(h.open1 == undefined && h.open2 == undefined){
+							today_opening = "{{lang['today_closed']}}";
+							today_open = false;
+						} else {
+							if(h.open1 == undefined){
+								h.open1 = h.open2;
+							}
+							if(h.open1 != undefined){
+								open_hour = parseInt(h.open1.substring(0,2));
+								open_minutes = parseInt(h.open1.substring(3,5));
+								var open = new Date();
+								open.setHours(open_hour);
+								open.setMinutes(open_minutes);
+								if(today < open){
+									today_opening = "{{lang['opens_at']}}" + h.open1;
+									today_open = true;
+								} else {
+									if(h.close1 == undefined){
+										h.close1 = h.close2;
+									}
+									if(h.close1 == undefined){
+										alert("ERROR");
+										return;
+									} else {
+										close_hour = parseInt(h.close1.substring(0,2));
+										close_minutes = parseInt(h.close1.substring(3,5));
+										var close = new Date();
+										close.setHours(close_hour);
+										close.setMinutes(close_minutes);
+										if(today < close){
+											today_opening = "{{lang['open_till']}}" + h.close1;
+											today_open = true;
+ 										} else {
+ 											if(h.close1 == h.close2 ||h.open1 == h.open2 || h.open2 == undefined){
+ 												today_opening = "{{lang['today_closed']}}";
+ 												today_open = false;
+ 											} else {
+ 												if(h.open2 != undefined){
+ 													open_hour = parseInt(h.open2.substring(0,2));
+ 													open_minutes = parseInt(h.open2.substring(3,5));
+ 													var open = new Date();
+ 													open.setHours(open_hour);
+ 													open.setMinutes(open_minutes);
+ 													if(today < open){
+ 														today_opening = "{{lang['opens_at']}}" + h.open2;
+ 														today_open = true;
+ 													} else {
+ 														if(h.close2 == undefined){
+ 															alert("ERROR");
+ 															return;
+ 														} else {
+ 															close_hour = parseInt(h.close2.substring(0,2));
+ 															close_minutes = parseInt(h.close2.substring(3,5));
+ 															var close = new Date();
+ 															close.setHours(close_hour);
+ 															close.setMinutes(close_minutes);
+ 															if(today < close){
+ 																today_opening = "{{lang['open_till']}}" + h.close2;
+ 																today_open = true;
+ 					 										} else {
+ 					 											today_opening = "{{lang['today_closed']}}";
+ 					 											today_open = false;
+ 					 										}
+ 														}
+ 													}
+ 												}
+ 											}
+ 											
+ 										}
+									}
+									
+								}
+							}
+						}
+					} else if(h.weekday == next_day){
+						if(h.open1 == undefined && h.open2 == undefined){
+							tomorrow_opening = "{{lang['tomorrow_closed']}}";
+							tomorrow_open = false;
+						} else {
+							if(h.open1 != undefined){
+								tomorrow_opening = "{{lang['tomorrow_open_at']}}" + h.open1;
+								tomorrow_open = true;
+							} else {
+								if(h.open2 != undefined){
+									tomorrow_opening = "{{lang['tomorrow_open_at']}}" + h.open2;
+									tomorrow_open = true;
+								}
+							}
+						}
+					}
+				}
+				if(!today_open){
+					if(!tomorrow_open){
+						open_str = "{{lang['today_tomorrow_closed']}}";
+					} else {
+						open_str = "{{lang['today_closed_tomorrow']}}" + tomorrow_opening;
+					}
+				} else {
+					open_str = today_opening;
+				}
+				
+			}
+			if(p.predicted){
+				p.predicted = "{{lang['prediction']}}: " + p.predicted;
+			}
+			
 			if(p.discounts && p.discounts.length > 0){
 				discount = p.discounts[0];
 			}
@@ -290,6 +430,7 @@ $(window).load(function() {
 				disc: discount,
 				distance: distance,
 				distance_str : "{{lang['distance']}}",
+				open_str : open_str,
 				lang_name : "{{lang_name}}",
 				coupons_available_till: "{{lang['discount_strings']['coupons_available_till']}}"
 			});

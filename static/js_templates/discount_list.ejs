@@ -21,11 +21,11 @@
 				<% if(owner){ %>
 					<% if(actions){ %>
 						<% if(available){ %>
-							<button class="img-btn red-button" id="edit" discount-id="<%= discount.key %>"><%= strings.edit %></button>
-							<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %>" id="publish" discount-id="<%= discount.key %>"><%= strings.publish %></button>
-							<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %>" id="delete" discount-id="<%= discount.key %>"><%= strings.delete %></button>
+							<button class="img-btn red-button edit" discount-id="<%= discount.key %>"><%= strings.edit %></button>
+							<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %> publish" discount-id="<%= discount.key %>"><%= strings.publish %></button>
+							<button class="img-btn red-button <% if(discount.published){ %> disabled <% } %> delete" discount-id="<%= discount.key %>"><%= strings.delete %></button>
 						<% } else { %>
-							<button class="img-btn red-button" id="new-similar" discount-id="<%= discount.key %>"><%= strings.new_similar %></button>
+							<button class="img-btn red-button new-similar" discount-id="<%= discount.key %>"><%= strings.new_similar %></button>
 						<% } %>
 						
 					<% } %>

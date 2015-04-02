@@ -93,6 +93,15 @@ en = {
         'save_reload': 'Save &amp; reload'
     },
       
+    'today_closed': 'Closed today',
+    'today_closed_tomorrow': 'Closed today, ',
+    'opens_at': 'It opens at ',
+    'open_till': 'It is open till ',
+    'tomorrow_closed': 'Closed tomorrow',
+    'tomorrow_open_at': 'It opens tomorrow at',
+    'today_tomorrow_closed': 'Closed today and tomorrow',
+    'prediction': 'Prediction',
+      
     # RATINGS
     'new_rest_rating_popup' : {
         'title': 'Add new place and rate it',
@@ -417,6 +426,15 @@ it = {
         'num_places': 'Numero di ristoranti raccomandati',
         'save_reload': 'Salva &amp; aggiorna'
     },
+      
+    'today_closed': 'Oggi chiuso',
+    'today_closed_tomorrow': 'Oggi chiuso, ',
+    'opens_at': 'Apre alle ',
+    'open_till': 'E\' aperto fino alle ',
+    'tomorrow_closed': 'Domani chiuso',
+    'tomorrow_open_at': 'Apre domani alle ',
+    'today_tomorrow_closed': 'Chuso oggi e domani',
+    'prediction': 'Previsione',
       
     # RATINGS
     'new_rest_rating_popup' : {

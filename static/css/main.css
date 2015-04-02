@@ -1557,7 +1557,7 @@ input.days-input {
 
 
 .clear-float{
-	clear: both
+	clear: both;
 }
 
 button.new-discount{

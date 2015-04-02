@@ -291,19 +291,19 @@
 					}
 					
 					//add handlers for actions
-					$('#edit').click(function(){
+					$('.edit').click(function(){
 						var disc_id = $(this).attr('discount-id');
 						window.location = '/discount/edit?id=' + disc_id;
 					});
 					
-					$('#publish').click(function(){
+					$('.publish').click(function(){
 						if(! $(this).hasClass('disabled')){
 							var disc_id = $(this).attr('discount-id');
 							disc_publish(disc_id);
 						}
 					});
 					
-					$('#delete').click(function(){
+					$('.delete').click(function(){
 						if(! $(this).hasClass('disabled')){
 							var disc_id = $(this).attr('discount-id');
 							disc_delete(disc_id, $(this).parent().parent());
@@ -311,7 +311,7 @@
 					});
 					
 					
-					$('#new-similar').click(function(){
+					$('.new-similar').click(function(){
 						var disc_id = $(this).attr('discount-id');
 						window.location = '/discount/edit?id=' + disc_id +'&new=true';
 					});

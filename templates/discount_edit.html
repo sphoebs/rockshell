@@ -37,7 +37,7 @@
 
 		<div class="discount-container">
 		
-			<h2 class="center-text">{{ lang['discount_edit'] if is_new != 'True' else lang['discount_new'] }}</h2>
+			<h2 class="center-text">{{ lang['discount_edit'] if is_new != True else lang['discount_new'] }}</h2>
 
 			
 				<div>
@@ -132,11 +132,12 @@
 				var key = '{{discount.key if not discount.key is none}}';
 				var url = '/api/discount';
 				var method = 'POST';
-				if (key != undefined && key.length > 0 ){
+				{% if not is_new %}
+				if (key != undefined && key.length > 0){
 					url += '/' + key;
 					method = 'PUT';
 				}
-				
+				{% endif %}
 				$.ajax({
 					type : method,
 					url : url,
