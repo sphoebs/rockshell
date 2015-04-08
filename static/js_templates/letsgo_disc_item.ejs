@@ -1,0 +1,13 @@
+
+		
+<% if(discounts != undefined){ %>
+	<ul class="discounts">
+		<% _.each(discounts, function(disc, i){ %>
+			<li class="discount disc-clickable <% if(i == discounts.length-1){%> no-border <% } %>" disc-key="<%= disc.key%>" >
+				<p class="title text-bold"><% if(disc['title_' +lang_name] != undefined){ %> <%=disc['title_' +lang_name]%> <% } %></p>
+				<p class="more"><%= disc.available_coupons %> <%= coupons_available_till %> <span class="countdown" end-time="<%= disc['end_time'] %>"></span></p>
+			</li> 
+		<% });%>
+		
+	</ul>
+<% } %>

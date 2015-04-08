@@ -1517,7 +1517,9 @@ class Place(PFmodel):
                 'Filters MUST be stored in a dictionary!! The received filters are wrong!!')
             raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
 
-        if filters is not None and 'lat' in filters and 'lon' in filters and 'max_dist' in filters:
+        if filters is not None and 'lat' in filters and 'lon' in filters and \
+                'max_dist' in filters and filters['lat'] is not None and filters['lon'] is not None \
+                and filters['max_dist'] is not None:
             # the three parameters must come all together
             if isinstance(filters['lat'], float):
                 #correct
@@ -1602,7 +1604,7 @@ class Place(PFmodel):
         else:
             dblist = Place.query()
 
-        if filters is not None and 'city' in filters:
+        if filters is not None and 'city' in filters and filters['city'] is not None:
             if not isinstance(filters['city'], (str, unicode)):
                 raise TypeError('filters->city must be a string, it is ' + str(type(filters['city'])))
             pieces = filters['city'].split("!")

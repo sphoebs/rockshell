@@ -3,6 +3,7 @@ body {
 	font-family: "Lato";
 	color: #DC3D3D;
 	margin: 0;
+	padding: 0;
 	overflow: auto;
 	min-height: 100%;
 	background-color: #F7F8CD;
@@ -862,7 +863,7 @@ li.rest-item {
 	height: 50px;
 	background-color: #DC3D3D;
 	border-bottom: solid 2px #881e1e;
-	z-index: 1;
+	z-index: 50;
 }
 
 .rest-logo {
@@ -1158,6 +1159,234 @@ li.rest-item {
 
 
 /* LETS GO END */
+
+/* NEW LETS GO */
+
+.letsgo-container{
+	padding: 52px 0px 0px 0px;
+}
+
+.purpose-list{
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
+.purpose-btn {
+	display: inline-block;
+	width: 25%;
+	height: 80px;
+	box-sizing: border-box;
+	ms-box-sizing: border-box;
+	webkit-box-sizing: border-box;
+	moz-box-sizing: border-box;
+	background-color: #fafafa;
+	color: #DC3D3D;
+	border: solid 1px #aaa;
+	text-align: center;
+	margin: 0px;
+	padding: 5px;
+}
+
+.purpose-btn.disabled{
+	background-color: #ccc;
+	-webkit-filter: grayscale(90%);
+	-moz-filter: grayscale(90%);
+	filter: grayscale(90%);
+}
+
+.purpose-btn .btn-icon {
+	margin: 3px;
+	
+	display:block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 32px;
+	height: 32px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+.purpose-btn.tourists .btn-icon{
+	background-image: url(../images/ratings/guest_selected.png);
+}
+
+.purpose-btn.partner .btn-icon{
+	background-image: url(../images/ratings/romantic_selected.png);
+}
+
+.purpose-btn.friends .btn-icon{
+	background-image: url(../images/ratings/friends_selected.png);
+}
+
+.purpose-btn.lunch .btn-icon{
+	background-image: url(../images/ratings/lunch_selected.png);
+}
+
+.letsgo-picture-container{
+	position: relative;
+	height: 200px;
+	margin: 0;
+	padding: 0;
+}
+
+.letsgo-picture {
+	
+	height: 200px;
+	background-color: transparent;
+	background-image: url(../images/empty_small.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	margin-left: 40px;
+	margin-right: 40px;
+}
+
+
+
+.letsgo-picture-container .left-arrow{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	z-index: 2;
+	vertical-align: center;
+	top: 85px;
+	left: 5px;
+	background-color: transparent;
+	background-image: url(../images/arrows/arrow_left.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	
+}
+
+.letsgo-picture-container .right-arrow{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	z-index: 2;
+	vertical-align: center;
+	top: 85px;
+	right: 5px;
+	background-color: transparent;
+	background-image: url(../images/arrows/arrow_right.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	
+}
+
+.letsgo-picture-container .right-arrow:not(.disabled ):hover {
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_right_hover.png);
+}
+
+.letsgo-picture-container .left-arrow:not(.disabled ):hover {
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_left_hover.png);
+}
+
+.letsgo-picture-container .right-arrow:not(.disabled ):active {
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_right_hover.png);
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
+.letsgo-picture-container .left-arrow:not(.disabled ):active {
+	text-decoration: underline;
+	background-image: url(../images/arrows/arrow_left_hover.png);
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
+.letsgo-rest-main, .letsgo-predict, .letsgo-discount-list .discount{
+	color: #444;
+	background-color: #fafafa;
+	border: solid 1px #aaa;
+}
+
+
+.letsgo-disc-area{
+	width: 50px;
+	height: 50px;
+	float: right;
+	margin: 5px;
+	background-image: url(../images/special-offer-icons.jpg);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	
+}
+
+.letsgo-rest-distance{
+	float: right;
+	width: 25%;
+}
+
+#rest-title, .discount .title {
+	font-size: larger;
+}
+
+.rest-open{
+	background-color: #DC3D3D;
+	color: #fff;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-o-border-radius: 5px;
+	border-radius: 5px;
+	text-align: center;
+	width: 50%;
+}
+
+.letsgo-discount-list ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.letsgo-discount-list .discount {
+	background-image: url(/static/images/special-offer-icons.jpg);
+	background-size: 45px 45px;
+	background-repeat: no-repeat;
+	padding-left: 55px;
+}
+
+/* .letsgo-discount-list .discount {
+	background-color: #ffdebe;
+	padding: 10px;
+	border-bottom: dashed 1px #ff9d3e;
+}
+
+.letsgo-rest-item .discount.no-border{
+	border: 0px;
+} */
+
+.ui-loader{
+	display: none;
+}
+
+
+
+/* NEW LETS GO END */
 
 /* RESTAURANT */
 

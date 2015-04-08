@@ -7,22 +7,25 @@
 		<div class="profile-logo"></div>
 		
 		<div class="">	
-			<div class="center-text">{{ lang['profile_intro']}} </div>
+			{% if is_new %} <div class="center-text">{{ lang['profile_intro']}} </div> {% else %}
+			<div class="center-text">{{ lang['profile_edit_intro']}} </div> {% endif %}
 	
 			<form action="/profile/edit" method="post">
 				<input type="hidden" name="new" value="{{ 'true' if is_new else 'false' }}"/>
+				{% if not is_new %}
 				<div>
 					<label class="form-label">{{ lang['first_name']}}: </label>
 					<div class="form-input"><input type="text" name="first_name"
-						value="{{user.first_name|e}}">
+						value="{{user.first_name|e}}" readonly>
 					</div>
 				</div>
 				<div>
 					<label class="form-label">{{ lang['last_name']}}: </label>
 					<div class="form-input"><input type="text" name="last_name"
-						value="{{user.last_name|e}}">
+						value="{{user.last_name|e}}" readonly>
 					</div>
 				</div>
+				{% endif %}
 				<div>
 					<label class="form-label">{{ lang['home_city']}}: </label>
 					{% if user.home %}
@@ -43,7 +46,7 @@
 					</div>
 					{% endif %}
 				</div>
-				
+				{% if not is_new %}
 				<div>
 					<label class="form-label">{{ lang['gender']}}: </label> 
 					<div class="form-input" style="margin-left: 10px;">
@@ -85,6 +88,7 @@
 						</div>
 					</div>
 				</div>
+				{% endif %}
 				<input type="submit" class="img-btn save " value="{{ lang['save']}}" />
 			</form>
 		</div>

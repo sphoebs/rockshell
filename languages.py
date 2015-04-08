@@ -35,10 +35,12 @@ en = {
     
     # PROFILE 1
     'step' : 'step',
-    'profile_intro': 'Hey there!! To offer you a personalized experience we need to know some information about you.',
+#     'profile_intro': 'Hey there!! To offer you a personalized experience we need to know some information about you.',
+    'profile_intro': 'Hey there!! To offer you a personalized experience we need to know where you come from.',
+    'profile_edit_intro' : 'Edit your personal data.',
     'first_name': 'First name',
     'last_name': 'Last name',
-    'home_city': 'Home city',
+    'home_city': 'Your home city',
     'gender': 'Gender',
     'age': 'Age',
     '<18_years': 'Less than 18 years old',
@@ -49,7 +51,8 @@ en = {
     # PROFILE 2
     'profile2_text1': 'These are the places we found for',
     'profile2_text2': 'Tell us about your favourite hometown restaurants',
-    'profile_feedback': 'This feedback would help people that visit your hometown!! No one knows better than a local :)',
+#     'profile_feedback': 'This feedback would help people that visit your hometown!! No one knows better than a local :)',
+    'profile_feedback': 'The more you rate, the better we will know your tastes and we will make better recommendations for you! :)',
     'no_places_city': 'Sorry, we do not know any restaurant in your city.',
     'prev': 'Prev',
     'next': 'Next',
@@ -70,7 +73,7 @@ en = {
     'letsgo_subtitle': 'Here you find some restaurants close to your position, recommended to you. We analyzed your tastes, expressed through your ratings, and we think that you should like these places. ',
     'welcome': 'Welcome',
     'loading': 'Loading',
-    'loading_places': 'Loading the places around you',
+    'loading_places': 'We are analyzing your tastes, expressed through your ratings, and we are searching for the restaurants that you should like the most.',
     'loading_settings': 'Loading search settings',
     'getting_position': 'Getting your position',
     'in_this_picture' : 'In this picture',
@@ -84,6 +87,7 @@ en = {
     'search_settings_popup' : {
         'title': 'Search settings',
         'purpose': 'Purpose',
+        'purpose_help': 'Select the default purpose that will be selected as first at your next access.',
         'tourists': 'Dinner with visitors',
         'partner': 'Romantic dinner with the partner',
         'friends': 'Dinner with friends',
@@ -100,7 +104,7 @@ en = {
     'tomorrow_closed': 'Closed tomorrow',
     'tomorrow_open_at': 'It opens tomorrow at',
     'today_tomorrow_closed': 'Closed today and tomorrow',
-    'prediction': 'Prediction',
+    'prediction': 'Your personalized Planfree recommendation',
       
     # RATINGS
     'new_rest_rating_popup' : {
@@ -110,7 +114,7 @@ en = {
         'save': 'Save'
     },
     'ratings_text1': 'Rate some restaurants and let us understand better your tastes.',
-    'ratings_text2': 'Have you been in a restaurant that you already voted? Update your rating!',
+    'ratings_text2': 'Have you been in a restaurant that you already voted? Update your rating! The more you rate the better we can recommend to you!',
     'city_select': 'Please, select a city you visited',
     'no_places_selected': 'We are sorry, we don\'t know places for the selected city.',
     'create_place_button': 'If you are not able to find the place you are searching, you can create it!',
@@ -369,7 +373,9 @@ it = {
     
     # PROFILE 1
     'step' : 'passo',
-    'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di alcune indormazioni su di te.',
+#     'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di alcune indormazioni su di te.',
+    'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di sapere da dove vieni.',
+    'profile_edit_intro' : 'Modifica le tue informazioni personali.',
     'first_name': 'Nome',
     'last_name': 'Cognome',
     'home_city': u'Città di origine',
@@ -383,7 +389,8 @@ it = {
     # PROFILE 2
     'profile2_text1': 'Questi sono i posti che abbiamo trovato per',
     'profile2_text2': u'Dicci cosa ne pensi dei ristoranti della tua città',
-    'profile_feedback': u'Le tue opinioni aiuteranno le persone che visiteranno la tua città!! Nessuno li conosce meglio di uno del posto :) ',
+#     'profile_feedback': u'Le tue opinioni aiuteranno le persone che visiteranno la tua città!! Nessuno li conosce meglio di uno del posto :) ',
+    'profile_feedback': u'Più ristoranti voti, meglio potremo capire i tuoi gusti e migliori saranno le raccomandazioni calcolte per te! :) ',
     'no_places_city': u'Siamo spiacenti, non conosciamo nessun posto nella tua città.',
     'prev': 'Indietro',
     'next': 'Avanti',
@@ -404,7 +411,7 @@ it = {
     'letsgo_subtitle': 'Qui trovi alcuni dei ristoranti attorno a te, che ti raccomandiamo. Abbiamo analizzato i tuoi gusti, espressi tramite i tuoi voti, e pensiamo che questi posti ti potrebbero piacere. ',
     'welcome': 'Benvenuto',
     'loading': 'Caricamento',
-    'loading_places': 'Sto cercando i posti vicino a te',
+    'loading_places': u'Stiamo analizzando i tuoi gusti, espressi tramite i voti, e stiamo cercando i ristoranti che ti piaceranno di più.',
     'loading_settings': 'Sto caricando le impostazioni',
     'getting_position': 'Sto ottenendo la tua posizione',
     'in_this_picture' : 'In questa immagine',
@@ -418,6 +425,7 @@ it = {
     'search_settings_popup' : {
         'title': 'Impostazioni di ricerca',
         'purpose': 'Motivo',
+        'purpose_help': 'Selezione il motivo di base che verr&agrave; selezionato per primo al tuo prossimo accesso.',
         'tourists': 'Cena con degli ospiti da fuori citt&agrave;',
         'partner': 'Cena romantica con il/la tuo/a compagno/a',
         'friends': 'Cena con gli amici',
@@ -434,7 +442,7 @@ it = {
     'tomorrow_closed': 'Domani chiuso',
     'tomorrow_open_at': 'Apre domani alle ',
     'today_tomorrow_closed': 'Chuso oggi e domani',
-    'prediction': 'Previsione',
+    'prediction': 'La tua raccomandazione Planfree personalizzata',
       
     # RATINGS
     'new_rest_rating_popup' : {
@@ -444,7 +452,7 @@ it = {
         'save': 'Salva'
     },
     'ratings_text1': 'Vota alcuni ristoranti e permettici di conoscere meglio i tuoi gusti.',
-    'ratings_text2': u'Sei stato di nuovo in un ristorante che hai già votato? Aggiorna il tuo voto!',
+    'ratings_text2': u'Sei stato di nuovo in un ristorante che hai già votato? Aggiorna il tuo voto! Più vot assegnerai, migliori saranno le raccomandazioni calcolate apposta per te!',
     'city_select': u'Per favore, seleziona una città che hai visitato',
     'no_places_selected': u'Siamo spiacenti, non conosciamo ristoranti nella città selezionata.',
     'create_place_button': 'Se non trovi il ristorante che stai cercando, lo puoi aggiungere!',
