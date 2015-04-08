@@ -34,6 +34,10 @@ a.title:active{
 	filter: brightness(70%);
 } */
 
+.desktop{
+	display: none;
+}
+
 .center-text {
 	text-align: center;
 	padding-left: 5px;
@@ -1175,7 +1179,7 @@ li.rest-item {
 .purpose-btn {
 	display: inline-block;
 	width: 25%;
-	height: 80px;
+	height: 85px;
 	box-sizing: border-box;
 	ms-box-sizing: border-box;
 	webkit-box-sizing: border-box;
@@ -1184,6 +1188,7 @@ li.rest-item {
 	color: #DC3D3D;
 	border: solid 1px #aaa;
 	text-align: center;
+	vertical-align: top;
 	margin: 0px;
 	padding: 5px;
 }
@@ -1197,7 +1202,6 @@ li.rest-item {
 
 .purpose-btn .btn-icon {
 	margin: 3px;
-	
 	display:block;
 	margin-left: auto;
 	margin-right: auto;
@@ -1257,7 +1261,9 @@ li.rest-item {
 	position: absolute;
 	z-index: 2;
 	vertical-align: center;
-	top: 85px;
+	top: 50%;
+	-webkit-transform: translate(0, -50%);
+	transform: translate(0, -50%);
 	left: 5px;
 	background-color: transparent;
 	background-image: url(../images/arrows/arrow_left.png);
@@ -1276,7 +1282,9 @@ li.rest-item {
 	position: absolute;
 	z-index: 2;
 	vertical-align: center;
-	top: 85px;
+	top: 50%;
+	-webkit-transform: translate(0, -50%);
+	transform: translate(0, -50%);
 	right: 5px;
 	background-color: transparent;
 	background-image: url(../images/arrows/arrow_right.png);
@@ -1288,6 +1296,11 @@ li.rest-item {
 	background-size: contain;
 	
 }
+
+.letsgo-picture-container.desktop {
+	height: 100%;
+}
+
 
 .letsgo-picture-container .right-arrow:not(.disabled ):hover {
 	text-decoration: underline;
@@ -1370,15 +1383,6 @@ li.rest-item {
 	padding-left: 55px;
 }
 
-/* .letsgo-discount-list .discount {
-	background-color: #ffdebe;
-	padding: 10px;
-	border-bottom: dashed 1px #ff9d3e;
-}
-
-.letsgo-rest-item .discount.no-border{
-	border: 0px;
-} */
 
 .ui-loader{
 	display: none;
@@ -1864,6 +1868,13 @@ ul.coupon-list .disc-item {
 	body {
 		font-size: 11pt;
 	}
+	.mobile{
+		display: none;
+	}
+	.desktop{
+		display: inherit;
+	}
+	
 	.red-button, input[type=button], input[type=submit], input[type=text],
 		input[type=number], select, textarea, .menu-items button {
 		font-size: 12pt !important;
@@ -1976,6 +1987,103 @@ ul.coupon-list .disc-item {
 		height: 267px;
 	}
 	
+	.purpose-list{
+		width: 150px;
+		height: 100%;
+		position: fixed;
+		top: 50px;
+		left: 0;
+		border-right: solid 1px #aaa;
+		background-color: #fafafa;
+		z-index: 2;
+	}
+	
+	.purpose-btn{
+		position: relative;
+		border: 0;
+		width: 100%;
+		padding: 0;
+		height: 50px;
+		padding: 5px;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		vertical-align: middle;
+	}
+	
+	.purpose-btn .text{
+		position: absolute;
+		top: 50%;
+		left: 50px;
+		-webkit-transform: translate(0, -50%);
+		transform: translate(0, -50%);
+		/* display: inline-block;
+		width: 90px; */
+	}
+	
+	.purpose-btn .btn-icon{
+		width: 32px;
+		position: absolute;
+		top: 7px;
+		left: 5px;
+		/* margin-left: 3px;
+		margin-right: 10px;
+		vertical-align: middle;
+		display: inline-block; */
+	}
+	
+	.purpose-btn.disabled{
+		background-color: #DC3D3D;
+		color: #fff;
+		-webkit-filter: none;
+		-moz-filter: none;
+		filter: none;
+	}
+	
+	.purpose-btn.disabled .btn-icon{
+		-webkit-filter: brightness(0%) invert(100%);
+		-moz-filter: brightness(0%) invert(100%);
+		filter: brightness(0%) invert(100%);
+	}
+	
+	.letsgo-rest{
+		margin-left: 151px;
+	}
+	
+	.letsgo-picture-container{
+		position: relative;
+		margin: 0;
+		padding: 0;
+	}
+	
+	.letsgo-rest-area{
+		max-width: 100%;
+		margin-left: 40px;
+		margin-right: 40px;
+	}
+	
+	.letsgo-rest-area .frame{
+		width: 300px;
+		max-width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.letsgo-picture {
+		height: 200px;
+		background-color: #fafafa;
+		background-image: url(../images/empty_small.png);
+		background-repeat: no-repeat;
+		background-position: center center;
+		-webkit-background-size: contain;
+		-moz-background-size: contain;
+		-o-background-size: contain;
+		background-size: contain;
+		margin: 0;
+
+	}
+	
+	
+	
 	/* letsgo end */
 	
 	/* restaurant */
@@ -2024,6 +2132,8 @@ ul.coupon-list .disc-item {
 		float: left;
 		max-width: 80%;
 	}
+	
+	
 }
 
 @media screen and (min-width: 650px) {
@@ -2088,6 +2198,16 @@ ul.coupon-list .disc-item {
 		width: 500px;
 		height: 333px;
 	}
+	
+	.letsgo-rest-area .frame{
+		width: 450px;
+	}
+
+	.letsgo-picture {
+		height: 300px;
+	}
+	
+	
 	/* letsgo end */
 	
 	/* owner list */
@@ -2127,11 +2247,25 @@ ul.coupon-list .disc-item {
 	.rest .rest-right .map-link{
 		width: 380px;
 	}
+	
+	.letsgo-rest-area .frame{
+		width: 550px;
+	}
+
+	.letsgo-picture {
+		height: 366px;
+	}
 }
 
 @media screen and (min-width: 980px) {
 	body {
 		font-size: 13pt;
+	}
+	.mobile{
+		display: none;
+	}
+	.desktop{
+		display: inherit;
 	}
 	.red-button, input[type=button], input[type=submit], input[type=text],
 		input[type=number], select, textarea, .menu-items button{
@@ -2259,6 +2393,94 @@ ul.coupon-list .disc-item {
 		width: 400px;
 		height: 267px;
 	}
+	
+	.purpose-list{
+		width: 200px;
+		height: 100%;
+		position: fixed;
+		top: 50px;
+		left: 0;
+		border-right: solid 1px #aaa;
+		background-color: #fafafa;
+		z-index: 2;
+	}
+	
+	.purpose-btn{
+		border: 0;
+		width: 100%;
+		padding: 0;
+		vertical-align: middle;
+		height: 50px;
+		padding: 5px;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	
+	.purpose-btn .text{
+		display: inline-block;
+		width: 140px;
+	}
+	
+	.purpose-btn .btn-icon{
+		width: 32px;
+		margin-left: 3px;
+		margin-right: 10px;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	
+	.purpose-btn.disabled{
+		background-color: #DC3D3D;
+		color: #fff;
+		-webkit-filter: none;
+		-moz-filter: none;
+		filter: none;
+	}
+	
+	.purpose-btn.disabled .btn-icon{
+		-webkit-filter: brightness(0%) invert(100%);
+		-moz-filter: brightness(0%) invert(100%);
+		filter: brightness(0%) invert(100%);
+	}
+	
+	.letsgo-rest{
+		margin-left: 201px;
+	}
+	
+	.letsgo-picture-container{
+		position: relative;
+		margin: 0;
+		padding: 0;
+	}
+	
+	.letsgo-rest-area{
+		max-width: 100%;
+		margin-left: 40px;
+		margin-right: 40px;
+	}
+	
+	.letsgo-rest-area .frame{
+		width: 600px;
+		max-width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	.letsgo-picture {
+		height: 400px;
+		background-color: #fafafa;
+		background-image: url(../images/empty_small.png);
+		background-repeat: no-repeat;
+		background-position: center center;
+		-webkit-background-size: contain;
+		-moz-background-size: contain;
+		-o-background-size: contain;
+		background-size: contain;
+		margin: 0;
+
+	}
+	
+	
 	/* letsgo end */
 	
 	/* restaurant */
