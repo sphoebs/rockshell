@@ -414,14 +414,17 @@ class RestaurantPageHandler(BaseRequestHandler):
                         tomorrow_open = False
                         
                         for h in place['hours']:
+                            if 'weekday' not in h:
+                                continue
                             if int(h['weekday']) == weekday:
-                                if h['open1'] is None and h['open2'] is None:
+                                if ('open1' not in h or h['open1'] is None) and ('open2' not in h or h['open2'] is None):
                                     today_opening = LANG['today_closed']
                                     today_open = False
                                 else:
-                                    if h['open1'] is None:
-                                        h['open1'] = h['open2']
-                                    if h['open1'] is not None:
+                                    if 'open1' not in h or h['open1'] is None:
+                                        if 'open2' in h:
+                                            h['open1'] = h['open2']
+                                    if 'open1' in h and h['open1'] is not None:
                                         open_hour = int(h['open1'][0:2])
                                         open_minutes = int(h['open1'][3:5])
                                         open_time = dtime(open_hour, open_minutes, 0)
@@ -430,9 +433,10 @@ class RestaurantPageHandler(BaseRequestHandler):
                                             today_opening = LANG['opens_at'] + h['open1']
                                             today_open = True
                                         else:
-                                            if h['close1'] is None:
-                                                h['close1'] = h['close2']
-                                            if h['close1'] is not None:
+                                            if 'close1' not in h or h['close1'] is None:
+                                                if 'close2' in h:
+                                                    h['close1'] = h['close2']
+                                            if 'close1' in h and h['close1'] is not None:
                                                 close_hour = int(h['close1'][0:2])
                                                 close_minutes = int(h['close1'][3:5])
                                                 close = dtime(close_hour, close_minutes, 0)
@@ -440,11 +444,11 @@ class RestaurantPageHandler(BaseRequestHandler):
                                                     today_opening = LANG['open_till'] + h['close1']
                                                     today_open = True
                                                 else:
-                                                    if h['close1'] == h['close2'] or h['open1'] == h['open2'] or h['open2'] is None:
+                                                    if 'open2' not in h or 'close2' not in h or h['close1'] == h['close2'] or h['open1'] == h['open2'] or h['open2'] is None:
                                                         today_opening = LANG['today_closed']
                                                         today_open = False
                                                     else:
-                                                        if h['open2'] is not None:
+                                                        if 'open2' in h and h['open2'] is not None:
                                                             open_hour = int(h['open2'][0:2])
                                                             open_minutes = int(h['open2'][3:5])
                                                             open_time = dtime(open_hour, open_minutes, 0)
@@ -452,7 +456,7 @@ class RestaurantPageHandler(BaseRequestHandler):
                                                                 today_opening = LANG['opens_at'] + h['open2']
                                                                 today_open = True
                                                             else:
-                                                                if h['close2'] is not None:
+                                                                if 'close2' in h and h['close2'] is not None:
                                                                     close_hour = int(h['close2'][0:2])
                                                                     close_minutes = int(h['close2'][3:5])
                                                                     close = dtime(close_hour, close_minutes, 0)
