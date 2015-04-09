@@ -79,8 +79,8 @@
 					<div class="letsgo-rest-main rest-clickable">
 						<div class="letsgo-disc-area"></div>
 						<p class="letsgo-rest-distance">Distance 1.23 km</p>
-						<h3 id="rest-title" class="bold-text">Restaurant title</h3>
-						<p id="rest-address"> Via roma 50, Trento</p>
+						<h3 class="bold-text rest-title">Restaurant title</h3>
+						<p class="rest-address"> Via roma 50, Trento</p>
 						<p class="rest-open">Now open</p>
 						<div class="clear-float"></div>
 					</div>
@@ -98,8 +98,8 @@
 				<div class="letsgo-rest-main rest-clickable">
 					<div class="letsgo-disc-area"></div>
 					<p class="letsgo-rest-distance">Distance 1.23 km</p>
-					<h3 id="rest-title" class="bold-text">Restaurant title</h3>
-					<p id="rest-address"> Via roma 50, Trento</p>
+					<h3 class="bold-text rest-title">Restaurant title</h3>
+					<p class="rest-address"> Via roma 50, Trento</p>
 					<p class="rest-open">Now open</p>
 					<div class="clear-float"></div>
 				</div>
@@ -190,8 +190,8 @@ $(window).load(function() {
 		}
 		
 		var p = places[pos];
-		$('#rest-title').html(p.name);
-		$('#rest-address').html(p.address.street + ', ' + p.address.city);
+		$('.rest-title').html(p.name);
+		$('.rest-address').html(p.address.street + ', ' + p.address.city);
 		
 		if(p.distance){
 			

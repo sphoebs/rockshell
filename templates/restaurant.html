@@ -52,34 +52,38 @@
 			</div>
 			
 			
-			<div id="slider" class="slider">
-				<div u="slides" class="pictures" >
-					{% if not place.picture is none %}
-						<div><img u="image" src="{{place.picture}}" /></div>
-					{% endif %}
-					{% if not place.other_pictures is none and place.other_pictures|length > 0 %}
-						{% for image in place.other_pictures %}
-							<div><img u="image" src="{{image}}" /></div>
-						{% endfor %}
-					{% endif %}
+			<div class="rest-left">
+				<div id="slider" class="slider">
+					<div u="slides" class="pictures" >
+						{% if not place.picture is none %}
+							<div><img u="image" src="{{place.picture}}" /></div>
+						{% endif %}
+						{% if not place.other_pictures is none and place.other_pictures|length > 0 %}
+							{% for image in place.other_pictures %}
+								<div><img u="image" src="{{image}}" /></div>
+							{% endfor %}
+						{% endif %}
+					</div>
+				
+        			<!-- bullet navigator container -->
+        			<div u="navigator" class="jssorb14">
+            			<!-- bullet navigator item prototype -->
+            			<div u="prototype"></div>
+        			</div>
+        			<!--#endregion Bullet Navigator Skin End -->
+				
 				</div>
-				
-        		<!-- bullet navigator container -->
-        		<div u="navigator" class="jssorb14">
-            		<!-- bullet navigator item prototype -->
-            		<div u="prototype"></div>
-        		</div>
-        		<!--#endregion Bullet Navigator Skin End -->
-				
 			</div>
 			
-			<p class="black-text desc">{{place.description}}</p>
-			
+			<div class="rest-right">
+				<p class="black-text desc">{{place.description}}</p>
+			</div>
+			<div class="clear-float"></div>
 			<hr/>
 			
 			<div class="">
 				<div class="rest-map">
-					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
+					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x400&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
 				</div>
 				<a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a>
 			</div>
@@ -89,15 +93,12 @@
 			
 			
 			<div class="info">
+				<div class="rest-left">
 				{% if place.address %}
 				<div class="icon icon-address"></div>
 				<p class="iconed black-text">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
 				{% endif %}
 				
-				{% if place.phone %}
-				<div class="icon icon-phone"></div>
-				<p class="iconed black-text">{{place.phone}}</p>
-				{% endif %}
 				
 				{% if place.hours %}
 				<div class="icon icon-hours"></div>
@@ -113,6 +114,13 @@
 					{% endfor %}	
 				</p>
 				{% endif %}
+				</div>
+				
+				<div class="rest-right">
+				{% if place.phone %}
+				<div class="icon icon-phone"></div>
+				<p class="iconed black-text">{{place.phone}}</p>
+				{% endif %}
 				
 				{% if place.website %}
 				<div class="icon icon-web"></div>
@@ -123,7 +131,9 @@
 				<div class="icon icon-email"></div>
 				<p class="iconed black-text">{{place.email}}</p>
 				{% endif %}
+				</div>
 			</div>
+			<div class="clear-float"></div>
 					
 			<div class="popup-area"></div>
 		</div>
@@ -333,7 +343,7 @@
 					discounts = data;
 					
 					if(discounts == null || discounts.length < 1){
-						$('.discounts').html('{{lang['no_discounts']}}');
+						$('.discounts').html('<p>{{lang['no_discounts']}}</p>');
 					} else {
 						//load underscore template
 						var xmlhttp = new XMLHttpRequest();
