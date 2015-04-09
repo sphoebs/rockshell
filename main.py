@@ -26,7 +26,7 @@ import logic
 import recommender
 import json
 import languages
-from datetime import datetime
+from datetime import datetime, time as dtime
 
 from models import PFuser, Place, Settings, Discount
 
@@ -387,19 +387,110 @@ class RestaurantPageHandler(BaseRequestHandler):
                 if place is None:
                     self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
                     return 
+                
+                
                 try:
                     place = Place.to_json(place, None, None)
                     if 'description_' + LANG_NAME in place:
                         place['description'] = place['description_' + LANG_NAME]
                     place['days_closed'] = [datetime.date(datetime.strptime(day, '%d-%m-%Y')).strftime(LANG['python_date']) for day in place['days_closed']]
-                    self.render('restaurant.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME});
+                    
+                    open_str = None
+                    today = datetime.now()
+                    if place['days_closed'] is not None and len(place['days_closed']) > 0:
+                        for day in place['days_closed']:
+                            if day == today.strftime(LANG['python_date']):
+                                open_str = LANG['today_closed']
+                                
+                    if open_str is None and place['hours'] is not None:
+                        weekday = datetime.now().weekday()
+                        next_day = (weekday+1)%7;
+                        weekday = weekday+1
+                        next_day = next_day+1
+                        
+                        today_opening = None
+                        today_open = False
+                        tomorrow_opening = None
+                        tomorrow_open = False
+                        
+                        for h in place['hours']:
+                            if int(h['weekday']) == weekday:
+                                if h['open1'] is None and h['open2'] is None:
+                                    today_opening = LANG['today_closed']
+                                    today_open = False
+                                else:
+                                    if h['open1'] is None:
+                                        h['open1'] = h['open2']
+                                    if h['open1'] is not None:
+                                        open_hour = int(h['open1'][0:2])
+                                        open_minutes = int(h['open1'][3:5])
+                                        open_time = dtime(open_hour, open_minutes, 0)
+                                        now_time = dtime(today.hour, today.minute, 0)
+                                        if now_time < open_time:
+                                            today_opening = LANG['opens_at'] + h['open1']
+                                            today_open = True
+                                        else:
+                                            if h['close1'] is None:
+                                                h['close1'] = h['close2']
+                                            if h['close1'] is not None:
+                                                close_hour = int(h['close1'][0:2])
+                                                close_minutes = int(h['close1'][3:5])
+                                                close = dtime(close_hour, close_minutes, 0)
+                                                if now_time < close:
+                                                    today_opening = LANG['open_till'] + h['close1']
+                                                    today_open = True
+                                                else:
+                                                    if h['close1'] == h['close2'] or h['open1'] == h['open2'] or h['open2'] is None:
+                                                        today_opening = LANG['today_closed']
+                                                        today_open = False
+                                                    else:
+                                                        if h['open2'] is not None:
+                                                            open_hour = int(h['open2'][0:2])
+                                                            open_minutes = int(h['open2'][3:5])
+                                                            open_time = dtime(open_hour, open_minutes, 0)
+                                                            if now_time < open_time:
+                                                                today_opening = LANG['opens_at'] + h['open2']
+                                                                today_open = True
+                                                            else:
+                                                                if h['close2'] is not None:
+                                                                    close_hour = int(h['close2'][0:2])
+                                                                    close_minutes = int(h['close2'][3:5])
+                                                                    close = dtime(close_hour, close_minutes, 0)
+                                                                    if now_time < close:
+                                                                        today_opening = LANG['open_till'] + h['close2']
+                                                                        today_open = True
+                                                                    else:
+                                                                        today_opening = LANG['today_closed']
+                                                                        today_open = False
+                                               
+                            elif h['weekday'] == next_day:
+                                if h['open1'] is None and h['open2'] is None:
+                                    tomorrow_opening = LANG['tomorrow_closed']
+                                    tomorrow_open = False
+                                else:
+                                    if h['open1'] is not None:
+                                        tomorrow_opening = LANG['tomorrow_open_at'] + h['open1']
+                                        tomorrow_open = True
+                                    elif h['open2'] is not None:
+                                        tomorrow_opening = LANG['tomorrow_open_at'] + h['open2']
+                                        tomorrow_open = True
+                        if not today_open:
+                            if not tomorrow_open:
+                                open_str = LANG['today_tomorrow_closed']
+                            else:
+                                open_str = LANG['today_closed_tomorrow'] + tomorrow_opening
+                        else:
+                            open_str = today_opening
+                
+                    
+                    self.render('restaurant.html', {'place': place, 'now_open': open_str, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME});
                     return
                 except TypeError, e:
-                    self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+                    self.render("error.html", {'error_code': 500, 'lang' : LANG, 'error_string': str(e)})
                     return
             else:
                 logging.info("PLACE NOT FOUND")
-                self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+                self.render("error.html", {'error_code': 404, 'lang' : LANG, 'error_string': "Restaurant not found"})
                 return
                 
 class RestaurantEditHandler(BaseRequestHandler):

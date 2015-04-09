@@ -59,7 +59,7 @@
 			</div><div class="img-btn purpose-btn lunch" purpose="best price/quality ratio"><div class="btn-icon"></div>{{lang['lunch']}}</div>
 		</div>
 		<div class="purpose-list desktop">
-			<p class="bold-text center-text">{{lang['select_purpose']}}</p>
+			<p class="text-bold center-text">{{lang['select_purpose']}}</p>
 			<div class="img-btn purpose-btn tourists" purpose="dinner with tourists"><div class="btn-icon"></div><div class="text">{{lang['with_visitors']}}</div>
 			</div><div class="img-btn purpose-btn partner" purpose="romantic dinner"><div class="btn-icon"></div><div class="text">{{lang['romantic_dinner']}}</div>
 			</div><div class="img-btn purpose-btn friends" purpose="dinner with friends"><div class="btn-icon"></div><div class="text">{{lang['with_friends']}}</div>
@@ -236,7 +236,6 @@ $(window).load(function() {
 		var today = new Date();
 		if(p.days_closed != undefined && p.days_closed.length > 0){
 			var today_str = "{{today}}";
-			console.log('Today: ' + today_str);
 			for(var i=0; i< p.days_closed.length; i++){
 				var day = p.days_closed[i];
 				if(day == today_str){
@@ -284,7 +283,6 @@ $(window).load(function() {
 									h.close1 = h.close2;
 								}
 								if(h.close1 == undefined){
-									alert("ERROR");
 									return;
 								} else {
 									close_hour = parseInt(h.close1.substring(0,2));
@@ -311,7 +309,6 @@ $(window).load(function() {
 														today_open = true;
 													} else {
 														if(h.close2 == undefined){
-															alert("ERROR");
 															return;
 														} else {
 															close_hour = parseInt(h.close2.substring(0,2));

@@ -44,69 +44,53 @@
 	
 		</div>
 	
-		<div class="rest-container">
-			<div class="red-bg">
-				<p class="text-bold rest-name">{{place.name}}</p>
+		<div class="discount-container">
+			<h2 class="center-text">{{place.name}}</h2>
 			
-				<div class="discounts"><p>{{lang['loading']}}...</p></div>
-			</div>
-			
-			
-			<div id="slider" class="slider">
-				<div u="slides" class="pictures" >
-					{% if not place.picture is none %}
-						<div><img u="image" src="{{place.picture}}" /></div>
-					{% endif %}
-					{% if not place.other_pictures is none and place.other_pictures|length > 0 %}
-						{% for image in place.other_pictures %}
-							<div><img u="image" src="{{image}}" /></div>
-						{% endfor %}
-					{% endif %}
-				</div>
-				
-        		<!-- bullet navigator container -->
-        		<div u="navigator" class="jssorb14">
-            		<!-- bullet navigator item prototype -->
-            		<div u="prototype"></div>
-        		</div>
-        		<!--#endregion Bullet Navigator Skin End -->
-				
-			</div>
-			
-			<p class="black-text desc">{{place.description}}</p>
-			
-			<hr/>
-			
-			<div class="">
-				<div class="rest-map">
-					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
-				</div>
-				<a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a>
-			</div>
-		
-			<hr/>
-				
-			
+			<div class="discounts"><p>{{lang['loading']}}...</p></div>
 			
 			<div class="info">
-				{% if place.address %}
-				<div class="icon icon-address"></div>
+			{% if place.address %}
+				<div class="icon-address"></div>
 				<p class="iconed black-text">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
 				{% endif %}
 				
 				{% if place.phone %}
-				<div class="icon icon-phone"></div>
+				<div class="icon-phone"></div>
 				<p class="iconed black-text">{{place.phone}}</p>
 				{% endif %}
 				
 				{% if place.hours %}
-				<div class="icon icon-hours"></div>
-				<p class="iconed black-text" id="hours">
+				<div class="icon-hours"></div>
+				<p class="iconed black-text">{{ lang['rest_opening_hours'] }}: 
+				{% for h in place.hours %}
+					<p class="day black-text">
+					{% if h.weekday == '1' %}
+						{{ lang['opening_mon']}}:
+					{% elif h.weekday == '2' %}
+						{{ lang['opening_tue']}}:
+					{% elif h.weekday == '3' %}
+						{{ lang['opening_wed']}}:
+					{% elif h.weekday == '4' %}
+						{{ lang['opening_thu']}}:
+					{% elif h.weekday == '5' %}
+						{{ lang['opening_fri']}}:
+					{% elif h.weekday == '6' %}
+						{{ lang['opening_sat']}}:
+					{% elif h.weekday == '7' %}
+						{{ lang['opening_sun']}}:
+					{% endif %}
+					
+					{{ '%s-%s'|format(h.open1, h.close1) if h.open1 and h.close1 else lang['rest_closed_wday']}}
+					{{ ', %s-%s'|format(h.open2, h.close2) if h.open2 and h.close2 }}
+					
+					</p>
+				{% endfor %}
 				</p>
 				{% endif %}
 				
 				{% if place.days_closed %}
-				<div class="icon icon-closed"></div>
+				<div class="icon-closed"></div>
 				<p class="iconed black-text">{{ lang['rest_closed'] }}: 
 					{% for d in place.days_closed %}
 						{{ d }}{% if loop.index != loop.length %}, {% endif %}
@@ -115,16 +99,30 @@
 				{% endif %}
 				
 				{% if place.website %}
-				<div class="icon icon-web"></div>
+				<div class="icon-web"></div>
 				<p class="iconed black-text rest-clickable" onclick="window.open('{{place.website}}');">{{place.website}}</p>
 				{% endif %}
 				
 				{% if place.email %}
-				<div class="icon icon-email"></div>
+				<div class="icon-email"></div>
 				<p class="iconed black-text">{{place.email}}</p>
 				{% endif %}
 			</div>
-					
+			
+			<div class="rest-left">
+				<div class="picture" style="background-image: url(/static/images/empty_small.png)"></div>
+				
+			</div>
+			
+			<div class="rest-right">
+				<div class="rest-map">
+					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x300&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
+				</div>
+				<a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a>
+			</div>
+		
+			<div class="clear-float"></div>
+			<p class="black-text desc">{{place.description}}</p>			
 			<div class="popup-area"></div>
 		</div>
 </div>
@@ -132,102 +130,8 @@
 {% endblock %} {% block scripts %}
 <!-- <script type="text/javascript"
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script> -->
-<script src="/static/js/jssor.slider.min.js"></script>
-
+<!-- <script src="/static/js/enquire.min.js"></script> -->
 <script type="text/javascript">
-
-	$(window).ready(function($){
-		var options = { 
-				$AutoPlay: true,
-				$BulletNavigatorOptions: {
-	                $Class: $JssorBulletNavigator$,
-	                $AutoCenter: 1,
-	            }
-		};
-        var jssor_slider1 = new $JssorSlider$('slider', options);
-        
-        
-        
-        function intToDay(i){
-			//i=0 --> mon, i=6 --> sun
-			if(i == 0){
-				return "{{ lang['opening_mon']}}";
-			} else if(i == 1){
-				return "{{ lang['opening_tue']}}";
-			} else if(i == 2){
-				return "{{ lang['opening_wed']}}";
-			} else if(i == 3){
-				return "{{ lang['opening_thu']}}";
-			} else if(i==4){
-				return "{{ lang['opening_fri']}}";
-			} else if(i==5){
-				return "{{ lang['opening_sat']}}";
-			} else if(i==6){
-				return "{{ lang['opening_sun']}}";
-			}
-		}
-		
-		function writeHours(){
-			var html = '{{ lang['rest_opening_hours'] }}:<p class="day black-text">';
-			var hours = [];
-			{% for h in place.hours %}
-				hours[{{h.weekday}}-1] = "{{ '%s-%s'|format(h.open1, h.close1) if h.open1 and h.close1 else lang['rest_closed_wday']}}{{ ', %s-%s'|format(h.open2, h.close2) if h.open2 and h.close2 }}";
-			{% endfor %}
-			
-			var last_hours = undefined;
-			var last_day = undefined;
-			var summary = [];
-			for(var i=0; i< 7; i++){
-				if(last_hours == undefined){
-					last_hours = hours[i];
-					last_day = i;
-					summary[i] = [];
-				} else {
-					if(hours[i] == last_hours){
-						summary[last_day].push(i);
-					} else {
-						last_hours = hours[i];
-						last_day = i;
-						summary[i] = [];
-					}
-				}
-			}
-			for( i in summary){
-				var list = summary[i];
-				if(list != null){
-					if(list.length > 0 && i<6){
-						var last_id = i;
-						for(var j=0; j< list.length; j++){
-							var tmp = list[j];
-							if(tmp > last_id){
-								last_id = tmp;
-							}
-						}
-				
-						var day = intToDay(i) + " - " + intToDay(last_id) + ": " + hours[i];
-						if(last_id < 6){
-							html += day + '</p><p class="day black-text">';
-						} else {
-							html += day + '</p>';
-						}
-					} else {
-						var day = intToDay(i) + ": " + hours[i];
-						if(i < 6){
-							html += day + '</p><p class="day black-text">';
-						} else {
-							html += day + '</p>';
-						}
-					}
-				}
-				
-			}
-			html += '<p class="rest-open">{{now_open}}</p>';
-			
-			$('#hours').html(html);			
-		}
-		
-		writeHours();
-	});
 
 	$(window).load(function() {
 		
@@ -291,9 +195,6 @@
 			}
 		});
 		
-		
-		
-		
 		function create_coupon(key){
 			$.ajax({
 				type : 'POST',
@@ -337,7 +238,7 @@
 					} else {
 						//load underscore template
 						var xmlhttp = new XMLHttpRequest();
-						xmlhttp.open("GET","/static/js_templates/rest_disc_list.ejs",false);
+						xmlhttp.open("GET","/static/js_templates/discount_list.ejs",false);
 						xmlhttp.send(null);
 						var template = xmlhttp.responseText;
 						var compiled = _.template(template);

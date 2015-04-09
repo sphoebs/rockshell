@@ -1,0 +1,58 @@
+<ul>
+
+	<% _.each(discounts, function(discount, i){ %>
+		<li class="rest-disc-item <% if(discounts.length == i+1){ %> no-border <% } %>" >
+			
+			<div class="actions">
+				<% if(!owner){ %>
+					<% if(discount.coupons != undefined && discount.coupons.length > 0){ %>
+						<button class="img-btn disc-red-button see" discount-id="<%= discount.key %>"><%= strings.see_coupon %></button>
+					<% } else if(available){ %>
+						<button class="img-btn disc-red-button buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
+					<% } %>
+				<% } %>
+			</div>
+			<div class="desc disc-clickable" discount-id="<%= discount.key %>">
+				<h4 class="title"><% if(lang == 'it'){%> <%=discount.title_it%> <%} else {%> <%=discount.title_en%> <% } %></h4>
+				<p> 
+					<%= discount.available_coupons %> <%= strings.coupons_available_till %> <span class="countdown" end-time="<%= discount.end_time %>"></span>
+				</p>
+			</div>
+			
+			
+			
+			<div class="clear-float"></div>
+			
+			
+			<!--  -->
+			
+			<!-- <div class="disc-item-ext">
+				<p class="description"><% if(lang == 'it'){%> <%=discount.description_it%> <%} else {%> <%=discount.description_en%> <% } %></p>
+				
+				<p>Other language:</p>
+				<p><% if(lang == 'it'){%> <%=discount.title_en%> <%} else {%> <%=discount.title_it%> <% } %></p>
+				<p><% if(lang == 'it'){%> <%=discount.description_en%> <%} else {%> <%=discount.description_it%> <% } %></p>
+				
+				
+				<% if(owner){ %>
+				<div class="coupons">
+					<h4> Coupons</h4> 
+					<% _.each(discount.coupons, function(coupon){ %>
+						<div>
+							<p> Code: <%= coupon.code %></p>
+							<p>Status: <% if(coupon.deleted){ %> Deleted <%} else if(coupon.used){ %> Used <% } else { %> Not used yet <% } %> </p>
+							<button class="img-btn red-button" id="use" discount-id="<%= discount.key %>" coupon-code="<%= coupon.code%>">Use</button>
+						</div>
+					<% }) %>
+				</div>
+			
+			<% } %>
+				
+			</div> -->
+		</li>
+		
+	
+	<% }) %>
+
+
+</ul>

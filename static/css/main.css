@@ -6,7 +6,8 @@ body {
 	padding: 0;
 	overflow: auto;
 	min-height: 100%;
-	background-color: #F7F8CD;
+	/* background-color: #F7F8CD; */
+	background-color: #fafafa;
 }
 
 h1, h2, h3, h4, h5, h6, p {
@@ -17,7 +18,7 @@ h1, h2, h3, h4, h5, h6, p {
 	font-weight: 700; /* or 900, if more. Other weights are not provided */
 }
 
-a.title{
+a.title {
 	text-decoration: none;
 	color: #DC3D3D;
 }
@@ -33,8 +34,7 @@ a.title:active{
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
 } */
-
-.desktop{
+.desktop {
 	display: none;
 }
 
@@ -52,13 +52,13 @@ form {
 	margin-right: auto;
 }
 
-.img-btn:not(.disabled ):hover {
+.img-btn:not(.disabled):hover {
 	-webkit-filter: brightness(120%);
 	-moz-filter: brightness(120%);
 	filter: brightness(120%);
 }
 
-.img-btn:not(.disabled ):active {
+.img-btn:not(.disabled):active {
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
@@ -143,34 +143,31 @@ button.disabled {
 	cursor: pointer;
 }
 
-.clickable:not(.disabled ):hover {
+.clickable:not(.disabled):hover {
 	-webkit-filter: brightness(120%);
 	-moz-filter: brightness(120%);
 	filter: brightness(120%);
 }
 
-.clickable:not(.disabled ):active {
+.clickable:not(.disabled):active {
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
 }
 
-.rest-clickable, .disc-clickable{
+.rest-clickable, .disc-clickable {
 	cursor: pointer;
 }
 
-.rest-clickable:not(.disabled ):hover, .disc-clickable:not(.disabled ):hover {
+.rest-clickable:not(.disabled):hover, .disc-clickable:not(.disabled):hover {
 	/* color: #ff6b6b; */
 	text-decoration: underline;
 }
 
-.rest-clickable:not(.disabled ):active, .disc-clickable:not(.disabled ):active {
+.rest-clickable:not(.disabled):active, .disc-clickable:not(.disabled):active {
 	color: #c40f0f;
 	text-decoration: underline;
 }
-
-
-	
 
 /* SCROLL BAR */
 .scrollable, .popup-scrollable {
@@ -436,9 +433,7 @@ button.disabled {
 	right: 0;
 	bottom: 0;
 } */
-
-
-.profile-picture{
+.profile-picture {
 	width: 90px;
 	height: 90px;
 	float: left;
@@ -452,7 +447,6 @@ button.disabled {
 	-o-background-size: cover;
 	background-size: cover;
 }
-
 
 .step {
 	margin-top: 30px;
@@ -711,17 +705,17 @@ li.rest-item {
 	background-size: contain;
 }
 
-.navigation-buttons .next:not(.disabled ):hover {
+.navigation-buttons .next:not(.disabled):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 }
 
-.navigation-buttons .prev:not(.disabled ):hover {
+.navigation-buttons .prev:not(.disabled):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 }
 
-.navigation-buttons .next:not(.disabled ):active {
+.navigation-buttons .next:not(.disabled):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 	-webkit-filter: brightness(70%);
@@ -729,7 +723,7 @@ li.rest-item {
 	filter: brightness(70%);
 }
 
-.navigation-buttons .prev:not(.disabled ):active {
+.navigation-buttons .prev:not(.disabled):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 	-webkit-filter: brightness(70%);
@@ -785,7 +779,8 @@ li.rest-item {
 }
 
 .ui-widget {
-	font-family: "Lato"; font-size : 1em;
+	font-family: "Lato";
+	font-size: 1em;
 	margin-bottom: 10px;
 	font-size: 1em;
 }
@@ -857,11 +852,10 @@ li.rest-item {
 /* .full-background.letsgo {
 	background-image: url(../images/empty_big.png);
 } */
-
 .top-bar {
 	position: fixed;
 	top: 0;
-	left:0;
+	left: 0;
 	right: 0;
 	width: 100%;
 	height: 50px;
@@ -922,7 +916,7 @@ li.rest-item {
 .top-bar .menu-button .user-menu-small {
 	z-index: 11;
 	display: none; /* this is hidden in small screens */
-} 
+}
 
 .top-bar .menu-button .user-menu-small .user-picture {
 	background-image: url(../images/user.png);
@@ -949,8 +943,6 @@ li.rest-item {
 	top: 12px;
 	left: 110px;
 }
-
-
 
 .letsgo-rest-list {
 	list-style: none;
@@ -989,7 +981,7 @@ li.rest-item {
 	font-size: larger;
 }
 
-.letsgo-rest-item ul.discounts{
+.letsgo-rest-item ul.discounts {
 	list-style: none;
 	margin: 5px;
 	padding: 0px;
@@ -1001,16 +993,9 @@ li.rest-item {
 	border-bottom: dashed 1px #ff9d3e;
 }
 
-.letsgo-rest-item .discount.no-border{
+.letsgo-rest-item .discount.no-border {
 	border: 0px;
 }
-
-
-
-
-
-
-
 
 /* .letsgo .rest-details {
 	width: 240px;
@@ -1130,7 +1115,7 @@ li.rest-item {
 	margin-top: 15px;
 }
 
-.menu-items{
+.menu-items {
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -1139,7 +1124,7 @@ li.rest-item {
 .menu-items li button {
 	width: 100%;
 	text-align: left;
-/*  font-size: larger; */
+	/*  font-size: larger; */
 	color: white;
 	background: rgba(220, 61, 61, 1);
 	padding: 10px;
@@ -1161,16 +1146,14 @@ li.rest-item {
 	background: rgba(255, 255, 255, 0.8);
 } */
 
-
 /* LETS GO END */
 
 /* NEW LETS GO */
-
-.letsgo-container{
+.letsgo-container {
 	padding: 52px 0px 0px 0px;
 }
 
-.purpose-list{
+.purpose-list {
 	width: 100%;
 	margin: 0px;
 	padding: 0px;
@@ -1193,7 +1176,7 @@ li.rest-item {
 	padding: 5px;
 }
 
-.purpose-btn.disabled{
+.purpose-btn.disabled {
 	background-color: #ccc;
 	-webkit-filter: grayscale(90%);
 	-moz-filter: grayscale(90%);
@@ -1202,7 +1185,7 @@ li.rest-item {
 
 .purpose-btn .btn-icon {
 	margin: 3px;
-	display:block;
+	display: block;
 	margin-left: auto;
 	margin-right: auto;
 	width: 32px;
@@ -1215,23 +1198,23 @@ li.rest-item {
 	background-size: contain;
 }
 
-.purpose-btn.tourists .btn-icon{
+.purpose-btn.tourists .btn-icon {
 	background-image: url(../images/ratings/guest_selected.png);
 }
 
-.purpose-btn.partner .btn-icon{
+.purpose-btn.partner .btn-icon {
 	background-image: url(../images/ratings/romantic_selected.png);
 }
 
-.purpose-btn.friends .btn-icon{
+.purpose-btn.friends .btn-icon {
 	background-image: url(../images/ratings/friends_selected.png);
 }
 
-.purpose-btn.lunch .btn-icon{
+.purpose-btn.lunch .btn-icon {
 	background-image: url(../images/ratings/lunch_selected.png);
 }
 
-.letsgo-picture-container{
+.letsgo-picture-container {
 	position: relative;
 	height: 200px;
 	margin: 0;
@@ -1239,7 +1222,6 @@ li.rest-item {
 }
 
 .letsgo-picture {
-	
 	height: 200px;
 	background-color: transparent;
 	background-image: url(../images/empty_small.png);
@@ -1253,9 +1235,7 @@ li.rest-item {
 	margin-right: 40px;
 }
 
-
-
-.letsgo-picture-container .left-arrow{
+.letsgo-picture-container .left-arrow {
 	width: 32px;
 	height: 32px;
 	position: absolute;
@@ -1273,10 +1253,9 @@ li.rest-item {
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
-	
 }
 
-.letsgo-picture-container .right-arrow{
+.letsgo-picture-container .right-arrow {
 	width: 32px;
 	height: 32px;
 	position: absolute;
@@ -1294,25 +1273,23 @@ li.rest-item {
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
-	
 }
 
 .letsgo-picture-container.desktop {
 	height: 100%;
 }
 
-
-.letsgo-picture-container .right-arrow:not(.disabled ):hover {
+.letsgo-picture-container .right-arrow:not(.disabled):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 }
 
-.letsgo-picture-container .left-arrow:not(.disabled ):hover {
+.letsgo-picture-container .left-arrow:not(.disabled):hover {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 }
 
-.letsgo-picture-container .right-arrow:not(.disabled ):active {
+.letsgo-picture-container .right-arrow:not(.disabled):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_right_hover.png);
 	-webkit-filter: brightness(70%);
@@ -1320,7 +1297,7 @@ li.rest-item {
 	filter: brightness(70%);
 }
 
-.letsgo-picture-container .left-arrow:not(.disabled ):active {
+.letsgo-picture-container .left-arrow:not(.disabled):active {
 	text-decoration: underline;
 	background-image: url(../images/arrows/arrow_left_hover.png);
 	-webkit-filter: brightness(70%);
@@ -1328,14 +1305,13 @@ li.rest-item {
 	filter: brightness(70%);
 }
 
-.letsgo-rest-main, .letsgo-predict, .letsgo-discount-list .discount{
+.letsgo-rest-main, .letsgo-predict, .letsgo-discount-list .discount {
 	color: #444;
 	background-color: #fafafa;
 	border: solid 1px #aaa;
 }
 
-
-.letsgo-disc-area{
+.letsgo-disc-area {
 	width: 50px;
 	height: 50px;
 	float: right;
@@ -1347,10 +1323,9 @@ li.rest-item {
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
-	
 }
 
-.letsgo-rest-distance{
+.letsgo-rest-distance {
 	float: right;
 	width: 25%;
 }
@@ -1359,7 +1334,7 @@ li.rest-item {
 	font-size: larger;
 }
 
-.rest-open{
+.rest-open {
 	background-color: #DC3D3D;
 	color: #fff;
 	-webkit-border-radius: 5px;
@@ -1383,25 +1358,21 @@ li.rest-item {
 	padding-left: 55px;
 }
 
-
-.ui-loader{
+.ui-loader {
 	display: none;
 }
-
-
 
 /* NEW LETS GO END */
 
 /* RESTAURANT */
-
 .full-background.rest {
 	position: inherit;
 	min-height: 100%;
-	background-color: rgba(247, 248, 205, 1);
+	/* background-color: rgba(247, 248, 205, 1); */
 }
 
 .rest-container {
-	padding: 15px;
+	/* padding: 15px; */
 }
 
 .rest .picture {
@@ -1421,19 +1392,19 @@ li.rest-item {
 	background-size: cover;
 }
 
-.rest .rest-right{
+.rest .rest-right {
 	width: 100%;
 	display: block;
 }
 
-.rest .rest-right{
+.rest .rest-right {
 	margin-bottom: 10px;
 }
 
-.rest .rest-right .rest-map img{
+ .rest-map img {
 	display: block;
-	width: 280px;
-	height: 187px;
+	width: 300px;
+	height: 200px;
 	max-height: 100%;
 	margin-left: auto;
 	margin-right: auto;
@@ -1445,13 +1416,12 @@ li.rest-item {
 	-moz-background-size: auto;
 	-o-background-size: auto;
 	background-size: auto;
-	border: solid 1px #DC3D3D;
-	
+	/* border: solid 1px #DC3D3D; */
 }
 
-.rest .rest-right .map-link{
+.map-link {
 	display: block;
-	width: 280px;
+	width: 300px;
 	margin-top: 0;
 	margin-left: auto;
 	margin-right: auto;
@@ -1460,11 +1430,11 @@ li.rest-item {
 	color: #999;
 }
 
-.rest .rest-right .map-link:hover{
+.map-link:hover {
 	color: #bbb;
 }
 
-.rest .rest-right .map-link:active{
+.map-link:active {
 	color: #777;
 }
 
@@ -1474,7 +1444,7 @@ li.rest-item {
 	margin-bottom: 3px;
 }
 
-div.icon-address{
+/* div.icon-address {
 	display: inline-block;
 	width: 24px;
 	height: 24px;
@@ -1488,8 +1458,7 @@ div.icon-address{
 	background-size: cover;
 }
 
-div.icon-phone{
-	
+div.icon-phone {
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/phone.png);
@@ -1502,8 +1471,7 @@ div.icon-phone{
 	margin-top: 10px;
 }
 
-div.icon-hours{
-	
+div.icon-hours {
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/hours.png);
@@ -1516,8 +1484,7 @@ div.icon-hours{
 	margin-top: 10px;
 }
 
-div.icon-closed{
-	
+div.icon-closed {
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/calendar.png);
@@ -1530,8 +1497,7 @@ div.icon-closed{
 	margin-top: 10px;
 }
 
-div.icon-web{
-	
+div.icon-web {
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/web.png);
@@ -1544,7 +1510,7 @@ div.icon-web{
 	margin-top: 10px;
 }
 
-div.icon-email{
+div.icon-email {
 	width: 24px;
 	height: 24px;
 	background-image: url(../images/mail.png);
@@ -1556,25 +1522,23 @@ div.icon-email{
 	background-size: contain;
 	margin-top: 10px;
 }
-
-p.iconed{
+ */
+/* p.iconed {
 	display: block;
 	margin-left: 30px;
 	margin-top: -24px;
 	margin-bottom: 15px;
-	
-	
-}
+} */
 
 p.day {
 	margin-left: 50px;
 }
 
-.black-text{
+.black-text {
 	color: #444;
 }
 
-.rest p.desc{
+.rest p.desc {
 	margin-bottom: 10px;
 	margin-top: 5px;
 }
@@ -1600,11 +1564,10 @@ p.time-label {
 	margin: 7px;
 }
 
-.days-item p, .admin-list li p{
+.days-item p, .admin-list li p {
 	display: inline-block;
 	color: #000;
 	margin-right: 5px;
-
 }
 
 .delete-small {
@@ -1622,7 +1585,7 @@ p.time-label {
 	vertical-align: text-top;
 }
 
-.delete-small.pic{
+.delete-small.pic {
 	width: 24px;
 	height: 24px;
 }
@@ -1649,7 +1612,8 @@ input.days-input {
 }
 
 #other-pictures {
-	/* set only for larger screens*/	
+	/* set only for larger screens*/
+	
 }
 
 .other-pic-item {
@@ -1657,30 +1621,27 @@ input.days-input {
 	margin: 10px;
 }
 
-.other-pic-item .other-picture.preview{
+.other-pic-item .other-picture.preview {
 	width: 150px;
 	height: 100px;
 }
 
-.other-pic-item .delete-small{
+.other-pic-item .delete-small {
 	vertical-align: top;
 	margin-top: 10px;
 	margin-left: -34px;
 }
 
-
-
-
-.admin-rest-item.no-border{
-	border: none;	
+.admin-rest-item.no-border {
+	border: none;
 }
 
-.admin-rest-item a{
+.admin-rest-item a {
 	text-decoration: none;
 	color: #DC3D3D;
 }
 
-.admin-rest-item a:hover{
+.admin-rest-item a:hover {
 	filter: brightness(150%);
 	background-color: #ffdebe;
 }
@@ -1689,15 +1650,188 @@ input.days-input {
 	margin-bottom: 10px;
 }
 
-.discounts ul{
+.discounts ul {
 	list-style: none;
 	padding: 0px;
+	margin: 0px;
 }
 
 /* RESTAURANT END */
 
-/* OWNER REST LIST */
+/* NEW RESTAURANT */
 
+.rest-container {
+	padding: 51px 0px 0px 0px;
+}
+
+.red-bg {
+	background-color: #DC3D3D;
+	color: white;
+}
+
+.rest-name {
+	font-size: 15pt;
+	margin: 0;
+	padding: 10px;
+}
+
+.info {
+	padding: 10px;
+}
+
+.icon {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	border: 0;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	margin-top: 10px;
+}
+
+p.iconed {
+	display: block;
+	margin-left: 22px;
+	margin-top: -20px;
+	/* margin-bottom: 15px; */
+}
+
+.icon-address {
+	background-image: url(../images/location.png);
+}
+
+.icon-phone {
+	background-image: url(../images/phone.png);
+}
+
+.icon-hours {
+	background-image: url(../images/hours.png);
+}
+
+.icon-closed {
+	background-image: url(../images/calendar.png);
+}
+
+.icon-web {
+	background-image: url(../images/web.png);
+}
+
+.icon-email {
+	background-image: url(../images/mail.png);
+}
+
+.rest-disc-item {
+	padding: 5px 10px 5px 10px;
+	border-bottom: solid 1px #842525;
+}
+
+.rest-disc-item.no-border{
+	border: 0;
+}
+
+.rest-disc-item .title{
+	font-size: larger;
+}
+
+.rest-disc-item .disc-red-button{
+	outline: 0;
+	border: 0;
+	box-shadow: none;
+	background: transparent;
+	-webkit-appearance: button;
+	background-color: #842525;
+	color: white;
+	line-height: 1.3em;
+	padding-left: 10px;
+	padding-right: 10px;
+	font-size: 12pt;
+	margin-top: 2px;
+	margin-bottom: 3px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	
+}
+
+.discounts {
+	max-height: 200px;
+	overflow: auto;
+}
+
+.rest-disc-item  .actions{
+	max-width: 150px;
+	float: right;
+	margin-top: 10px;
+}
+
+
+
+.slider {
+	position: relative; 
+	margin-left: auto;
+	margin-right: auto;
+/* 	top: 0px; 
+	left: 0px; */ 
+	width: 300px; 
+	height: 200px;
+}
+
+.pictures {
+	cursor: move; 
+	position: absolute; 
+	overflow: hidden; 
+	left: 0px; 
+	top: 0px; 
+	width: 300px; 
+	height: 200px;
+}
+
+/* jssor slider bullet navigator skin 14 css */
+/*
+.jssorb14 div           (normal)
+.jssorb14 div:hover     (normal mouseover)
+.jssorb14 .av           (active)
+.jssorb14 .av:hover     (active mouseover)
+.jssorb14 .dn           (mousedown)
+*/
+.jssorb14 {
+	position: absolute;
+	bottom: 10px;
+}
+
+.jssorb14 div, .jssorb14 div:hover, .jssorb14 .av {
+	position: absolute;
+	/* size of bullet elment */
+	width: 12px;
+	height: 12px;
+	background: url(/static/images/b14.png) no-repeat;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.jssorb14 div {
+	background-position: -9px -9px;
+}
+
+.jssorb14 div:hover, .jssorb14 .av:hover {
+	background-position: -39px -9px;
+}
+
+.jssorb14 .av {
+	background-position: -69px -9px;
+}
+
+.jssorb14 .dn, .jssorb14 .dn:hover {
+	background-position: -99px -9px;
+}
+
+/* NEW RESTAURANT END */
+
+/* OWNER REST LIST */
 .owner-rest-list {
 	list-style: none;
 	width: 1000px;
@@ -1714,7 +1848,6 @@ input.days-input {
 	width: 300px;
 	margin-right: 10px;
 	margin-bottom: 10px;
-	
 }
 
 .owner-rest-item .rest-image {
@@ -1727,16 +1860,15 @@ input.days-input {
 	padding: 0 10px 10px 10px;
 }
 
-.owner-rest-item .rest-info .address{
+.owner-rest-item .rest-info .address {
 	font-size: smaller;
 }
 
 /* OWNER REST LIST END */
 
 /* DISCOUNT MANAGE */
-
 .discount-container {
-	padding: 60px 10px 10px 10px;
+	padding: 51px 10px 10px 10px;
 }
 
 .disc-list {
@@ -1746,7 +1878,7 @@ input.days-input {
 	color: #444;
 }
 
-.disc-list .list ul{
+.disc-list .list ul {
 	list-style: none;
 	margin: 10px;
 	padding: 0;
@@ -1761,18 +1893,19 @@ input.days-input {
 	background-color: #fff;
 }
 
-.disc-item.odd{
+.disc-item.odd {
 	background-color: #ddd;
 }
 
-.disc-item .desc{
+.disc-item .desc {
+	
 }
 
-.disc-item .desc:hover{
+.disc-item .desc:hover {
 	color: #DC3D3D
 }
 
-.disc-item .coupon-num{
+.disc-item .coupon-num {
 	float: left;
 	width: 70px;
 	margin: 5px;
@@ -1783,27 +1916,24 @@ input.days-input {
 	font-size: larger;
 }
 
-.disc-item .actions{
+.disc-item .actions {
 	float: right;
 	margin: 5px;
 }
 
-
-.clear-float{
+.clear-float {
 	clear: both;
 }
 
-button.new-discount{
-	float : right;
+button.new-discount {
+	float: right;
 	margin-right: 10px;
 }
 
 /* DISCOUNT MANAGE END*/
 
-
 /* MY COUPONS */
-
-.coupon-list .used{
+.coupon-list .used {
 	max-height: 400px;
 }
 
@@ -1828,9 +1958,7 @@ ul.coupon-list .disc-item {
 .disc-item .disc-left {
 
 } */
-
-
-.coupon-list-title{
+.coupon-list-title {
 	font-size: larger;
 }
 
@@ -1845,36 +1973,33 @@ ul.coupon-list .disc-item {
 	margin: 5px;
 }
 
-.disc-coupon-list p{
+.disc-coupon-list p {
 	float: left;
 	margin: 5px;
 }
 
-.disc-coupon-list .use-button{
+.disc-coupon-list .use-button {
 	float: right;
 	margin: 5px;
 }
 
-.disc-coupon-list li{
+.disc-coupon-list li {
 	border-bottom: dashed 2px #DC3D3D;
 }
 
-
 /* MY COUPONS END*/
-
 
 /* media queries*/
 @media screen and (min-width: 500px) and (max-width: 980px) {
 	body {
 		font-size: 11pt;
 	}
-	.mobile{
+	.mobile {
 		display: none;
 	}
-	.desktop{
+	.desktop {
 		display: inherit;
 	}
-	
 	.red-button, input[type=button], input[type=submit], input[type=text],
 		input[type=number], select, textarea, .menu-items button {
 		font-size: 12pt !important;
@@ -1883,7 +2008,6 @@ ul.coupon-list .disc-item {
 		margin-top: 10px;
 		font-size: 20pt;
 	}
-	
 	.loading .loading-message {
 		font-size: 13px;
 	}
@@ -1901,12 +2025,10 @@ ul.coupon-list .disc-item {
 		background-color: rgba(247, 248, 205, 0.95);
 		z-index: 1;
 	} */
-	
-	.profile-picture{
+	.profile-picture {
 		width: 120px;
 		height: 120px;
 	}
-	
 	.profile-logo {
 		width: 250px;
 		height: 110px;
@@ -1947,11 +2069,10 @@ ul.coupon-list .disc-item {
 		margin-top: 15px;
 		font-size: 12pt;
 	}
-	
 	#other-pictures {
 		width: 60%;
 		margin-left: 25%;
-		padding-left: 20px;	
+		padding-left: 20px;
 	}
 
 	/* profile end */
@@ -1968,26 +2089,22 @@ ul.coupon-list .disc-item {
 	}
 
 	/* profile ratings end */
-	
+
 	/* letsgo */
 	/* .letsgo .rest-details, .letsgo .disc-details {
 		width: 350px;
 	} */
-	
 	.letsgo-rest-list {
 		width: 420px;
 	}
-
 	.letsgo-rest-item {
 		width: 410px;
 	}
-
 	.letsgo-rest-item .rest-image {
 		width: 400px;
 		height: 267px;
 	}
-	
-	.purpose-list{
+	.purpose-list {
 		width: 150px;
 		height: 100%;
 		position: fixed;
@@ -1997,8 +2114,7 @@ ul.coupon-list .disc-item {
 		background-color: #fafafa;
 		z-index: 2;
 	}
-	
-	.purpose-btn{
+	.purpose-btn {
 		position: relative;
 		border: 0;
 		width: 100%;
@@ -2009,8 +2125,7 @@ ul.coupon-list .disc-item {
 		margin-bottom: 10px;
 		vertical-align: middle;
 	}
-	
-	.purpose-btn .text{
+	.purpose-btn .text {
 		position: absolute;
 		top: 50%;
 		left: 50px;
@@ -2019,8 +2134,7 @@ ul.coupon-list .disc-item {
 		/* display: inline-block;
 		width: 90px; */
 	}
-	
-	.purpose-btn .btn-icon{
+	.purpose-btn .btn-icon {
 		width: 32px;
 		position: absolute;
 		top: 7px;
@@ -2030,44 +2144,37 @@ ul.coupon-list .disc-item {
 		vertical-align: middle;
 		display: inline-block; */
 	}
-	
-	.purpose-btn.disabled{
+	.purpose-btn.disabled {
 		background-color: #DC3D3D;
 		color: #fff;
 		-webkit-filter: none;
 		-moz-filter: none;
 		filter: none;
 	}
-	
-	.purpose-btn.disabled .btn-icon{
+	.purpose-btn.disabled .btn-icon {
 		-webkit-filter: brightness(0%) invert(100%);
 		-moz-filter: brightness(0%) invert(100%);
 		filter: brightness(0%) invert(100%);
 	}
-	
-	.letsgo-rest{
+	.letsgo-rest {
 		margin-left: 151px;
 	}
-	
-	.letsgo-picture-container{
+	.letsgo-picture-container {
 		position: relative;
 		margin: 0;
 		padding: 0;
 	}
-	
-	.letsgo-rest-area{
+	.letsgo-rest-area {
 		max-width: 100%;
 		margin-left: 40px;
 		margin-right: 40px;
 	}
-	
-	.letsgo-rest-area .frame{
+	.letsgo-rest-area .frame {
 		width: 300px;
 		max-width: 100%;
 		margin-left: auto;
 		margin-right: auto;
 	}
-
 	.letsgo-picture {
 		height: 200px;
 		background-color: #fafafa;
@@ -2079,61 +2186,48 @@ ul.coupon-list .disc-item {
 		-o-background-size: contain;
 		background-size: contain;
 		margin: 0;
-
 	}
-	
-	
-	
+
 	/* letsgo end */
-	
+
 	/* restaurant */
-	.rest .rest-right{
+	.rest .rest-right {
 		width: 50%;
 		float: right;
 	}
-	
-	.rest .rest-left{
+	.rest .rest-left {
 		width: 50%;
 		float: left;
 	}
-	
 	.rest .picture {
 		width: 220px;
 		height: 147px;
 	}
-
-	.rest .rest-right .rest-map img{
+	.rest .rest-right .rest-map img {
 		width: 220px;
 		height: 147px;
 	}
-
-	.rest .rest-right .map-link{
+	.rest .rest-right .map-link {
 		width: 220px;
 	}
-	
+
 	/* restaurant end */
-	
-	.disc-item .desc{
+	.disc-item .desc {
 		float: left;
 		max-width: 70%;
 	}
-	
-	.disc-item .coupon-num{
+	.disc-item .coupon-num {
 		width: 80px;
 		float: left;
 	}
-	
 	.coupon-item {
 		float: right;
 		text-align: right;
 	}
-
 	.disc-item .disc-left {
 		float: left;
 		max-width: 80%;
 	}
-	
-	
 }
 
 @media screen and (min-width: 650px) {
@@ -2158,7 +2252,7 @@ ul.coupon-list .disc-item {
 		width: 45%;
 		margin-left: 10px;
 	}
-/* 	.rest-item .rest-details .rest-image {
+	/* 	.rest-item .rest-details .rest-image {
 		width: 300px;
 		height: 200px;
 	} */
@@ -2180,36 +2274,30 @@ ul.coupon-list .disc-item {
 	.ratings #city {
 		width: 100%;
 	}
-	
+
 	/* letsgo */
 	.top-bar .menu-button .user-menu-small {
 		display: block;
 	}
-	
 	.letsgo-rest-list {
 		width: 520px;
 	}
-
 	.letsgo-rest-item {
 		width: 510px;
 	}
-
 	.letsgo-rest-item .rest-image {
 		width: 500px;
 		height: 333px;
 	}
-	
-	.letsgo-rest-area .frame{
+	.letsgo-rest-area .frame {
 		width: 450px;
 	}
-
 	.letsgo-picture {
 		height: 300px;
 	}
-	
-	
+
 	/* letsgo end */
-	
+
 	/* owner list */
 	.rest-item div.rest-actions {
 		display: inline-block;
@@ -2217,18 +2305,15 @@ ul.coupon-list .disc-item {
 		margin-left: 10px;
 	}
 	/* owner list end */
-	
 	.rest .picture {
 		width: 300px;
 		height: 200px;
 	}
-
-	.rest .rest-right .rest-map img{
+	.rest .rest-right .rest-map img {
 		width: 300px;
 		height: 200px;
 	}
-
-	.rest .rest-right .map-link{
+	.rest .rest-right .map-link {
 		width: 300px;
 	}
 }
@@ -2238,20 +2323,16 @@ ul.coupon-list .disc-item {
 		width: 380px;
 		height: 253px;
 	}
-
-	.rest .rest-right .rest-map img{
+	.rest .rest-right .rest-map img {
 		width: 380px;
 		height: 253px;
 	}
-
-	.rest .rest-right .map-link{
+	.rest .rest-right .map-link {
 		width: 380px;
 	}
-	
-	.letsgo-rest-area .frame{
+	.letsgo-rest-area .frame {
 		width: 550px;
 	}
-
 	.letsgo-picture {
 		height: 366px;
 	}
@@ -2261,21 +2342,20 @@ ul.coupon-list .disc-item {
 	body {
 		font-size: 13pt;
 	}
-	.mobile{
+	.mobile {
 		display: none;
 	}
-	.desktop{
+	.desktop {
 		display: inherit;
 	}
 	.red-button, input[type=button], input[type=submit], input[type=text],
-		input[type=number], select, textarea, .menu-items button{
+		input[type=number], select, textarea, .menu-items button {
 		font-size: 14pt;
 	}
 	.login h4 {
 		margin-top: 10px;
 		font-size: 16pt;
 	}
-	
 	.loading .loading-message {
 		font-size: 16px;
 	}
@@ -2293,8 +2373,7 @@ ul.coupon-list .disc-item {
 		background-color: rgba(247, 248, 205, 0.95);
 		z-index: 1;
 	} */
-	
-	.profile-picture{
+	.profile-picture {
 		width: 140px;
 		height: 140px;
 	}
@@ -2338,11 +2417,10 @@ ul.coupon-list .disc-item {
 		margin-top: 15px;
 		font-size: 13pt;
 	}
-	
 	#other-pictures {
 		width: 60%;
 		margin-left: 25%;
-		padding-left: 20px;	
+		padding-left: 20px;
 	}
 
 	/* profile end */
@@ -2373,28 +2451,24 @@ ul.coupon-list .disc-item {
 		width: 100%;
 	}
 	/* profile ratings end */
-	
+
 	/* letsgo */
-/* 	.letsgo .rest-details, .letsgo .disc-details {
+	/* 	.letsgo .rest-details, .letsgo .disc-details {
 		width: 450px;
 	} */
-	
 	.letsgo-rest-list {
 		width: 864px;
 	}
-
 	.letsgo-rest-item {
 		width: 410px;
 		vertical-align: middle;
 		margin: 10px;
 	}
-
 	.letsgo-rest-item .rest-image {
 		width: 400px;
 		height: 267px;
 	}
-	
-	.purpose-list{
+	.purpose-list {
 		width: 200px;
 		height: 100%;
 		position: fixed;
@@ -2404,8 +2478,7 @@ ul.coupon-list .disc-item {
 		background-color: #fafafa;
 		z-index: 2;
 	}
-	
-	.purpose-btn{
+	.purpose-btn {
 		border: 0;
 		width: 100%;
 		padding: 0;
@@ -2415,57 +2488,48 @@ ul.coupon-list .disc-item {
 		margin-top: 10px;
 		margin-bottom: 10px;
 	}
-	
-	.purpose-btn .text{
+	.purpose-btn .text {
 		display: inline-block;
 		width: 140px;
 	}
-	
-	.purpose-btn .btn-icon{
+	.purpose-btn .btn-icon {
 		width: 32px;
 		margin-left: 3px;
 		margin-right: 10px;
 		display: inline-block;
 		vertical-align: middle;
 	}
-	
-	.purpose-btn.disabled{
+	.purpose-btn.disabled {
 		background-color: #DC3D3D;
 		color: #fff;
 		-webkit-filter: none;
 		-moz-filter: none;
 		filter: none;
 	}
-	
-	.purpose-btn.disabled .btn-icon{
+	.purpose-btn.disabled .btn-icon {
 		-webkit-filter: brightness(0%) invert(100%);
 		-moz-filter: brightness(0%) invert(100%);
 		filter: brightness(0%) invert(100%);
 	}
-	
-	.letsgo-rest{
+	.letsgo-rest {
 		margin-left: 201px;
 	}
-	
-	.letsgo-picture-container{
+	.letsgo-picture-container {
 		position: relative;
 		margin: 0;
 		padding: 0;
 	}
-	
-	.letsgo-rest-area{
+	.letsgo-rest-area {
 		max-width: 100%;
 		margin-left: 40px;
 		margin-right: 40px;
 	}
-	
-	.letsgo-rest-area .frame{
+	.letsgo-rest-area .frame {
 		width: 600px;
 		max-width: 100%;
 		margin-left: auto;
 		margin-right: auto;
 	}
-
 	.letsgo-picture {
 		height: 400px;
 		background-color: #fafafa;
@@ -2477,56 +2541,45 @@ ul.coupon-list .disc-item {
 		-o-background-size: contain;
 		background-size: contain;
 		margin: 0;
-
 	}
-	
-	
+
 	/* letsgo end */
-	
+
 	/* restaurant */
-	.rest .rest-right{
+	.rest .rest-right {
 		width: 50%;
 		float: right;
 	}
-	
-	.rest .rest-left{
+	.rest .rest-left {
 		width: 50%;
 		float: left;
 	}
-	
 	.rest .picture {
 		width: 450px;
 		height: 300px;
 	}
-
-	.rest .rest-right .rest-map img{
+	.rest .rest-right .rest-map img {
 		width: 450px;
 		height: 300px;
 	}
-
-	.rest .rest-right .map-link{
+	.rest .rest-right .map-link {
 		width: 450px;
 	}
 	/* restaurant end */
-	
-	.disc-item .desc{
+	.disc-item .desc {
 		float: left;
 		max-width: 70%;
 	}
-	
-	.disc-item .coupon-num{
+	.disc-item .coupon-num {
 		width: 100px;
 		float: left;
 	}
-	
 	.coupon-item {
 		float: right;
 		text-align: right;
 	}
-
 	.disc-item .disc-left {
 		float: left;
 		max-width: 80%;
 	}
-	
 }
