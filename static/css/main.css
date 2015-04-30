@@ -255,7 +255,7 @@ button.disabled {
 	bottom: 25px;
 	left: 25px;
 	right: 25px;
-	background-color: #F7F8CD;
+	background-color: #fafafa;
 	z-index: 310;
 	border: solid 2px #DC3D3D;
 	/* border-radius: 24px; */
@@ -1238,10 +1238,10 @@ li.rest-item {
 .letsgo-picture-container .left-arrow {
 	width: 32px;
 	height: 32px;
-	position: absolute;
+	position: fixed;
 	z-index: 2;
 	vertical-align: center;
-	top: 50%;
+	top: 55%;
 	-webkit-transform: translate(0, -50%);
 	transform: translate(0, -50%);
 	left: 5px;
@@ -1258,10 +1258,10 @@ li.rest-item {
 .letsgo-picture-container .right-arrow {
 	width: 32px;
 	height: 32px;
-	position: absolute;
+	position: fixed;
 	z-index: 2;
 	vertical-align: center;
-	top: 50%;
+	top: 55%;
 	-webkit-transform: translate(0, -50%);
 	transform: translate(0, -50%);
 	right: 5px;
@@ -1308,7 +1308,7 @@ li.rest-item {
 .letsgo-rest-main, .letsgo-predict, .letsgo-discount-list .discount {
 	color: #444;
 	background-color: #fafafa;
-	border: solid 1px #aaa;
+	/* border: solid 1px #aaa; */
 }
 
 .letsgo-disc-area {
@@ -1343,6 +1343,7 @@ li.rest-item {
 	border-radius: 5px;
 	text-align: center;
 	width: 50%;
+	display: none;
 }
 
 .letsgo-discount-list ul {
@@ -2120,6 +2121,11 @@ ul.coupon-list .disc-item {
 		background-color: #fafafa;
 		z-index: 2;
 	}
+	
+	.letsgo-picture-container.desktop .left-arrow{
+		left: 155px
+	}
+	
 	.purpose-btn {
 		position: relative;
 		border: 0;
@@ -2484,6 +2490,11 @@ ul.coupon-list .disc-item {
 		background-color: #fafafa;
 		z-index: 2;
 	}
+	
+	.letsgo-picture-container.desktop .left-arrow{
+		left: 205px
+	}
+	
 	.purpose-btn {
 		border: 0;
 		width: 100%;

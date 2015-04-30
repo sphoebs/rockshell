@@ -8,7 +8,7 @@
 			<div>
 				<label class="form-label"><%= strings.purpose %>: </label>
 				<div class="form-input">
-					<select name="purpose" required>
+					<select id="purpose" name="purpose" required>
 						<option value="dinner with tourists" <%= settings.purpose == 'dinner with tourists' ? 'selected' : '' %> > <%= strings.tourists %> </option>
 						<option value="romantic dinner" <%= settings.purpose == 'romantic dinner' ? 'selected' : '' %> > <%= strings.partner %> </option>
 						<option value="dinner with friends" <%= settings.purpose == 'dinner with friends' ? 'selected' : '' %> > <%= strings.friends %> </option>
@@ -20,14 +20,14 @@
 		
 			<div>
 				<label class="form-label"><%= strings.max_distance %>: </label>
-				<div class="form-input"><input type="number" name="max_distance"
+				<div class="form-input"><input type="number" id="max_distance" name="max_distance"
 					value="<%= settings.max_distance %>">
 				</div>
 			</div>
 			
 			<div>
 				<label class="form-label"><%= strings.num_places %>: </label>
-				<div class="form-input"><input type="number" name="num_places"
+				<div class="form-input"><input type="number" id="num_places" name="num_places"
 					value="<%= settings.num_places %>">
 				</div>
 			</div>

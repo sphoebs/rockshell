@@ -1581,19 +1581,19 @@ class Place(PFmodel):
             #start from ditance = max_dist
             dist = max_dist
             # request places until one is obtained, increasing the distance.
-            while len(places) < 1 and num < 5:
-                query = "distance(location, geopoint(%s, %s)) < %s" % (
+#             while len(places) < 1 and num < 5:
+            query = "distance(location, geopoint(%s, %s)) < %s" % (
                     filters['lat'], filters['lon'], dist)
-                logging.info(
+            logging.info(
                     "Place.get_list -- getting places with query " + str(query))
-                result = index.search(query)
-                places = [Place.make_key(None, d.doc_id)
+            result = index.search(query)
+            places = [Place.make_key(None, d.doc_id)
                           for d in result.results]
-                logging.info(
+            logging.info(
                     "Place.get_list -- found places " + str(len(places)))
-                num += 1
+#                 num += 1
                 #double the distance for next iteration
-                dist += dist
+#                 dist += dist
 
             if places is None or len(places) < 1:
                 # even extending the area did not work

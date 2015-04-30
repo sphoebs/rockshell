@@ -20,6 +20,7 @@ from models import Place, Cluster, Discount
 import math
 import logging
 import json
+import datetime
 
 from google.appengine.api import memcache, taskqueue
 
@@ -34,7 +35,7 @@ cluster_threshold = 0.2
 
 from math import radians, cos, sin, asin, sqrt
 
-debug = True
+debug = False
 
 def distance(lat1, lon1, lat2, lon2):
     """
@@ -43,8 +44,8 @@ def distance(lat1, lon1, lat2, lon2):
 
     Returns distance in meters
     """
-#     if debug:
-    logging.info('recommender.distance START : lat1=' + str(lat1) +
+    if debug:
+        logging.info('recommender.distance START : lat1=' + str(lat1) +
                  " - lon1=" + str(lon1) + " - lat2=" + str(lat2) + " - lon2=" + str(lon2))
     # convert decimal degrees to radians
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
@@ -386,8 +387,8 @@ def cluster_similarity(ratings, clusters, cluster1_id, cluster2_id, cluster_sim_
             cluster_sim_matrix[cluster1_id] = {}
         if cluster2_id not in cluster_sim_matrix:
             cluster_sim_matrix[cluster2_id] = {}
-        cluster_sim_matrix[cluster1_id][cluster2_id] = sim
-        cluster_sim_matrix[cluster2_id][cluster1_id] = sim
+        cluster_sim_matrix[cluster1_id][cluster2_id] = min_sim
+        cluster_sim_matrix[cluster2_id][cluster1_id] = min_sim
 
         # update cluster_sim_matrix in memcache
         i = 0
@@ -762,14 +763,14 @@ def build_clusters(ratings, clusters=None):
 #         'recommender.update_clusters END - clusters: ' + str(clusters))
 
 
-def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filters=None):
+def cluster_based(user, places_ids, purpose='dinner with tourists', np=5, loc_filters=None):
     """
     It computes cluster-based recommendations.
     Clusters have been already computed, so only user's cluster information is needed to compute predictions for the user.
 
     Input:
     - user: the id of the requester
-    - places: the list of places that can be recommended
+    - places_keys: the list of places keys that can be recommended
     - purpose: the purpose the user is interested in
     - np: the number of recommendations the user needs
 
@@ -784,7 +785,8 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
     #check in memcache if the user already did the same request (ignore np)
     
     client = memcache.Client()
-    rec_name = 'cluster-scores_' + str(user)
+    purpose_str = purpose.replace(' ', '-')
+    rec_name = 'cluster-scores_' + str(user) + '_' + purpose_str 
     # memcache_scores is a dict containing: 
     # - scores: list of items and scores
     # - purpose
@@ -877,14 +879,14 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
 
         filters = {}
         filters['users'] = user_cluster
-        if places is not None:
-            filters['places'] = [Place.make_key(None, place['key']).id() for place in places]
+        filters['places'] = places_ids
         filters['purpose'] = purpose
 
         ratings = load_data(filters)
 
         # prediction formula = average
         items = {}
+        user_not_liked = []
         for other in user_cluster:
             if other != user:
                 if ratings is not None and other in ratings:
@@ -893,15 +895,26 @@ def cluster_based(user, places, purpose='dinner with tourists', np=5, loc_filter
                             if item not in items.keys():
                                 items[item] = []
                             items[item].append(ratings[other][item][purpose])
+            else:
+                if ratings is not None and other in ratings:
+                    for item in ratings[other]:
+                        if purpose in ratings[other][item]:
+                            if ratings[other][item][purpose] < 4:
+                                user_not_liked.append(item)
 
+        logging.info("user_not_liked: " + str(user_not_liked))
         scores = [(sum(items[item]) / len(items[item]), item)
-              for item in items]
-#         logging.info("scores: " + str(scores))
+              for item in items if item not in user_not_liked]
+        
+        logging.info("scores: " + str(scores))
 #     logging.info('scores ordering start - len:' + str(len(scores)))
         scores = sorted(scores, key=lambda x: x[0], reverse = True)
         
+        scores = [score for score in scores if score[0] >= 3.0]
+        logging.info("scores: " + str(scores))
         #save scores in memcache
-        rec_name = 'cluster-scores_' + str(user)
+        purpose_str = purpose.replace(' ', '-')
+        rec_name = 'cluster-scores_' + str(user) + '_' + purpose_str
         memcache_scores = {}
         memcache_scores['scores'] = scores
         memcache_scores['purpose'] = purpose
@@ -956,7 +969,10 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         user_max_dist = filters['max_dist']
         #get places for a larger area
         filters['max_dist'] = 2 * user_max_dist
+    start = datetime.datetime.now()
+    logging.warning("RECOMMEND START request of places: " + str(start))
     places, status, errcode = logic.place_list_get(filters, user_id)
+    logging.warning("RECOMMEND END request of places: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
     if debug:
         logging.info("RECOMMEND places loaded ")
 
@@ -969,6 +985,8 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     
     closest = []
     out_distance = []
+    start = datetime.datetime.now()
+    logging.warning("RECOMMEND START compute distance for each place: " + str(start))
     for p in places:
         if 'lat' in filters and 'lon' in filters and filters['lat'] is not None and filters['lon'] is not None:
             # add distance to user for each place
@@ -985,9 +1003,27 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     else:
         #TODO: fill missing spaces with outliers?
         places = closest
-
-    scores = cluster_based(user_id, places, purpose, n, loc_filters=filters)
-
+    logging.warning("RECOMMEND END compute distance for each place: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
+    place_ids = []
+    if places is not None:
+        place_ids = [Place.make_key(None, place['key']).id() for place in places]
+    scores = None
+    purpose_list = ["dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"]
+    start = datetime.datetime.now()
+    logging.warning("RECOMMEND START get cluster-based predictions for all purposes: " + str(start))
+    for p in purpose_list:
+        if p == purpose:
+            start2 = datetime.datetime.now()
+            logging.warning("RECOMMEND START get cluster-based predictions: " + str(start2))
+            scores = cluster_based(user_id, place_ids, p, n, loc_filters=filters)
+            logging.warning("RECOMMEND END get cluster-based predictions: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start2))
+        else:
+            q = taskqueue.Queue('recommendations')
+             
+            task = taskqueue.Task(params={'user_id': user_id, 'place_ids': place_ids, 'purpose': p, 'n': n, 'loc_filters': str(filters)},
+                url='/recommender/compute_cluster_based', method='POST', countdown=10)
+            q.add(task)
+    
     if debug:
         log_text = "RECOMMEND scores from cluster-based : "
         if scores is None:
@@ -995,8 +1031,10 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         else:
             log_text += str(len(scores))
         logging.info(log_text)
-
+    logging.warning("RECOMMEND END get cluster-based predictions for all purposes: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
     if scores is None or (len(scores) < n and len(scores) < len(places)):
+        start = datetime.datetime.now()
+        logging.warning("RECOMMEND START get average-based predictions: " + str(start))
         # cluster-based recommendation failed
         # non-personalized recommendation
         rating_filters = {}
@@ -1018,6 +1056,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
                       for item in items]
         avg_scores.sort()
         avg_scores.reverse()
+        avg_scores = [score for score in avg_scores if score[0] >= 3.0]
         if scores is not None:
             for avg_score, avg_key in avg_scores:
                 in_list = False
@@ -1039,21 +1078,22 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
             else:
                 log_text += str(len(scores))
             logging.info(log_text)
+        logging.warning("RECOMMEND END get average-based predictions: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
 
-    if scores is None or (len(scores) < n and len(scores) < len(places)):
-        # cluster-based and average recommendations both failed to fill the recommendation list
-        # just add some other places
-        for p in places:
-            in_list = False
-            for score, key in scores:
-                if key == p['key']:
-                    in_list = True
-                    break
-            if not in_list:
-                scores.append((0, p['key']))
-            if len(scores) >= n:
-                # we have enough recommended places
-                break
+#     if scores is None or (len(scores) < n and len(scores) < len(places)):
+#         # cluster-based and average recommendations both failed to fill the recommendation list
+#         # just add some other places
+#         for p in places:
+#             in_list = False
+#             for score, key in scores:
+#                 if key == p['key']:
+#                     in_list = True
+#                     break
+#             if not in_list:
+#                 scores.append((0, p['key']))
+#             if len(scores) >= n:
+#                 # we have enough recommended places
+#                 break
             
     if debug:
         log_text = "RECOMMEND final scores : "
@@ -1063,6 +1103,8 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
             log_text += str(len(scores))
         logging.info(log_text)
 
+    start = datetime.datetime.now()
+    logging.warning("RECOMMEND START get top n places: " + str(start))
     places_scores = []
     for p in places:
         found = False
@@ -1076,8 +1118,11 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     places_scores = sorted(places_scores, key=lambda x: x[0], reverse = True)
     
     places_scores = places_scores[0:n]
+    logging.warning("RECOMMEND END get top n places: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
 #     logging.info('recommender.recommend - places_scores: ' + str(places_scores))
     items = []
+    start = datetime.datetime.now()
+    logging.warning("RECOMMEND START get discounts for places: " + str(start))
     for (score, place) in places_scores:
         
         #TODO: make discount loading asynchronous in javascript page, after visualization of places!!!
@@ -1095,6 +1140,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
                 pass
         place['predicted'] = score
         items.append(place)
+    logging.warning("RECOMMEND END get discounts for places: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
 
 #     logging.info("Recommended items: " + str(items))
     logging.info("recommender.recommend END - items: " + str(items))
@@ -1292,6 +1338,29 @@ class RecomputeClustersHandler(webapp2.RequestHandler):
         logging.info('recommender.RecomputeClustersHandler.get END')
         self.response.write('OK')
 
+class ComputeClusterBasedHandler(webapp2.RequestHandler):
+    
+    def post(self):
+        logging.info("ComputeClusterBasedHandler")
+        post_data = self.request.params
+        logging.info("POST data: " + str(post_data))
+        
+        place_ids = post_data.getall('place_ids')
+        place_ids = [long(pid) for pid in place_ids]
+        filters = eval(post_data.get('loc_filters'))
+        n = int(post_data.get('n'))
+        user_id = post_data.get('user_id')
+        purpose = post_data.get('purpose')
+        
+#         logging.error("place keys: " + str(place_ids))
+#         logging.error("loc_filtes: " + str(filters))
+#         logging.error("n: " + str(n))
+#         logging.error("user: " + str(user_id))
+#         logging.error("purpose: " + str(purpose))
+        
+        cluster_based(user_id, place_ids, purpose, n, loc_filters=filters)
+        
+        logging.info("ComputeClusterBasedHandler END")
 
 # The following is for publishing the recommender via rest api
 class RecommenderHandler(webapp2.RequestHandler):
@@ -1345,5 +1414,6 @@ app = webapp2.WSGIApplication([
     ('/recommender/', RecommenderHandler),
 #     ('/recommender/init', RecommenderInitHandler),
     ('/recommender/update_clusters', UpdatesHandler),
-    ('/recommender/recompute_clusters', RecomputeClustersHandler)
+    ('/recommender/recompute_clusters', RecomputeClustersHandler),
+    ('/recommender/compute_cluster_based', ComputeClusterBasedHandler)
 ], debug=True)

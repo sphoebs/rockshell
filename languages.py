@@ -345,6 +345,11 @@ en = {
                      'message': 'An error happened while saving the owner of the restaurant.',
                      'close': 'Close',
     },
+    'settings_save_error': {
+                     'title': 'Error',
+                     'message': 'An error happened while saving your settings.',
+                     'close': 'Close',
+    },
 }
 
 
@@ -685,6 +690,11 @@ it = {
     'owner_save_error': {
                      'title': 'Errore',
                      'message': 'Si &egrave; verificato un errore durante il salvataggio del proprietario del ristorante.',
+                     'close': 'Chiudi',
+    },
+    'settings_save_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il salvataggio delle tue impostazioni.',
                      'close': 'Chiudi',
     },
     

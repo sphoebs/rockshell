@@ -349,7 +349,9 @@ class SettingsHandler(BaseRequestHandler):
             self.render("error.html", {'error_code': errcode, 'error_string': status})
             return
 
-        self.redirect('/letsgo')
+#         self.redirect('/letsgo')
+        self.response.set_status(200)
+        self.response.write('')
 
 class RatingsPageHandler(BaseRequestHandler):
     

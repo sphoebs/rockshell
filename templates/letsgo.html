@@ -78,14 +78,21 @@
 					<div class="letsgo-picture clickable"></div>
 					<div class="letsgo-rest-main rest-clickable">
 						<div class="letsgo-disc-area"></div>
-						<p class="letsgo-rest-distance">Distance 1.23 km</p>
-						<h3 class="bold-text rest-title">Restaurant title</h3>
-						<p class="rest-address"> Via roma 50, Trento</p>
-						<p class="rest-open">Now open</p>
+						<p class="letsgo-rest-distance"></p>
+						<h3 class="bold-text rest-title"></h3>
+						<p class="rest-address"></p>
+						<p class="rest-open"></p>
 						<div class="clear-float"></div>
 					</div>
 					<div class="letsgo-predict">
-						<p>Your personalized Planfree recommendation <span id="rating"></span></p>
+						<p style="display: inline-block;">{{lang['prediction']}}: </p>
+						<div class="prediction" style="display: inline-block;">
+							<img src="/static/images/ratings/bad_selected.png" style="width: 18px; height: 18px;"/>
+							<div class="all" style="vertical-align: middle; display: inline-block; position:relative; width: 100px; height: 10px; background-color: #666;"><div class="full" style="position:absolute; top:0; left:0; width: 0px; height: 10px; background-color: #DC3D3D;"></div></div>
+							<img src="/static/images/ratings/happy_selected.png" style="width: 18px; height: 18px;"/>
+						</div>
+						
+						
 					</div>
 					<div class="letsgo-discount-list">
 			
@@ -97,14 +104,20 @@
 			<div class="mobile">
 				<div class="letsgo-rest-main rest-clickable">
 					<div class="letsgo-disc-area"></div>
-					<p class="letsgo-rest-distance">Distance 1.23 km</p>
-					<h3 class="bold-text rest-title">Restaurant title</h3>
-					<p class="rest-address"> Via roma 50, Trento</p>
-					<p class="rest-open">Now open</p>
+					<p class="letsgo-rest-distance"></p>
+					<h3 class="bold-text rest-title"></h3>
+					<p class="rest-address"></p>
+					<p class="rest-open"></p>
 					<div class="clear-float"></div>
 				</div>
 				<div class="letsgo-predict">
-					<p>Your personalized Planfree recommendation <span id="rating"></span></p>
+					<!-- <p>{{lang['prediction']}} <span id="rating"></span></p> -->
+					<p style="display: inline-block;">{{lang['prediction']}}: </p>
+						<div class="prediction" style="display: inline-block;">
+							<img src="/static/images/ratings/bad_selected.png" style="width: 18px; height: 18px;"/>
+							<div class="all" style="vertical-align: middle; display: inline-block; position:relative; width: 100px; height: 10px; background-color: #666;"><div class="full" style="position:absolute; top:0; left:0; width: 0px; height: 10px; background-color: #DC3D3D;"></div></div>
+							<img src="/static/images/ratings/happy_selected.png" style="width: 18px; height: 18px;"/>
+						</div>
 				</div>
 				<div class="letsgo-discount-list">
 			
@@ -364,8 +377,12 @@ $(window).load(function() {
 		}
 		$('.rest-open').html(open_str);
 		if(p.predicted){
-			p.predicted = Math.round(p.predicted * 100) / 100
-			$('.letsgo-predict p').html("{{lang['prediction']}}: " + p.predicted);
+			value = Math.round(p.predicted * 100) / 5
+			if(window.console){
+			console.log("Predicted rating: "+ value);
+			}
+			$('.letsgo-predict .prediction .full').css('width', value + 'px');
+			/* $('.letsgo-predict ').html("{{lang['prediction']}}: " + p.predicted); */
 		}
 		
 		if(p.discounts && p.discounts.length > 0){
@@ -383,6 +400,11 @@ $(window).load(function() {
 			});
 			
 			$('.letsgo-discount-list').html(html);
+			
+			$('.disc-clickable').click(function(){
+				var key = $(this).attr('disc-key');
+				window.location = '/discount?id=' + key;
+			});
 			
 			$('.countdown').each(function(){
 				var end = $(this).attr('end-time');
@@ -497,11 +519,6 @@ $(window).load(function() {
 	
 	$(".clickable, .rest-clickable").click(function(){
 		window.location = '/restaurant?id=' + places[pos].key; 
-	});
-	
-	$('.disc-clickable').click(function(){
-		var key = $(this).attr('disc-key');
-		window.location = '/discount?id=' + key;
 	});
 	
 	$('.purpose-btn').click(function(){
@@ -655,7 +672,29 @@ $(window).load(function() {
 		$('.settings-popup .save').click(function(){
 			localStorage.removeItem("reclist");
 			localStorage.removeItem("reclist_time");
-			$('.settings-popup form').submit();
+
+			var settings = {
+					purpose: $('form #purpose option:selected').val(),
+					max_distance: $('form #max_distance').val(),
+					num_places: $('form #num_places').val()
+			};
+			
+			$.ajax({
+				type : 'POST',
+				url : '/settings',
+				data: settings,
+				success : function() {
+					//  $('.popup-area').html(""); 
+					window.location = '/letsgo';
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					show_error({{lang['settings_save_error']|safe}});
+				}
+			});
+			
 		});
 	});
 	

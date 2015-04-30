@@ -1,8 +1,13 @@
-total_storage_limit: 50M
+total_storage_limit: 250M
 
 queue:
 - name: update-clusters-queue
   rate: 1/s
   bucket_size: 1
   max_concurrent_requests: 1
+  
+- name: recommendations
+  rate: 10/s
+  bucket_size: 10
+  max_concurrent_requests: 3 
   
