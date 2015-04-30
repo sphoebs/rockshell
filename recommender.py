@@ -969,10 +969,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         user_max_dist = filters['max_dist']
         #get places for a larger area
         filters['max_dist'] = 2 * user_max_dist
-    start = datetime.datetime.now()
-    logging.warning("RECOMMEND START request of places: " + str(start))
     places, status, errcode = logic.place_list_get(filters, user_id)
-    logging.warning("RECOMMEND END request of places: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
     if debug:
         logging.info("RECOMMEND places loaded ")
 
@@ -986,7 +983,6 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     closest = []
     out_distance = []
     start = datetime.datetime.now()
-    logging.warning("RECOMMEND START compute distance for each place: " + str(start))
     for p in places:
         if 'lat' in filters and 'lon' in filters and filters['lat'] is not None and filters['lon'] is not None:
             # add distance to user for each place
@@ -1003,7 +999,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     else:
         #TODO: fill missing spaces with outliers?
         places = closest
-    logging.warning("RECOMMEND END compute distance for each place: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start))
+    logging.warning("RECOMMEND END compute distance for each place: " + str(datetime.datetime.now()-start))
     place_ids = []
     if places is not None:
         place_ids = [Place.make_key(None, place['key']).id() for place in places]
@@ -1014,9 +1010,8 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
     for p in purpose_list:
         if p == purpose:
             start2 = datetime.datetime.now()
-            logging.warning("RECOMMEND START get cluster-based predictions: " + str(start2))
             scores = cluster_based(user_id, place_ids, p, n, loc_filters=filters)
-            logging.warning("RECOMMEND END get cluster-based predictions: " + str(datetime.datetime.now()) + " == " + str(datetime.datetime.now()-start2))
+            logging.warning("RECOMMEND END get cluster-based predictions: " + str(datetime.datetime.now()-start2))
         else:
             q = taskqueue.Queue('recommendations')
              

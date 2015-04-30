@@ -14,8 +14,26 @@ from google.appengine.api import memcache
 import logging
 from __builtin__ import staticmethod
 
+# for SQL
+import MySQLdb
+import os
+import math
 
-index = search.Index(name='places')
+#server
+INSTANCE_NAME = 'secure-gizmo-698:mysql56' 
+DATABASE = 'planfree' 
+DB_USER = 'root' 
+#local
+DB_PASSWORD = 'root'
+
+def get_db(): 
+    if os.environ.get('SERVER_SOFTWARE', '').startswith('Development'):
+        # This is a development server.
+        db = MySQLdb.connect(host='127.0.0.1', port=3306, db=DATABASE, user=DB_USER, passwd=DB_PASSWORD)
+    else: 
+        # This is on App Engine. A password is not needed.
+        db = MySQLdb.connect(unix_socket='/cloudsql/' + INSTANCE_NAME, db=DATABASE, user=DB_USER)
+    return db
 
 
 def code_generator(used_codes):
@@ -1451,6 +1469,19 @@ class Place(PFmodel):
                     continue
 
             db_obj.put()
+            
+            if obj.address is not None and obj.address.location is not None:
+                db = get_db()
+                try:
+                    cursor = db.cursor() 
+                    sql = 'UPDATE places SET lat = %f, lon = %f WHERE pkey = %s' % (obj.address.location.lat, obj.address.location.lon, obj.key.urlsafe())
+#                     logging.info("SQL: " + sql)
+                    cursor.execute(sql) 
+                    db.commit()
+                except ValueError:
+                    logging.error("Invalid data for place: %s, %f, %f" % (obj.key.urlsafe(), obj.address.location.lat, obj.address.location.lon))
+                finally:
+                    db.close()
 
             return db_obj
 
@@ -1458,12 +1489,24 @@ class Place(PFmodel):
             # key is not valid --> create
             #             logging.info("Creating new place ")
             obj.put()
+#             if obj.address is not None and obj.address.location is not None:
+#                 geopoint = search.GeoPoint(
+#                     obj.address.location.lat, obj.address.location.lon)
+#                 fields = [search.GeoField(name='location', value=geopoint)]
+#                 d = search.Document(doc_id=obj.key.urlsafe(), fields=fields)
+#                 search.Index(name='places').put(d)
             if obj.address is not None and obj.address.location is not None:
-                geopoint = search.GeoPoint(
-                    obj.address.location.lat, obj.address.location.lon)
-                fields = [search.GeoField(name='location', value=geopoint)]
-                d = search.Document(doc_id=obj.key.urlsafe(), fields=fields)
-                search.Index(name='places').put(d)
+                db = get_db()
+                try:
+                    cursor = db.cursor() 
+                    sql = 'INSERT INTO places (pkey, lat, lon) VALUES ("%s", %f, %f)' % (obj.key.urlsafe(), obj.address.location.lat, obj.address.location.lon)
+#                     logging.info("SQL: " + sql)
+                    cursor.execute(sql) 
+                    db.commit()
+                except ValueError:
+                    logging.error("Invalid data for place: %s, %f, %f" % (obj.key.urlsafe(), obj.address.location.lat, obj.address.location.lon))
+                finally:
+                    db.close()
 
             return obj
 
@@ -1561,45 +1604,85 @@ class Place(PFmodel):
            
             
             places = []
-            index = search.Index(name='places')
-            logging.info("INDEX: " + str(len(index.search("").results)))
-            #if the index is empty, load places into index!
-            if len(index.search("").results)<1:
-                logging.info("INDEX SEARCH IS EMPTY!!")
-                tmp_places = Place.query()
-                tmp_places = list(tmp_places)
-                for p in tmp_places:
-                    geopoint = search.GeoPoint(
-                                               p.address.location.lat, p.address.location.lon)
-                    fields = [search.GeoField(name='location', value=geopoint)]
-                    d = search.Document(doc_id=p.key.urlsafe(), fields=fields)
-                    index.put(d)
-
+#             index = search.Index(name='places')
+#             logging.info("INDEX: " + str(len(index.search("").results)))
+#             #if the index is empty, load places into index!
+#             if len(index.search("").results)<1:
+#                 logging.info("INDEX SEARCH IS EMPTY!!")
+#                 tmp_places = Place.query()
+#                 tmp_places = list(tmp_places)
+#                 for p in tmp_places:
+#                     geopoint = search.GeoPoint(
+#                                                p.address.location.lat, p.address.location.lon)
+#                     fields = [search.GeoField(name='location', value=geopoint)]
+#                     d = search.Document(doc_id=p.key.urlsafe(), fields=fields)
+#                     index.put(d)
+# 
+#             
+# #             logging.info("Place.get_list -- found places " + str(len(places)))
+#             num = 0
+#             #start from ditance = max_dist
+#             dist = max_dist
+#             # request places until one is obtained, increasing the distance.
+# #             while len(places) < 1 and num < 5:
+#             query = "distance(location, geopoint(%s, %s)) < %s" % (
+#                     filters['lat'], filters['lon'], dist)
+#             logging.info(
+#                     "Place.get_list -- getting places with query " + str(query))
+#             result = index.search(query)
+#             places = [Place.make_key(None, d.doc_id)
+#                           for d in result.results]
+#             logging.info(
+#                     "Place.get_list -- found places " + str(len(places)))
+# #                 num += 1
+#                 #double the distance for next iteration
+# #                 dist += dist
+# 
+#             if places is None or len(places) < 1:
+#                 # even extending the area did not work
+#                 return None
+#             
+#             dblist = Place.query(Place.key.IN(places))
+            start = datetime.now()
+            db = get_db()
+            r = (max_dist / 1000.0) / 6371.0
+            lon1 = filters['lon'] + math.asin(math.sin(r)/math.cos(filters['lat']))
+            lon2 = filters['lon'] - math.asin(math.sin(r)/math.cos(filters['lat']))
+            lat1 = filters['lat'] - r
+            lat2 = filters['lat'] + r
             
-#             logging.info("Place.get_list -- found places " + str(len(places)))
-            num = 0
-            #start from ditance = max_dist
-            dist = max_dist
-            # request places until one is obtained, increasing the distance.
-#             while len(places) < 1 and num < 5:
-            query = "distance(location, geopoint(%s, %s)) < %s" % (
-                    filters['lat'], filters['lon'], dist)
-            logging.info(
-                    "Place.get_list -- getting places with query " + str(query))
-            result = index.search(query)
-            places = [Place.make_key(None, d.doc_id)
-                          for d in result.results]
-            logging.info(
-                    "Place.get_list -- found places " + str(len(places)))
-#                 num += 1
-                #double the distance for next iteration
-#                 dist += dist
+            logging.info("square: " + str(lat1) + ", " + str(lat2) + ", " + str(lon1) + ", " + str(lon2))
+              
+            try:
+                cursor = db.cursor() 
+                sql = 'SELECT pkey FROM places WHERE lat between %f and %f and lon between %f and %f;' % (lat1, lat2, lon1, lon2)
+                logging.info("SELECT SQL: " + sql)
+                cursor.execute(sql) 
+                for rs in cursor.fetchall():
+                    pkey = rs[0]
+#                     logging.info("Got from mysql db: " + str(pkey))
+                    places.append(Place.make_key(None, pkey)) 
+            finally:
+                db.close()
+            logging.info("Got place keys from mysql: " + str(datetime.now()-start))
+            if filters is not None and 'city' in filters and filters['city'] is not None:
+                dblist = Place.query(Place.key.IN(places))
+            else:
+                futures = [];
+                start = datetime.now()
+                for key in places:
+#                     logging.info('key:' + str(key))
+                    future = key.get_async()
+                    futures.append(future)
+                dblist = []
+                for future in futures:
+                    place = future.get_result()
+#                     logging.info("place:" + str(place))
+                    if place is not None:
+                        dblist.append(place)
+#                 logging.info(str(dblist))
+                logging.info("Got places from datastore: " + str(datetime.now()-start))
 
-            if places is None or len(places) < 1:
-                # even extending the area did not work
-                return None
-            
-            dblist = Place.query(Place.key.IN(places))
 
         else:
             dblist = Place.query()

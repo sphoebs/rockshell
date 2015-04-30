@@ -8,7 +8,7 @@ import webapp2
 import json
 
 from social_login import set_cookie
-from models import PFuser, Place, Rating, Discount, Coupon
+from models import PFuser, Place, Rating, Discount, Coupon, get_db
 # from __builtin__ import list
 import logging
 # from google.appengine.api.datastore_types import GeoPt
@@ -17,6 +17,7 @@ import logic
 import time
 import config
 
+from google.appengine.api import taskqueue
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -208,11 +209,14 @@ class PlaceListHandler(webapp2.RequestHandler):
         if 'owned' not in self.request.url:
             get_values = self.request.GET
             logging.info("GET PLACES filters: " + str(get_values))
+            filters = {}
             if not get_values:
                 get_values = None
             else:
-                filters = {}
                 filters['city'] = get_values.get('city')
+                filters['lat'] = get_values.get('lat')
+                filters['lon'] = get_values.get('lon')
+                filters['max_dist'] = get_values.get('max_dist')
             # plist is already in json.
             plist, status, errcode = logic.place_list_get(filters, user_id)
         else :
@@ -660,7 +664,49 @@ class CouponHandler(webapp2.RequestHandler):
         else:
             self.response.set_status(errcode)
             self.response.write(status)
-
+            
+            
+class PlaceMysqlHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        if 'task' in self.request.url:
+            q = taskqueue.Queue('update-clusters-queue')
+            task = taskqueue.Task(url='/api/mysql/places', method='GET')
+            q.add(task)
+            return
+        #json list of places
+        db = get_db()
+        #clear database table
+        try:
+            cursor = db.cursor() 
+            sql = 'DELETE FROM places'
+#                 logging.info("SQL: " + sql)
+            cursor.execute(sql) 
+            db.commit()
+        except ValueError as e:
+            logging.error("Error while deleting data fom places table: " + str(e))
+        finally:
+            db.close()
+        
+        places, status, errcode = logic.place_list_get({}, None)
+        if places is not None and status == "OK":
+            for p in places:
+                db = get_db()
+                try:
+                    cursor = db.cursor() 
+                    sql = 'INSERT INTO places (pkey, lat, lon) VALUES ("%s", %f, %f)' % (p['key'], p['address']['lat'], p['address']['lon'])
+#                 logging.info("SQL: " + sql)
+                    cursor.execute(sql) 
+                    db.commit()
+                except ValueError:
+                    logging.error("Invalid data for place: %s, %f, %f" % (p['key'], p['address']['lat'], p['address']['lon']))
+                finally:
+                    db.close()
+            self.response.set_status(200)
+            self.response.write('{}')
+        else:
+            self.response.set_status(errcode)
+            self.response.write(status)
 
 
 app = webapp2.WSGIApplication([
@@ -678,7 +724,8 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/api/discount/<key>/publish', handler=DiscountHandler),
     webapp2.Route(r'/api/discount/<dkey>/coupon', handler=CouponHandler),
     webapp2.Route(r'/api/discount/<dkey>/coupon/use', handler=CouponHandler),
-    
+    webapp2.Route(r'/api/mysql/places', handler=PlaceMysqlHandler),
+    webapp2.Route(r'/api/mysql/places/task', handler=PlaceMysqlHandler),
 ],
     debug=True
 )
