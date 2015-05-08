@@ -29,6 +29,11 @@ h1, h2, h3, h4, h5, h6, p {
 	display: inherit;
 }
 
+.text-margin {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
 .text-center {
 	text-align: center;
 	padding-left: 5px;
@@ -37,6 +42,8 @@ h1, h2, h3, h4, h5, h6, p {
 
 .text-bold {
 	font-weight: 500; 
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .text-title {
@@ -45,27 +52,37 @@ h1, h2, h3, h4, h5, h6, p {
 	color: #989897;
 	font-weight: 600;
 	padding: 10px 15px 10px 15px;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .text-big {
-	font-size: 21pt;
+	font-size: 18pt;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .text-red-light {
 	color: #E36564;
 	font-size: 14pt;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .text-red-bold {
 	color: #E36564;
 	font-size: 13pt;
 	font-weight: 600;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .text-all-capital {
 	text-transform: uppercase;
 	color: #808184;
 	font-size: 14pt;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .clickable {
@@ -110,6 +127,12 @@ ul {
 	-webkit-filter: brightness(70%);
 	-moz-filter: brightness(70%);
 	filter: brightness(70%);
+}
+
+.img-btn.disabled {
+	-webkit-filter: grayscale(100%);
+	-moz-filter: grayscale(100%);
+	filter: grayscale(100%);
 }
 
 .red-button, input[type=button], input[type=submit] {
@@ -194,17 +217,21 @@ button.center {
 
 /* BUTTONS END */
 
-/* SCROLL BAR */                              /* TODO: fix scrollbar colors!!  */
-.scrollable, .popup-scrollable {
+/* SCROLL BAR */ 
+.scrollable {
 	max-height: 75%;
 	overflow: hidden;
 	/* margin-bottom: 10px; */
 }
 
+.popup-scrollable {
+	overflow: hidden;
+}
+
 .track-red {
 	width: 7px;
-	background: rgba(227, 101, 100, 0.15);
 	background: #E36564;
+	background: rgba(227, 101, 100, 0.15);
 	margin-right: -2px;
 	border-radius: 10px;
 	-webkit-transition: background 200ms linear;
@@ -256,7 +283,9 @@ button.center {
 /* APP BAR and MAIN CONTAINER */
 
 .main-container {
-	padding-top: 60px;
+	margin-top: 55px;
+	padding-top: 5px;
+	padding-bottom: 10px;
 }
 
 .app-bar {
@@ -376,18 +405,19 @@ button.center {
 	-moz-background-size: contain;
 	-o-background-size: contain;
 	background-size: contain;
-	width: 48px;
-	height: 48px;
+	width: 36px;
+	height: 36px;
 	margin: 10px;
 	float: left;
 	border: solid 2px white;
-	border-radius: 24px;
+	border-radius: 18px;
 	vertical-align: middle;
 }
 
 .user-menu .user-name {
 	float: left;
 	margin-top: 15px;
+	margin-left: 0px;
 }
 
 .menu-items {
@@ -404,7 +434,7 @@ button.center {
 	background: #E36564;
 	padding: 10px;
 	padding-left: 30px;
-	border-top: solid 2px #B03131;
+	border-top: solid 1px #B03131; /* TODO */
 }
 
 .menu-items .selected {
@@ -422,32 +452,31 @@ form {
 	margin-right: auto;
 }
 
+.input-container {
+	margin: 10px;
+}
+
 input[type=text], input[type=number], select, textarea {
 	outline: 0;
-	border: solid 2px #B3B3B3;
+	border: solid 1px #B3B3B3;
 	box-shadow: none;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
-	width: 90%;
-	max-width: 90%;
 	color: #808184;
 	font-size: 13pt;
 	line-height: 1.3em;
 	font-family: "Helvetica Neue";
 	display: block;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 10px;
-	margin-bottom: 10px;
+	width: 100%;
 }
 
 
 form .form-label {
 	width: 100%;
 	display: block;
-	margin-left: auto;
-	margin-right: auto;
+	margin-left: 10px;
+	margin-right: 10px;
 	margin-bottom: 5px;
 	margin-top: 15px;
 }
@@ -481,7 +510,54 @@ form .save {
 
 /* SEPARATOR END */
 
+/* POPUP */
+.popup-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(220, 220, 220, 0.7);
+	z-index: 300;
+}
 
+.popup-foreground {
+	position: fixed;
+	top: 15px;
+	bottom: 15px;
+	left: 15px;
+	right: 15px;
+	background-color: #fff;
+	z-index: 310;
+	border: solid 1px #B73B3B;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	padding-top: 25px;
+	padding-bottom: 10px;
+}
+
+.popup-foreground h3 {
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.close {
+	background-color: #E36564;
+	width: 22px;
+	height: 22px;
+	background-image: url(../images/close.png);
+	-webkit-border-radius: 11px;
+	-moz-border-radius: 11px;
+	border-radius: 11px;
+	position: absolute;
+	top: 7px;
+	right: 7px;
+}
+
+
+
+/* POPUP END */
 
 
 
@@ -567,7 +643,7 @@ form .save {
 	-o-background-size: auto;
 	background-size: auto;
 	
-	border: solid 2px #B3B3B3;
+	border: solid 1px #B3B3B3;
 	box-shadow: none;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -582,4 +658,355 @@ p.empty-list{
 
 /* RESTAURANT RATING */
 
+.rest-item {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.rest-item .rest-details {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+.rest-item .rest-details img.rest-image {
+	width: 100%;
+	max-height: 196px;
+	max-width: 320px;
+	margin: 0px auto 10px auto;
+}
+
+.rest-item .rest-ratings {
+	width: 100%;
+	border-top: solid 1px #B3B3B3;
+}
+
+.rest-item .rest-ratings .row {
+	border-bottom: solid 1px #B3B3B3;
+	position: relative;
+	height: 80px;
+}
+
+.rest-item .rest-ratings .row .left-purpose {
+	border-right: solid 2px #B3B3B3;
+	width: 100px;
+	height: 80px;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.rest-item .rest-ratings .row .right-ratings{
+	height: 80px;
+	position: absolute;
+	top: 0;
+	left: 102px;
+	right: 0;
+}
+
+.rest-item .rest-ratings.smaller .row .left-purpose{
+	width: 70px;
+}
+
+.rest-item .rest-ratings.smaller .row .right-ratings{
+	left: 72px;
+}
+
+.rest-item .left-purpose .purpose-icon{
+	width: 32px;
+	height: 32px;
+	margin-top: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 5px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+.rest-item .left-purpose .purpose-text {
+	font-size: 13px;
+	line-height: 11px;
+	font-weight: 600;
+	width: 60px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.tourists .purpose-icon{
+	background-image: url('../images/ratings/icon_visitors.png');
+}
+
+.tourists .purpose-text {
+	color: #2DAC9D;
+}
+
+.partner .purpose-icon{
+	background-image: url('../images/ratings/icon_partner.png');
+}
+
+.partner .purpose-text {
+	color: #E36564;
+}
+
+.friends .purpose-icon{
+	background-image: url('../images/ratings/icon_friends.png');
+}
+
+.friends .purpose-text {
+	color: #F29850;
+}
+
+.price-quality .purpose-icon{
+	background-image: url('../images/ratings/icon_break.png');
+}
+
+.price-quality .purpose-text {
+	color: #827E7A;
+}
+
+.rest-item .right-ratings .title {
+	color: #fff;
+	text-align: center;
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.rest-item .right-ratings .title.tourists {
+	background-color: #2DAC9D;
+}
+
+.rest-item .right-ratings .title.partner {
+	background-color: #E36564;
+}
+
+.rest-item .right-ratings .title.friends {
+	background-color: #F29850;
+}
+
+.rest-item .right-ratings .title.price-quality {
+	background-color: #827E7A;
+}
+
+.rest-item .rating-buttons {
+	margin-left: 10px;
+	margin-right: 5px;
+	margin-top: 5px;
+}
+
+.rest-item button.rating-btn {
+	width: 38px;
+	height: 38px;
+}
+
+.rest-item .rating-btn.noidea {
+	background-image: url(../images/ratings/face_noidea.png);
+	margin-right: 5px;
+}
+
+.rest-item .rating-btn.noidea.selected {
+	background-image: url(../images/ratings/face_noidea_selected.png);
+}
+
+.rest-item .rating-btn.noidea:hover {
+	background-image: url(../images/ratings/face_noidea_selected.png);
+}
+
+.rest-item .rating-btn.noidea:active {
+	background-image: url(../images/ratings/face_noidea_selected.png);
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
+.rest-item .rating-btn.bad {
+	background-image: url(../images/ratings/face_bad.png);
+}
+
+.rest-item .rating-btn.bad.selected {
+	background-image: url(../images/ratings/face_bad_selected.png);
+}
+
+.rest-item .rating-btn.bad:hover {
+	background-image: url(../images/ratings/face_bad_selected.png);
+}
+
+.rest-item .rating-btn.bad:active {
+	background-image: url(../images/ratings/face_bad_selected.png);
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
+.rest-item .rating-btn.neutral {
+	background-image: url(../images/ratings/face_neutral.png);
+}
+
+.rest-item .rating-btn.neutral.selected {
+	background-image: url(../images/ratings/face_neutral_selected.png);
+}
+
+.rest-item .rating-btn.neutral:hover {
+	background-image: url(../images/ratings/face_neutral_selected.png);
+}
+
+.rest-item .rating-btn.neutral:active {
+	background-image: url(../images/ratings/face_neutral_selected.png);
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
+.rest-item .rating-btn.happy {
+	background-image: url(../images/ratings/face_happy.png);
+}
+
+.rest-item .rating-btn.happy.selected {
+	background-image: url(../images/ratings/face_happy_selected.png);
+}
+
+.rest-item .rating-btn.happy:hover {
+	background-image: url(../images/ratings/face_happy_selected.png);
+}
+
+.rest-item .rating-btn.happy:active {
+	background-image: url(../images/ratings/face_happy_selected.png);
+	-webkit-filter: brightness(70%);
+	-moz-filter: brightness(70%);
+	filter: brightness(70%);
+}
+
+
+
 /* RESTAURANT RATING END */
+
+
+/* RATINGS - PROFILE 3 */
+
+.city-search {
+	margin-top: 10px;
+}
+
+.create-places {
+	border: solid 1px #B3B3B3;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	margin: 10px;
+	padding: 10px;
+}
+
+.filters .name-input-block {
+	position: relative;
+	margin: 0px 10px 10px 10px;
+	height: 30px;
+}
+
+.filters .name-input-block .input-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 29px;
+	margin: 0;
+	margin-right: 3px;
+}
+
+.filters .name-input-block .input-container input{
+	width: 100%;
+	-webkit-border-radius: 5px 0 0 5px;
+	-moz-border-radius: 5px 0 0 5px;
+	border-radius: 5px 0 0 5px;
+	border-right: 0;
+}
+
+.filters .name-input-block .search-name{
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 32px;
+	height: 26px;
+	padding: 3px;
+	margin: 0;
+	
+	border: solid 1px #B3B3B3;
+	border-left: 0;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.filters .name-input-block .search-name .icon {
+	width: 26px;
+	height: 20px;
+	background-image: url(../images/icon_search.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+* html .ui-autocomplete {
+	height: 150px;
+}
+
+.ui-widget {
+	font-family: "Helvetica Neue";
+	font-size: 1em;
+	margin-bottom: 0px;
+}
+
+.filters .text-label {
+	font-size: 13pt;
+	color: #80807f;
+	font-weight: 500;
+	margin-left: 10px;
+	margin-bottom: 5px;
+}
+
+.map-search {
+	width: 90%;
+	height: 250px;
+	margin: 0 auto 10px auto;
+}
+
+.controls {
+	margin-top: 16px;
+	border: 1px solid transparent;
+	border-radius: 2px 0 0 2px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	height: 32px;
+	outline: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+#pac-input {
+	background-color: #fff;
+	padding: 0 11px 0 13px;
+	width: 80%;
+	text-overflow: ellipsis;
+	margin-left: 15px;
+}
+
+.new-rest-popup .rest-details div {
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+.new-rest-popup .rest-details div .text-all-capital{
+	margin-left: 0;
+	margin-bottom: 5px;
+	font-size: 12pt;
+}
+
+/* RATINGS - PROFILE 3 END */
+
+
+

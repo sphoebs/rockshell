@@ -39,7 +39,7 @@
 				<div style="margin-top: 5px;"><small >{{ lang['profile_feedback']}}</small></div>
 			</div>
 			
-			<div class="separator"></div>
+			<div class="separator top"></div>
 
 			<ul class="rest-list">
 				<p class="empty-list">{{ lang['no_places_city']}}</p>
@@ -67,12 +67,6 @@
 	$(window).load(function() {
 		
 		var pageSize= 5;
-		
-		/* $('.rating' ).tooltip({
-			tooltipClass: 'my-tooltip'
-		}); */
-		
-		
 		
 		var userpic = "{{ user.picture|e }}";
 		if(userpic != undefined && userpic.length > 0){	
@@ -146,6 +140,10 @@
 				$('.navigation-buttons .next').addClass('disabled');
 			}
 			
+			$('html, body').animate({
+	            scrollTop: $('.separator.top').offset().top + 'px'
+	        }, 'fast');
+			
 			for(var i=0; start+i<list.length && i<pageSize; i++){
 				var rest = list[start+i];
 				var ratings = {};
@@ -168,16 +166,12 @@
 					strings: {{ lang['rating_purposes']|safe }}
 				});
 				$('.rest-list').append(html);
-				
+				if (i+1 < pageSize){
+					$('.rest-list').append('<div class="separator"></div>');
+				}
 				
 			}
 			$('.rating').click(saveRating);
-			$('html, body').animate({
-	            scrollTop: $('.rest-list').offset().top + 'px'
-	        }, 'fast');
-			$('.rating' ).tooltip({
-				tooltipClass: 'my-tooltip'
-			});
 			
 		}
 
@@ -263,7 +257,7 @@
 		$('.navigation-buttons .next').click(onNext);
 		$('.navigation-buttons .prev').click(onPrev);
 
-		/* displayPlaces(last_pos); */
+		displayPlaces(last_pos);
 	});
 </script>
 

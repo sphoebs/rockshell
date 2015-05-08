@@ -1,122 +1,151 @@
 <div class="popup-background new-rest-popup">
 	<div class="popup-foreground popup-scrollable">
 		<button class="img-btn close" id="close-popup"></button>
-		<h3><%= strings.title %></h3>
-
-		<div class="rest-item">
-			<div class="rest-details">
-				<div class="name">
-					<input class="my-input-text" type="text" id="rest-name" placeholder="<%= strings.name_placeholder %>"/>
-				</div>
-				<div class="address" >
-					<input class="my-input-text" type="text" name="auto-city" id="rest-address" >
-					<input type="hidden" name="street_number" id="street_number" />
-					<input type="hidden" name="route" id="route" />
-					<input type="hidden" name="locality" id="locality" /> 
-					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
-					<input type="hidden" name="country" id="country"/>
-					<input type="hidden" name="lat" id="lat"/>
-					<input type="hidden" name="lon" id="lon"/>
-				</div>
-				<div class="picture-item"> 
-					<input class="my-input-text" type="text" id="rest-picture" placeholder="<%= strings.picture_placeholder %>">
-					<img class="rest-image" src="/static/images/empty_small.png">
-				</div>
-			</div>
-			<div class="rest-ratings">
-				<p><%= purpose.tourists %></p>
-				<div class="purpose-buttons">
-					<div class="purpose-icon"
-						style="background-image: url(/static/images/ratings/guest_selected.png)"></div>
-					<button class="rating rating-btn noidea"
-						 purpose="dinner with tourists"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notknow %>" value="0"></button>
-					<button class="rating rating-btn bad"
-						 purpose="dinner with tourists"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notlike %>" value="1"></button>
-					<button class="rating rating-btn neutral"
-						 purpose="dinner with tourists"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_neutral %>" value="3"></button>
-					<button class="rating rating-btn happy"
-						 purpose="dinner with tourists"
-						data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
-						value="5"></button>
-				</div>
-
-
-				<p><%= purpose.partner %></p>
-				<div class="purpose-buttons">
-					<div class="purpose-icon"
-						style="background-image: url(/static/images/ratings/romantic_selected.png)"></div>
-					<button class="rating rating-btn noidea"
-						 purpose="romantic dinner"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notknow %>" value="0"></button>
-					<button class="rating rating-btn bad"
-						 purpose="romantic dinner"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notlike %>" value="1"></button>
-					<button class="rating rating-btn neutral"
-						 purpose="romantic dinner"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_neutral %>" value="3"></button>
-					<button class="rating rating-btn happy"
-						 purpose="romantic dinner"
-						data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
-						value="5"></button>
-				</div>
-
-				<p><%= purpose.friends %></p>
-				<div class="purpose-buttons">
-					<div class="purpose-icon"
-						style="background-image: url(/static/images/ratings/friends_selected.png)"></div>
-					<button class="rating rating-btn noidea"
-						 purpose="dinner with friends"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notknow %>" value="0"></button>
-					<button class="rating rating-btn bad"
-						 purpose="dinner with friends"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notlike %>" value="1"></button>
-					<button class="rating rating-btn neutral"
-						 purpose="dinner with friends"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_neutral %>" value="3"></button>
-					<button class="rating rating-btn happy"
-						 purpose="dinner with friends"
-						data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
-						value="5"></button>
-				</div>
-
-				<p><%= purpose.price_quality %></p>
-				<div class="purpose-buttons">
-					<div class="purpose-icon"
-						style="background-image: url(/static/images/ratings/lunch_selected.png)"></div>
-					<button class="rating rating-btn noidea"
-						 purpose="best price/quality ratio"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notknow %>" value="0"></button>
-					<button class="rating rating-btn bad"
-						 purpose="best price/quality ratio"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_notlike %>" value="1"></button>
-					<button class="rating rating-btn neutral"
-						 purpose="best price/quality ratio"
-						data-toggle="tooltip" data-placement="bottom"
-						title="<%= purpose.tips_neutral %>" value="3"></button>
-					<button class="rating rating-btn happy"
-						 purpose="best price/quality ratio"
-						data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
-						value="5"></button>
-				</div>
-
-			</div>
-			<div>
-				<button class="img-btn red-button save"><%= strings.save %></button>
-			</div> 
+		<div class="text-center text-title"><%= strings.title %></div>
+		
+		<div class="separator top"></div>
+		
+<div class="rest-item">
+	<div class="rest-details">
+		<div class="name">
+			<div class="text-all-capital"><%= strings.name_placeholder %></div>
+			<input class="my-input-text" type="text" id="rest-name"/>
 		</div>
+		<div class="address" >
+			<div class="text-all-capital"><%= strings.address_placeholder %></div>
+			<input class="my-input-text" type="text" name="auto-city" id="rest-address" >
+			<input type="hidden" name="street_number" id="street_number" />
+			<input type="hidden" name="route" id="route" />
+			<input type="hidden" name="locality" id="locality" /> 
+			<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
+			<input type="hidden" name="country" id="country"/>
+			<input type="hidden" name="lat" id="lat"/>
+			<input type="hidden" name="lon" id="lon"/>
+		</div>
+		<div class="picture-input"> 
+		<div class="text-all-capital"><%= strings.picture_placeholder %></div>
+			<input class="my-input-text" type="text" id="rest-picture">
+		</div>
+		<div class="picture-image">
+			<img class="rest-image" src="/static/images/empty_small.png">
+		</div>
+			
+	</div>
+		<div class="rest-ratings smaller">
+			<div class="row">
+				<div class="left-purpose tourists">
+					<div class="purpose-icon"></div>
+					<div class="purpose-text"><%= strings.tourists_short %></div>
+				</div>
+				<div class="right-ratings">
+					<div class="title tourists">
+						<%= strings.how_experience %>
+					</div>
+					<div class="rating-buttons">
+						<button class="rating rating-btn noidea"
+							 purpose="dinner with tourists"
+							 value="0"></button>
+						<button class="rating rating-btn bad"
+							 purpose="dinner with tourists"
+							 value="1"></button>
+						<button class="rating rating-btn neutral"
+							 purpose="dinner with tourists"
+							 value="3"></button>
+						<button class="rating rating-btn happy"
+							 purpose="dinner with tourists"
+							value="5"></button>
+					</div>
+				</div>
+			
+			</div>
+			
+			<div class="row">
+				<div class="left-purpose partner">
+					<div class="purpose-icon"></div>
+					<div class="purpose-text"><%= strings.partner_short %></div>
+				</div>
+				<div class="right-ratings">
+					<div class="title partner">
+						<%= strings.how_experience %>
+					</div>
+					<div class="rating-buttons">
+						<button class="rating rating-btn noidea"
+							 purpose="romantic dinner"
+							 value="0"></button>
+						<button class="rating rating-btn bad"
+							 purpose="romantic dinner"
+							 value="1"></button>
+						<button class="rating rating-btn neutral"
+							 purpose="romantic dinner"
+							 value="3"></button>
+						<button class="rating rating-btn happy"
+							 purpose="romantic dinner"
+							value="5"></button>
+					</div>
+				</div>
+			
+			</div>
+			
+			<div class="row">
+				<div class="left-purpose friends">
+					<div class="purpose-icon"></div>
+					<div class="purpose-text"><%= strings.friends_short %></div>
+				</div>
+				<div class="right-ratings">
+					<div class="title friends">
+						<%= strings.how_experience %>
+					</div>
+					<div class="rating-buttons">
+						<button class="rating rating-btn noidea"
+							 purpose="dinner with friends"
+							 value="0"></button>
+						<button class="rating rating-btn bad"
+							 purpose="dinner with friends"
+							 value="1"></button>
+						<button class="rating rating-btn neutral"
+							 purpose="dinner with friends"
+							 value="3"></button>
+						<button class="rating rating-btn happy"
+							 purpose="dinner with friends"
+							value="5"></button>
+					</div>
+				</div>
+			
+			</div>
+			
+			<div class="row">
+				<div class="left-purpose price-quality">
+					<div class="purpose-icon"></div>
+					<div class="purpose-text"><%= strings.price_quality_short %></div>
+				</div>
+				<div class="right-ratings">
+					<div class="title price-quality">
+						<%= strings.how_experience %>
+					</div>
+					<div class="rating-buttons">
+						<button class="rating rating-btn noidea"
+							 purpose="best price/quality ratio"
+							value="0"></button>
+						<button class="rating rating-btn bad"
+							 purpose="best price/quality ratio"
+							 value="1"></button>
+						<button class="rating rating-btn neutral"
+							 purpose="best price/quality ratio"
+							 value="3"></button>
+						<button class="rating rating-btn happy"
+							 purpose="best price/quality ratio"
+							value="5"></button>
+					</div>
+				</div>
+			
+			</div>
+		
+		</div>
+	</div>
+			<div>
+				<button class="img-btn red-button save center"><%= strings.save %></button>
+			</div>
+		</div>
+		
 	</div>
 </div>

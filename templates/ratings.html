@@ -1,49 +1,58 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background profile rest">
+<div class="full-background profile">
 
-	{% if profile %}
-	<div class="profile-container ratings">
-		<div class="step" >{{ lang['step']}} 3/3</div>
-		<div class="profile-logo"></div>
-		
-	{% else %}
-	
-	<div class="top-bar">
-		<div class="menu-button">
-			<button class="img-btn" id="menu-button"></button>
-			<div class="user-menu-small clickable">
-				<div class="user-picture"></div>
-				<div class="text-bold user-name">{{user.first_name}}</div>
+	<div class="main-container">
+		<div class="app-bar">
+			<!-- <div class="bar-background"></div> -->
+			<div class="menu-button">
+				<button class="img-btn" id="menu-button"></button>
+				<div class="user-menu-small clickable desktop">
+					<div class="user-picture"></div>
+					<div class="text-bold user-name">
+						{{user.first_name}}
+					</div>
+				</div>
+				<div class="clear-float"></div>
+			</div>
+			<div class="logo"></div>
+			<div class="actions">
+				{% if profile %}
+				<div class="step"><p>{{ lang['step']}} 3/3</p></div>
+				{% endif %}
 			</div>
 		</div>
-		<div class="rest-logo"></div>
-	</div>
 	
-	<div class="left-menu scrollable" id="left-menu" style="display: none;">
-		<div class="user-menu clickable">
-			<div class="user-picture"></div>
-			<h3 class="text-bold user-name">{{user.first_name}}</h3>
-			<div class="clear-float"></div>
+		<div class="left-menu scrollable" id="left-menu" style="display: none;">
+			<div class="user-menu clickable">
+				<div class="user-picture"></div>
+				<h3 class="text-bold user-name">{{user.first_name}}</h3>
+				<div class="clear-float"></div>
+			</div>
+		
+			<ul class="menu-items">
+				{% if not profile %}
+				<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+				<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
+				<li><button class="img-btn selected" id="rate-more"> > {{ lang['rate_more']|e}}</button></li>
+				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+				{% endif %}
+			</ul>
+	
 		</div>
-		<ul class="menu-items">
-			<!-- <li class="separation"></li> -->
-			<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-			<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
-			<li><button class="img-btn selected" id="rate-more"> > {{ lang['rate_more']|e}}</button></li>
-			<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
-			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
-		</ul>
-	
-	</div>
-	
-	{% endif %}
-		<div class="main {{ 'discount-container' if not profile }}">
-			<div class=" center-text" style="margin-top: 5px;"> {{lang['ratings_text1']}}</div>
-			<div class=" center-text" {{ 'style=display:none;' if profile else ""}}> {{lang['ratings_text2']}}</div>
+
+		<div class="main">
+			<div class="text-center text-title">
+				{{lang['ratings_text1']}} 
+				<div style="margin-top: 5px;{{ ' display:none;' if profile else ''}}"><small >{{lang['ratings_text2']}}</small></div>
+			</div>
+			
+			<div class="separator top"></div>
+		
 			<div class="city-search">
-				<label class="text-bold">{{lang['city_select']}}: </label>
-				<div class="input">
+				<div class="text-red-bold text-center">{{lang['city_select']}}</div>
+				<div class="input input-container">
 					<input type="text" name="auto-city" id="city" >
 					<input type="hidden" name="locality" id="locality" /> 
 					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
@@ -53,7 +62,7 @@
 				</div>
 			</div>
 			
-			<div class="create-places center-text">
+			<div class="create-places text-center">
 				<!-- <div class="no-places">{{lang['no_places_selected']}}</div> -->
 				<p>{{lang['create_place_button']}}</p>
 				<button class="img-btn red-button new-place" style="margin-left: 10px; margin-right: 10px;">{{lang['add_place']}}</button>
@@ -63,33 +72,33 @@
 			<div class="filters">
 				
 				<div class="ui-widget">
-  					<label for="name-input">{{lang['search_name']}}: </label>
+  					<div class="text-label">{{lang['search_name']}} </div>
   					<div class="name-input-block">
-  						<input type="text" name="name-input" id="name-input"/>
-  						<button class="img-btn red-button search-name"></button>
+  						<div class="input-container">
+  							<input type="text" name="name-input" id="name-input"/>
+  						</div>
+  						<button class="img-btn red-button search-name"><div class="icon"></div></button>
   					</div>
 				</div>
 				
-				<label class="map-search-label">{{lang['map_search']}}: </label>
+				<div class="text-label">{{lang['map_search']}} </div>
 				<input id="pac-input" class="controls" type="text" placeholder="Search Box">
 				<div class="map-search" id="map-search">
 				</div>
 			</div>
 
+			<div class="separator end-filters"></div>
+			
 			<ul class="rest-list">
 				
 			</ul>
 
 			<div class="navigation-buttons">
-				<button class="prev"></button>
-				<button class="next"></button>
-				{% if profile %}
-				<button class="img-btn continue red-button"
-					onclick="window.location = '/letsgo'">{{ lang['done']}}</button>
-				{% else %}
-				<button class="img-btn continue red-button"
-					onclick="window.history.back()">{{ lang['done']}}</button>
-				{% endif %}
+				<button class="img-btn red-button prev"><div class="icon"></div></button>
+				<button class="img-btn red-button next"><div class="icon"></div></button>
+				<div class="clear-float"></div>
+				<button class="img-btn continue red-button center"
+					{% if profile %} onclick="window.location = '/letsgo'" {% else %} onclick="window.history.back()"{% endif %} >{{ lang['done']}}</button>
 			</div>
 			
 		</div>
@@ -200,13 +209,46 @@
 					}
 					
 				}
-				if(window.console){
-					console.log('lat: ' + JSON.stringify(lat));
-					console.log('lon: ' + JSON.stringify(lon));
+				var lat_arr = [];
+				var lon_arr = [];
+				var i =0;
+				for(var key in lat){
+					if(key.length == 1){
+						lat_arr[i] = lat[key];
+						i++;
+					}
+				}
+				var i =0;
+				for(var key in lon){
+					if(key.length == 1){
+						lon_arr[i] = lon[key];
+						i++;
+					}
+				}
+				if(lat_arr.length != 2 || lon_arr.length != 2){
+					if(window.console){
+						console.log("ERROR: not able to get latitude and longitude ranges")
+					}
+				}
+				if(lat_arr[1] < lat_arr[0]){
+					//swap					
+					var tmp = lat_arr[0];
+					lat_arr[0] = lat_arr[1];
+					lat_arr[1] = tmp;
+				}
+				if(lon_arr[1] < lon_arr[0]){
+					//swap					
+					var tmp = lon_arr[0];
+					lon_arr[0] = lon_arr[1];
+					lon_arr[1] = tmp;
 				}
 				
-				var southWest = new google.maps.LatLng( lat.k, lon.j );
-				var northEast = new google.maps.LatLng( lat.j, lon.k );
+				if(window.console){
+					console.log(JSON.stringify(lat_arr) + " -- " + JSON.stringify(lon_arr))
+				}
+				
+				var southWest = new google.maps.LatLng( lat_arr[0], lon_arr[0] );
+				var northEast = new google.maps.LatLng( lat_arr[1], lon_arr[1] );
 				/* var southWest = new google.maps.LatLng( bounds.Da.k, bounds.va.j );
 				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.va.k ); */
 				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
@@ -313,6 +355,9 @@
 					rest : rest, ratings: ratings, strings: {{lang['rating_purposes']|safe}}
 				});
 				list_html += html; 
+				if (i+1 < pageSize){
+					list_html += '<div class="separator"></div>';
+				}
 				
 				
 			}
@@ -351,6 +396,7 @@
 				initializeMap();
 			
 				$('.filters').show();
+				$('.separator.end-filters').show();
 			}
 		}
 		
@@ -728,6 +774,7 @@
 		$('.navigation-buttons').hide();
 		$('.create-places').hide();
 		$('.filters').hide();
+		$('.separator.end-filters').hide();
 		$('.no-places').hide();
 		$('.search-name').click(function(){
 			var text = $('#name-input').val().toLowerCase();
