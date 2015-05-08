@@ -2,27 +2,54 @@
 
 <div class="full-background profile">
 
-	<div class="profile-container">
-		<div class="step">{{ lang['step']}} 2/3</div>
-		<div class="profile-logo"></div>
+	<div class="main-container">
+		<div class="app-bar">
+			<!-- <div class="bar-background"></div> -->
+			<div class="menu-button">
+				<button class="img-btn" id="menu-button"></button>
+				<div class="user-menu-small clickable desktop">
+					<div class="user-picture"></div>
+					<div class="text-bold user-name">
+						{{user.first_name}}
+					</div>
+				</div>
+				<div class="clear-float"></div>
+			</div>
+			<div class="logo"></div>
+			<div class="actions">
+				<div class="step"><p>{{ lang['step']}} 2/3</p></div>
+			</div>
+		</div>
+	
+		<div class="left-menu scrollable" id="left-menu" style="display: none;">
+			<div class="user-menu clickable">
+				<div class="user-picture"></div>
+				<h3 class="text-bold user-name">{{user.first_name}}</h3>
+				<div class="clear-float"></div>
+			</div>
+		
+			<ul class="menu-items">
+			</ul>
+	
+		</div>
 
 		<div class="main">
-			<div class="center-text">
-				{{ lang['profile2_text1']}}: <span class="text-bold">{{city}}</span>
+			<div class="text-center text-title">
+				{{ lang['profile2_text1']}}: {{city}}. {{ lang['profile2_text2']}}. 
+				<div style="margin-top: 5px;"><small >{{ lang['profile_feedback']}}</small></div>
 			</div>
-			<div class="center-text">{{ lang['profile2_text2']}}:</div>
-			<div class="center-text">
-				<small>{{ lang['profile_feedback']}}</small>
-			</div>
+			
+			<div class="separator"></div>
 
 			<ul class="rest-list">
-				<p>{{ lang['no_places_city']}}</p>
+				<p class="empty-list">{{ lang['no_places_city']}}</p>
 			</ul>
 
 			<div class="navigation-buttons">
-				<button class="prev"></button>
-				<button class="next"></button>
-				<button class="img-btn red-button continue " onclick="window.location = '/profile/3'" >{{ lang['continue']}}</button>
+				<button class="img-btn red-button prev"><div class="icon"></div></button>
+				<button class="img-btn red-button next"><div class="icon"></div></button>
+				<div class="clear-float"></div>
+				<button class="img-btn red-button continue center " onclick="window.location = '/profile/3'" >{{ lang['continue']}}</button>
 			</div>
 
 		</div>
@@ -45,6 +72,58 @@
 			tooltipClass: 'my-tooltip'
 		}); */
 		
+		
+		
+		var userpic = "{{ user.picture|e }}";
+		if(userpic != undefined && userpic.length > 0){	
+			$('.user-picture').css('background-image', 'url(' + userpic + ')');
+		} 
+		
+		$('.left-menu').hide();
+		var window_width = $('.rest').width();
+		var count = 1;
+		$('.left-menu.scrollable').enscroll({
+			
+		    showOnHover: false,
+		    verticalScrolling: true,
+			horizontalScrolling: false,
+			zIndex: 100,
+		    verticalTrackClass: 'track-white',
+		    verticalHandleClass: 'handle-white'
+		});
+		$('.enscroll-track').css('position', 'fixed');
+		$('.menu-button button').click(function(){
+			if(count % 2 == 1){
+				//odd time --> open left menu
+				$('.left-menu').show();
+				if(window_width > 600){
+					$('.user-menu-small').hide();
+				}
+				count++;
+			} else {
+				//even time --> close left menu
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+				count++;
+			}
+			
+		});
+		window.addEventListener('mouseup', function(event){
+			var box = document.getElementById('left-menu');
+			var button = document.getElementById('menu-button');
+			
+			if (event.target != box && event.target != button && event.target.parentNode != box && event.target.parentNode != button){
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
+					count++;
+			}
+		});
 
 		
 		var ratingsAdded = 0;
@@ -184,7 +263,7 @@
 		$('.navigation-buttons .next').click(onNext);
 		$('.navigation-buttons .prev').click(onPrev);
 
-		displayPlaces(last_pos);
+		/* displayPlaces(last_pos); */
 	});
 </script>
 

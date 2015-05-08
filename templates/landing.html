@@ -2,14 +2,12 @@
 {% extends "base.html" %} {% block main %}
 
 <div class="full-background home">
-
 	<div class="home-container">
 		<div class="home-logo"></div>
-		<div class="home-logo-bg"></div>
 		<div class="login">
-			<h4 >Login</h4>
-			<a class="img-btn" href="{{google}}"><div class="google-btn"></div></a> 
-			<a class="img-btn" href="{{facebook}}"><div class="fb-btn"></div></a>
+			<p class="title">Login</p>
+			<a class="img-btn" href="{{google}}"><img class="google-btn" src="/static/images/google.png"/></a> 
+			<a class="img-btn" href="{{facebook}}"><img class="fb-btn" src="/static/images/facebook.png"/></a>
 		</div>
 	</div>
 </div>
@@ -19,8 +17,6 @@
 {% block scripts %}
 <script type="text/javascript">
 	$(window).ready(function() {
-		var logo_height = $('.home-logo').width();
-		$('.home-container').height(logo_height);
 		localStorage.removeItem("reclist");
 		localStorage.removeItem("reclist_time");
 	});

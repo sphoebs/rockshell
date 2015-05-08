@@ -28,7 +28,8 @@ import json
 import languages
 from datetime import datetime, time as dtime
 
-from models import PFuser, Place, Settings, Discount
+from models import PFuser, Place, Settings, Discount, Address
+from google.appengine.api.datastore_types import GeoPt
 
 
 # these imports are fine
@@ -135,13 +136,13 @@ class LoginHandler(BaseRequestHandler):
         if status == "OK":
             social_login.set_cookie(self.response, 'user',
                                     user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
-            if is_new == True:
+#             if is_new == True:
                 # goto profile page
-                self.redirect('/profile/edit?new=true')
-            elif user.role == 'owner':
-                self.redirect('/owner/list')
-            else:
-                self.redirect('/letsgo')
+            self.redirect('/profile/edit?new=true')
+#             elif user.role == 'owner':
+#                 self.redirect('/owner/list')
+#             else:
+#                 self.redirect('/letsgo')
         else:
             self.render("error.html", {'error_code': 500, 'error_string': status})
 
@@ -213,8 +214,16 @@ class UserHandler(BaseRequestHandler):
             user.age = data.get('age')
         if data.get('gender') != '':
             user.gender = data.get('gender')
-        user.home = {'city': data.get('locality'), 'province': data.get(
-            'administrative_area_level_2'), 'country': data.get('country')}
+            
+        home = Address()
+        home.city = data.get('locality')
+        home.province = data.get(
+            'administrative_area_level_2')
+        home.country = data.get('country')
+        home.location = GeoPt(
+                data.get('lat'), data.get('lon'))
+            
+        user.home = home
         
         user, status, errcode = logic.user_update(user, user_id, None)
         if status != "OK":
@@ -264,6 +273,7 @@ class UserRatingsHandler(BaseRequestHandler):
                 filters['city'] = user.home.city + ', ' + user.home.province
             filters['list'] = json_list
             filters['lang'] = LANG
+            filters['user'] = user
 #         logging.info("HERE!!!")
             self.render(
                 'profile_ratings.html',

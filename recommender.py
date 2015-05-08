@@ -802,7 +802,7 @@ def cluster_based(user, places_ids, purpose='dinner with tourists', np=5, loc_fi
             if 'lat' in memcache_scores and 'lon' in memcache_scores and 'max_dist' in memcache_scores:
                 diff_lat = memcache_scores['lat'] - loc_filters['lat']
                 diff_lon = memcache_scores['lon'] - loc_filters['lon']
-                if diff_lat < 0.0002 and diff_lat > -0.0002 and diff_lon < 0.0002 and diff_lon > -0.0002  and memcache_scores['max_dist'] == loc_filters['max_dist']:
+                if diff_lat < 0.0002 and diff_lat > -0.0002 and diff_lon < 0.0002 and diff_lon > -0.0002  and memcache_scores['max_dist'] >= loc_filters['max_dist']:
                     memcache_valid = True
 #         else:
 #             memcache_valid = True
