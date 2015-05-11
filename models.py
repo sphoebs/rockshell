@@ -1645,11 +1645,20 @@ class Place(PFmodel):
 #             dblist = Place.query(Place.key.IN(places))
             start = datetime.now()
             db = get_db()
-            r = (max_dist / 1000.0) / 6371.0
-            lon1 = filters['lon'] + math.asin(math.sin(r)/math.cos(filters['lat']))
-            lon2 = filters['lon'] - math.asin(math.sin(r)/math.cos(filters['lat']))
-            lat1 = filters['lat'] - r
-            lat2 = filters['lat'] + r
+            #111111 meters = 1 degree of latitude, approximally
+            lat_degrees = max_dist / 111111.0 
+            lat1 = filters['lat'] - lat_degrees
+            lat2 = filters['lat'] + lat_degrees
+            lon1 = filters['lon'] + (lat_degrees * math.cos(filters['lat']))
+            lon2 = filters['lon'] - (lat_degrees * math.cos(filters['lat']))
+            
+            
+            
+#             r = (max_dist / 1000.0) / 6371.0
+#             lon1 = filters['lon'] + math.asin(math.sin(r)/math.cos(filters['lat']))
+#             lon2 = filters['lon'] - math.asin(math.sin(r)/math.cos(filters['lat']))
+#             lat1 = filters['lat'] - r
+#             lat2 = filters['lat'] + r
             
             logging.info("square: " + str(lat1) + ", " + str(lat2) + ", " + str(lon1) + ", " + str(lon2))
               

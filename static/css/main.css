@@ -351,6 +351,20 @@ button.center {
 	right: 0;
 }
 
+.app-bar .actions #refresh {
+	width: 20px;
+	height: 20px;
+	float: left;
+	margin-top: 15px;
+	background-image: url(../images/reload.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
 .app-bar .actions .step {
 	height: 42px;
 	width: 42px;
@@ -434,7 +448,11 @@ button.center {
 	background: #E36564;
 	padding: 10px;
 	padding-left: 30px;
-	border-top: solid 1px #B03131; /* TODO */
+	border-top: solid 1px #B73B3B;
+}
+
+.menu-items li button.no-border{
+	border-top: 0;
 }
 
 .menu-items .selected {
@@ -508,6 +526,10 @@ form .save {
 	background-size: contain;
 }
 
+.separator.white{
+	background-image: url(../images/separator_white.png);
+}
+
 /* SEPARATOR END */
 
 /* POPUP */
@@ -555,9 +577,41 @@ form .save {
 	right: 7px;
 }
 
-
-
 /* POPUP END */
+
+/* LOADING */
+.loading {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(220, 220, 220, 0.9);
+	/* background-image: url(../images/ajax-loader.gif); */
+	/* background-position: center center;
+	background-repeat: no-repeat; */
+	z-index: 200;
+}
+
+.loading img {
+	display: block;
+	width: 100px;
+	height: 100px;
+	margin-top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.loading .loading-message {
+	text-align: center;
+	color: #000;
+	font-size: 16px;
+}
+
+/* LOADING END */
+
+
+
 
 
 
@@ -1009,4 +1063,94 @@ p.empty-list{
 /* RATINGS - PROFILE 3 END */
 
 
+/* LETSGO */
+
+.purpose-list {
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
+.purpose-list .purpose-btn {
+	display: inline-block;
+	width: 25%;
+	height: 70px;
+	box-sizing: border-box;
+	ms-box-sizing: border-box;
+	webkit-box-sizing: border-box;
+	moz-box-sizing: border-box;
+	background-color: #fff;
+	border: solid 1px #B3B3B3;
+	margin: 0px;
+	padding: 5px;
+	vertical-align: top;
+}
+
+.purpose-list .purpose-btn .purpose-icon {
+	width: 24px;
+	height: 24px;
+	margin-top: 3px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 5px;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+.purpose-list .purpose-btn .purpose-text {
+	font-size: 11px;
+	line-height: 10px;
+	font-weight: 300;
+	max-width: 90%;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.purpose-list .purpose-btn.selected .purpose-text{
+	color: #fff;
+}
+
+.tourists.selected {
+	background-color: #2DAC9D;
+	border: solid 1px #B3B3B3;
+}
+
+.tourists.selected .purpose-icon {
+	background-image: url('../images/ratings/icon_visitors_selected.png');
+}
+
+.partner.selected {
+	background-color: #E36564;
+	border: solid 1px #B3B3B3;
+}
+
+.partner.selected .purpose-icon {
+	background-image: url('../images/ratings/icon_partner_selected.png');
+}
+
+.friends.selected {
+	background-color: #F29850;
+	border: solid 1px #B3B3B3;
+}
+
+.friends.selected .purpose-icon {
+	background-image: url('../images/ratings/icon_friends_selected.png');
+}
+
+.price-quality.selected {
+	background-color: #827E7A;
+	border: solid 1px #B3B3B3;
+}
+
+.price-quality.selected .purpose-icon {
+	background-image: url('../images/ratings/icon_break_selected.png');
+}
+
+
+/* LETSGO END */
 

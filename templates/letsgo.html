@@ -1,70 +1,82 @@
 {% extends "base.html" %} {% block main %}
 <div class="full-background letsgo">
-	<!-- <img class="rest-image" src="/static/images/home_background.png"/> -->
-
 	<div class="loading">
 		<img src="/static/images/ajax-loader.gif">
 		<p class="loading-message"></p>
 	</div>
 	
-	<div class="top-bar">
-		<div class="menu-button">
-			<button class="img-btn" id="menu-button"></button>
-			<div class="user-menu-small clickable">
-				<div class="user-picture"></div>
-				<div class="text-bold user-name"> </div>
+	<div class="main-container">
+	
+		<div class="app-bar">
+			<!-- <div class="bar-background"></div> -->
+			<div class="menu-button">
+				<button class="img-btn" id="menu-button"></button>
+				<div class="user-menu-small clickable desktop">
+					<div class="user-picture"></div>
+					<div class="text-bold user-name">
+						{{user.first_name}}
+					</div>
+				</div>
+				<div class="clear-float"></div>
+			</div>
+			<div class="logo"></div>
+			<div class="actions">
+				<button class="img-btn" id="refresh"></button>
 			</div>
 		</div>
-		<div class="rest-logo"></div>
-		<div class="refresh-button">
-			<button class="img-btn" id="refresh"></button>
-		</div>
-	</div>
 	
-	<div class="left-menu scrollable" id="left-menu" style="display: none;">
-		<div class="user-menu clickable">
-			<div class="user-picture"></div>
-			<h3 class="text-bold user-name"></h3>
-			<div class="clear-float"></div>
-		</div>
+		<div class="left-menu scrollable" id="left-menu" style="display: none;">
+			<div class="user-menu clickable">
+				<div class="user-picture"></div>
+				<h3 class="text-bold user-name"></h3>
+				<div class="clear-float"></div>
+			</div>
 		
-		<ul class="menu-items">
-			<li><button class="img-btn page-menu" id="settings">{{ lang['search_settings']}}</button></li>
-			{% if user_role == 'admin' %}
-				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
-				<li><button class="img-btn" id="edit-rest">{{ lang['manage_rests'] }}</button></li>
-				<li><button class="img-btn" id="edit-admins">{{ lang['manage_admins'] }}</button></li>
-			{% endif %}
-			{% if user_role == 'owner' %}
-				<li><button class="img-btn" id="edit-rest-owner">{{ lang['manage_rests']}}</button></li>
-			{% endif %}
-			<li class="separation"></li>
-			<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-			<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
-			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']|e}}</button></li>
-			<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
-			<li><button class="img-btn selected" id="near-me"> > {{ lang['near_me']}}</button></li>
-			<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
-			<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
-			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
-		</ul>
+			<ul class="menu-items">
+				<li><button class="img-btn page-menu" id="settings">{{ lang['search_settings']}}</button></li>
+				{% if user_role == 'admin' %}
+					<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
+					<li><button class="img-btn" id="edit-rest">{{ lang['manage_rests'] }}</button></li>
+					<li><button class="img-btn" id="edit-admins">{{ lang['manage_admins'] }}</button></li>
+				{% endif %}
+				{% if user_role == 'owner' %}
+					<li><button class="img-btn" id="edit-rest-owner">{{ lang['manage_rests']}}</button></li>
+				{% endif %}
+				<li class="separator white"></li>
+				<li><button class="img-btn no-border" id="profile">{{lang['my_profile']}}</button></li>
+				<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
+				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']|e}}</button></li>
+				<!-- <li><button class="img-btn" id="refresh">{{ lang['refresh']}}</button></li> -->
+				<li><button class="img-btn selected" id="near-me"> > {{ lang['near_me']}}</button></li>
+				<!-- <li><button class="img-btn" id="discounts">{{ lang['discounts']}}</button></li> -->
+				<!-- <li><button class="img-btn" id="inspire-me">{{ lang['inspire_me']}}</button></li> -->
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+			</ul>
 	
-	</div>
-	
-	<div class="letsgo-container">
-		<div class="purpose-list mobile">
-			<div class="img-btn purpose-btn tourists" purpose="dinner with tourists"><div class="btn-icon"></div>{{lang['with_visitors']}}
-			</div><div class="img-btn purpose-btn partner" purpose="romantic dinner"><div class="btn-icon"></div>{{lang['romantic_dinner']}}
-			</div><div class="img-btn purpose-btn friends" purpose="dinner with friends"><div class="btn-icon"></div>{{lang['with_friends']}}
-			</div><div class="img-btn purpose-btn lunch" purpose="best price/quality ratio"><div class="btn-icon"></div>{{lang['lunch']}}</div>
 		</div>
-		<div class="purpose-list desktop">
+	
+		<div class="text-center text-title">
+			{{lang['letsgo_title']}} 
+		</div>
+	
+		<div class="purpose-list mobile">
+			<div class="img-btn purpose-btn tourists" purpose="dinner with tourists">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['with_visitors']}}</div>
+			</div><div class="img-btn purpose-btn partner" purpose="romantic dinner">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['romantic_dinner']}}</div>
+			</div><div class="img-btn purpose-btn friends" purpose="dinner with friends">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['with_friends']}}</div>
+			</div><div class="img-btn purpose-btn price-quality" purpose="best price/quality ratio">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['lunch']}}</div>
+			</div>
+		</div>
+		<!-- <div class="purpose-list desktop">
 			<p class="text-bold center-text">{{lang['select_purpose']}}</p>
 			<div class="img-btn purpose-btn tourists" purpose="dinner with tourists"><div class="btn-icon"></div><div class="text">{{lang['with_visitors']}}</div>
 			</div><div class="img-btn purpose-btn partner" purpose="romantic dinner"><div class="btn-icon"></div><div class="text">{{lang['romantic_dinner']}}</div>
 			</div><div class="img-btn purpose-btn friends" purpose="dinner with friends"><div class="btn-icon"></div><div class="text">{{lang['with_friends']}}</div>
 			</div><div class="img-btn purpose-btn lunch" purpose="best price/quality ratio"><div class="btn-icon"></div><div class="text">{{lang['lunch']}}</div></div>
-		</div>
+		</div> -->
 		<div class="letsgo-rest">
 			<div class="letsgo-picture-container mobile">
 				<button class="left-arrow"></button>
@@ -179,13 +191,13 @@ $(window).load(function() {
 	}
 	var purpose = user.settings.purpose;
 	if(user.settings.purpose == "dinner with tourists"){
-		$('.purpose-btn.tourists').addClass("disabled");
+		$('.purpose-btn.tourists').addClass("selected");
 	} else if(user.settings.purpose == "romantic dinner"){
-		$('.purpose-btn.partner').addClass("disabled");
+		$('.purpose-btn.partner').addClass("selected");
 	} else if(user.settings.purpose == "dinner with friends"){
-		$('.purpose-btn.friends').addClass("disabled");
+		$('.purpose-btn.friends').addClass("selected");
 	} else if(user.settings.purpose == "best price/quality ratio"){
-		$('.purpose-btn.lunch').addClass("disabled");
+		$('.purpose-btn.price-quality').addClass("selected");
 	}
 
 	 function renderPlace(pos){
@@ -522,10 +534,10 @@ $(window).load(function() {
 	});
 	
 	$('.purpose-btn').click(function(){
-		if(!$(this).hasClass('disabled')){
+		if(!$(this).hasClass('selected')){
 			purpose = $(this).attr('purpose');
-			$('.purpose-btn').removeClass('disabled');
-			$(this).addClass('disabled');
+			$('.purpose-btn').removeClass('selected');
+			$(this).addClass('selected');
 		}
 		$('.loading').show();
 		pos = 0;
