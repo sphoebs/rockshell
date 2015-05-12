@@ -1,13 +1,15 @@
-<div class="popup-background settings-popup">
+<div class="popup-background confirm-popup">
 	<div class="popup-foreground popup-scrollable">
 		<button class="img-btn close" id="close-popup"></button>
-		<h3><%= strings.title %></h3>
-		<p><%= strings.message %></p>
-		<br/>
-		<p><%= strings.message_2 %></p>
+		<div class="text-center text-title"><%= strings.title %></div>
+		<div class="separator"></div>
+		
+		<div class="text-margin-full"><%= strings.message %></div>
+		
+		<div class="text-margin-full"><%= strings.message_2 %></div>
 		<div class="actions">
-			<button class="img-btn red-button" id="cancel" "><%= strings.cancel %></button>
-			<button class="img-btn red-button" id="ok" "><%= strings.ok %></button>
+			<button class="margin-btn img-btn red-button" id="cancel" "><%= strings.cancel %></button>
+			<button class="margin-btn img-btn red-button" id="ok" "><%= strings.ok %></button>
 		</div>
 		
 	</div>

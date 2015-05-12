@@ -21,6 +21,11 @@ h1, h2, h3, h4, h5, h6, p {
 	margin: 5px;
 }
 
+a.no-style {
+	text-decoration: none;
+	color: inherit;
+}
+
 .desktop {
 	display: none;
 }
@@ -32,6 +37,10 @@ h1, h2, h3, h4, h5, h6, p {
 .text-margin {
 	margin-left: 10px;
 	margin-right: 10px;
+}
+
+.text-margin-full {
+	margin: 10px;
 }
 
 .text-center {
@@ -64,14 +73,14 @@ h1, h2, h3, h4, h5, h6, p {
 
 .text-red-light {
 	color: #E36564;
-	font-size: 14pt;
+	font-size: 11pt;
 	margin-left: 10px;
 	margin-right: 10px;
 }
 
 .text-red-bold {
 	color: #E36564;
-	font-size: 13pt;
+	font-size: 11pt;
 	font-weight: 600;
 	margin-left: 10px;
 	margin-right: 10px;
@@ -239,6 +248,11 @@ button.center, input[type="submit"].center {
 	margin-right: auto;
 	display: block;
 	
+}
+
+.margin-btn {
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 /* NAVIGATION BUTTONS END */
@@ -1561,4 +1575,63 @@ img.letsgo-picture {
 
 
 /* RESTAURANT END */
+
+
+/* DISCOUNT */
+
+.disc .rest-name{
+	margin-top: 10px;
+}
+
+.disc .time-coupons{
+	margin-top: 20px;
+}
+
+.disc .coupon {
+	margin: 15px;
+	border: solid 1px #B3B3B3;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px; 
+	padding: 15px;
+}
+
+.coupon .actions{
+	display: block;
+	margin: 10px auto 0 auto;
+	width: 160px;
+}
+
+.coupon .actions button{
+	width: 70px;
+}
+
+.coupon .actions button.use-button {
+	margin-right: 10px;
+}
+
+
+
+/* DISCOUNT END */
+
+
+/* MY COUPONS */
+
+.disc-item .coupon {
+	margin: 10px;
+}
+
+.coupon-list-title {
+	font-size: 14pt;
+}
+
+.coupon-list .disc-item {
+	border-bottom: solid 1px #B3B3B3;
+}
+
+.coupon-list .disc-item.no-border {
+	border: 0;
+}
+
+/* MY COUPONS END */
 

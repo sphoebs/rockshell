@@ -1,5 +1,5 @@
 cron:
 - description: recompute clusters every year
   url: /kmeans/compute_clusters
-  schedule: 1st Jan 23:59
+  schedule: 1 of jan 00:00
   target: cluster

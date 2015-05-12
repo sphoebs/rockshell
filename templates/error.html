@@ -1,11 +1,11 @@
 {% extends "base.html" %} {% block main %}
-<div class="discount-container">
+<div class="main-container">
 	<h1>{{lang['error']}}</h1>
 
 	<h3>{{error_code}}: {{error_string}}</h3>
 
 	<p>{{lang['error_sorry']}}</p>
 
-	<button class="img-btn red-button" onclick="window.history.back()">{{ lang['back']}}</button>
+	<button class="img-btn red-button margin-btn" onclick="window.history.back()">{{ lang['back']}}</button>
 </div>
 {% endblock %}

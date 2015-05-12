@@ -181,6 +181,7 @@ en = {
     'change_rest' : 'Change restaurant',
     
     # DISCOUNT
+    'your_coupon': 'Your coupon',
     'discount_edit': 'Edit discount',
     'discount_new': 'New discount',
     'discount_title': 'Title',
@@ -213,6 +214,8 @@ en = {
                          'see_coupon': 'See my coupon',
                          'goto_restaurant': 'Go to restaurant',
                          'use': 'Use',
+                         'you_have_coupon_code': 'You have a coupon with code',
+                         'delete': 'Delete', 
     },
     'disc_publish_popup': {
                         'title': 'Confirm publication',
@@ -258,7 +261,8 @@ en = {
     'used': 'used on',
     'deleted': 'deleted on',
     'use': 'Use',
-    'you_have_coupon_code': 'You have a coupon, with code',
+    'you_have_coupon_with': 'You have a coupon with',
+    'code': 'code',
     'coupon_used_date': 'The coupon has already been used in date',
     'coupon_deleted_date' : 'The coupon has been deleted in date',
     
@@ -544,6 +548,7 @@ it = {
     'change_rest' : 'Cambia ristorante',
     
     # DISCOUNT
+    'your_coupon': 'Il tuo coupon',
     'discount_edit': 'Modifica offerta',
     'discount_new': 'Crea nuova offerta',
     'discount_title': 'Titolo',
@@ -576,6 +581,8 @@ it = {
                          'see_coupon': 'Accedi al mio coupon',
                          'goto_restaurant': 'Vai al ristorante',
                          'use': 'Usa',
+                         'you_have_coupon_code': 'Hai un coupon con codice',
+                         'delete': 'Cancella',
     },
     'disc_publish_popup': {
                         'title': 'Conferma pubblicazione',
@@ -620,9 +627,9 @@ it = {
     'bought': 'acquistato il',
     'used': 'usato il',
     'use': 'Usa',
-    'you_have_coupon_code': 'Hai un coupon, con codice',
+    'you_have_coupon_with': 'Hai un coupon con',
     'coupon_used_date': u'Il coupon è già stato usato il ',
-    
+    'coupon_deleted_date': u'Il coupon è già stato cancellato il ',
     
     # ADMIN
     'select_city': u'Seleziona una città per cercare i posti che vuoi modificare',

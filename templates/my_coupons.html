@@ -1,17 +1,20 @@
 {% extends "base.html" %} {% block main %}
-<div class="full-background rest">
-	<div class="top-bar rest-bar">
-		<div class="bar-background"></div>
+<div class="full-background my-coupons">
+	<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
 		<div class="menu-button">
 			<button class="img-btn" id="menu-button"></button>
-			<div class="user-menu-small clickable">
+			<div class="user-menu-small clickable desktop">
 				<div class="user-picture"></div>
 				<div class="text-bold user-name">
 					{{user.first_name}}
 				</div>
 			</div>
+			<div class="clear-float"></div>
 		</div>
-		<div class="rest-logo"></div>
+		<div class="logo"></div>
+		<div class="actions">
+		</div>
 	</div>
 	
 	<div class="left-menu scrollable" id="left-menu" style="display: none;">
@@ -21,8 +24,7 @@
 			<div class="clear-float"></div>
 		</div>
 		<ul class="menu-items">
-			<!-- <li class="separation"></li> -->
-			<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+			<!-- <li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li> -->
 			<li><button class="img-btn selected" id="coupons"> > {{lang['my_coupons']}}</button></li>
 			<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 			<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
@@ -31,15 +33,18 @@
 	
 	</div>
 	
-	<div class="discount-container">
+	<div class="main-container">
 	
-		<h2 class="center-text">{{ lang['your_coupons'] }}</h2>
+		<div class="text-title text-center">{{lang['your_coupons']}}</div>
+			
+		<div class="separator"></div>
 	
-		<p class="coupon-list-title">{{ lang['active_coupons'] }}: </p>
+		<p class="coupon-list-title text-big text-red-bold text-center ">{{ lang['active_coupons'] }} </p>
 		<div class="coupon-list" id="current_available"></div>
 	
+		<div class="separator"></div>
 	
-		<p class="coupon-list-title">{{ lang['used_coupons'] }}: </p>
+		<p class="coupon-list-title text-big text-red-bold text-center">{{ lang['used_coupons'] }} </p>
 		<div class="coupon-list scrollable" id="used"></div>
 		
 		

@@ -1,58 +1,62 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest">
-		<div class="top-bar rest-bar">
-			<div class="bar-background"></div>
-			<div class="menu-button">
-				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
-					<div class="user-picture"></div>
-					<div class="text-bold user-name">
-						{{user.first_name}}
-					</div>
+<div class="full-background disc">
+	<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small clickable desktop">
+				<div class="user-picture"></div>
+				<div class="text-bold user-name">
+					{{user.first_name}}
 				</div>
 			</div>
-			<div class="rest-logo"></div>
+			<div class="clear-float"></div>
 		</div>
+		<div class="logo"></div>
+		<div class="actions">
+		</div>
+	</div>
 		
-		<div class="left-menu scrollable" id="left-menu" style="display: none;">
-			<div class="user-menu clickable">
-				<div class="user-picture"></div>
-				<h3 class="text-bold user-name">
-					{{user.first_name}}</h3>
-				<div class="clear-float"></div>
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
+		<div class="user-menu clickable">
+			<div class="user-picture"></div>
+			<h3 class="text-bold user-name">
+				{{user.first_name}}</h3>
+			<div class="clear-float"></div>
+		</div>
+
+		<ul class="menu-items">
+			{% if owner %}
+				<li><button class="img-btn" id="back_rest">{{ lang['back_to_rest']}}</button></li>
+				<li class="separator white"></li>
+				<li><button class="img-btn no-border" id="profile">{{lang['my_profile']}}</button></li>
+				<li><button class="img-btn" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
+				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+			{% else %}
+				<!-- <li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li> -->					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
+				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+			{% endif %}
+			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+		</ul>
+
+	</div>
+
+		<div class="main-container">
+		
+			<div class="text-title text-center">{{lang['your_coupon']}}</div>
+			
+			<div class="separator"></div>
+			
+			<div class="text-big text-bold text-center rest-name"> <a class="no-style clickable" href="/restaurant?id={{discount.place}}">{{place_name}}</a></div>
+			
+			<div class="text-center">{{discount.description}}</div>
+			
+			<div class="time-coupons text-red-bold text-center">
+				<div>{{discount.title}} {{lang['for']}} <span class="countdown" end-time="{{discount.end_time}}"></span></div>
+				<div>{{lang['discount_strings']['coupons']}}: {{discount.available_coupons}}</div>
 			</div>
-
-			<ul class="menu-items">
-				{% if owner %}
-					<li><button class="img-btn" id="back_rest">{{ lang['back_to_rest']}}</button></li>
-					<li class="separation"></li>
-					<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-					<li><button class="img-btn" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
-					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
-				{% else %}
-					<!-- <li><button class="img-btn" id="back_rest">{{ lang['back_to_rest']}}</button></li> -->
-					<!-- <li class="separation"></li> -->
-					<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
-					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
-					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
-				{% endif %}
-				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
-			</ul>
-
-		</div>
-
-		<div class="discount-container">
-		
-			<h2 class="center-text">{{ discount.title }} - <a class="title rest-clickable" href="/restaurant?id={{discount.place}}">{{place_name}}</a></h2>
-			
-			<div class="black-text">
-			<p>{{discount.description}}</p>
-			
-			<p><span class="countdown-text"></span> <span class="countdown" end-time="{{discount.end_time}}"></span></p>
-			
-			<p>{{lang['discount_strings']['coupons']}}: {{discount.available_coupons}} / {{discount.num_coupons}}</p>
 			
 			{% if owner %}
 				<p id="published">{{ lang['published'] if discount.published else lang['not_published'] }}</p>
@@ -76,20 +80,23 @@
 			
 			{% else %}
 				{% if discount.coupons is none or discount.coupons|length < 1 or discount.coupons[0].deleted %}
-					<button class="img-btn red-button" id="buy">{{lang['discount_strings']['buy']}}</button>
+					<button class="img-btn red-button center" id="buy">{{lang['discount_strings']['buy']}}</button>
 				{% else %}
 					<br/>
 					<div class="coupon">
-						<p> {{lang['you_have_coupon_code']}} {{discount.coupons[0].code}}</p>
+						<div class="text-red-light text-center"> {{lang['you_have_coupon_with']}}</div>
+						<div class="text-red-bold text-center">  {{lang['code']}} {{discount.coupons[0].code}}</div>
 						{% if discount.coupons[0].used %}
-							<p class="used"> {{lang['coupon_used_date']}}: {{discount.coupons[0].usage_time}}</p>
+							<div class="used text-center"> {{lang['coupon_used_date']}} {{discount.coupons[0].usage_time}}</div>
 						{% endif %}
 						{% if discount.coupons[0].deleted %}
-							<p class="deleted"> {{lang['coupon_deleted_date']}}: {{discount.coupons[0].delete_time}}</p>
+							<div class="deleted text-center"> {{lang['coupon_deleted_date']}} {{discount.coupons[0].delete_time}}</div>
 						{% endif %}					
 						{% if not discount.coupons[0].used and not discount.coupons[0].deleted %}
-							<button class="img-btn red-button use-button" coupon-code="{{discount.coupons[0].code}}" id="use">{{ lang['use']}}</button>
-							<button class="img-btn red-button" id="delete-coupon" discount-id="{{ discount.key }}" coupon-code="{{discount.coupons[0].code}}">{{lang['discount_strings']['delete']}} {{lang['discount_strings']['coupon']}}</button>
+							<div class="actions">
+								<button class="img-btn red-button use-button" coupon-code="{{discount.coupons[0].code}}" id="use">{{ lang['use']}}</button>
+								<button class="img-btn red-button" id="delete-coupon" discount-id="{{ discount.key }}" coupon-code="{{discount.coupons[0].code}}">{{lang['discount_strings']['delete']}}</button>
+							</div>
 						{% endif %}
 					</div>
 				{% endif %}
