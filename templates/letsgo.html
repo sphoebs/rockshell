@@ -243,10 +243,6 @@ $(window).load(function() {
 			 $('button.prev').hide();
 		 }
 		 
-		if(window.console){
-			console.log("Showing place " + pos + " of " + places.length);
-		}
-		
 		var p = places[pos];
 		$('.rest-title').html(p.name);
 		$('.rest-address').html(p.address.street + ', ' + p.address.city);
@@ -406,12 +402,7 @@ $(window).load(function() {
 		}
 		$('.rest-open').html(open_str);*/
 		if(p.predicted != undefined){
-			console.log("Predicted rating: "+ p.predicted);
 			value = Math.round(p.predicted * 100 / 5)
-			if(window.console){
-				console.log("Predicted rating: "+ value);
-			}
-			
 			var data = google.visualization.arrayToDataTable([
 				['prediction', 'value'],
 				['', value],

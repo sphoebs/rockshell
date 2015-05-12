@@ -169,6 +169,9 @@ en = {
     'add-day': 'Add new day',
     'picture_help': 'The picture should have 3:2 ratio (width/height), with minimum resolution of 600x400 px.',
     
+    'read_more': 'Read more',
+    'read_less': 'Read less',
+    
     'back': 'Back',
     'back_to_rest' : 'Back to restaurant',
     'back_to_dlist' : 'Back to discounts',
@@ -528,6 +531,9 @@ it = {
     'close': 'alle',
     'add-day': 'Aggiungi giorno',
     'picture_help': 'L\'immagine deve avere un rapporto 3:2 (larghezza/altezza), con risoluzione minima di 600x400px.',
+    
+    'read_more': u'Leggi di più',
+    'read_less': 'Leggi di meno',
     
     'back': 'Indietro',
     'back_to_rest' : 'Torna al ristorante',

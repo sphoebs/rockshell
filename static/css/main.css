@@ -1402,6 +1402,162 @@ img.letsgo-picture {
 
 /* RESTAURANT */
 
+.rest .rest-title {
+	font-size: 16pt;
+	line-height: 1em;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.rest .rest-title-address {
+	font-size: 11pt;
+	line-height: 1em;
+	margin-top: 2px;
+	padding-top: 0;
+}
+
+.rest .icon {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	border: 0;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	margin-top: 10px;
+}
+
+.rest p.iconed {
+	display: block;
+	margin-left: 22px;
+	margin-top: -20px;
+	/* margin-bottom: 15px; */
+}
+
+.icon-address {
+	background-image: url(../images/icon_address.png);
+}
+
+.icon-phone {
+	background-image: url(../images/icon_phone.png);
+}
+
+.icon-hours {
+	background-image: url(../images/icon_hours.png);
+}
+
+.icon-closed {
+	background-image: url(../images/calendar.png);
+}
+
+.icon-web {
+	background-image: url(../images/icon_website.png);
+}
+
+.icon-email {
+	background-image: url(../images/icon_mail.png);
+}
+
+.rest-map img {
+	display: block;
+	width: 320px;
+	height: 259px;
+	max-height: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: auto;
+	-moz-background-size: auto;
+	-o-background-size: auto;
+	background-size: auto;
+	/* border: solid 1px #DC3D3D; */
+}
+
+.rest .description {
+	margin-bottom: 10px;
+}
+
+.rest .discount .info{
+	margin: 10px;
+}
+
+.red-button.disc-btn {
+	background-color: #B73B3B;
+	margin: 5px auto;
+	display: block;
+}
+
+/* PICTURES */
+
+#slider {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.slider {
+	position: relative; 
+	margin-left: auto;
+	margin-right: auto;
+	width: 320px; 
+	height: 196px;
+}
+
+.pictures {
+	cursor: move; 
+	position: absolute; 
+	overflow: hidden; 
+	left: 0px; 
+	top: 0px; 
+	width: 320px; 
+	height: 196px;
+}
+
+/* jssor slider bullet navigator skin 14 css */
+/*
+.jssorb14 div           (normal)
+.jssorb14 div:hover     (normal mouseover)
+.jssorb14 .av           (active)
+.jssorb14 .av:hover     (active mouseover)
+.jssorb14 .dn           (mousedown)
+*/
+.jssorb14 {
+	position: absolute;
+	bottom: 10px;
+}
+
+.jssorb14 div, .jssorb14 div:hover, .jssorb14 .av {
+	position: absolute;
+	/* size of bullet elment */
+	width: 12px;
+	height: 12px;
+	background: url(/static/images/b14.png) no-repeat;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.jssorb14 div {
+	background-position: -9px -9px;
+}
+
+.jssorb14 div:hover, .jssorb14 .av:hover {
+	background-position: -39px -9px;
+}
+
+.jssorb14 .av {
+	background-position: -69px -9px;
+}
+
+.jssorb14 .dn, .jssorb14 .dn:hover {
+	background-position: -99px -9px;
+}
+
+/* PICTURES END */
 
 
 /* RESTAURANT END */

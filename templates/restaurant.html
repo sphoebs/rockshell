@@ -1,142 +1,147 @@
 {% extends "base.html" %} {% block main %}
-
 <div class="full-background rest">
-	
-		<div class="top-bar">
-			<div class="bar-background"></div>
-			<div class="menu-button">
-				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
-					<div class="user-picture"></div>
-					<div class="text-bold user-name">{{user.first_name}} </div>
-				</div>
-			</div>
-			<div class="rest-logo"></div>
-		</div>
-		
-		<div class="left-menu scrollable" id="left-menu" style="display: none;">
-			<div class="user-menu clickable">
+	<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small clickable desktop">
 				<div class="user-picture"></div>
-				<h3 class="text-bold user-name"> {{user.first_name}}</h3>
-				<div class="clear-float"></div>
-			</div>
-		
-			<ul class="menu-items">
-				{% if user.role == 'admin' %}
-					<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
-				{% endif %}
-				{% if user.role == 'admin' or place.owner == user.key %}
-					<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
-					<li class="separation"></li>
-				{% endif %}
-					<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-				{% if place.owner == user.key %}
-				<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
-					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
-				{% endif %}
-				{% if place.owner != user.key %}
-					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
-					<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
-					<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
-				{% endif %}
-				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
-			</ul>
-	
-		</div>
-	
-		<div class="rest-container">
-			<div class="red-bg">
-				<p class="text-bold rest-name">{{place.name}}</p>
-			
-				<div class="discounts"><p>{{lang['loading']}}...</p></div>
-			</div>
-			
-			
-			<div class="rest-left">
-				<div id="slider" class="slider">
-					<div u="slides" class="pictures" >
-						{% if not place.picture is none %}
-							<div><img u="image" src="{{place.picture}}" /></div>
-						{% endif %}
-						{% if not place.other_pictures is none and place.other_pictures|length > 0 %}
-							{% for image in place.other_pictures %}
-								<div><img u="image" src="{{image}}" /></div>
-							{% endfor %}
-						{% endif %}
-					</div>
-				
-        			<!-- bullet navigator container -->
-        			<div u="navigator" class="jssorb14">
-            			<!-- bullet navigator item prototype -->
-            			<div u="prototype"></div>
-        			</div>
-        			<!--#endregion Bullet Navigator Skin End -->
-				
+				<div class="text-bold user-name">
+					{{user.first_name}}
 				</div>
-			</div>
-			
-			<div class="rest-right">
-				<p class="black-text desc">{{place.description}}</p>
 			</div>
 			<div class="clear-float"></div>
-			<hr/>
-			
-			<div class="">
-				<div class="rest-map">
-					<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x400&maptype=roadmap&markers=color:red%7Clabel:C%7C{{place.address.lat}},{{place.address.lon}})" >
-				</div>
-				<a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a>
-			</div>
+		</div>
+		<div class="logo"></div>
+		<div class="actions">
+		</div>
+	</div>
 		
-			<hr/>
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
+		<div class="user-menu clickable">
+			<div class="user-picture"></div>
+			<h3 class="text-bold user-name"> {{user.first_name}}</h3>
+			<div class="clear-float"></div>
+		</div>
+	
+		<ul class="menu-items">
+			{% if user.role == 'admin' %}
+				<li><button class="img-btn" id="new-rest">{{ lang['rest_new'] }}</button></li>
+			{% endif %}
+			{% if user.role == 'admin' or place.owner == user.key %}
+				<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
+				{% if place.owner == user.key %}
+					<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
+					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+				{% endif %}
+				<li class="separator white"></li>
+				<li><button class="img-btn no-border" id="profile">{{lang['my_profile']}}</button></li>
+			{% else %}
+				<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+			{% endif %}
+			
+			{% if place.owner != user.key %}
+				<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
+				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
+				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+			{% endif %}
+			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+		</ul>
+	
+	</div>
+	
+	<div class="main-container">
+		<div class="text-title text-center rest-title">{{place.name}}</div>
+		<div class="text-center text-title rest-title-address">{{place.address.street}}, {{place.address.city}}</div>
+		
+		<div class="separator"></div>
+			
+		<div class="discount-area">
+			<div class="text-center"> {{lang['loading']}}... </div>
+		</div>
+	
+		<div id="slider" class="slider">
+			<div u="slides" class="pictures" >
+				{% if not place.picture is none %}
+					<div><img u="image" src="{{place.picture}}" /></div>
+				{% endif %}
+				{% if not place.other_pictures is none and place.other_pictures|length > 0 %}
+					{% for image in place.other_pictures %}
+						<div><img u="image" src="{{image}}" /></div>
+					{% endfor %}
+				{% endif %}
+			</div>
 				
+        	<!-- bullet navigator container -->
+        	<div u="navigator" class="jssorb14">
+            	<!-- bullet navigator item prototype -->
+            	<div u="prototype"></div>
+        	</div>
+       		<!--#endregion Bullet Navigator Skin End -->
 			
+		</div>
+			 
+		<div class="text-margin description">
+			<span id="text">{{place.description}}</span>
+			<span id="more_desc" param="open" class="text-bold img-btn clickable">{{lang['read_less']}}</span> 
+		</div>
+
+		<div class="separator"></div>
 			
-			<div class="info">
-				<div class="rest-left">
-				{% if place.address %}
+		<div class="">
+			<a class="rest-map" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">
+				<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x400&maptype=roadmap&markers=color:red%7C{{place.address.lat}},{{place.address.lon}})" >
+			</a>
+			<!-- <a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a> -->
+		</div>
+		
+		<div class="separator"></div>
+			
+		<div class="info text-margin">
+			<div class="rest-left">
+			{% if place.address %}
 				<div class="icon icon-address"></div>
-				<p class="iconed black-text">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
-				{% endif %}
+				<p class="iconed">{{place.address.street}}, {{place.address.city}} ({{place.address.province}}, {{place.address.country}})</p>
+			{% endif %}
 				
 				
-				{% if place.hours %}
+			{% if place.hours %}
 				<div class="icon icon-hours"></div>
-				<p class="iconed black-text" id="hours">
+				<p class="iconed" id="hours">
 				</p>
-				{% endif %}
+			{% endif %}
 				
-				{% if place.days_closed %}
+			{% if place.days_closed %}
 				<div class="icon icon-closed"></div>
-				<p class="iconed black-text">{{ lang['rest_closed'] }}: 
+				<p class="iconed">{{ lang['rest_closed'] }}: 
 					{% for d in place.days_closed %}
 						{{ d }}{% if loop.index != loop.length %}, {% endif %}
 					{% endfor %}	
 				</p>
-				{% endif %}
-				</div>
-				
-				<div class="rest-right">
-				{% if place.phone %}
-				<div class="icon icon-phone"></div>
-				<p class="iconed black-text">{{place.phone}}</p>
-				{% endif %}
-				
-				{% if place.website %}
-				<div class="icon icon-web"></div>
-				<p class="iconed black-text rest-clickable" onclick="window.open('{{place.website}}');">{{place.website}}</p>
-				{% endif %}
-				
-				{% if place.email %}
-				<div class="icon icon-email"></div>
-				<p class="iconed black-text">{{place.email}}</p>
-				{% endif %}
-				</div>
+			{% endif %}
 			</div>
-			<div class="clear-float"></div>
-					
-			<div class="popup-area"></div>
+				
+			<div class="rest-right">
+			{% if place.phone %}
+				<div class="icon icon-phone"></div>
+				<p class="iconed">{{place.phone}}</p>
+			{% endif %}
+				
+			{% if place.website %}
+				<div class="icon icon-web"></div>
+				<p class="iconed rest-clickable" onclick="window.open('{{place.website}}');">{{place.website}}</p>
+			{% endif %}
+				
+			{% if place.email %}
+				<div class="icon icon-email"></div>
+				<p class="iconed">{{place.email}}</p>
+			{% endif %}
+			</div>
 		</div>
+		<div class="clear-float"></div>
+					
+		<div class="popup-area"></div>
+	</div>
 </div>
 
 {% endblock %} {% block scripts %}
@@ -178,7 +183,7 @@
 		}
 		
 		function writeHours(){
-			var html = '{{ lang['rest_opening_hours'] }}:<p class="day black-text">';
+			var html = '<div class="day">';
 			var hours = [];
 			{% for h in place.hours %}
 				hours[{{h.weekday}}-1] = "{{ '%s-%s'|format(h.open1, h.close1) if h.open1 and h.close1 else lang['rest_closed_wday']}}{{ ', %s-%s'|format(h.open2, h.close2) if h.open2 and h.close2 }}";
@@ -216,27 +221,55 @@
 				
 						var day = intToDay(i) + " - " + intToDay(last_id) + ": " + hours[i];
 						if(last_id < 6){
-							html += day + '</p><p class="day black-text">';
+							html += day + '</div><fiv class="day">';
 						} else {
-							html += day + '</p>';
+							html += day + '</div>';
 						}
 					} else {
 						var day = intToDay(i) + ": " + hours[i];
 						if(i < 6){
-							html += day + '</p><p class="day black-text">';
+							html += day + '</div><div class="day">';
 						} else {
-							html += day + '</p>';
+							html += day + '</div>';
 						}
 					}
 				}
 				
 			}
-			html += '<p class="rest-open">{{now_open}}</p>';
+			/*html += '<p class="rest-open">{{now_open}}</p>'; */
 			
 			$('#hours').html(html);			
 		}
 		
 		writeHours();
+		
+		function shortenDescription(){
+			var max_chars = 130;
+			var description = "{{place.description | replace("\n", " ")}}";
+			if(description.length > max_chars){
+				var short_desc = description.substring(0, max_chars) + "...";
+				$('.description #text').html(short_desc);
+				$('.description #more_desc').html("{{lang['read_more']}}");
+				$('.description #more_desc').attr('param', 'closed');
+				
+				$('.description #more_desc').click(function(){
+					if($(this).attr('param') == "closed"){
+						$('.description #text').html("{{place.description | replace("\n", " ")}}");
+						$('.description #more_desc').html("{{lang['read_less']}}");
+						$('.description #more_desc').attr('param', 'open');
+					} else {
+						var short_desc = description.substring(0, max_chars) + "...";
+						$('.description #text').html(short_desc);
+						$('.description #more_desc').html("{{lang['read_more']}}");
+						$('.description #more_desc').attr('param', 'closed');
+					}
+				});
+			} else {
+				$('.description #more_desc').hide();
+			}
+		}
+		
+		shortenDescription()
 	});
 
 	$(window).load(function() {
@@ -343,19 +376,19 @@
 					discounts = data;
 					
 					if(discounts == null || discounts.length < 1){
-						$('.discounts').html('<p>{{lang['no_discounts']}}</p>');
+						$('.discount-area').html('<p>{{lang['no_discounts']}}</p>');
 					} else {
 						//load underscore template
 						var xmlhttp = new XMLHttpRequest();
-						xmlhttp.open("GET","/static/js_templates/rest_disc_list.ejs",false);
+						xmlhttp.open("GET","/static/js_templates/rest_disc.ejs",false);
 						xmlhttp.send(null);
 						var template = xmlhttp.responseText;
 						var compiled = _.template(template);
 						
 						var html = compiled({
-							discounts : discounts, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: owner, actions: false, available: true
+							discount : discounts[0], lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: owner, actions: false, available: true
 						});
-						$('.discounts').html(html);
+						$('.discount-area').html(html);
 						$('.countdown').each(function(){
 							var end = $(this).attr('end-time');
 							var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
@@ -375,7 +408,7 @@
 							
 						});
 						
-						$('.rest-disc-item .desc').click(function(){
+						$('.discount-area .info').click(function(){
 							var disc_id = $(this).attr('discount-id');
 							window.location = '/discount?id=' + disc_id;
 						});
