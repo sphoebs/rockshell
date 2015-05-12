@@ -49,6 +49,37 @@ def get_current_userid(cripted_data):
 #         logging.info('\n ::user object:: returning user ' + str(user))
 #         return user
 
+def similarity(person1, person2):
+    """
+    Computes ComeAlong similarity between two users.
+
+    Formula: 2 * (1/(1+ ((sum(pow((x-y)/4, 2))))/n) - 1/2)
+
+    Returns a float number between 0 and 1 representing the similarity between the two users.
+    """
+#     logging.info('kmeans.comealong_similarity START - person1=' +
+#                  str(person1) + ', person2=' + str(person2))
+    si = {}
+    for item in person1['ratings']:
+        if item in person2['ratings']:
+            si[item] = 1
+
+    # if they have no ratings in common, return 0
+    if len(si) == 0:
+        return 0
+#     if debug:
+#         logging.info('comealong similarity - SI length: ' + str(len(si)))
+
+    # Add up all the squares of the differences
+    sum_of_squares = sum([pow((person1['ratings'][item] - person2['ratings'][item]) / (5.0 - 1.0), 2.0)
+                          for item in person1['ratings'] if item in person2['ratings']])
+
+#     if debug:
+#         logging.info('comealong - sum of squares: ' + str(sum_of_squares))
+    res = 2.0 * ((1.0 / (1.0 + (sum_of_squares / float(len(si))))) - 0.5)
+    logging.info('kmeans.comealong_similarity END - %s, %s --> %s' %
+                 (person1['key'], person2['key'], str(res)))
+    return res
 
 def user_login(token, service):
     """

@@ -1,0 +1,41 @@
+application: secure-gizmo-698
+module: cluster
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: no
+instance_class: B1
+basic_scaling:
+  max_instances: 1
+  idle_timeout: 15m
+
+
+handlers:
+- url: /favicon\.ico
+  static_files: favicon.ico
+  upload: favicon\.ico
+
+- url: /kmeans(/.*)?
+  script: cluster_builder.app
+
+- url: /_ah/pipeline(/.*)?
+  script: pipeline/handlers.py
+  
+- url: /mapreduce/pipeline/images
+  static_dir: pipeline/ui/images
+  
+- url: /mapreduce(/.*)?
+  script: mapreduce.main.APP
+
+libraries:
+- name: webapp2
+  version: "2.5.2"
+  
+- name: jinja2
+  version: "2.6"
+  
+- name: MySQLdb
+  version: latest
+
+builtins:
+- remote_api: on

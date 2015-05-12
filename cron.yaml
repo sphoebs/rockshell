@@ -1,4 +1,5 @@
 cron:
-- description: recompute clusters every day
-  url: /recommender/recompute_clusters
-  schedule: every sunday 23:59
+- description: recompute clusters every year
+  url: /kmeans/compute_clusters
+  schedule: 1st Jan 23:59
+  target: cluster

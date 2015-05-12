@@ -1,0 +1,12 @@
+dispatch:
+- url: "cluster.stressfree-test.appspot.com/*"
+  module: cluster
+
+- url: "stressfree-test.appspot.com/kmeans/*"
+  module: cluster
+  
+- url: "stressfree-test.appspot.com/mapreduce/*"
+  module: cluster
+
+- url: "stressfree-test.appspot.com/*"
+  module: default

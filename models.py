@@ -838,6 +838,7 @@ class PFuser(PFmodel):
     settings = ndb.StructuredProperty(Settings, indexed=False)
 
     role = ndb.StringProperty()
+    cluster_id = ndb.StringProperty()
 
 #     rating = ndb.StructuredProperty(Rating, repeated=True)
 
@@ -1645,20 +1646,39 @@ class Place(PFmodel):
 #             dblist = Place.query(Place.key.IN(places))
             start = datetime.now()
             db = get_db()
-            #111111 meters = 1 degree of latitude, approximally
-            lat_degrees = max_dist / 111111.0 
-            lat1 = filters['lat'] - lat_degrees
-            lat2 = filters['lat'] + lat_degrees
-            lon1 = filters['lon'] + (lat_degrees * math.cos(filters['lat']))
-            lon2 = filters['lon'] - (lat_degrees * math.cos(filters['lat']))
             
+            # from https://github.com/jfein/PyGeoTools/blob/master/geolocation.py
+            MIN_LAT = math.radians(-90)
+            MAX_LAT = math.radians(90)
+            MIN_LON = math.radians(-180)
+            MAX_LON = math.radians(180)
             
-            
-#             r = (max_dist / 1000.0) / 6371.0
-#             lon1 = filters['lon'] + math.asin(math.sin(r)/math.cos(filters['lat']))
-#             lon2 = filters['lon'] - math.asin(math.sin(r)/math.cos(filters['lat']))
-#             lat1 = filters['lat'] - r
-#             lat2 = filters['lat'] + r
+            # angular distance in radians on a great circle
+            rad_dist = max_dist / 6371000.0   # meters
+            rad_lat = math.radians(filters['lat'])
+            rad_lon = math.radians(filters['lon'])
+            lat1 = rad_lat - rad_dist
+            lat2 = rad_lat + rad_dist
+        
+            if lat1 > MIN_LAT and lat2 < MAX_LAT:
+                delta_lon = math.asin(math.sin(rad_dist) / math.cos(rad_lat))
+                lon1 = rad_lon - delta_lon
+                if lon1 < MIN_LON:
+                    lon1 += 2 * math.pi
+                
+                lon2 = rad_lon + delta_lon
+                if lon2 > MAX_LON:
+                    lon2 -= 2 * math.pi
+            # a pole is within the distance
+            else:
+                lat1 = max(lat1, MIN_LAT)
+                lat2 = min(lat2, MAX_LAT)
+                lon2 = MIN_LON
+                lon2 = MAX_LON
+            lat1 = math.degrees(lat1)
+            lat2 = math.degrees(lat2)
+            lon1 = math.degrees(lon1)
+            lon2 = math.degrees(lon2)
             
             logging.info("square: " + str(lat1) + ", " + str(lat2) + ", " + str(lon1) + ", " + str(lon2))
               
@@ -1673,7 +1693,7 @@ class Place(PFmodel):
                     places.append(Place.make_key(None, pkey)) 
             finally:
                 db.close()
-            logging.info("Got place keys from mysql: " + str(datetime.now()-start))
+            logging.info("Got place keys from mysql: " + str(datetime.now()-start) + " -- " + str(len(places)))
             if filters is not None and 'city' in filters and filters['city'] is not None:
                 dblist = Place.query(Place.key.IN(places))
             else:
@@ -1690,7 +1710,7 @@ class Place(PFmodel):
                     if place is not None:
                         dblist.append(place)
 #                 logging.info(str(dblist))
-                logging.info("Got places from datastore: " + str(datetime.now()-start))
+                logging.info("Got places from datastore: " + str(datetime.now()-start) + " -- " + str(len(dblist)))
 
 
         else:
@@ -2142,412 +2162,6 @@ class Rating(PFmodel):
             return None
 
 
-class Cluster(PFmodel):
-    # id is stored in key: cluster_<number>
-    # user= keys of users in the cluster
-    users = ndb.StringProperty(repeated=True, indexed=True)
-
-    @staticmethod
-    def to_json(obj):
-        """ 
-        It transforms the Cluster object in a dict, that can be easily converted to a json.
-
-        Parameters:
-        - obj: the instance of Cluster to convert.
-
-        Return value: dict representation of the Cluster.
-
-        Of 'key', only the id appears in the dict.
-        
-        Exceptions: TypeError
-        """
-        if obj is None:
-            return None
-        if not isinstance(obj, Cluster):
-            raise TypeError('obj must be a Cluster, instead it is ' + str(type(obj)))
-
-        base_dict = obj.to_dict()
-        res = {}
-        res[obj.key.id()] = base_dict['users']
-        return res
-
-    @staticmethod
-    def from_json(json_dict):
-        """
-        It converts a dict coming from a json string into a Cluster.
-
-        Parameters:
-        - json_dict: the dict containing the information received from a json string.
-
-        Return value: Cluster.
-        Exceptions: TypeError, ValueError
-        """
-        if not isinstance(json_dict, dict):
-            raise TypeError('json_dict must be a dict, instead it is ' + str(type(json_dict)))
-        if len(json_dict.keys()) != 1:
-            raise ValueError('json_dict must contain at least a key')
-
-        cl_id = json_dict.keys()[0]
-        cl = Cluster(key=Cluster.make_key(cl_id))
-        cl.users = json_dict[cl_id]
-        return cl
-
-    @staticmethod
-    def make_key(obj_id):
-        """
-        It creates a Key object for this Cluster, with id obj_id.
-
-        Parameters:
-        - obj_id: the Cluster id.
-
-        Return value: ndb.Key.
-        Exceptions: TypeError
-        """
-        if obj_id is not None:
-            if not isinstance(obj_id, (str, unicode)):  # long?
-                raise TypeError('obj_id must be a string or a unicode, insead it is ' + str(type(obj_id)))
-            else:
-                return ndb.Key(Cluster, obj_id)
-        else:
-            return None
-
-    @staticmethod
-    def is_valid(obj):
-        """
-        It validates the object data.
-
-        Parameters:
-        - obj: the object to be validated
-
-        Return value: (boolean, list of strings representing invalid properties).
-
-        It is empty in the parent class.
-
-        """
-        pass
-
-    @staticmethod
-    def upload_all_to_memcache():
-        """
-        It get all clusters from the datastore and stores them in memcache after being converted to a dict.
-
-        It has no parameters.
-
-        Returns True if the clusters are added to memcache successfully and False if an error happens
-        """
-        client = memcache.Client()
-        clusters = Cluster.query()
-        cldict = {}
-        for cl in clusters:
-            cldict.update(Cluster.to_json(cl))
-        # no expire time, we want it in memcache as long as possible
-        res = client.set(key='clusters', value=cldict)
-        logging.info("Clusters loaded in memcache: " + str(res))
-            
-        return res
-
-    @staticmethod
-    def update_in_memcache(clusters, remove_old=False):
-        """
-        Updates a list of clusters in the full list of clusters stored in memcache.
-
-        Parameters:
-        - clusters: a list of clusters to be updated in the memcache. They should already be stored in the datastore. 
-            If no clusters are found in memcache, they are collected from skratch from datastore and the input data is ignored.
-
-        Returns True if the update is successful and False if an error happens
-        Exceptions: TypeError, ValueError
-        """
-        if not isinstance(clusters, list):
-            raise TypeError('clusters must be a list!')
-        if len(clusters) < 1:
-            raise ValueError('clusters must contain at least one cluster to be updated!')
-        if not all(isinstance(cluster, Cluster) for cluster in clusters):
-            raise TypeError('elements in clusters must all be Cluster object!')
-
-        client = memcache.Client()
-        mc_clusters = client.gets('clusters')
-        if mc_clusters is None:
-            Cluster.upload_all_to_memcache()
-            return True
-        else:
-            if remove_old == True:
-                mc_clusters = {}
-            for cl in clusters:
-                mc_clusters.update(Cluster.to_json(cl))
-            i = 0
-            # try 20 times to save
-            while i < 20:
-                i += 1
-                logging.info(
-                    'CLUSTERS UPDATED TO STORE IN MEMCACHE: ' + str(mc_clusters))
-                if client.cas('clusters', mc_clusters):
-                    return True
-            return False
-
-    @staticmethod
-    def store(obj, key):
-        """
-        It creates or updates the Cluster.
-
-        Parameters:
-        - obj: it containes the object data to store
-        - key: key for the object. If a Cluster with same key already exists, it is updated; otherwise, it is created.
-
-        Return value: Cluster
-        Exceptions: TypeError, ValueError
-        """
-        if not isinstance(obj, Cluster):
-            raise TypeError('obj must be a Cluster, instead it is ' + str(type(obj)))
-        if key is None or not isinstance(key, ndb.Key) or key.kind().find('Cluster') < 0:
-            # key is required, but the input one is not valid
-            raise TypeError('key must be set, must be a ndb.Key and must be a key for a Cluster object.')
-        #save in datastore
-        cluster = key.get()
-        if cluster is not None:
-            cluster.users = obj.users
-        else:
-            cluster = Cluster(key=key, users=obj.users)
-        future = cluster.put_async()
-
-        #save in memcache
-        done = Cluster.update_in_memcache([cluster])
-        if not done:
-            # TODO: what do we do if the cluster is not updated in memcache?
-            pass
-        key = future.get_result()
-        return cluster
-
-    @staticmethod
-    def store_all(clusters_dict):
-        """
-        Makes the set of clusters be exactly the one in input, removing the missing ones and adding the new ones.
-        
-        Parameters:
-        - clusters_dict: a dictionary of clusters, each key refers to a cluster.
-        
-        Return value: no return value
-        Exceptions: TypeError, ValueError (from Cluster.from_json), 
-        """
-        clusters = []
-        if clusters_dict is None:
-            Cluster.delete_all()
-#             Cluster.update_in_memcache(clusters, remove_old=True)
-            return
-        elif not isinstance(clusters_dict, dict):
-            raise TypeError('clusters_dict must be a dict, instead it is ' + str(type(clusters_dict)))
-
-        for clid in clusters_dict:
-            cldict = {clid: clusters_dict[clid]}
-            cluster = Cluster.from_json(cldict)
-            clusters.append(cluster)
-
-        futures = ndb.put_multi_async(clusters)
-
-        # update memcache
-        done = Cluster.update_in_memcache(clusters, remove_old=True)
-        if not done:
-            logging.info('Cluster.store_all: not able to store all clusters in memcache!!')
-            # TODO: what do we do if the clusters are not updated in memcache?
-            pass
-
-        for future in futures:
-            future.get_result()
-
-    @staticmethod
-    def get_by_key(key):
-        """
-        It retrieves the Cluster by key.
-
-        Parameters:
-        - key: the ndb key identifying the object to retrieve.
-
-        Return value: dict representation of cluster
-        Exceptions: TypeError
-        """
-        if not isinstance(key, ndb.Key):
-            raise TypeError('key must be a ndb.Key, instead it is ' + str(type(key)))
-
-        cid = key.id()
-        client = memcache.Client()
-
-        clusters = client.get('clusters')
-        if clusters is not None:
-            logging.info('clusters loaded from memcache: ' + str(clusters))
-            cluster = clusters[cid]
-            return cluster
-        else:
-            cluster = key.get()
-            Cluster.upload_all_to_memcache()
-            return Cluster.to_json(cluster)
-
-    @staticmethod
-    def get_cluster_for_user(user_id):
-        """
-        It gets the cluster in which the user is present.
-
-        Parameters:
-        - user_id: the id of the user whose cluster must be retrieved
-
-        Return value: dict representation of cluster 
-        Exceptions: TypeError
-        """
-        logging.info(
-            'Cluster.get_cluster_for_user START - user:' + str(user_id))
-        if not isinstance(user_id, (str, unicode)):
-            raise TypeError('user_id should be a string or a unicode id for a PFuser')
-            
-        client = memcache.Client()
-        clusters = client.get('clusters')
-        if clusters is not None:
-            logging.info(
-                'Cluster.get_cluster_for_user -- found clusters in memcache: ' + str(clusters))
-            for clid in clusters:
-                users = clusters[clid]
-                if user_id in users:
-                    logging.info(
-                        'Cluster.get_cluster_for_user -- found user cluster memcache: ' + str(clid))
-                    return {clid: users}
-            # not found, search in datastore
-            cluster = Cluster.query(Cluster.users == user_id).get()
-            logging.info(
-                'Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
-            Cluster.upload_all_to_memcache()
-
-            return Cluster.to_json(cluster)
-        else:
-            cluster = Cluster.query(Cluster.users == user_id).get()
-            logging.info(
-                'Cluster.get_cluster_for_user -- found user cluster datastore: ' + str(cluster))
-            Cluster.upload_all_to_memcache()
-
-            return Cluster.to_json(cluster)
-
-    @staticmethod
-    def get_all_clusters_dict():
-        """
-        Retrieves all clusters as a dict.
-        
-        Return value: dict representation of clusters
-        """
-        client = memcache.Client()
-        clusters = client.get('clusters')
-        logging.info('Getting clusters from memcache: ' + str(clusters))
-        if clusters is None or clusters == {}:
-            Cluster.upload_all_to_memcache()
-            clusters = client.get('clusters')
-            logging.info('Getting clusters from memcache 2: ' + str(clusters))
-        return clusters
-
-    @staticmethod
-    def delete(key):
-        """
-        It deletes the Cluster referenced by the key.
-
-        Parameters:
-        - key: the ndb.Key that identifies the object to delete (both kind and id needed).
-
-        Return value: boolean.
-
-        It returns True if the Cluster has been deleted, False if an error happened.
-        
-        Exceptions: TypeError
-        """
-        logging.info('Cluster.delete START - key: ' + str(key))
-        if not isinstance(key, ndb.Key) or key.kind().find('Cluster') < 0:
-            logging.info('Cluster.delete END - invalid key')
-            raise TypeError('key must be a ndb.Key for a Cluster object')
-
-        # delete from datastore
-        future = key.delete_async()
-
-        # delete from memcache
-        client = memcache.Client()
-        clusters = client.gets('clusters')
-
-        if clusters is None or len(clusters) < 1:
-            future.get_result()
-            Cluster.upload_all_to_memcache()
-            logging.info('Cluster.delete END - full upload to memcache')
-            return True
-        else:
-            if key.id() in clusters:
-                del clusters[key.id()]
-                i = 0
-                while i < 20:
-                    i += 1
-                    if client.cas('clusters', clusters):
-                        break
-            logging.info(
-                'Cluster.delete END - updated memcache: ' + str(client.get('clusters')))
-            future.get_result()
-            return True
-
-    @staticmethod
-    def delete_all():
-        """
-        It deletes all clusters. 
-        Empty result
-        """
-        # TODO: is fetch the fastest way to get them? --> NO, usually an iteration is better
-        keys = ndb.gql('SELECT __key__ FROM Cluster').fetch()
-        if keys is None:
-            # no clusters are stored, nothing to do
-            return
-        futures = ndb.delete_multi_async(keys)
-
-        client = memcache.Client()
-        client.delete('clusters')
-
-        for future in futures:
-            future.get_result()
-
-    @staticmethod
-    def get_next_id():
-        """
-        Retrieves the id to be used for a new cluster.
-        
-        Return value: int, "cluster_<int>" will be the id for the next cluster that will be created
-        """
-        logging.info('Cluster.get_next_id START')
-        client = memcache.Client()
-
-        next_id = client.gets('next_cluster_id')
-        if next_id is None:
-            keys = ndb.gql('SELECT __key__ FROM Cluster').fetch()
-#             clusters = Cluster.query().order(-Cluster.key).fetch()
-            last_cluster_id = None
-            for key in keys:
-                if last_cluster_id is None:
-                    last_cluster_id = int(key.id()[8:])
-                else:
-                    cid = int(key.id()[8:])
-                    if cid > last_cluster_id:
-                        last_cluster_id = cid
-            logging.info('LAST_CLUSTER: ' + str(last_cluster_id))
-            if last_cluster_id is None:
-                next_id = 0
-            else:
-                next_id = last_cluster_id + 1
-            i = 0
-            while i < 20:
-                i += 1
-                if client.cas('next_cluster_id', next_id):
-                    break
-        logging.info(
-            'Cluster.get_next_id - saved in memcache: ' + str(client.get('next_cluster_id')))
-        logging.info('Cluster.get_next_id END - ' + str(next_id))
-        return next_id
-
-    @staticmethod
-    def increment_next_id():
-        """
-        Adds one to 'next_cluster_id' as it is stored in memcache.
-        Return value: int, next cluster id.
-        """
-        client = memcache.Client()
-        next_id = client.incr('next_cluster_id', initial_value=0)
-        return next_id
 
 
 class Coupon(PFmodel):
@@ -3457,6 +3071,252 @@ class Discount(PFmodel):
         key.delete()
         return True
     
+    
+    
+    
+class ClusterRating(PFmodel):
+    
+    cluster_id = ndb.StringProperty(required=True)
+    place = ndb.KeyProperty(kind=Place)
+    purpose = ndb.StringProperty(choices=Rating._valid_purpose)
+    avg_value = ndb.FloatProperty(required=True, default=0)
+    updated = ndb.DateTimeProperty(auto_now=True)
+    
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the object in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of ClusterRating to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        Exceptions: TypeError if the input parameters are not of the correct type
+        """
+        res = PFmodel.to_json(obj, ClusterRating, allowed, hidden)
+
+        if 'place' in res.keys():
+            res['place'] = res['place'].urlsafe()
+        if 'updated' in res.keys():
+            res['updated'] = res[
+                'updated'].strftime('%Y-%m-%d %H:%M')
+
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a ClusterRating.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Place or None if the input dict contains wrong data.
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
+        """
+        if not isinstance(json_dict, dict):
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
+
+        res = ClusterRating()
+
+        if 'place_id' in json_dict.keys():
+            if json_dict['place_id'].isdigit():
+                json_dict['place'] = Place.make_key(
+                    long(json_dict['place_id']), None)
+            else:
+                json_dict['place'] = Place.make_key(
+                    None, json_dict['place_id'])
+            del json_dict['place_id']
+        elif 'place' in json_dict.keys():
+            json_dict['place'] = Place.make_key(None, json_dict['place'])
+        if 'avg_value' in json_dict.keys():
+            if isinstance(json_dict['avg_value'], (str, unicode)):
+                json_dict['avg_value'] = float(json_dict['avg_value'])
+        if 'updated' in json_dict.keys():
+            try:
+                json_dict['updated'] = datetime.strptime(
+                    json_dict['updated'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['updated']
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating ClusterRating from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'ClusterRating')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of False, [] means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, ClusterRating):
+            return False, wrong_list
+
+        # check place is in datastore?
+        if obj.place is None or not isinstance(obj.place, ndb.Key):
+            wrong_list.append('place')
+        else:
+            place = obj.place.get()
+            if place is None:
+                wrong_list.append('place')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj):
+        """
+        It creates or updates the ClusterRating, according to its presence in the datastore
+
+        Parameters:
+        - obj: the ClusterRating to store
+
+        Return value: ClusterRating
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
+        """
+        valid, wrong_list = ClusterRating.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            if len(wrong_list) < 1:
+                raise TypeError(
+                    'obj must be ClusterRating, instead it is ' + str(type(obj)))
+            else:
+                raise ValueError(
+                    'Wrong values for the following attributes: ' + str(wrong_list))
+
+        rlist = ClusterRating.get_list(
+            {'cluster_id': obj.cluster_id, 'place': obj.place.urlsafe(), 'purpose': obj.purpose})
+        if len(rlist) == 1:
+            rlist[0].avg_value = obj.avg_value
+            obj = rlist[0]
+#         obj.updated = datetime.now()
+        obj.put()
+        return obj
+    
+    @staticmethod
+    def store_all(cr_list):
+        """
+        It creates or updates a list of ClusterRatings
+
+        Parameters:
+        - cr_list: the ClusterRating list in json format to store
+
+        Return value: list of ClusterRating
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
+        """
+        res = []
+        for obj in cr_list:
+            obj = ClusterRating.from_json(obj)
+            res.append(ClusterRating.store(obj))
+        return res
+
+    @staticmethod
+    def get_by_key(key):
+        """
+        It retrieves the ClusterRating by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+
+        Return value: ClusterRating
+        Exceptions: TypeError if the input parameter is of the wrong type
+        """
+        if key is not None:
+            if isinstance(key, ndb.Key) and key.kind().find('ClusterRating') > -1:
+                return key.get()
+            else:
+                raise TypeError('key must be a valid key for a ClusterRating, it is ' + str(key))
+        else:
+            return None
+
+
+    @staticmethod
+    def get_list(filters):
+        """
+        It retrieves a list of ClusterRatings satisfying the characteristics described in filter.
+
+        Parameters:
+        - filters: a dict containing the characteristics the objects in the resulting list should have.
+
+        Available filters:
+        - 'cluster_id': the cluster id 
+            setting only 'cluster_id', the function retrieves all the ratings of this cluster (i.e. the coordinated of its centroid)
+        - 'place': the place key is string format (urlsafe)
+            setting only 'place', the function retrieves all the ratings of this place
+        - 'purpose': the purpose
+        - 'places' : list of place strings (urlsafe) we are interested in
+        Return value: list of ClusterRatings.
+        Exceptions: TypeError if input parameters are of the wrong type;
+                    ValueError if the filters values are not valid;
+            exceptions are raised from "make_key" functions too.
+        """
+
+        if filters is not None and not isinstance(filters, dict):
+            logging.error(
+                'Filters MUST be stored in a dictionary!! The received filters are wrong!!')
+            raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
+        
+        if filters is not None and 'purpose' in filters:
+            if not filters['purpose'] in Rating._valid_purpose:
+                raise ValueError('filters->purpose is not one of the valid purposes: ' + str(filters['purpose']))
+
+        dblist = ClusterRating.query()
+        if filters is not None and 'purpose' in filters:
+            dblist = dblist.filter(ClusterRating.purpose == filters['purpose'])
+        if filters is not None and 'cluster_id' in filters:
+            dblist = dblist.filter(
+                ClusterRating.cluster_id == filters['cluster_id'])
+        if filters is not None and 'place' in filters:
+            dblist = dblist.filter(
+                ClusterRating.place == Place.make_key(None, filters['place']))
+        if filters is not None and 'places' in filters:
+            dblist = dblist.filter(
+                ClusterRating.place.IN([Place.make_key(place, None) for place in filters['places']]))
+
+        # executes query only once and stores the results
+        # Never use fetch()!
+        dblist = list(dblist)
+
+        return dblist
+
     
     
     
