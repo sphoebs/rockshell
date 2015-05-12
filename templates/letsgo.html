@@ -79,8 +79,9 @@
 			
 		<div class="rest-details clickable">
 			<div class="prediction">
-				<div class="chart"></div>
-				<div class="text-center">Our guess of your interest</div>
+				<div class="chart" id="chart"></div>
+				<div class="chart-text"></div>
+				<div class="label text-center">{{lang['prediction']}}</div>
 			</div>
 				
 			<div class="rest-info">
@@ -98,7 +99,8 @@
 		</div>
 		
 		<div class="bottom-bar">
-			<button class="img-btn next-text">No, thanks. Next <div class="icon"></div></button>
+			<button class="img-btn next-text">{{lang['next_text']}} <div class="icon"></div></button>
+			<button class="img-btn prev"><div class="icon"></div></button>
 		</div>
 			
 			<!-- <div class="letsgo-picture-container desktop">
@@ -173,6 +175,7 @@ $(document).bind("mobileinit", function(){
 </script>
 
 <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['corechart']}]}"></script>
 <script type="text/javascript">
 
 $(window).ready(function(){
@@ -187,6 +190,7 @@ $(window).load(function() {
 	
 	var reclist_cachetime = 1000 * 60 * 30; // 30 minutes of cache of recommendations
 	var user = {{user|safe}};
+	console.log('SETTINGS: ' + JSON.stringify(user.settings));
 	var position = undefined;
 	var places = [];
 	var pos = 0;
@@ -229,10 +233,14 @@ $(window).load(function() {
 
 	 function renderPlace(pos){
 		 if(pos+1 == places.length){
-			 //TODO: remove next
-			 
-		 } else if(pos > 0){
-			 //TODO: show prev
+			 $('button.next-text').hide();
+		 } else {
+			 $('button.next-text').show();
+		 }
+		 if(pos > 0){
+			 $('button.prev').show();
+		 } else {
+			 $('button.prev').hide();
 		 }
 		 
 		if(window.console){
@@ -397,13 +405,35 @@ $(window).load(function() {
 			
 		}
 		$('.rest-open').html(open_str);*/
-		console.log(p.predicted)
 		if(p.predicted != undefined){
-			value = Math.round(p.predicted * 100) / 5
+			console.log("Predicted rating: "+ p.predicted);
+			value = Math.round(p.predicted * 100 / 5)
 			if(window.console){
 				console.log("Predicted rating: "+ value);
 			}
-			$('.prediction .chart').html(value);
+			
+			var data = google.visualization.arrayToDataTable([
+				['prediction', 'value'],
+				['', value],
+				['', (100-value)]
+			]);
+			var options = {
+				pieHole: 0.6,
+				width: 48,
+				height: 48,
+				colors: ['#E36564', '#dbdbdb'],
+				legend: 'none',
+				chartArea:{left:3,top:3,width:42,height:42},
+				enableInteractivity: false,
+				pieSliceText: 'none',
+				pieSliceBorderColor: 'none'
+			};
+
+			var chart = new google.visualization.PieChart(document.getElementById('chart'));
+		    chart.draw(data, options);
+		    $('.chart-text').html(value+"%");
+			
+			/* $('.prediction .chart').html(value); */
 		}
 		
 		if(p.discounts && p.discounts.length == 1){
@@ -512,10 +542,10 @@ $(window).load(function() {
 	
 	
 	$('.next-text').click(onNext);
-	$('.prev').click(onNext);
+	$('.prev').click(onPrev);
 	
-	$( ".letsgo-container" ).on( "swipeleft", onNext);
-	$( ".letsgo-container" ).on( "swiperight", onPrev);
+	$( ".main-container.letsgo" ).on( "swipeleft", onNext);
+	$( ".main-container.letsgo" ).on( "swiperight", onPrev);
 	
 	$(".clickable, .rest-clickable").click(function(){
 		window.location = '/restaurant?id=' + places[pos].key; 
@@ -669,16 +699,23 @@ $(window).load(function() {
 			$('.popup-area').html('');
 		});
 		
+		$('.settings-popup .purpose-btn').click(function(){
+			$('.settings-popup .purpose-btn.selected').removeClass('selected');
+			$(this).addClass('selected');
+			
+			$('#purpose').val($(this).attr('purpose'));
+			
+		});
+		
 		$('.settings-popup .save').click(function(){
 			localStorage.removeItem("reclist");
 			localStorage.removeItem("reclist_time");
-
-			var settings = {
-					purpose: $('form #purpose option:selected').val(),
-					max_distance: $('form #max_distance').val(),
-					num_places: $('form #num_places').val()
-			};
 			
+			var settings = {
+					purpose: $('#purpose').val(),
+					max_distance: $('#max_distance').val(),
+					num_places: $('#num_places').val()
+			};
 			$.ajax({
 				type : 'POST',
 				url : '/settings',

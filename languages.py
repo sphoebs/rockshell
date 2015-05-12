@@ -96,15 +96,15 @@ en = {
       
     'search_settings_popup' : {
         'title': 'Search settings',
-        'purpose': 'Purpose',
-        'purpose_help': 'Select the default purpose that will be selected as first at your next access.',
+        'purpose': 'Select your purpose',
+        'purpose_help': 'Select the default purpose that will be shown as first at your next access.',
         'tourists': 'Dinner with visitors',
-        'partner': 'Romantic dinner with the partner',
+        'partner': 'Romantic dinner',
         'friends': 'Dinner with friends',
         'price_quality': 'Lunch break',
-        'max_distance': 'Maximum distance from current position in meters',
+        'max_distance': 'Maximum distance in meters',
         'num_places': 'Number of places recommended',
-        'save_reload': 'Save &amp; reload'
+        'save_reload': 'Save and reload'
     },
       
     'today_closed': 'Closed today',
@@ -114,7 +114,9 @@ en = {
     'tomorrow_closed': 'Closed tomorrow',
     'tomorrow_open_at': 'It opens tomorrow at',
     'today_tomorrow_closed': 'Closed today and tomorrow',
-    'prediction': 'Your personalized Planfree recommendation',
+    'prediction': 'Our guess of your interest',
+    'next_text': 'No, thanks. Next',
+    
       
     # RATINGS
     'new_rest_rating_popup' : {
@@ -455,15 +457,15 @@ it = {
       
     'search_settings_popup' : {
         'title': 'Impostazioni di ricerca',
-        'purpose': 'Motivo',
-        'purpose_help': 'Selezione il motivo di base che verr&agrave; selezionato per primo al tuo prossimo accesso.',
-        'tourists': 'Cena con degli ospiti da fuori citt&agrave;',
-        'partner': 'Cena romantica con il/la tuo/a compagno/a',
+        'purpose': 'Seleziona il tuo motivo',
+        'purpose_help': 'Seleziona il motivo di base che verr&agrave; visualizzato per primo al tuo prossimo accesso.',
+        'tourists': 'Cena con degli ospiti',
+        'partner': 'Cena romantica',
         'friends': 'Cena con gli amici',
         'price_quality': 'Pausa pranzo',
-        'max_distance': 'Distanza massima dalla posizione attuale, in metri',
+        'max_distance': 'Distanza massima in metri',
         'num_places': 'Numero di ristoranti raccomandati',
-        'save_reload': 'Salva &amp; aggiorna'
+        'save_reload': 'Salva e aggiorna'
     },
       
     'today_closed': 'Oggi chiuso',
@@ -473,7 +475,8 @@ it = {
     'tomorrow_closed': 'Domani chiuso',
     'tomorrow_open_at': 'Apre domani alle ',
     'today_tomorrow_closed': 'Chuso oggi e domani',
-    'prediction': 'La tua raccomandazione Planfree personalizzata',
+    'prediction': 'La nosta previsione del tuo gradimento',
+    'next_text': 'No, grazie. Il prossimo',
       
     # RATINGS
     'new_rest_rating_popup' : {

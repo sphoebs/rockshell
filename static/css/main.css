@@ -80,7 +80,7 @@ h1, h2, h3, h4, h5, h6, p {
 .text-all-capital {
 	text-transform: uppercase;
 	color: #808184;
-	font-size: 14pt;
+	font-size: 12pt;
 	margin-left: 10px;
 	margin-right: 10px;
 }
@@ -234,7 +234,7 @@ button.next-text .icon{
 	background-size: contain;
 }
 
-button.center {
+button.center, input[type="submit"].center {
 	margin-left: auto;
 	margin-right: auto;
 	display: block;
@@ -597,6 +597,12 @@ form .save {
 	width: 22px;
 	height: 22px;
 	background-image: url(../images/close.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
 	-webkit-border-radius: 11px;
 	-moz-border-radius: 11px;
 	border-radius: 11px;
@@ -1179,6 +1185,11 @@ p.empty-list{
 	background-image: url('../images/ratings/icon_break_selected.png');
 }
 
+.letsgo {
+	padding-bottom: 0;
+	margin-bottom: 0;
+	overflow: hidden;
+}
 
 img.letsgo-picture {
 	height: 196px;
@@ -1187,6 +1198,7 @@ img.letsgo-picture {
 	max-height: 196px;
 	max-width: 320px;
 	margin: 0px auto 0px auto;
+	display: block;
 }
 
 .letsgo .rest-details {
@@ -1194,6 +1206,7 @@ img.letsgo-picture {
 	position: relative;
 	font-size: smaller;
 	line-height: 1.1em;
+	border-top: solid 1px #B3B3B3;
 }
 
 .letsgo .rest-details .prediction {
@@ -1206,6 +1219,22 @@ img.letsgo-picture {
 	margin: 0;
 }
 
+.letsgo .rest-details .prediction .chart{
+	width: 48px;
+	height: 48px;
+	margin: 0 auto;
+}
+
+.letsgo .rest-details .prediction .chart-text{
+	position: absolute;
+	top: 18px;
+	left: 0;
+	width: 100%;
+	text-align: center;
+	font-size: 7pt;
+	font-weight: 500;
+}
+
 .letsgo  .rest-details .rest-info {
 	position: absolute;
 	top: 0;
@@ -1215,6 +1244,8 @@ img.letsgo-picture {
 
 .letsgo .rest-details .rest-title {
 	line-height: 1.5em;
+	font-size: 17px;
+	font-weight: 600;
 }
 
 .letsgo  .rest-details .rest-info .discount-info{
@@ -1235,8 +1266,9 @@ img.letsgo-picture {
 	width: 100%;
 }
 
-.bottom-bar .next {
+.bottom-bar .next-text {
 	float: right;
+	max-width: 50%;
 }
 
 .ui-loader {
@@ -1244,12 +1276,133 @@ img.letsgo-picture {
 	height: 0;
 }
 
-.ui-page {
+/* .ui-page {
 	margin-top: -55px;
 	padding-top: 55px;
+} */
+
+
+/* SETTINGS */
+.settings-popup .form-line {
+	margin: 10px 10px 5px 10px;
+}
+
+.settings-popup .purpose-line {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.settings-popup .purpose-line .purpose-icon {
+	width: 32px;
+	height: 32px;
+	display: inline-block;
+	vertical-align:top;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+.settings-popup .purpose-line .purpose-text {
+	display: inline-block;
+	vertical-align:top;
+	color: white;
+	height: 22px;
+	width: 50%;
+	padding: 5px;
+	margin-left: 10px;
+	margin-right: -7px;
+	-webkit-border-radius: 5px 0 0 5px;
+	-moz-border-radius: 5px 0 0 5px;
+	border-radius: 5px 0 0 5px;
+}
+
+.settings-popup .purpose-line .purpose-btn {
+	display: inline-block;
+	vertical-align:top;
+	width: 48px;
+	height: 32px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.settings-popup .purpose-line .purpose-btn.selected .icon{
+	width: 32px;
+	height: 28px;
+	background-image: url('../images/icon_select.png');
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	margin: 2px auto;
+	
+}
+
+.settings-popup .purpose-line.tourists .purpose-icon {
+	background-image: url('../images/ratings/icon_visitors.png');
+}
+
+.settings-popup .purpose-line.tourists .purpose-text {
+	background-color: #2DAC9D;
+}
+
+.settings-popup .purpose-line.tourists .purpose-btn {
+	background-color: #258e82;
+}
+
+.settings-popup .purpose-line.partner .purpose-icon {
+	background-image: url('../images/ratings/icon_partner.png');
+}
+
+.settings-popup .purpose-line.partner .purpose-text {
+	background-color: #E36564;
+
+}
+
+.settings-popup .purpose-line.partner .purpose-btn {
+	background-color: #B73B3B;
+}
+
+.settings-popup .purpose-line.friends .purpose-icon {
+	background-image: url('../images/ratings/icon_friends.png');
+}
+
+.settings-popup .purpose-line.friends .purpose-text {
+	background-color: #F29850;
+
+}
+
+.settings-popup .purpose-line.friends .purpose-btn {
+	background-color: #d48546;
+}
+
+.settings-popup .purpose-line.price-quality .purpose-icon {
+	background-image: url('../images/ratings/icon_break.png');
+}
+
+.settings-popup .purpose-line.price-quality .purpose-text {
+	background-color: #827E7A;
+
+}
+
+.settings-popup .purpose-line.price-quality .purpose-btn {
+	background-color: #696663;
 }
 
 
+/* SETTINGS END */
 
 /* LETSGO END */
+
+
+/* RESTAURANT */
+
+
+
+/* RESTAURANT END */
 

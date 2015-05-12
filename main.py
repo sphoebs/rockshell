@@ -349,6 +349,7 @@ class SettingsHandler(BaseRequestHandler):
             user.settings = Settings()
         if data.get('purpose') != '':
             user.settings.purpose = data.get('purpose')
+            logging.info("New purpose: " + user.settings.purpose)
         if data.get('max_distance') > 0:
             user.settings.max_distance = int(data.get('max_distance'))
         if data.get('num_places') > 0:
