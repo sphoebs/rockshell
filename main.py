@@ -136,13 +136,13 @@ class LoginHandler(BaseRequestHandler):
         if status == "OK":
             social_login.set_cookie(self.response, 'user',
                                     user.user_id, expires=time.time() + config.LOGIN_COOKIE_DURATION, encrypt=True)
-#             if is_new == True:
+            if is_new == True:
                 # goto profile page
-            self.redirect('/profile/edit?new=true')
-#             elif user.role == 'owner':
-#                 self.redirect('/owner/list')
-#             else:
-#                 self.redirect('/letsgo')
+                self.redirect('/profile/edit?new=true')
+            elif user.role == 'owner':
+                self.redirect('/owner/list')
+            else:
+                self.redirect('/letsgo')
         else:
             self.render("error.html", {'error_code': 500, 'error_string': status})
 

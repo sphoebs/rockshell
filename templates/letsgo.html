@@ -2,7 +2,7 @@
 <div class="full-background letsgo">
 	<div class="loading">
 		<img src="/static/images/ajax-loader.gif">
-		<p class="loading-message"></p>
+		<p class="loading-message text-margin"></p>
 	</div>
 	
 	<div class="main-container letsgo">
@@ -427,15 +427,17 @@ $(window).load(function() {
 			/* $('.prediction .chart').html(value); */
 		}
 		
-		if(p.discounts && p.discounts.length == 1){
+		if(p.discounts && p.discounts.length >= 1){
 			var discount = p.discounts[0];
 			$('.discount-info').removeClass('no-border');
-			$('.discount-info .title').html(discount['title_' +lang_name] + ' {{lang['for']}} <div class="countdown"></div>');
-			$('.discount-info .coupons').html("{{lang['coupons']}}: " + discount['available_coupons']); 
+			$('.discount-info .title').html(discount['title_{{lang_name}}'] + ' {{lang['for']}} <span class="countdown"></span>');
+			$('.discount-info .coupons').html("{{lang['discount_strings']['coupons']}}: " + discount['available_coupons']); 
+			$('.discount-info').show();
 			
 			var end = discount['end_time'];
 			var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
-			$(this).countdown({
+			console.log($('.countdown').attr('class'))
+			$('.countdown').countdown({
 				until: '+'+diff+'s',
 				format: 'dHMS',
 				significant: 2,

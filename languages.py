@@ -498,7 +498,7 @@ it = {
         'friends_short': 'con amici',
         'price_quality_short': 'pausa pranzo',
     },
-    'ratings_text1': u'Più vot assegnerai, migliori saranno le raccomandazioni calcolate apposta per te!',
+    'ratings_text1': u'Più voti assegnerai, migliori saranno le raccomandazioni calcolate apposta per te!',
     'ratings_text2': u'Sei stato di nuovo in un ristorante che hai già votato? Aggiorna il tuo voto!',
     'city_select': u'Per favore, seleziona una città che hai visitato',
     'no_places_selected': u'Siamo spiacenti, non conosciamo ristoranti nella città selezionata.',
@@ -628,6 +628,7 @@ it = {
     'used': 'usato il',
     'use': 'Usa',
     'you_have_coupon_with': 'Hai un coupon con',
+    'code': 'codice',
     'coupon_used_date': u'Il coupon è già stato usato il ',
     'coupon_deleted_date': u'Il coupon è già stato cancellato il ',
     
