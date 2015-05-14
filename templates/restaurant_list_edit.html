@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest-edit-list">
+<div class="full-background admin-rest-edit">
 
 	<div class="app-bar">
 		<!-- <div class="bar-background"></div> -->
@@ -235,7 +235,7 @@
 						$('.navigation-buttons .next').addClass('disabled');
 						$('.navigation-buttons').show();
 						$('.create-places').show();
-						$('.rest-list').show();
+						$('.rest-edit-list').show();
 					} else {
 						all_places = data;
 						last_pos = 0;
@@ -261,7 +261,7 @@
 		}
 		
 		function displayPlaces(start){
-			$('.rest-list').html('');
+			$('.rest-edit-list').html('');
 			
 			//enable prev and next buttons
 			$('.navigation-buttons .prev').removeClass('disabled');
@@ -294,13 +294,13 @@
 				var html = compiled({
 					rest : rest,
 				});
-				$('.rest-list').append(html);
+				$('.rest-edit-list').append(html);
 				
 				
 			}
 			$('.main').scrollTop(0);
 			$('.navigation-buttons').show();
-			$('.rest-list').show();
+			$('.rest-edit-list').show();
 			
 		}
 		

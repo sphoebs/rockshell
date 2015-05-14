@@ -1790,11 +1790,13 @@ p.empty-list{
 
 .coupon-list-title {
 	font-size: 14pt;
+	margin-top: 10px;
 }
 
 .coupon-list {
 	margin-bottom: 10px;
 	background-color: #fff;
+	margin-top: 10px;
 }
 
 .coupon-list .disc-item {
@@ -2244,10 +2246,6 @@ ul.rest-edit-list, ul.rest-create-list {
 		margin-right: auto;
 	}
 	
-	.coupon-list {
-		border: solid 1px #B3B3B3;
-	}
-	
 	/* OWNER */
 	
 	.owner-rest-item {
@@ -2357,7 +2355,7 @@ ul.rest-edit-list, ul.rest-create-list {
 	
 	.rest-map div {
 		width: 500px;
-		height: 405px;
+		height: 380px;
 	}
 	
 	.rest-image {
@@ -2459,7 +2457,7 @@ ul.rest-edit-list, ul.rest-create-list {
 	
 	.rest-map div {
 		width: 700px;
-		height: 567px;
+		height: 380px;
 	}
 	
 	.rest-image {
