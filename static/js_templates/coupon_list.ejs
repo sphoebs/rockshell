@@ -1,7 +1,7 @@
-<ul class="coupon-list">
+<ul class="">
 	
 	<% _.each(discounts, function(discount, i, discounts){ %>
-		<li class="disc-item <% if(i+1 == discounts.length){ %> no-border <% } %>" >
+		<li class="disc-item" >
 			<div class="text-bold disc-title"><% if(lang == 'it'){%> <%=discount.title_it%> <%} else {%> <%=discount.title_en%> <% } %> <span class="rest-link clickable" rest-id="<%= discount.place%>"> - <%= discount.place_name %></span></div>
 			<div class="disc-desc text-margin"><% if(lang == 'it'){%> <%=discount.description_it%> <%} else {%> <%=discount.description_en%> <%} %></div>
 			<div class="disc-time text-margin"> 
@@ -38,6 +38,9 @@
 			<% }); %>
 					
 		</li>
+		<% if(i+1 < discounts.length){ %> 
+			<li class="separator"></li>
+		<% } %>
 	
 	<% }); %>
 

@@ -5,9 +5,7 @@
 		<p class="loading-message text-margin"></p>
 	</div>
 	
-	<div class="main-container letsgo">
-	
-		<div class="app-bar">
+	<div class="app-bar">
 			<!-- <div class="bar-background"></div> -->
 			<div class="menu-button">
 				<button class="img-btn" id="menu-button"></button>
@@ -50,11 +48,15 @@
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 	
-		</div>
+	</div>
+		
+	<div class="main-container letsgo">
 	
-		<div class="text-center text-title">
+		<div class="text-center text-title content">
 			{{lang['letsgo_title']}} 
 		</div>
+		
+		<div class="separator desktop"></div>
 	
 		<div class="purpose-list mobile">
 			<div class="img-btn purpose-btn tourists" purpose="dinner with tourists">
@@ -67,17 +69,33 @@
 				<div class="purpose-icon"></div><div class="purpose-text">{{lang['lunch']}}</div>
 			</div>
 		</div>
-		<!-- <div class="purpose-list desktop">
-			<p class="text-bold center-text">{{lang['select_purpose']}}</p>
-			<div class="img-btn purpose-btn tourists" purpose="dinner with tourists"><div class="btn-icon"></div><div class="text">{{lang['with_visitors']}}</div>
-			</div><div class="img-btn purpose-btn partner" purpose="romantic dinner"><div class="btn-icon"></div><div class="text">{{lang['romantic_dinner']}}</div>
-			</div><div class="img-btn purpose-btn friends" purpose="dinner with friends"><div class="btn-icon"></div><div class="text">{{lang['with_friends']}}</div>
-			</div><div class="img-btn purpose-btn lunch" purpose="best price/quality ratio"><div class="btn-icon"></div><div class="text">{{lang['lunch']}}</div></div>
-		</div> -->
 		
-		<img class="letsgo-picture clickable"/>
+		<div class="purpose-list desktop">
+			<div class="title-icon"></div>
+			<div class="buttons-title text-title">{{lang['select_purpose']}}</div>
 			
-		<div class="rest-details clickable">
+			<div class="purpose-buttons">
+			<div class="img-btn purpose-btn tourists" purpose="dinner with tourists">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['with_visitors']}}</div>
+			</div><div class="img-btn purpose-btn partner" purpose="romantic dinner">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['romantic_dinner']}}</div>
+			</div><div class="img-btn purpose-btn friends" purpose="dinner with friends">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['with_friends']}}</div>
+			</div><div class="img-btn purpose-btn price-quality" purpose="best price/quality ratio">
+				<div class="purpose-icon"></div><div class="purpose-text">{{lang['lunch']}}</div>
+			</div>
+			</div>
+		</div>
+		
+		<div class="letsgo-picture-container content desktop">
+			<div class="letsgo-picture clickable"></div>
+		</div>
+		
+		<div class="mobile">
+			<div class="letsgo-picture clickable"></div>
+		</div>
+			
+		<div class="rest-details clickable content">
 			<div class="prediction">
 				<div class="chart" id="chart"></div>
 				<div class="chart-text"></div>
@@ -98,7 +116,7 @@
 			
 		</div>
 		
-		<div class="bottom-bar">
+		<div class="bottom-bar content">
 			<button class="img-btn next-text">{{lang['next_text']}} <div class="icon"></div></button>
 			<button class="img-btn prev"><div class="icon"></div></button>
 		</div>
@@ -179,10 +197,10 @@ $(document).bind("mobileinit", function(){
 <script type="text/javascript">
 
 $(window).ready(function(){
-	var wheight = $(window).height();
+	/* var wheight = $(window).height(); */
 	// other elements account for 395 pixels
-	var rest_height = wheight - 395;
-	$('.rest-details').css('height', rest_height + 'px');
+	/* var rest_height = wheight - 395;
+	$('.rest-details').css('height', rest_height + 'px'); */
 	
 });
 
@@ -190,7 +208,6 @@ $(window).load(function() {
 	
 	var reclist_cachetime = 1000 * 60 * 30; // 30 minutes of cache of recommendations
 	var user = {{user|safe}};
-	console.log('SETTINGS: ' + JSON.stringify(user.settings));
 	var position = undefined;
 	var places = [];
 	var pos = 0;
@@ -228,6 +245,7 @@ $(window).load(function() {
 			$('.purpose-btn.price-quality').addClass("selected");
 		}
 	} else {
+		var purpose = "dinner with tourists";
 		$('.purpose-btn.tourists').addClass("selected");
 	}
 
@@ -267,7 +285,7 @@ $(window).load(function() {
 		if(picture == undefined || picture == '' || picture == 'null'){
 			picture = '/static/images/empty_small.png';
 		}
-		$('.letsgo-picture').attr('src', picture);
+		$('.letsgo-picture').css('background-image', 'url('+picture+')');
 		
 		
 		/* var open_str = undefined;
@@ -409,7 +427,7 @@ $(window).load(function() {
 				['', (100-value)]
 			]);
 			var options = {
-				pieHole: 0.6,
+				pieHole: 0.7,
 				width: 48,
 				height: 48,
 				colors: ['#E36564', '#dbdbdb'],
@@ -679,14 +697,14 @@ $(window).load(function() {
 		
 		$('.popup-area').show();
 		
-		$('.popup-scrollable').enscroll({
+		/* $('.popup-scrollable').enscroll({
 		    showOnHover: false,
 		    verticalScrolling: true,
 			horizontalScrolling: false,
 			zIndex: 320,
 		    verticalTrackClass: 'track-red',
 		    verticalHandleClass: 'handle-red'
-		});
+		}); */
 		
 		$('#close-popup').click(function(){
 			$('.popup-area').html('');

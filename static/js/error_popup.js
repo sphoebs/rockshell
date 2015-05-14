@@ -11,14 +11,14 @@ function show_error(strings){
 	
 	$('.popup-area').show();
 	
-	$('.popup-scrollable').enscroll({
-	    showOnHover: false,
-	    verticalScrolling: true,
-		horizontalScrolling: false,
-		zIndex: 320,
-	    verticalTrackClass: 'track-red',
-	    verticalHandleClass: 'handle-red'
-	});
+//	$('.popup-scrollable').enscroll({
+//	    showOnHover: false,
+//	    verticalScrolling: true,
+//		horizontalScrolling: false,
+//		zIndex: 320,
+//	    verticalTrackClass: 'track-red',
+//	    verticalHandleClass: 'handle-red'
+//	});
 	
 	$('#close-popup, #cancel').click(function(){
 		$('.popup-area').html('');

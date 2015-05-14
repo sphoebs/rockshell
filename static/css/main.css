@@ -17,6 +17,10 @@ html, body {
 	background-color: #fff;
 }
 
+.white-background {
+	background-color: #fff;
+}
+
 .ui-page {
 	min-height: 0 !important;
 }
@@ -229,7 +233,7 @@ button.next-text {
 	text-align: right;
 	margin-right: 10px;
 	color: white;
-	font-weight: 500;
+	font-weight: 600;
 }
 
 button.next-text .icon{
@@ -271,7 +275,8 @@ button.center, input[type="submit"].center {
 }
 
 .popup-scrollable {
-	overflow: hidden;
+	/* max-height: 90%; */
+	overflow: auto;
 }
 
 .track-red {
@@ -329,9 +334,9 @@ button.center, input[type="submit"].center {
 /* APP BAR and MAIN CONTAINER */
 
 .main-container {
-	margin-top: 55px;
-	padding-top: 5px;
-	padding-bottom: 10px;
+	margin-top: 50px;
+	padding-top: 3px;
+	/* padding-bottom: 10px; */
 }
 
 .app-bar {
@@ -340,13 +345,13 @@ button.center, input[type="submit"].center {
 	top: 0;
 	left: 0;
 	width: 100%;
-	height: 55px;
+	height: 50px;
 	z-index: 50;
 }
 
 .app-bar .menu-button {
 	margin-left: 10px;
-	height: 50px;
+	height: 40px;
 	max-width: 30%;
 	position: fixed;
 	top: 5px;
@@ -368,8 +373,38 @@ button.center, input[type="submit"].center {
 	
 }
 
+.app-bar .menu-button .user-menu-small {
+	z-index: 11;
+}
+
+.app-bar .menu-button .user-menu-small .user-picture {
+	background-image: url(../images/user.png);
+	background-repeat: no-repeat;
+	background-position: bottom;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	position: fixed;
+	top: 11px;
+	left: 50px;
+	width: 30px;
+	height: 30px;
+	float: left;
+	border: solid 2px white;
+	border-radius: 15px;
+}
+
+.app-bar .menu-button .user-name {
+	color: white;
+	float: left;
+	position: fixed;
+	top: 20px;
+	left: 80px;
+}
+
 .app-bar .logo {
-	height: 46px;
+	height: 40px;
 	width: 178px;
 	max-width: 30%;
 	position: fixed;
@@ -390,10 +425,10 @@ button.center, input[type="submit"].center {
 
 .app-bar .actions {
 	margin-right: 10px;
-	height: 50px;
+	height: 46px;
 	max-width: 30%;
 	position: fixed;
-	top: 5px;
+	top: 2px;
 	right: 0;
 }
 
@@ -412,9 +447,9 @@ button.center, input[type="submit"].center {
 }
 
 .app-bar .actions .step {
-	height: 42px;
-	width: 42px;
-	margin: 4px;
+	height: 46px;
+	width: 52px;
+	margin-top: -5px;
 	background-image: url(../images/circle-step.png);
 	background-repeat: no-repeat;
 	background-position: center center;
@@ -430,7 +465,7 @@ button.center, input[type="submit"].center {
 	font-weight: 500;
 	text-align: center;
 	font-size: smaller;
-	padding-top: 6px;
+	padding-top: 10px;
 }
 
 
@@ -446,7 +481,7 @@ button.center, input[type="submit"].center {
 	color: white;
 	background: #E36564;
 	position: fixed;
-	top: 55px;
+	top: 50px;
 	left: 0;
 	padding-top: 10px;
 	z-index: 11;
@@ -594,8 +629,12 @@ form .save {
 	position: fixed;
 	top: 15px;
 	bottom: 15px;
-	left: 15px;
-	right: 15px;
+	left: 0;
+	right: 0;
+	width: 500px;
+	max-width: 90%;
+	margin-left: auto;
+	margin-right: auto;
 	background-color: #fff;
 	z-index: 310;
 	border: solid 1px #B73B3B;
@@ -606,10 +645,10 @@ form .save {
 	padding-bottom: 10px;
 }
 
-.popup-foreground h3 {
+/* .popup-foreground h3 {
 	margin-top: 10px;
 	margin-left: 10px;
-}
+} */
 
 .close {
 	background-color: #E36564;
@@ -659,13 +698,11 @@ form .save {
 	text-align: center;
 	color: #000;
 	font-size: 16px;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 /* LOADING END */
-
-
-
-
 
 
 /* LANDING */
@@ -739,6 +776,7 @@ form .save {
 .profile1-map {
 	width: 90%;
 	height: 200px;
+	max-width: 700px;
 	margin-left: auto;
 	margin-right: auto;
 	margin-bottom: 10px;
@@ -775,12 +813,16 @@ p.empty-list{
 	margin-bottom: 10px;
 }
 
-.rest-item .rest-details img.rest-image {
-	width: 100%;
-	max-height: 196px;
-	max-width: 320px;
+.rest-item .rest-details .rest-image {
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	height: 196px;
+	width: 320px;
 	margin: 0px auto 10px auto;
-	display: block;
 }
 
 .rest-item .rest-ratings {
@@ -901,9 +943,8 @@ p.empty-list{
 }
 
 .rest-item .rating-buttons {
-	margin-left: 10px;
-	margin-right: 5px;
-	margin-top: 5px;
+	margin: 7px auto 0px auto;
+	width: 170px;
 }
 
 .rest-item button.rating-btn {
@@ -1080,6 +1121,7 @@ p.empty-list{
 .map-search {
 	width: 90%;
 	height: 250px;
+	max-width: 800px;
 	margin: 0 auto 10px auto;
 }
 
@@ -1119,8 +1161,24 @@ p.empty-list{
 
 /* LETSGO */
 
+.letsgo {
+	position: relative;
+	padding-bottom: 0;
+	margin-bottom: 0;
+	/* overflow: hidden; */
+}
+
 .purpose-list {
 	width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
+.purpose-list.desktop {
+	width: 100px;
+	position: absolute;
+	top: 20px;
+	left: -100px;
 	margin: 0px;
 	padding: 0px;
 }
@@ -1128,7 +1186,7 @@ p.empty-list{
 .purpose-list .purpose-btn {
 	display: inline-block;
 	width: 25%;
-	height: 58px;
+	height: 50px;
 	box-sizing: border-box;
 	ms-box-sizing: border-box;
 	webkit-box-sizing: border-box;
@@ -1136,9 +1194,58 @@ p.empty-list{
 	background-color: #fff;
 	border: solid 1px #B3B3B3;
 	margin: 0px;
-	padding: 3px;
+	padding-top: 3px;
 	vertical-align: top;
 	cursor: pointer;
+}
+
+.purpose-list.desktop .title-icon {
+	width: 30px;
+	height: 30px;
+	background-repeat: no-repeat;
+	background-image: url(../images/separator_icon.png);
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	margin: 0px auto -5px auto;
+}
+
+.purpose-list.desktop .buttons-title {
+	color: #000;
+	font-weight: 600;
+	text-align: center;
+	margin: 0;
+	font-size: 11pt;
+	
+}
+
+.purpose-list.desktop .purpose-buttons{
+	width: 70px;
+	margin: 20px auto 0px auto;
+	
+}
+
+.purpose-list.desktop .purpose-btn {
+	width: 100%;
+	height: 60px;
+	margin-bottom: 10px;
+	display: block;
+}
+
+.purpose-list.desktop .purpose-btn:not(.partner) .purpose-icon{
+	margin-top: 8px;
+} 
+
+.purpose-list.desktop .purpose-btn:not(.selected) {
+	background-color: #eee;
+}
+
+.letsgo-picture-container.desktop  {
+	border: solid 1px #B3B3B3;
+	background-color: white;
+	margin-top: 10px;
 }
 
 .purpose-list .purpose-btn .purpose-icon {
@@ -1157,7 +1264,7 @@ p.empty-list{
 }
 
 .purpose-list .purpose-btn .purpose-text {
-	font-size: 11px;
+	font-size: 10px;
 	line-height: 10px;
 	font-weight: 300;
 	max-width: 90%;
@@ -1206,29 +1313,31 @@ p.empty-list{
 	background-image: url('../images/ratings/icon_break_selected.png');
 }
 
-.letsgo {
-	padding-bottom: 0;
-	margin-bottom: 0;
-	/* overflow: hidden; */
-}
-
-img.letsgo-picture {
+.letsgo-picture {
 	height: 196px;
-	width: auto;
-	/* width: 100%; */
-	max-height: 196px;
-	max-width: 320px;
+	width: 320px;
 	margin: 0px auto 0px auto;
-	display: block;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 }
 
 .letsgo .rest-details {
 	width: 100%;
-	height: 80px;
+	height: 100px;
 	position: relative;
 	font-size: smaller;
 	line-height: 1.1em;
-	border-top: solid 1px #B3B3B3;
+	border: solid 1px #B3B3B3;
+	background-color: #fff;
+}
+
+.letsgo .text-title {
+	padding: 10px;
+	margin: 0;
 }
 
 
@@ -1237,7 +1346,7 @@ img.letsgo-picture {
 	position: absolute;
 	top: 0;
 	right: 0;
-	width: 70px;
+	width: 90px;
 	border-left: solid 1px #B3B3B3;
 	height: 100%;
 	margin: 0;
@@ -1263,7 +1372,7 @@ img.letsgo-picture {
 	position: absolute;
 	top: 0;
 	left: 0;
-	right: 70px;
+	right: 90px;
 }
 
 .letsgo .rest-details .rest-title {
@@ -1294,7 +1403,7 @@ img.letsgo-picture {
 
 .bottom-bar .next-text {
 	float: right;
-	max-width: 50%;
+	max-width: 70%;
 }
 
 .ui-loader {
@@ -1476,7 +1585,7 @@ img.letsgo-picture {
 }
 
 .icon-closed {
-	background-image: url(../images/calendar.png);
+	background-image: url(../images/icon_calendar.png);
 }
 
 .icon-web {
@@ -1492,6 +1601,7 @@ img.letsgo-picture {
 	width: 320px;
 	height: 259px;
 	max-height: 100%;
+	max-width: 800px;
 	margin-left: auto;
 	margin-right: auto;
 	margin-top: 5px;
@@ -1521,8 +1631,11 @@ img.letsgo-picture {
 
 /* PICTURES */
 
-#slider {
+.rest .content {
 	margin-top: 10px;
+}
+
+#slider {
 	margin-bottom: 10px;
 }
 
@@ -1542,6 +1655,17 @@ img.letsgo-picture {
 	top: 0px; 
 	width: 320px; 
 	height: 196px;
+}
+
+.pictures .image{
+	width: 100%;
+	height: 100%;
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
 }
 
 /* jssor slider bullet navigator skin 14 css */
@@ -1611,11 +1735,11 @@ img.letsgo-picture {
 .coupon .actions{
 	display: block;
 	margin: 10px auto 0 auto;
-	width: 180px;
+	width: 200px;
 }
 
 .coupon .actions button{
-	width: 80px;
+	width: 90px;
 }
 
 .coupon .actions button.use-button {
@@ -1637,13 +1761,467 @@ img.letsgo-picture {
 	font-size: 14pt;
 }
 
-.coupon-list .disc-item {
-	border-bottom: solid 1px #B3B3B3;
+.coupon-list {
+	margin-bottom: 10px;
+	background-color: #fff;
 }
 
-.coupon-list .disc-item.no-border {
-	border: 0;
+.coupon-list .disc-item {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	
 }
 
 /* MY COUPONS END */
+
+
+
+
+/* SCREEN ADAPTATION */
+@media screen and (min-width: 360px){
+	/* mobile */
+
+	.rest-map img {
+		width: 360px;
+		height: 291px;
+	}
+	
+	.rest-item .rest-details .rest-image {
+		height: 221px;
+		width: 360px;
+	}
+	
+	.letsgo-picture {
+		height: 221px;
+		width: 360px;
+	}
+	
+	.slider {
+		width: 360px; 
+		height: 221px;
+	}
+	
+	.pictures {
+		width: 360px; 
+		height: 221px;
+	}
+	
+	.new-rest-popup .rest-item .rest-details .rest-image {
+		height: 196px;
+		width: 320px;
+	}
+	
+}
+
+@media screen and (min-width: 400px){
+	/* mobile */
+	
+	.rest-map img {
+		width: 400px;
+		height: 324px;
+	}
+	
+	.rest-item .rest-details .rest-image {
+		height: 245px;
+		width: 400px;
+	}
+	
+	.letsgo-picture {
+		height: 245px;
+		width: 400px;
+	}
+	
+	.slider {
+		width: 400px; 
+		height: 245px;
+	}
+	
+	.pictures {
+		width: 400px; 
+		height: 245px;
+	}
+	
+	.new-rest-popup .rest-item .rest-details .rest-image {
+		height: 196px;
+		width: 320px;
+	}
+	
+}
+
+@media screen and (min-width: 480px) {
+	/* mobile */
+		
+	.rest-map img {
+		width: 480px;
+		height: 389px;
+	}
+	
+	.rest-item .rest-details .rest-image {
+		height: 294px;
+		width: 480px;
+	}
+	
+	.letsgo-picture {
+		height: 294px;
+		width: 480px;
+	}
+	
+	.slider {
+		width: 480px; 
+		height: 294px;
+	}
+	
+	.pictures {
+		width: 480px; 
+		height: 294px;
+	}	
+	
+	.new-rest-popup .rest-item .rest-details .rest-image {
+		width: 360px; 
+		height: 221px;
+	}
+	
+}
+
+@media screen and (min-width: 600px) {
+	/* tablet --> desktop-like */
+	
+	.desktop {
+		display: block;
+	}
+	
+	.mobile {
+		display: none;
+	}
+	
+	.main-container {
+		background-color: #ebebeb;
+		border: solid 1px #B3B3B3;
+		width: 350px;
+		max-width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+		height: 100%;
+		padding-bottom: 25px;
+	}
+	
+	.main-container .content{
+		max-width: 320px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	.white-background {
+		border: solid 1px #B3B3B3;
+	}
+	
+		
+	.rest-map img {
+		width: 320px;
+		height: 259px;
+	}
+	
+	.rest-item .rest-details .rest-image {
+		height: 196px;
+		width: 320px;
+	}
+	
+	.new-rest-popup .rest-item .rest-details .rest-image {
+		width: 400px; 
+		height: 245px;
+	}
+	
+	.slider {
+		width: 320px; 
+		height: 196px;
+	}
+	
+	.pictures {
+		width: 320px; 
+		height: 196px;
+	}
+	
+	
+	/* LETSGO */
+	
+	.bottom-bar {
+		position: static;
+		width: 320px;
+		border: solid 1px #B3B3B3;
+	}
+	
+	.desktop .letsgo-picture {
+		height: 196px;
+		width: 320px;
+	}
+	
+	/* LETSGO END */
+	
+	/* RESTAURANT */
+	
+	.rest-left {
+		width: 50%;
+		float: left;
+	}
+	
+	.rest-right {
+		width: 50%;
+		float: right;
+		padding-left: 10px;
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		
+	}
+	
+	/* RESTAURANT END */
+	
+	.disc .coupon {
+		background-color: #fff;
+		width: 350px; 
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	.coupon-list {
+		border: solid 1px #B3B3B3;
+	}
+	
+}
+
+@media screen and (min-width: 768px) {
+	/* tablet/desktop */
+	
+	.desktop {
+		display: block;
+	}
+	
+	.mobile {
+		display: none;
+	}
+	
+	.main-container {
+		width: 500px;
+	}
+	
+	.main-container .content{
+		max-width: 450px;
+	}
+	
+	.rest-map img {
+		width: 450px;
+		height: 364px;
+	}
+	
+	.rest-item .rest-details .rest-image {
+		height: 276px;
+		width: 450px;
+	}
+	
+	.slider {
+		width: 450px; 
+		height: 276px;
+	}
+	
+	.pictures {
+		width: 450px; 
+		height: 276px;
+	}
+	
+	/* LETSGO */
+	
+	.bottom-bar {
+		width: 450px;
+	}
+	
+	.desktop .letsgo-picture {
+		height: 276px;
+		width: 450px;
+	}
+	
+	/* LETSGO END */
+	
+	
+	
+}
+
+@media screen and (min-width: 800px) {
+	/* tablet/desktop */
+	
+	.desktop {
+		display: block;
+	}
+	
+	.mobile {
+		display: none;
+	}
+	
+	.main-container {
+		width: 550px;
+	}
+	
+	.main-container .content{
+		max-width: 500px;
+	}
+	
+	
+	.rest-map img {
+		width: 500px;
+		height: 405px;
+	}
+	
+	.rest-item .rest-details .rest-image {
+		height: 306px;
+		width: 500px;
+	}
+	
+	.slider {
+		width: 500px; 
+		height: 306px;
+	}
+	
+	.pictures {
+		width: 500px; 
+		height: 306px;
+	}
+	
+	
+	/* LETSGO */
+	
+	.bottom-bar {
+		width: 500px;
+	}
+	
+	
+	.desktop .letsgo-picture {
+		height: 306px;
+		width: 500px;
+	}
+	
+	/* LETSGO END */
+	
+	/* RATINGS */
+	
+	.rest-ratings .left-rows {
+		width: 50%;
+		float: left;
+	}
+	
+	.rest-item .right-rows {
+		width: 50%;
+		float: right;
+		border-left: solid 1px #B3B3B3;
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+	}
+	
+	.rest-item .rest-ratings .row .left-purpose {
+		width: 75px;
+	}
+	
+	.rest-item .rest-ratings .row .left-purpose .purpose-text {
+		width: 70px;
+	}
+	
+	.rest-item .rest-ratings .row .right-ratings {
+		position: absolute;
+		left: 75px;
+	}
+	
+	.rest-item .rating-buttons {
+		margin: 3px auto 0px auto;
+		width: 145px;
+	}
+
+	.rest-item button.rating-btn {
+		width: 32px;
+		height: 32px;
+	}
+	
+	
+	/* RATINGS END*/
+	
+}
+
+
+@media screen and (min-width: 1050px) {
+	/* tablet/desktop */
+	
+	.desktop {
+		display: block;
+	}
+	
+	.mobile {
+		display: none;
+	}
+	
+	.main-container {
+		width: 800px;
+	}
+	
+	.main-container .content{
+		max-width: 700px;
+	}
+	
+	.rest-map img {
+		width: 700px;
+		height: 567px;
+	}
+	
+	.rest-item .rest-details .rest-image {
+		height: 429px;
+		width: 700px;
+	}
+	
+	.slider {
+		width: 700px; 
+		height: 429px;
+	}
+	
+	.pictures {
+		width: 700px; 
+		height: 429px;
+	}
+	
+	/* LETSGO */
+	
+	.bottom-bar {
+		width: 700px;
+	}
+	
+	.desktop .letsgo-picture {
+		height: 429px;
+		width: 700px;
+	}
+	
+	/* LETSGO END */
+	
+	/* RATINGS */
+	
+	.rest-item .rest-ratings .row .left-purpose {
+		width: 100px;
+	}
+	
+	.rest-item .rest-ratings .row .left-purpose .purpose-text {
+		width: 60px;
+	}
+	
+	.rest-item .rest-ratings .row .right-ratings {
+		position: absolute;
+		left: 100px;
+	}
+	
+	.rest-item .rating-buttons {
+		margin: 7px auto 0px auto;
+		width: 170px;
+	}
+
+	.rest-item button.rating-btn {
+		width: 38px;
+		height: 38px;
+	}
+
+	/* RATINGS END */
+	
+	
+}
 

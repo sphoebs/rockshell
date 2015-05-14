@@ -1,9 +1,9 @@
-<li class="rest-item">
+<li class="rest-item white-background">
 	<div class="rest-details">
 		<% if(rest.picture && rest.picture.length > 0 && rest.picture != 'null'){ %> 
-			<img class="rest-image" src="<%= rest.picture %>" /> 
+			<div class="rest-image" style="background-image:url(<%= rest.picture %>)" /> 
 		<% } else { %> 
-			<img class="rest-image" src="/static/images/empty_small.png" /> 
+			<div class="rest-image" style="background-image:url(/static/images/empty_small.png)" /> 
 		<% } %>
 		<div class="text-big text-bold name"><%= rest.name %></div>
 		<div class="address text-margin">
@@ -12,6 +12,7 @@
 			
 	</div>
 		<div class="rest-ratings">
+			<div class="left-rows">
 			<div class="row">
 				<div class="left-purpose tourists">
 					<div class="purpose-icon"></div>
@@ -39,6 +40,7 @@
 			
 			</div>
 			
+			
 			<div class="row">
 				<div class="left-purpose partner">
 					<div class="purpose-icon"></div>
@@ -65,7 +67,9 @@
 				</div>
 			
 			</div>
+			</div>
 			
+			<div class="right-rows">
 			<div class="row">
 				<div class="left-purpose friends">
 					<div class="purpose-icon"></div>
@@ -119,6 +123,8 @@
 				</div>
 			
 			</div>
+			</div>
+			<div class="clear-float"></div>
 		
 		</div>
 	</div>

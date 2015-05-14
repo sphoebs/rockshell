@@ -442,7 +442,7 @@ it = {
     },
       
     # LETSGO
-    'letsgo_title': 'Ristoranti intorno a te che ti potrebbero piacere',
+    'letsgo_title': 'Ristoranti raccomandati vicino a te',
     'letsgo_subtitle': 'Qui trovi alcuni dei ristoranti attorno a te, che ti raccomandiamo. Abbiamo analizzato i tuoi gusti, espressi tramite i tuoi voti, e pensiamo che questi posti ti potrebbero piacere. ',
     'welcome': 'Benvenuto',
     'loading': 'Caricamento',

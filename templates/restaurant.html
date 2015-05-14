@@ -57,18 +57,19 @@
 		
 		<div class="separator"></div>
 			
-		<div class="discount-area">
+		<div class="discount-area content">
 			<div class="text-center"> {{lang['loading']}}... </div>
 		</div>
 	
+		<div class=" white-background content">
 		<div id="slider" class="slider">
 			<div u="slides" class="pictures" >
 				{% if not place.picture is none %}
-					<div><img u="image" src="{{place.picture}}" /></div>
+					<div><div class="image" u="image" style="background-image: url({{place.picture}})" ></div></div>
 				{% endif %}
 				{% if not place.other_pictures is none and place.other_pictures|length > 0 %}
 					{% for image in place.other_pictures %}
-						<div><img u="image" src="{{image}}" /></div>
+						<div><div class="image" u="image" style="background-image: url({{image}})" ></div></div>
 					{% endfor %}
 				{% endif %}
 			</div>
@@ -91,7 +92,7 @@
 			
 		<div class="">
 			<a class="rest-map" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">
-				<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=700x400&maptype=roadmap&markers=color:red%7C{{place.address.lat}},{{place.address.lon}})" >
+				<img style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{place.address.lat}},{{place.address.lon}}&zoom=16&size=800x400&maptype=roadmap&markers=color:red%7C{{place.address.lat}},{{place.address.lon}})" >
 			</a>
 			<!-- <a class="map-link" href="https://www.google.com/maps?q={{place.address.lat}},{{place.address.lon}}&ll={{place.address.lat}},{{place.address.lon}}&z=17" target="_new">Open in Google Maps</a> -->
 		</div>
@@ -140,6 +141,7 @@
 			</div>
 		</div>
 		<div class="clear-float"></div>
+		</div>
 					
 		<div class="popup-area"></div>
 	</div>
@@ -377,7 +379,7 @@
 					discounts = data;
 					
 					if(discounts == null || discounts.length < 1){
-						$('.discount-area').html('<p>{{lang['no_discounts']}}</p>');
+						$('.discount-area .text-center').html('{{lang['no_discounts']}}');
 					} else {
 						//load underscore template
 						var xmlhttp = new XMLHttpRequest();

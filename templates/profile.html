@@ -2,7 +2,6 @@
 
 <div class="full-background profile">
 
-	<div class="main-container">
 		<div class="app-bar">
 			<!-- <div class="bar-background"></div> -->
 			<div class="menu-button">
@@ -32,6 +31,10 @@
 			</ul>
 	
 		</div>
+		
+		<div class="main-container">
+		
+		<div class="content">
 		
 		{% if is_new %} 
 		<div class="text-center text-title">{{ lang['profile_intro']}} </div> 
@@ -68,11 +71,12 @@
 				{% endif %}
 			</div>
 			
-			<div class="profile1-map" style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{user.home.location.lat if not user.home.location is none else 0}},{{user.home.location.lon if not user.home.location is none else 0}}&zoom=13&size=700x400&maptype=roadmap)" >
+			<div class="profile1-map" style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{user.home.location.lat if not user.home.location is none else 0}},{{user.home.location.lon if not user.home.location is none else 0}}&zoom=13&size=800x400&maptype=roadmap)" >
 			</div>
 	
 			<input type="submit" class="img-btn save " value="{{ lang['save']}}" />
 		</form>
+		</div>
 	</div>
 
 </div>
