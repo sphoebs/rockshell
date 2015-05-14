@@ -1,20 +1,25 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest">
+<div class="full-background rest-edit-list">
 
-	<div class="top-bar">
-			<div class="bar-background"></div>
-			<div class="menu-button">
-				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
-					<div class="user-picture"></div>
-					<div class="text-bold user-name">{{user.first_name}} </div>
+	<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small clickable desktop">
+				<div class="user-picture"></div>
+				<div class="text-bold user-name">
+					{{user.first_name}}
 				</div>
 			</div>
-			<div class="rest-logo"></div>
+			<div class="clear-float"></div>
 		</div>
-		
-		<div class="left-menu scrollable" id="left-menu" style="display: none;">
+		<div class="logo"></div>
+		<div class="actions">
+		</div>
+	</div>
+	
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
 				<h3 class="text-bold user-name"> {{user.first_name}}</h3>
@@ -26,12 +31,20 @@
 				<li><button class="img-btn" id="logout">{{lang['log_out']}}</button></li>
 			</ul>
 	
-		</div>
+	</div>
 		
-		<div class="discount-container main">
+	<div class="main-container">
+		<div class="content">
+		
+			<div class="text-center text-title">
+				{{lang['restaurant_list_edit']}} 
+			</div>
+			
+			<div class="separator"></div>
+			
 			<div class="city-search">
-				<label class="text-bold">{{lang['select_city']}}: </label>
-				<div class="input">
+				<div class="text-red-bold text-center">{{lang['admin_select_city']}}</div>
+				<div class="input input-container">
 					<input type="text" name="auto-city" id="city" >
 					<input type="hidden" name="locality" id="locality" /> 
 					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
@@ -41,19 +54,21 @@
 				</div>
 			</div>
 			
-			<ul class="rest-list">
+			<ul class="rest-edit-list">
 				
 			</ul>
 			
 			<div class="navigation-buttons">
-				<button class="prev"></button>
-				<button class="next"></button>
-				<button class="img-btn continue red-button"
+				<button class="img-btn red-button prev"><div class="icon"></div></button>
+				<button class="img-btn red-button next"><div class="icon"></div></button>
+				<div class="clear-float"></div>
+				<button class="img-btn continue red-button center"
 					onclick="window.history.back()">{{ lang['done']}}</button>
 			</div>
 
 		</div>
-		<div class="popup-area"></div>
+	</div>
+	<div class="popup-area"></div>
 </div>
 
 
@@ -129,8 +144,60 @@
 			
 			if(place.geometry.viewport){
 				var bounds = place.geometry.viewport;
-				var southWest = new google.maps.LatLng( bounds.Da.k, bounds.va.j );
-				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.va.k );
+				var lat = {};
+				var lon = {};
+				for(var key in bounds){
+					if(key.length == 2){	
+						if(key.charAt(0) == key.charAt(0).toUpperCase()){
+							lat = bounds[key];				
+						} else {
+							lon = bounds[key];
+						}
+					}
+					
+				}
+				var lat_arr = [];
+				var lon_arr = [];
+				var i =0;
+				for(var key in lat){
+					if(key.length == 1){
+						lat_arr[i] = lat[key];
+						i++;
+					}
+				}
+				var i =0;
+				for(var key in lon){
+					if(key.length == 1){
+						lon_arr[i] = lon[key];
+						i++;
+					}
+				}
+				if(lat_arr.length != 2 || lon_arr.length != 2){
+					if(window.console){
+						console.log("ERROR: not able to get latitude and longitude ranges")
+					}
+				}
+				if(lat_arr[1] < lat_arr[0]){
+					//swap					
+					var tmp = lat_arr[0];
+					lat_arr[0] = lat_arr[1];
+					lat_arr[1] = tmp;
+				}
+				if(lon_arr[1] < lon_arr[0]){
+					//swap					
+					var tmp = lon_arr[0];
+					lon_arr[0] = lon_arr[1];
+					lon_arr[1] = tmp;
+				}
+				
+				if(window.console){
+					console.log(JSON.stringify(lat_arr) + " -- " + JSON.stringify(lon_arr))
+				}
+				
+				var southWest = new google.maps.LatLng( lat_arr[0], lon_arr[0] );
+				var northEast = new google.maps.LatLng( lat_arr[1], lon_arr[1] );
+				/* var southWest = new google.maps.LatLng( bounds.Da.k, bounds.va.j );
+				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.va.k ); */
 				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
 				
 			}

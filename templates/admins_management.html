@@ -1,21 +1,24 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest">
-		<div class="top-bar rest-bar">
-			<div class="bar-background"></div>
-			<div class="menu-button">
-				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
-					<div class="user-picture"></div>
-					<div class="text-bold user-name">
-						{{user.first_name}}
-					</div>
+<div class="full-background admins">
+	<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small clickable desktop">
+				<div class="user-picture"></div>
+				<div class="text-bold user-name">
+					{{user.first_name}}
 				</div>
 			</div>
-			<div class="rest-logo"></div>
+			<div class="clear-float"></div>
 		</div>
+		<div class="logo"></div>
+		<div class="actions">
+		</div>
+	</div>
 		
-		<div class="left-menu scrollable" id="left-menu" style="display: none;">
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
 			<div class="user-menu clickable">
 				<div class="user-picture"></div>
 				<h3 class="text-bold user-name">{{user.first_name}}</h3>
@@ -29,24 +32,31 @@
 						lang['log_out']}}</button></li>
 			</ul>
 
-		</div>
+	</div>
 		
-		<div class="discount-container">
-			<h2 class="center-text">Manage admins</h2>
+	<div class="main-container">
+		<div class="content">
+			<div class="text-center text-title">
+				{{lang['manage_admins']}} 
+			</div>
+			
+			<div class="separator"></div>
 			
 			<div>
-				<label class="form-label">Add new admin: </label>
-				<div class="form-input">
+				<div class="text-red-bold text-center">{{lang['add_admin']}}</div>
+				<div class="form-input input-container">
 					<input type="text" id="admin_email" name="admin_email" value="">
 				</div>
 			</div>
 
-			<input type="button" class="img-btn save"
+			<input type="button" class="img-btn save center"
 					value="{{ lang['save']}}" />
 					
+			<div class="separator"></div>
+					
 			
-			<h3>Current admins:</h3>		
-			<ul class="admin-list black-text">
+			<div class="text-red-bold text-center admin-list-title">{{lang['current_admins']}}</div>	
+			<ul class="admin-list">
 				{% for admin in admins %}
 					<li>
 						<p>{{ admin.full_name }}</p> 
@@ -58,6 +68,7 @@
 			
 			
 		</div>
+	</div>
 	<div class="popup-area"></div>
 </div>
 

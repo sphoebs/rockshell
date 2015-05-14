@@ -74,7 +74,7 @@ a.no-style {
 }
 
 .text-big {
-	font-size: 16pt;
+	font-size: 14pt;
 	margin-left: 10px;
 	margin-right: 10px;
 }
@@ -791,7 +791,7 @@ form .save {
 	-o-background-size: auto;
 	background-size: auto;
 	
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 	box-shadow: none;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -1142,7 +1142,7 @@ p.empty-list{
 #pac-input {
 	background-color: #fff;
 	padding: 0 11px 0 13px;
-	width: 80%;
+	width: 60%;
 	text-overflow: ellipsis;
 	margin-left: 15px;
 }
@@ -1195,9 +1195,9 @@ p.empty-list{
 	webkit-box-sizing: border-box;
 	moz-box-sizing: border-box;
 	background-color: #fff;
-	border-top: solid 1px #B3B3B3;
+	/* border-top: solid 1px #B3B3B3;
 	border-bottom: solid 1px #B3B3B3;
-	border-right: solid 1px #B3B3B3;
+	border-right: solid 1px #B3B3B3; */
 	margin: 0px;
 	padding-top: 3px;
 	vertical-align: top;
@@ -1205,7 +1205,7 @@ p.empty-list{
 }
 
 .purpose-list .purpose-btn.tourists {
-	border-left: solid 1px #B3B3B3;
+	/* border-left: solid 1px #B3B3B3; */
 }
 
 .purpose-list.desktop .title-icon {
@@ -1241,7 +1241,7 @@ p.empty-list{
 	height: 60px;
 	margin-bottom: 10px;
 	display: block;
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 }
 
 .purpose-list.desktop .purpose-btn .purpose-icon{
@@ -1253,7 +1253,7 @@ p.empty-list{
 }
 
 .letsgo-picture-container.desktop  {
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 	background-color: white;
 	margin-top: 10px;
 }
@@ -1294,7 +1294,7 @@ p.empty-list{
 
 .tourists.selected {
 	background-color: #2DAC9D;
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 }
 
 .tourists.selected .purpose-icon {
@@ -1303,7 +1303,7 @@ p.empty-list{
 
 .partner.selected {
 	background-color: #E36564;
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 }
 
 .partner.selected .purpose-icon {
@@ -1312,7 +1312,7 @@ p.empty-list{
 
 .friends.selected {
 	background-color: #F29850;
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 }
 
 .friends.selected .purpose-icon {
@@ -1321,7 +1321,7 @@ p.empty-list{
 
 .price-quality.selected {
 	background-color: #827E7A;
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 }
 
 .price-quality.selected .purpose-icon {
@@ -1346,12 +1346,12 @@ p.empty-list{
 	position: relative;
 	font-size: smaller;
 	line-height: 1.1em;
-	border: solid 1px #B3B3B3;
+	/* border: solid 1px #B3B3B3; */
 	background-color: #fff;
 }
 
 .letsgo .text-title {
-	padding: 10px;
+	padding: 10px 5px;
 	margin: 0;
 }
 
@@ -1391,8 +1391,7 @@ p.empty-list{
 }
 
 .letsgo .rest-details .rest-title {
-	line-height: 1.5em;
-	font-size: 17px;
+	line-height: 1.2em;
 	font-weight: 600;
 }
 
@@ -1611,7 +1610,7 @@ p.empty-list{
 	background-image: url(../images/icon_mail.png);
 }
 
-.rest-map img {
+.rest-map div {
 	display: block;
 	width: 320px;
 	height: 259px;
@@ -1632,6 +1631,10 @@ p.empty-list{
 
 .rest .description {
 	margin-bottom: 10px;
+}
+
+.rest .info {
+	padding-bottom: 10px;
 }
 
 .rest .discount .info{
@@ -2009,11 +2012,49 @@ input.days-input {
 
 /* OWNER DISCOUNT LIST */
 
+/* ADMIN RESTAURANT SEARCH */
+
+ul.rest-edit-list, ul.rest-create-list {
+	list-style: none;
+	margin: 10px;
+	
+}
+
+.admin-rest-item {
+	font-size: 12pt;
+	margin-top: 10px;
+}
+
+.admin-rest-item.no-border {
+	border: none;
+}
+
+.admin-rest-item a {
+	text-decoration: none;
+	color: #444;
+	width: 100%;
+}
+
+.admin-rest-item a:hover {
+	text-decoration: underline;
+}
+
+.admin-list-title {
+	margin-top: 10px;
+}
+
+.admin-list {
+	margin: 10px;
+}
+
+/* ADMIN RESTAURANT SEARCH END */
+
+
 /* SCREEN ADAPTATION */
 @media screen and (min-width: 360px){
 	/* mobile */
 
-	.rest-map img {
+	.rest-map div {
 		width: 360px;
 		height: 291px;
 	}
@@ -2048,7 +2089,7 @@ input.days-input {
 @media screen and (min-width: 400px){
 	/* mobile */
 	
-	.rest-map img {
+	.rest-map div {
 		width: 400px;
 		height: 324px;
 	}
@@ -2083,7 +2124,7 @@ input.days-input {
 @media screen and (min-width: 480px) {
 	/* mobile */
 		
-	.rest-map img {
+	.rest-map div {
 		width: 480px;
 		height: 389px;
 	}
@@ -2128,7 +2169,7 @@ input.days-input {
 	
 	.main-container {
 		background-color: #ebebeb;
-		border: solid 1px #B3B3B3;
+		/* border: solid 1px #B3B3B3; */
 		width: 350px;
 		max-width: 100%;
 		margin-left: auto;
@@ -2143,12 +2184,18 @@ input.days-input {
 		margin-right: auto;
 	}
 	
-	.white-background {
-		border: solid 1px #B3B3B3;
+	.shadow {
+		width: 320px;
+		margin-left: auto;
+		margin-right: auto;
+		-webkit-box-shadow: 0 0 10px #777;
+		-moz-box-shadow: 0 0 10px #777;
+		box-shadow: 0 0 10px #777;
+		/* border: solid 1px #B3B3B3; */
 	}
 	
 		
-	.rest-map img {
+	.rest-map div {
 		width: 320px;
 		height: 259px;
 	}
@@ -2179,7 +2226,7 @@ input.days-input {
 	.bottom-bar {
 		position: static;
 		width: 320px;
-		border: solid 1px #B3B3B3;
+		/* border: solid 1px #B3B3B3; */
 	}
 	
 	.desktop .letsgo-picture {
@@ -2189,27 +2236,10 @@ input.days-input {
 	
 	/* LETSGO END */
 	
-	/* RESTAURANT */
-	
-	.rest-left {
-		width: 50%;
-		float: left;
-	}
-	
-	.rest-right {
-		width: 50%;
-		float: right;
-		padding-left: 10px;
-		box-sizing: border-box;
-		-moz-box-sizing: border-box;
-		
-	}
-	
-	/* RESTAURANT END */
 	
 	.disc .coupon {
 		background-color: #fff;
-		width: 350px; 
+		width: 280px; 
 		margin-left: auto;
 		margin-right: auto;
 	}
@@ -2245,7 +2275,11 @@ input.days-input {
 		max-width: 450px;
 	}
 	
-	.rest-map img {
+	.shadow {
+		width: 450px;
+	}
+	
+	.rest-map div {
 		width: 450px;
 		height: 364px;
 	}
@@ -2278,7 +2312,23 @@ input.days-input {
 	
 	/* LETSGO END */
 	
+	/* RESTAURANT */
 	
+	.rest-left {
+		width: 50%;
+		float: left;
+	}
+	
+	.rest-right {
+		width: 50%;
+		float: right;
+		padding-left: 10px;
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		
+	}
+	
+	/* RESTAURANT END */
 	
 }
 
@@ -2301,8 +2351,11 @@ input.days-input {
 		max-width: 500px;
 	}
 	
+	.shadow {
+		width: 500px;
+	}
 	
-	.rest-map img {
+	.rest-map div {
 		width: 500px;
 		height: 405px;
 	}
@@ -2400,7 +2453,11 @@ input.days-input {
 		max-width: 700px;
 	}
 	
-	.rest-map img {
+	.shadow {
+		width: 700px;
+	}
+	
+	.rest-map div {
 		width: 700px;
 		height: 567px;
 	}

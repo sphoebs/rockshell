@@ -268,9 +268,12 @@ en = {
     'coupon_deleted_date' : 'The coupon has been deleted in date',
     
     # ADMIN
-    'select_city': 'Select a city for searching the places you want to edit',
+    'restaurant_list_edit': 'Search restaurant',
+    'admin_select_city': 'Select a city for searching the places you want to edit',
     'rest_owner': 'Restaurant owner (email)',
     'manage_admins': 'Manage admins',
+    'add_admin': 'Add new admin',
+    'current_admins': 'Current admins',
     
     # ERROR
     'close_button': 'Close',
@@ -635,9 +638,12 @@ it = {
     'coupon_deleted_date': u'Il coupon è già stato cancellato il ',
     
     # ADMIN
+    'restaurant_list_edit': 'Cerca ristorante',
     'select_city': u'Seleziona una città per cercare i posti che vuoi modificare',
     'rest_owner': 'Proprietario del ristorante (email)',
-    'manage_admins': 'Gestisci admins',
+    'manage_admins': 'Gestisci amministratori',
+    'add_admin': 'Aggiungi nuovo amministratore',
+    'current_admins': 'Attuali amministratori',
     
     # ERROR
     'close_button': 'Chiudi',
