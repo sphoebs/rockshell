@@ -1,19 +1,22 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest">
-		<div class="top-bar rest-bar">
-			<div class="bar-background"></div>
-			<div class="menu-button">
-				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
-					<div class="user-picture"></div>
-					<div class="text-bold user-name">
-						{{user.first_name}}
-					</div>
+<div class="full-background disc-edit">
+		<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small clickable desktop">
+				<div class="user-picture"></div>
+				<div class="text-bold user-name">
+					{{user.first_name}}
 				</div>
 			</div>
-			<div class="rest-logo"></div>
+			<div class="clear-float"></div>
 		</div>
+		<div class="logo"></div>
+		<div class="actions">
+		</div>
+	</div>
 		
 		<div class="left-menu scrollable" id="left-menu" style="display: none;">
 			<div class="user-menu clickable">
@@ -26,64 +29,69 @@
 				<li><button class="img-btn" id="back" onclick="window.history.back()">{{
 						lang['back']}}</button></li>
 				<li><button class="img-btn" id="back-rest">{{ lang['back_to_rest']}}</button></li>
-				<li class="separation"></li>
-				<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-				<li><button class="img-btn" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
+				<li class="separator white"></li>
+				<li><button class="img-btn no-border" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
 				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 
 		</div>
 
-		<div class="discount-container">
+	<div class="main-container">
 		
-			<h2 class="center-text">{{ lang['discount_edit'] if is_new != True else lang['discount_new'] }}</h2>
-
+		<div class="content">
 			
-				<div>
-					<label class="form-label">{{ lang['discount_title']}} (EN): </label>
+			<div class="text-title text-center">{{ lang['discount_edit'] if is_new != 'True' else lang['discount_new'] }}</div>
+			
+			<div class="separator"></div>
+			
+			<div class="edit-form">
+				<div class="row">
+					<div class="text-all-capital">{{ lang['discount_title']}} (EN) </div>
 					<div class="form-input">
 						<input type="text" id="discount_title_en" name="discount_title_en" value="{{discount.title_en if not discount.title_en is none}}">
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['discount_title']}} (IT): </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['discount_title']}} (IT) </div>
 					<div class="form-input">
 						<input type="text" id="discount_title_it" name="discount_title_it" value="{{discount.title_it if not discount.title_it is none}}">
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['discount_description']}} (EN): </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['discount_description']}} (EN) </div>
 					<div class="form-input">
 						<textarea id="discount_description_en" name="discount_description_en">{{discount.description_en if not discount.description_en is none}}</textarea>
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['discount_description']}} (IT): </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['discount_description']}} (IT) </div>
 					<div class="form-input">
 						<textarea id="discount_description_it" name="discount_description_it">{{discount.description_it if not discount.description_it is none}}</textarea>
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['discount_num_coupons']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['discount_num_coupons']}} </div>
 					<div class="form-input">
 						<input type="number" id="num_coupons" name="num_coupons" value="{{discount.num_coupons if not discount.num_coupons is none else 0}}">
 					</div>
 				</div>
 				
-				<div>
-					<label class="form-label">{{ lang['discount_end']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['discount_end']}} </div>
 					<div class="form-input">
 						<input type="text" id="discount_end" name="discount_end" value="{{discount.end_time if not discount.end_time is none}}">
 					</div>
 				</div>
 
-				<input type="button" class="img-btn save"
+				<input type="button" class="img-btn save center"
 					value="{{ lang['save']}}" />
 			
 
 		</div>
-		<div class="popup-area"></div>
+	</div>
+	<div class="popup-area"></div>
+	</div>
 </div>
 
 {% endblock %} {% block scripts %}

@@ -1,17 +1,21 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest">
-		<div class="top-bar rest-bar">
+<div class="full-background disc-list">
+		<div class="app-bar">
+			<!-- <div class="bar-background"></div> -->
 			<div class="menu-button">
 				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
+				<div class="user-menu-small clickable desktop">
 					<div class="user-picture"></div>
 					<div class="text-bold user-name">
 						{{user.first_name}}
 					</div>
 				</div>
+				<div class="clear-float"></div>
 			</div>
-			<div class="rest-logo"></div>
+			<div class="logo"></div>
+			<div class="actions">
+			</div>
 		</div>
 		
 		<div class="left-menu scrollable" id="left-menu" style="display: none;">
@@ -24,48 +28,39 @@
 
 			<ul class="menu-items">
 				<li><button class="img-btn" id="back">{{ lang['back_to_rest']}}</button></li>
-				<li class="separation"></li>
-				<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-				<li><button class="img-btn selected" id="back_dlist"> > {{ lang['discount_list_all']}}</button></li>
+				<li class="separator white"></li>
+				<li><button class="img-btn no-border selected" id="back_dlist"> > {{ lang['discount_list_all']}}</button></li>
 				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 
 		</div>
 
-		<div class="discount-container">
+		<div class="main-container">
+			<div class="content">
 			
-			<h2 class="center-text">{{ lang['discounts']}} {{lang['for']}} {{ place.name if not place.name is none }}</h2>
-			<p class="subtitle center-text">
-				{{ place.address.street~', '~ place.address.city if not place.address is none}}
-			</p>
-			
-			
-			<div class="disc-list">
-				<button class="img-btn red-button new-discount" id="new-discount">{{ lang['create_new_discount']}}</button>
-				<div class="title">
-					{{ lang['new_discounts']}}:
-				</div>
-				
-				<div id="not_published" class="list"></div>
+			<div class="text-center text-title">
+				{{ lang['discounts']}} {{lang['for']}} {{ place.name if not place.name is none }}
+				<div style="margin-top: 5px;"><small >{{ place.address.street~', '~ place.address.city if not place.address is none}}</small></div>
 			</div>
-		
-			<div class="disc-list">
-				<div class="title">
-					{{ lang['available_discounts']}}:
-				</div>
-				
-				<div id="current_available" class="list"></div>
-			</div>
+			<div class="separator"></div>	
 			
-			<div class="disc-list">
-				<div class="title">
-					{{ lang['old_discounts']}}:
-				</div>
-				
-				<div id="passed" class="list"></div>
-			</div>
+			<button class="img-btn red-button new-discount center" id="new-discount">{{ lang['create_new_discount']}}</button>
 			
+			<div class="disc-list-title text-big text-red-bold text-center ">{{ lang['new_discounts']}} </div>
+			<div id="not_published" class="disc-list"></div>
+			
+			<div class="separator"></div>
+			
+			<div class="disc-list-title text-big text-red-bold text-center ">{{ lang['available_discounts']}} </div>
+			<div id="current_available" class="disc-list"></div>
+			
+			<div class="separator"></div>
+			<div class="disc-list-title text-big text-red-bold text-center ">{{ lang['old_discounts']}} </div>
+			
+			<div id="passed" class="disc-list"></div>
+			
+			</div>
 			<div class="popup-area"></div>
 		</div>
 </div>
@@ -221,7 +216,7 @@
 					var compiled = _.template(template);
 					
 					if(avail_disc_list == null || avail_disc_list.length < 1){
-						$('#current_available').html('<p>{{ lang['no_discounts_list']}}</p>');
+						$('#current_available').html('<div class="text-margin">{{ lang['no_discounts_list']}}</div>');
 					} else {
 						$('#disc-stats').html('Currently there are ' + avail_disc_list.length + ' available discounts.');
 						var html = compiled({
@@ -249,7 +244,7 @@
 					}
 					
 					if(new_disc_list == null || new_disc_list.length < 1){
-						$('#not_published').html('<p>{{ lang['no_discounts_list']}}</p>');
+						$('#not_published').html('<div class="text-margin">{{ lang['no_discounts_list']}}</div>');
 					} else {
 						var html = compiled({
 							discounts : new_disc_list, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: true, actions: true, available: true
@@ -277,7 +272,7 @@
 					}
 					
 					if(old_disc_list == null || old_disc_list.length < 1){
-						$('#passed').html('<p>{{ lang['no_discounts_list']}}</p>');
+						$('#passed').html('<div class="text-margin">{{ lang['no_discounts_list']}}</div>');
 					} else {
 						var html = compiled({
 							discounts : old_disc_list, lang: '{{lang_name}}', strings: {{lang['discount_strings']|safe}}, owner: true, actions: true, available: false

@@ -30,23 +30,24 @@
 			{% endif %}
 			{% if user.role == 'admin' or place.owner == user.key %}
 				<li><button class="img-btn" id="edit">{{ lang['rest_edit']}}</button></li>
-				{% if place.owner == user.key %}
-					<li><button class="img-btn" id="disc_list">{{ lang['discount_list_all']}}</button></li>
-					<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
-				{% endif %}
 				<li class="separator white"></li>
 				<!-- <li><button class="img-btn no-border" id="profile">{{lang['my_profile']}}</button></li> -->
-				<li><button class="img-btn no-border" id="coupons">{{ lang['my_coupons']}}</button></li>
-			{% else %}
-				<!-- <li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li> -->
-				<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
+				
 			{% endif %}
-			
-			{% if place.owner != user.key %}
+			{% if place.owner == user.key %}
+				<li><button class="img-btn no-border" id="disc_list">{{ lang['discount_list_all']}}</button></li>
+				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+			{% elif user.role == 'admin' %}
+				<li><button class="img-btn no-border" id="rate-more">{{ lang['rate_more']}}</button></li>
+				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+			{% else %}
 				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
+				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			{% endif %}
-			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+			
 		</ul>
 	
 	</div>

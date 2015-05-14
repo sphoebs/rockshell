@@ -30,8 +30,7 @@
 			{% if owner %}
 				<li><button class="img-btn" id="back_rest">{{ lang['back_to_rest']}}</button></li>
 				<li class="separator white"></li>
-				<li><button class="img-btn no-border" id="profile">{{lang['my_profile']}}</button></li>
-				<li><button class="img-btn" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
+				<li><button class="img-btn no-border" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
 				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 			{% else %}
 				<!-- <li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li> -->					<li><button class="img-btn" id="coupons">{{ lang['my_coupons']}}</button></li>
@@ -44,8 +43,14 @@
 	</div>
 
 		<div class="main-container">
-		
-			<div class="text-title text-center">{{lang['your_coupon']}}</div>
+			
+			<div class="text-title text-center">
+			{% if owner %}
+				{{lang['discount']}}
+			{% else %}
+				{{lang['your_coupon']}}
+			{% endif %}
+			</div>
 			
 			<div class="separator"></div>
 			
@@ -59,23 +64,25 @@
 			</div>
 			
 			{% if owner %}
-				<p id="published">{{ lang['published'] if discount.published else lang['not_published'] }}</p>
+				<div id="published" class="text-margin text-red-light">{{ lang['published'] if discount.published else lang['not_published'] }}</div>
 			
-				<button class="img-btn red-button" id="edit">{{lang['discount_strings']['edit']}}</button>
-				<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="publish">{{lang['discount_strings']['publish']}}</button>
-				<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="delete">{{lang['discount_strings']['delete']}}</button>
-				<br/>
+				<div class="text-margin actions">
+					<button class="img-btn red-button" id="edit">{{lang['discount_strings']['edit']}}</button>
+					<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="publish">{{lang['discount_strings']['publish']}}</button>
+					<button class="img-btn red-button {% if discount.published %} disabled {% endif %}" id="delete">{{lang['discount_strings']['delete']}}</button>
+				</div>
+				
+				<div class="separator"></div>
+				
 				{% if not discount.coupons is none and discount.coupons|length > 0 %}
-				<h4 class="coupons-title">{{lang['discount_strings']['coupons']}}</h4>
-					<ul class="disc-coupon-list">
-						{% for coupon in discount.coupons %}
-							<li class="coupon">
-								<p>{{coupon.code}}, {{lang['bought']}} <span class="time">{{coupon.buy_time}}</span>{% if coupon.used %}, {{ lang['used']}} <span class="time">{{coupon.usage_time}}</span> {% endif %}{% if coupon.deleted %}, {{ lang['deleted']}} <span class="time">{{coupon.delete_time}}</span> {% endif %}</p>
-								<!-- {% if not coupon.used and not coupon.deleted %}<button class="img-btn red-button use-button" coupon-code="{{coupon.code}}" id="use">{{ lang['use']}}</button>{% endif %} -->
-								<div class="clear-float"></div>
-							</li>
-						{% endfor %}
-					</ul>
+				<div class="coupons-title text-red-bold text-center">{{lang['discount_strings']['coupons']}}</div>
+				<ul class="disc-coupon-list">
+					{% for coupon in discount.coupons %}
+						<li class="coupon">
+							<div class="text-margin">{{coupon.code}}, {{lang['bought']}} <span class="time">{{coupon.buy_time}}</span>{% if coupon.used %}, {{ lang['used']}} <span class="time">{{coupon.usage_time}}</span> {% endif %}{% if coupon.deleted %}, {{ lang['deleted']}} <span class="time">{{coupon.delete_time}}</span> {% endif %}</div>
+						</li>
+					{% endfor %}
+				</ul>
 				{% endif %}
 			
 			{% else %}

@@ -1,68 +1,74 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest">
-		<div class="top-bar rest-bar">
-			<div class="bar-background"></div>
-			<div class="menu-button">
-				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
-					<div class="user-picture"></div>
-					<div class="text-bold user-name">
-						{{user.first_name}}
-					</div>
+<div class="full-background rest-edit">
+	<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small clickable desktop">
+				<div class="user-picture"></div>
+				<div class="text-bold user-name">
+					{{user.first_name}}
 				</div>
 			</div>
-			<div class="rest-logo"></div>
+			<div class="clear-float"></div>
+		</div>
+		<div class="logo"></div>
+		<div class="actions">
+		</div>
+	</div>
+	
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
+		<div class="user-menu clickable">
+			<div class="user-picture"></div>
+			<h3 class="text-bold user-name">{{user.first_name}}</h3>
+			<div class="clear-float"></div>
 		</div>
 		
-		<div class="left-menu scrollable" id="left-menu" style="display: none;">
-			<div class="user-menu clickable">
-				<div class="user-picture"></div>
-				<h3 class="text-bold user-name">
-					{{user.first_name}}</h3>
-			</div>
-
-			<ul class="menu-items">
-				<li><button class="img-btn" id="back" onclick="window.history.back()">{{lang['back']}}</button></li>
-				<!-- <li><button class="img-btn" id="back-rest">{{ lang['back_to_rest']}}</button></li> -->
-				{% if user.role == 'owner' %}
-				<li class="separation"></li>
-				<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
-				<li><button class="img-btn" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
+		<ul class="menu-items">
+			<li><button class="img-btn" id="back" onclick="window.history.back()">{{lang['back']}}</button></li>
+			<!-- <li><button class="img-btn" id="back-rest">{{ lang['back_to_rest']}}</button></li> -->
+			{% if user.role == 'owner' %}
+				<li class="separator white"></li>
+				<!-- <li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li> -->
+				<li><button class="img-btn no-border" id="back_dlist">{{ lang['discount_list_all']}}</button></li>
 				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
-				{% endif %}
-				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
-			</ul>
+			{% endif %}
+			<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
+		</ul>
 
 		</div>
 
-		<div class="discount-container">
+		<div class="main-container">
+			<div class="content">
 		
-			<h2 class="center-text">{{ lang['rest_edit'] if not place.name is none else lang['rest_new'] }}</h2>
+			<div class="text-center text-title">{{ lang['rest_edit'] if not place.name is none else lang['rest_new'] }}</div>
 
+			<div class="separator"></div>
 			
-				<div>
-					<label class="form-label">{{ lang['rest_name']}}: </label>
+			<div class="edit-form">
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_name']}} </div>
 					<div class="form-input">
 						<input type="text" id="rest_name" name="rest_name" value="{{place.name if not place.name is none}}">
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['rest_description']}} (EN): </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_description']}} (EN) </div>
 					<div class="form-input">
 						<textarea id="rest_description_en" name="rest_description_en">{{place.description_en if not place.description_en is none}}</textarea>
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['rest_description']}} (IT): </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_description']}} (IT) </div>
 					<div class="form-input">
 						<textarea id="rest_description_it" name="rest_description_it">{{place.description_it if not place.description_it is none}}</textarea>
 					</div>
 				</div>
 				
 				
-				<div>
-					<label class="form-label">{{ lang['rest_address']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_address']}} </div>
 					<div class="form-input">
 						<input type="text" name="auto-city" id="rest-address" 
 							value="{{ place.address.street~', '~place.address.city~' ('~place.address.province~', '~place.address.country~')' if place.address }}">
@@ -76,38 +82,42 @@
 					</div>
 				</div>
 				
-				<div>
-					<label class="form-label">{{ lang['rest_phone']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_phone']}} </div>
 					<div class="form-input">
 						<input type="text" id="rest_phone" name="rest_phone" value="{{place.phone if not place.phone is none}}">
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['rest_website']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_website']}} </div>
 					<div class="form-input">
 						<input type="text" id="rest_website" name="rest_website" value="{{place.website if not place.website is none}}">
 					</div>
 				</div>
-				<div>
-					<label class="form-label">{{ lang['rest_email']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_email']}} </div>
 					<div class="form-input">
 						<input type="text" id="rest_email" name="rest_email" value="{{place.email if not place.email is none}}">
 					</div>
 				</div>
 				
-				<div>
-					<label class="form-label">{{ lang['rest_main_picture']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_main_picture']}} </div>
 					<div class="form-input">
 						<input type="text" id="rest_picture" name="rest_picture" value="{{place.picture if not place.picture is none}}">
-						<p class="form-explanation">{{ lang['picture_help']}}</p>
+						<div class="text-magin form-explanation">{{ lang['picture_help']}}</div>
+						<div class="rest-image" style="background-image:url({{place.picture if not place.picture is none else '/static/images/empty_small.png'}})"></div>
 					</div>
 				</div>
 				
-				<div>
-					<label class="form-label">{{ lang['rest_other_pictures']}}: </label>
-					<div class="form-input">
-						<input type="text" id="new_picture" name="new_picture" placeholder="{{lang['add_picture']}}"><button class="img-btn add-small"></button>
-					</div>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_other_pictures']}} </div>
+					<div class="other-pictures-input-block">
+  						<div class="input-container">
+  							<input type="text" id="new_picture" name="new_picture" placeholder="{{lang['add_picture']}}">
+  						</div>
+  						<button class="img-btn red-button add-small"><div class="icon"></div></button>
+  					</div>
 					<div id="other-pictures">
 						{% for pic in place.other_pictures %}
 						<div class="form-input other-pic-item">
@@ -118,13 +128,13 @@
 					
 				</div>
 
-				<div>
-					<label class="form-label">{{ lang['rest_opening_hours']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_opening_hours']}} </div>
 					<div class="form-input opening"></div>
 				</div>
 
-				<div>
-					<label class="form-label">{{ lang['rest_closed']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{ lang['rest_closed']}} </div>
 					<div class="form-input closed">
 						<input type="text" class="days-input" id="datepicker" placeholder="{{ lang['add-day'] }}">
 						{% for day in place.days_closed %}
@@ -139,18 +149,19 @@
 				<br/>
 				
 				{% if user.role == 'admin' %}
-				<div>
-					<label class="form-label">{{lang['rest_owner']}}: </label>
+				<div class="row">
+					<div class="text-all-capital">{{lang['rest_owner']}} </div>
 					<div class="form-input">
 						<input type="text" id="owner_email" name="owner_email" value="">
 					</div>
 				</div>
 				{% endif %}
 
-				<input type="button" class="img-btn save"
+				<input type="button" class="img-btn save center"
 					value="{{ lang['save']}}" />
-			
+			</div>
 
+		</div>
 		</div>
 	<div class="popup-area"></div>
 </div>

@@ -74,7 +74,7 @@ a.no-style {
 }
 
 .text-big {
-	font-size: 18pt;
+	font-size: 16pt;
 	margin-left: 10px;
 	margin-right: 10px;
 }
@@ -124,6 +124,9 @@ button {
 	-o-background-size: contain;
 	background-size: contain;
 	cursor: pointer;
+/* 	font-size: 10pt;
+	font-family: "Helvetica Neue";
+	font-weight: 300; */
 }
 
 ul {
@@ -251,7 +254,7 @@ button.next-text .icon{
 	background-size: contain;
 }
 
-button.center, input[type="submit"].center {
+button.center, input[type="submit"].center, input[type="button"].center {
 	margin-left: auto;
 	margin-right: auto;
 	display: block;
@@ -567,7 +570,7 @@ input[type=text], input[type=number], select, textarea {
 	line-height: 1.3em;
 	font-family: "Helvetica Neue";
 	display: block;
-	width: 100%;
+	width: 95%;
 	padding-left: 5px;
 }
 
@@ -813,7 +816,7 @@ p.empty-list{
 	margin-bottom: 10px;
 }
 
-.rest-item .rest-details .rest-image {
+.rest-image {
 	background-repeat: no-repeat;
 	background-position: center center;
 	-webkit-background-size: cover;
@@ -837,7 +840,7 @@ p.empty-list{
 }
 
 .rest-item .rest-ratings .row .left-purpose {
-	border-right: solid 2px #B3B3B3;
+	border-right: solid 1px #B3B3B3;
 	width: 100px;
 	height: 80px;
 	position: absolute;
@@ -849,7 +852,7 @@ p.empty-list{
 	height: 80px;
 	position: absolute;
 	top: 0;
-	left: 102px;
+	left: 101px;
 	right: 0;
 }
 
@@ -1192,11 +1195,17 @@ p.empty-list{
 	webkit-box-sizing: border-box;
 	moz-box-sizing: border-box;
 	background-color: #fff;
-	border: solid 1px #B3B3B3;
+	border-top: solid 1px #B3B3B3;
+	border-bottom: solid 1px #B3B3B3;
+	border-right: solid 1px #B3B3B3;
 	margin: 0px;
 	padding-top: 3px;
 	vertical-align: top;
 	cursor: pointer;
+}
+
+.purpose-list .purpose-btn.tourists {
+	border-left: solid 1px #B3B3B3;
 }
 
 .purpose-list.desktop .title-icon {
@@ -1222,7 +1231,7 @@ p.empty-list{
 }
 
 .purpose-list.desktop .purpose-buttons{
-	width: 70px;
+	width: 75px;
 	margin: 20px auto 0px auto;
 	
 }
@@ -1232,10 +1241,11 @@ p.empty-list{
 	height: 60px;
 	margin-bottom: 10px;
 	display: block;
+	border: solid 1px #B3B3B3;
 }
 
-.purpose-list.desktop .purpose-btn:not(.partner) .purpose-icon{
-	margin-top: 8px;
+.purpose-list.desktop .purpose-btn .purpose-icon{
+	margin-top: 7px;
 } 
 
 .purpose-list.desktop .purpose-btn:not(.selected) {
@@ -1267,10 +1277,15 @@ p.empty-list{
 	font-size: 10px;
 	line-height: 10px;
 	font-weight: 300;
-	max-width: 90%;
+	max-width: 95%;
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
+	font-weight: 600;
+}
+
+.purpose-list.desktop .purpose-btn .purpose-text{
+	font-weight: 600;
 }
 
 .purpose-list .purpose-btn.selected .purpose-text{
@@ -1723,6 +1738,19 @@ p.empty-list{
 	margin-top: 20px;
 }
 
+.disc .coupons-title {
+	margin-top: 10px;
+}
+
+.disc #published {
+	margin-top: 10px;
+	margin-bottom: 10px;	
+}
+
+.disc .actions {
+	margin-bottom: 10px;
+}
+
 .disc .coupon {
 	margin: 15px;
 	border: solid 1px #B3B3B3;
@@ -1777,6 +1805,210 @@ p.empty-list{
 
 
 
+/* OWNER REST LIST */
+.owner-rest-list {
+	list-style: none;
+	width: 1000px;
+	max-width: 95%;
+	padding: 0px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	
+}
+
+.owner-rest-item {
+	display: inline-block;
+	border: solid 1px #B3B3B3;
+	background-color: #eee;
+	width: 300px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+
+.owner-rest-item .rest-image {
+	width: 290px;
+	height: 178px;
+	margin: 5px;
+}
+
+.owner-rest-item .rest-info .name {
+	font-size: 12pt;
+}
+
+.owner-rest-item .rest-info {
+	padding-bottom: 10px;
+}
+
+/* OWNER REST LIST END */
+
+/* OWNER/ADMIN REST EDIT */
+
+.edit-form {
+	margin: 10px;
+}
+
+.edit-form .row{
+	margin-bottom: 10px;
+}
+
+.edit-form .rest-image {
+	margin-left: -10px;
+} 
+
+.hours-block {
+	display: inline-block;
+	margin: 5px;
+}
+
+p.time-label {
+	width: 45px;
+	display: inline-block;
+	padding: 0;
+	margin: 0;
+	font-size: smaller;
+}
+
+.days-item {
+	display: inline-block;
+	border: solid 1px #DC3D3D;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	background-color: #fff;
+	padding: 5px;
+	margin: 7px;
+}
+
+.days-item p, .admin-list li p {
+	display: inline-block;
+	margin-right: 5px;
+}
+
+.delete-small {
+	width: 16px;
+	height: 16px;
+	border: none;
+	background-image: url(../images/close.png);
+	background-repeat: no-repeat;
+	background-position: center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	vertical-align: text-top;
+	background-color: #E36564;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;
+}
+
+.delete-small.pic {
+	width: 24px;
+	height: 24px;
+}
+
+.other-pictures-input-block {
+	position: relative;
+	margin: 0px 10px 10px 10px;
+	height: 30px;
+}
+
+.other-pictures-input-block .input-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 29px;
+	margin: 0;
+	margin-right: 3px;
+}
+
+.other-pictures-input-block .input-container input{
+	width: 100%;
+	-webkit-border-radius: 5px 0 0 5px;
+	-moz-border-radius: 5px 0 0 5px;
+	border-radius: 5px 0 0 5px;
+	border-right: 0;
+}
+
+.other-pictures-input-block .add-small{
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 32px;
+	height: 26px;
+	padding: 2px;
+	margin: 0;
+	
+	border: solid 1px #B3B3B3;
+	border-left: 0;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.other-pictures-input-block .add-small .icon {
+	width: 22px;
+	height: 22px;
+	margin-left: auto;
+	margin-right: auto;
+	
+	background-image: url(../images/add.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
+
+input.days-input {
+	display: inline-block;
+	width: 150px;
+}
+
+.other-pic-item {
+	display: inline-block;
+	margin: 10px;
+}
+
+.other-pic-item .other-picture.preview {
+	width: 150px;
+	height: 100px;
+}
+
+.other-pic-item .delete-small {
+	vertical-align: top;
+	margin-top: 10px;
+	margin-left: -34px;
+}
+
+
+/* OWNER/ADMIN REST EDIT END*/
+
+/* OWNER DISCOUNT LIST */
+
+.new-discount, .disc-list-title {
+	margin-top: 10px;
+}
+
+.disc-list, .disc-list ul li  {
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+
+.separator-border {
+	width: 80%;
+	height: 1px;
+	margin: 0px auto;
+	border-top: solid 1px #B3B3B3;
+}
+
+/* OWNER DISCOUNT LIST */
+
 /* SCREEN ADAPTATION */
 @media screen and (min-width: 360px){
 	/* mobile */
@@ -1786,7 +2018,7 @@ p.empty-list{
 		height: 291px;
 	}
 	
-	.rest-item .rest-details .rest-image {
+	.rest-image {
 		height: 221px;
 		width: 360px;
 	}
@@ -1821,7 +2053,7 @@ p.empty-list{
 		height: 324px;
 	}
 	
-	.rest-item .rest-details .rest-image {
+	.rest-image {
 		height: 245px;
 		width: 400px;
 	}
@@ -1856,7 +2088,7 @@ p.empty-list{
 		height: 389px;
 	}
 	
-	.rest-item .rest-details .rest-image {
+	.rest-image {
 		height: 294px;
 		width: 480px;
 	}
@@ -1921,7 +2153,7 @@ p.empty-list{
 		height: 259px;
 	}
 	
-	.rest-item .rest-details .rest-image {
+	.rest-image {
 		height: 196px;
 		width: 320px;
 	}
@@ -1986,6 +2218,12 @@ p.empty-list{
 		border: solid 1px #B3B3B3;
 	}
 	
+	/* OWNER */
+	
+	.owner-rest-item {
+		background-color: #fff;
+	}
+	
 }
 
 @media screen and (min-width: 768px) {
@@ -2012,7 +2250,7 @@ p.empty-list{
 		height: 364px;
 	}
 	
-	.rest-item .rest-details .rest-image {
+	.rest-image {
 		height: 276px;
 		width: 450px;
 	}
@@ -2069,7 +2307,7 @@ p.empty-list{
 		height: 405px;
 	}
 	
-	.rest-item .rest-details .rest-image {
+	.rest-image {
 		height: 306px;
 		width: 500px;
 	}
@@ -2167,7 +2405,7 @@ p.empty-list{
 		height: 567px;
 	}
 	
-	.rest-item .rest-details .rest-image {
+	.rest-image {
 		height: 429px;
 		width: 700px;
 	}

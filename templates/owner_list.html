@@ -1,17 +1,22 @@
 {% extends "base.html" %} {% block main %}
 
-<div class="full-background rest">
+<div class="full-background owner-list">
 
-	<div class="top-bar">
-			<div class="bar-background"></div>
+	<div class="app-bar">
+			<!-- <div class="bar-background"></div> -->
 			<div class="menu-button">
 				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small clickable">
+				<div class="user-menu-small clickable desktop">
 					<div class="user-picture"></div>
-					<div class="text-bold user-name">{{user.first_name}} </div>
+					<div class="text-bold user-name">
+						{{user.first_name}}
+					</div>
 				</div>
+				<div class="clear-float"></div>
 			</div>
-			<div class="rest-logo"></div>
+			<div class="logo"></div>
+			<div class="actions">
+			</div>
 		</div>
 		
 		<div class="left-menu scrollable" id="left-menu" style="display: none;">
@@ -22,24 +27,28 @@
 			</div>
 		
 			<ul class="menu-items">
-				<!-- <li class="separation"></li> -->
-				<li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li>
+				<!-- <li><button class="img-btn" id="profile">{{lang['my_profile']}}</button></li> -->
 				<li><button class="img-btn selected" id="change_rest"> > {{ lang['change_rest']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			</ul>
 	
 		</div>
 		
-		<div class="discount-container ">
-			<h2 id="title" class="center-text"> {{ lang['welcome'] }}! </h2>
-			<h3 id="title" class="center-text"> {{ lang['owner_choose_rest'] }} </h3>
+	<div class="main-container ">
+		<div class="main content">
+			<div class="text-center text-title">
+				{{ lang['welcome'] }}!
+				<div style="margin-top: 5px;"><small >{{ lang['owner_choose_rest'] }}</small></div>
+			</div>
+			<div class="separator"></div>			
+			
 			<ul class="owner-rest-list">
 				{% for rest in places %}
 				<li class="owner-rest-item img-btn clickable" rest-key="{{rest.key}}">
 					<img class="rest-image" src="{{ rest.picture if not rest.picture is none else '/static/images/empty_small.png'}}" />
 					<div class="rest-info">
 						<div class="text-bold name">{{ rest.name if not rest.name is none }}</div>
-						<div class=" address">
+						<div class=" address text-margin">
 							{{ rest.address.street~', '~ rest.address.city if not rest.address is none}}
 						</div>
 					</div>
@@ -49,7 +58,8 @@
 			</ul>
 			
 		</div>
-		<div class="popup-area"></div>
+	</div>
+	<div class="popup-area"></div>
 </div>
 
 
