@@ -77,8 +77,8 @@ def similarity(person1, person2):
 #     if debug:
 #         logging.info('comealong - sum of squares: ' + str(sum_of_squares))
     res = 2.0 * ((1.0 / (1.0 + (sum_of_squares / float(len(si))))) - 0.5)
-    logging.info('kmeans.comealong_similarity END - %s, %s --> %s' %
-                 (person1['key'], person2['key'], str(res)))
+    logging.info('kmeans.comealong_similarity END ')#- %s, %s --> %s' %
+    #(person1['key'], person2['key'], str(res)))
     return res
 
 def user_login(token, service):

@@ -228,7 +228,7 @@ class PFmodel(ndb.Model):
             raise TypeError(
                 "key must be ndb.Key, instead it is " + str(type(key)))
 
-        delete_allowed = ['Place']
+        delete_allowed = ['Place', 'ClusterRating']
         kind = key.kind()
         if kind in delete_allowed:
             key.delete()
@@ -1457,12 +1457,12 @@ class Place(PFmodel):
             NOT_ALLOWED = [
                 'id', 'key', 'service', 'ext_id', 'ext_source', 'owner']
 
-            for key, value in objdict.iteritems():
-                if key in NOT_ALLOWED:
+            for tkey, value in objdict.iteritems():
+                if tkey in NOT_ALLOWED:
                     continue
-                if hasattr(db_obj, key):
+                if hasattr(db_obj, tkey):
                     try:
-                        setattr(db_obj, key, value)
+                        setattr(db_obj, tkey, value)
                     except:
                         continue
 
@@ -1475,12 +1475,12 @@ class Place(PFmodel):
                 db = get_db()
                 try:
                     cursor = db.cursor() 
-                    sql = 'UPDATE places SET lat = %f, lon = %f WHERE pkey = %s' % (obj.address.location.lat, obj.address.location.lon, obj.key.urlsafe())
+                    sql = 'UPDATE places SET lat = %f, lon = %f WHERE pkey = "%s"' % (obj.address.location.lat, obj.address.location.lon, key.urlsafe())
 #                     logging.info("SQL: " + sql)
                     cursor.execute(sql) 
                     db.commit()
                 except ValueError:
-                    logging.error("Invalid data for place: %s, %f, %f" % (obj.key.urlsafe(), obj.address.location.lat, obj.address.location.lon))
+                    logging.error("Invalid data for place: %s, %f, %f" % (key.urlsafe(), obj.address.location.lat, obj.address.location.lon))
                 finally:
                     db.close()
 
@@ -1489,7 +1489,7 @@ class Place(PFmodel):
         else:
             # key is not valid --> create
             #             logging.info("Creating new place ")
-            obj.put()
+            key = obj.put()
 #             if obj.address is not None and obj.address.location is not None:
 #                 geopoint = search.GeoPoint(
 #                     obj.address.location.lat, obj.address.location.lon)
@@ -1500,12 +1500,12 @@ class Place(PFmodel):
                 db = get_db()
                 try:
                     cursor = db.cursor() 
-                    sql = 'INSERT INTO places (pkey, lat, lon) VALUES ("%s", %f, %f)' % (obj.key.urlsafe(), obj.address.location.lat, obj.address.location.lon)
+                    sql = 'INSERT INTO places (pkey, lat, lon) VALUES ("%s", %f, %f)' % (key.urlsafe(), obj.address.location.lat, obj.address.location.lon)
 #                     logging.info("SQL: " + sql)
                     cursor.execute(sql) 
                     db.commit()
                 except ValueError:
-                    logging.error("Invalid data for place: %s, %f, %f" % (obj.key.urlsafe(), obj.address.location.lat, obj.address.location.lon))
+                    logging.error("Invalid data for place: %s, %f, %f" % (key.urlsafe(), obj.address.location.lat, obj.address.location.lon))
                 finally:
                     db.close()
 
@@ -3316,7 +3316,17 @@ class ClusterRating(PFmodel):
         dblist = list(dblist)
 
         return dblist
-
+    
+    @staticmethod
+    def delete_all():
+        
+        while True:
+            q = ndb.GqlQuery("SELECT __key__ FROM ClusterRating")
+            if q.count() < 1:
+                break
+            for key in q:
+                key.delete_async()
+        
     
     
     

@@ -140,7 +140,7 @@ def cluster_based(user_id, places, purpose='dinner with tourists', np=5, loc_fil
     else:
         user = PFuser.get_by_key(PFuser.make_key(user_id, None))
         if user.cluster_id is None or len(user.cluster_id) < 1:
-            user.cluster_id = put_user_in_cluster()
+            user.cluster_id = put_user_in_cluster(user)
         if user.cluster_id is None or len(user.cluster_id) < 1:
             logging.error("The system is not able to put the user in a cluster!")
             return None

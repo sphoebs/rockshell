@@ -359,10 +359,11 @@ class KmeansComputeHandler(webapp2.RequestHandler):
         do_recompute = client.gets('recompute_clusters')
 #         if do_recompute == True:
         if True:
-            logging.info('recommender.RecomputeClustersHandler.get -- recompute needed')
+            logging.info('KmeansComputeHandler -- recompute needed')
             #new ratings have been added, so clusters need to be recomputed
-            logging.info("Starting pipeline for kmeans computation!")
-
+#             logging.info("Starting pipeline for kmeans computation!")
+            ClusterRating.delete_all()
+            logging.info("Removed old cluster ratings")
             # identify and store k random centroids
             centroids = {}
             users = PFuser().query().fetch(NUM_CLUSTERS, offset=10)

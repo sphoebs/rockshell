@@ -48,7 +48,7 @@
 			<input type="hidden" name="new" value="{{ 'true' if is_new else 'false' }}"/>
 			<div>
 				<label class="form-label text-red-bold text-center ">{{ lang['home_city']}}</label>
-				{% if user.home %}
+				{% if not user is none and not user.home is none %}
 				<div class="form-input">
 					<input type="text" name="auto-city"
 							id="city" value="{{user.home.city}}, {{user.home.province}} ({{user.home.country}})">
@@ -71,8 +71,13 @@
 				{% endif %}
 			</div>
 			
-			<div class="profile1-map" style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{user.home.location.lat if not user.home.location is none else 0}},{{user.home.location.lon if not user.home.location is none else 0}}&zoom=13&size=800x400&maptype=roadmap)" >
-			</div>
+			{% if user is none or user.home is none or user.home.location is none %}
+				<div class="profile1-map" style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center=0,0&zoom=13&size=800x400&maptype=roadmap)" >
+				</div>
+			{% else %}
+				<div class="profile1-map" style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{user.home.location.lat}},{{user.home.location.lon}}&zoom=13&size=800x400&maptype=roadmap)" >
+				</div>
+			{% endif %}		
 	
 			<input type="submit" class="img-btn save " value="{{ lang['save']}}" />
 		</form>
@@ -114,9 +119,9 @@
 							// Get the place details from the autocomplete object.
 							var place = autocomplete.getPlace();
 							
-							if(window.console){
+							/* if(window.console){
 								console.log("PLACE: " + JSON.stringify(place))
-							}
+							} */
 							
 							// Get each component of the address from the place details
 							// and fill the corresponding field on the form.

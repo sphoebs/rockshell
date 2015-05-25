@@ -39,10 +39,12 @@
 				<li><button class="img-btn" id="change_rest">{{ lang['change_rest']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			{% elif user.role == 'admin' %}
-				<li><button class="img-btn no-border" id="rate-more">{{ lang['rate_more']}}</button></li>
+				<li><button class="img-btn no-border" id="coupons">{{lang['my_coupons']}}</button></li>
+				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
 			{% else %}
+				<li><button class="img-btn" id="coupons">{{lang['my_coupons']}}</button></li>
 				<li><button class="img-btn" id="rate-more">{{ lang['rate_more']}}</button></li>
 				<li><button class="img-btn" id="near-me">{{ lang['near_me']}}</button></li>
 				<li><button class="img-btn" id="logout">{{ lang['log_out']}}</button></li>
