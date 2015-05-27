@@ -127,9 +127,9 @@ class LoginHandler(BaseRequestHandler):
             logging.info("GOOGLE request token: " + access_token)
         else:
             logging.error('illegal callback invocation')
-            self.render("error.html", {'error_code': 500, 'error_string': 'illegal callback invocation'})
+            self.render("error.html", {'error_code': 500, 'error_string': 'illegal callback invocation', 'lang': LANG})
         if errors:
-            self.render("error.html", {'error_code': 500, 'error_string': errors})
+            self.render("error.html", {'error_code': 500, 'error_string': errors, 'lang': LANG})
 
         user, is_new, status = logic.user_login(access_token, service)
         logging.info("user created: " + status)
@@ -144,7 +144,7 @@ class LoginHandler(BaseRequestHandler):
             else:
                 self.redirect('/letsgo')
         else:
-            self.render("error.html", {'error_code': 500, 'error_string': status})
+            self.render("error.html", {'error_code': 500, 'error_string': status, 'lang': LANG})
 
 
 class UserHandler(BaseRequestHandler):
@@ -220,14 +220,33 @@ class UserHandler(BaseRequestHandler):
         home.province = data.get(
             'administrative_area_level_2')
         home.country = data.get('country')
+        
+        lat = data.get('lat')
+        lon = data.get('lon')
+        logging.info("lat = %s, lon = %s" % (str(lat), str(lon)))
+        if isinstance(lat, (str, unicode)):
+            try:
+                lat = float(lat)
+            except Exception:
+                lat = 0.0
+        if not isinstance(lat, float):
+            lat = 0.0
+        if isinstance(lon, (str, unicode)):
+            try:
+                lon = float(lon)
+            except Exception:
+                lon = 0.0
+        if not isinstance(lon, float):
+            lon = 0.0
+        logging.info("lat = %s, lon = %s" % (str(lat), str(lon)))
         home.location = GeoPt(
-                data.get('lat'), data.get('lon'))
+                lat, lon)
             
         user.home = home
         
         user, status, errcode = logic.user_update(user, user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         if is_new == True or is_new == "true":
             self.redirect('/profile/2')
@@ -281,7 +300,7 @@ class UserRatingsHandler(BaseRequestHandler):
             )
         else:
             logging.error(status + ' ' + str(errcode))
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
 
 
 class UserRatingsOtherHandler(BaseRequestHandler):
@@ -293,7 +312,7 @@ class UserRatingsOtherHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
 #             self.redirect('/')
         self.render('ratings.html', {'profile': True, 'user': user, 'lang' : LANG})
@@ -311,7 +330,7 @@ class LetsgoHandler(BaseRequestHandler):
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
             logging.info("ERROR: " + status + " - " + errcode)
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
 
         logging.info("USER: " + str(user))
@@ -357,7 +376,9 @@ class SettingsHandler(BaseRequestHandler):
 
         user, status, errcode = logic.user_update(user, user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            logging.error("Error while saving settings: " + status)
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
+            self.response.set_status(400)
             return
 
 #         self.redirect('/letsgo')
@@ -373,7 +394,7 @@ class RatingsPageHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         self.render('ratings.html', {'user': user, 'lang' : LANG })
         
@@ -386,19 +407,19 @@ class RestaurantPageHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         get_values = self.request.GET
         if not get_values:
             logging.info("MISSING GET VALUES")
-            self.render("error.html", {'error_code': 400, 'error_string': "Restaurant id is missing from URL paramters"})
+            self.render("error.html", {'error_code': 400, 'error_string': "Restaurant id is missing from URL paramters", 'lang': LANG})
             return
         else:
             place_key =  get_values.get('id')
             place, status, errcode = logic.place_get(None, place_key)
             if status == 'OK':
                 if place is None:
-                    self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+                    self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found", 'lang': LANG})
                     return 
                 
                 
@@ -519,7 +540,7 @@ class RestaurantEditHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         get_values = self.request.GET
         if not get_values:
@@ -536,10 +557,10 @@ class RestaurantEditHandler(BaseRequestHandler):
                     self.render('restaurant_edit.html', {'place': place, 'hours_string': json.dumps(place['hours']), 'closed': json.dumps(place['days_closed']), 'user': user, 'lang' : LANG });
                 except TypeError, e:
                     # TODO: handle error
-                    self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+                    self.render("error.html", {'error_code': 500, 'error_string': str(e), 'lang': LANG})
                     return
             else:
-                self.render("error.html", {'error_code': errcode, 'error_string': status})
+                self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
                 return
                 
 class RestaurantNewHandler(BaseRequestHandler):
@@ -551,10 +572,10 @@ class RestaurantNewHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         if user.role != 'admin':
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         self.render('restaurant_edit.html', {'place': Place(), 'hours_string': '[]', 'closed': '[]', 'user': user, 'lang' : LANG });
          
@@ -568,16 +589,16 @@ class OwnerListHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         places, status, errcode = logic.place_owner_list(user_id)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         try:
             self.render('owner_list.html', {'places': Place.list_to_json(places, None, None), 'user': user, 'lang' : LANG });
         except TypeError, e:
-            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            self.render("error.html", {'error_code': 500, 'error_string': str(e), 'lang': LANG})
             return
 
 class DiscountHandler(BaseRequestHandler):
@@ -591,15 +612,15 @@ class DiscountHandler(BaseRequestHandler):
         discount_key_str = self.request.GET.get('id')
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         discount, status, errcode = logic.discount_get(discount_key_str, user_id)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         place, status, errcode = logic.place_get(None, discount.place.urlsafe())
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         try:
             
@@ -613,7 +634,7 @@ class DiscountHandler(BaseRequestHandler):
                 owner  = False
             self.render('discount.html', {'discount': discount, 'place_name': place.name, 'owner' : owner, 'user': user, 'lang' : LANG, 'lang_name': LANG_NAME });
         except TypeError, e:
-            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            self.render("error.html", {'error_code': 500, 'error_string': str(e), 'lang': LANG})
             return
     
 class DiscountEditHandler(BaseRequestHandler):
@@ -627,11 +648,11 @@ class DiscountEditHandler(BaseRequestHandler):
         discount_key_str = self.request.GET.get('id')
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         discount, status, errcode = logic.discount_get(discount_key_str, user_id)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         try:
             discount = Discount.to_json(discount, None, None)
@@ -641,7 +662,7 @@ class DiscountEditHandler(BaseRequestHandler):
                 is_new = True
             self.render('discount_edit.html', {'is_new': is_new, 'discount': discount, 'user': user, 'lang' : LANG });
         except TypeError, e:
-            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            self.render("error.html", {'error_code': 500, 'error_string': str(e), 'lang': LANG})
             return
     
 class DiscountNewHandler(BaseRequestHandler):
@@ -655,7 +676,7 @@ class DiscountNewHandler(BaseRequestHandler):
         rest_key = self.request.GET.get('rest_id')
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         discount = Discount()
         discount.place = Place.make_key(None, rest_key)
@@ -664,7 +685,7 @@ class DiscountNewHandler(BaseRequestHandler):
             discount = Discount.to_json(discount, None, None)
             self.render('discount_edit.html', {'is_new': 'True', 'discount': discount, 'user': user, 'lang' : LANG });
         except TypeError, e:
-            self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+            self.render("error.html", {'error_code': 500, 'error_string': str(e), 'lang': LANG})
             return
         
 class DiscountListHandler(BaseRequestHandler):
@@ -677,13 +698,13 @@ class DiscountListHandler(BaseRequestHandler):
         
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
          
         place, status, errcode = logic.place_get(None, self.request.GET.get('rest_id'))
         if status == 'OK':
             if place is None:
-                self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+                self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found", 'lang': LANG})
                 return 
             try:
                 place = Place.to_json(place, None, None)
@@ -692,11 +713,11 @@ class DiscountListHandler(BaseRequestHandler):
                 self.render('discount_manage.html', {'place': place, 'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
                 return
             except TypeError, e:
-                self.render("error.html", {'error_code': 500, 'error_string': str(e)})
+                self.render("error.html", {'error_code': 500, 'error_string': str(e), 'lang': LANG})
                 return
         else:
             logging.info("PLACE NOT FOUND")
-            self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found"})
+            self.render("error.html", {'error_code': 404, 'error_string': "Restaurant not found", 'lang': LANG})
             return
         
 class UserCouponsHandler(BaseRequestHandler):
@@ -709,7 +730,7 @@ class UserCouponsHandler(BaseRequestHandler):
         
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         
         self.render('my_coupons.html', {'user': PFuser.to_json(user, [], []), 'lang' : LANG, 'lang_name' : LANG_NAME });
@@ -724,10 +745,10 @@ class AdminsHandler(BaseRequestHandler):
             return
         user, status, errcode = logic.user_get(user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         if user.role != 'admin':
-            self.render("error.html", {'error_code': errcode, 'error_string': status})
+            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
         
         admins, status, errcode = logic.user_get_admins(user_id)

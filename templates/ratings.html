@@ -98,7 +98,8 @@
 				<button class="img-btn red-button prev"><div class="icon"></div></button>
 				<button class="img-btn red-button next"><div class="icon"></div></button>
 				<div class="clear-float"></div>
-				<button class="img-btn continue red-button center"
+				<div class="separator"></div>
+				<button class="img-btn continue red-button center" style="margin-top: 10px;"
 					{% if profile %} onclick="window.location = '/letsgo'" {% else %} onclick="window.history.back()"{% endif %} >{{ lang['done']}}</button>
 			</div>
 			

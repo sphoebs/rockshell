@@ -87,40 +87,42 @@
 			</div>
 		</div>
 		
+		<div class="no-places text-red-bold text-center"></div>
+		
 		<div class="shadow">
-		<div class="letsgo-picture-container content desktop">
-			<div class="letsgo-picture clickable"></div>
-		</div>
-		
-		<div class="mobile">
-			<div class="letsgo-picture clickable"></div>
-		</div>
-			
-		<div class="rest-details clickable content">
-			<div class="prediction">
-				<div class="chart" id="chart"></div>
-				<div class="chart-text"></div>
-				<div class="label text-center">{{lang['prediction']}}</div>
+			<div class="letsgo-picture-container content desktop">
+				<div class="letsgo-picture clickable"></div>
 			</div>
-				
-			<div class="rest-info">
-				<div class="rest-title text-bold text-big"></div>
-				<div class="rest-address text-margin"></div>
-				<div class="rest-distance text-margin"></div>
-				
-				<div class="discount-info">
-					<div class="title text-margin"></div>
-					<div class="coupons text-bold text-margin"></div>
+		
+			<div class="mobile">
+				<div class="letsgo-picture clickable"></div>
+			</div>
+			
+			<div class="rest-details clickable content">
+				<div class="prediction">
+					<div class="chart" id="chart"></div>
+					<div class="chart-text"></div>
+					<div class="label text-center">{{lang['prediction']}}</div>
 				</div>
+				
+				<div class="rest-info">
+					<div class="rest-title text-bold text-big"></div>
+					<div class="rest-address text-margin"></div>
+					<div class="rest-distance text-margin"></div>
+				
+					<div class="discount-info">
+						<div class="title text-margin"></div>
+						<div class="coupons text-bold text-margin"></div>
+					</div>
+				</div>
+			
+			
 			</div>
-			
-			
-		</div>
 		
-		<div class="bottom-bar content">
-			<button class="img-btn next-text">{{lang['next_text']}} <div class="icon"></div></button>
-			<button class="img-btn prev"><div class="icon"></div></button>
-		</div>
+			<div class="bottom-bar content">
+				<button class="img-btn next-text">{{lang['next_text']}} <div class="icon"></div></button>
+				<button class="img-btn prev"><div class="icon"></div></button>
+			</div>
 		</div>
 			
 			<!-- <div class="letsgo-picture-container desktop">
@@ -509,8 +511,15 @@ $(window).load(function() {
 				places = data;
 				
 				if(places == null || places.length < 1){
-					alert('{{ lang['no_places_position']}}');
+					$('.no-places').html('{{ lang['no_places_position']}}');
+					$('.no-places').css('margin', '10px');
+					$('.no-places').show();
+					$('.shadow').hide();
 				} else {
+					$('.no-places').html('');
+					$('.no-places').css('margin', '0');
+					$('.no-places').hide();
+					$('.shadow').show();
 					localStorage.reclist = JSON.stringify(places);
 					localStorage.reclist_time = Date.now();
 					renderPlace(pos);
@@ -729,6 +738,11 @@ $(window).load(function() {
 					max_distance: $('#max_distance').val(),
 					num_places: $('#num_places').val()
 			};
+			
+			if(settings.max_distance < 100){
+				settings.max_distance = 100;
+			}
+			
 			$.ajax({
 				type : 'POST',
 				url : '/settings',

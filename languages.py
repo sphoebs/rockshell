@@ -284,6 +284,11 @@ en = {
                      'message': 'An error happened during logout. Retry again later, in any case the session will expire in 30 minutes.',
                      'close': 'Close',
     },
+    'error_city_missing': {
+                     'title': 'City not selected',
+                     'message': 'Please, select your city from the autocomplete list before saving it.',
+                     'close': 'Close',
+    },
     'unauthorized_error': {
                            'title': 'Error',
                            'message': 'You are not authorized to perform this operation. Check that you are logged in and that you have the right permissions.',
@@ -652,6 +657,11 @@ it = {
     'logout_error': {
                      'title': 'Errore',
                      'message': 'Si &egrave; verificato un errore durante il logout. Riprovare pi&ugrave; tardi. In ogni caso, la sessione scadr&agrave; in 30 minuti.',
+                     'close': 'Chiudi',
+    },
+    'error_city_missing': {
+                     'title': 'Citt&agrave; non selezionata',
+                     'message': 'Per favore, seleziona la tua citt&agrave; dalla lista di autocompletamento prma di salvare.',
                      'close': 'Chiudi',
     },
     'unauthorized_error': {

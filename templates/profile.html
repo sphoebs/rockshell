@@ -65,8 +65,8 @@
 					<input type="hidden" name="locality" id="locality" /> 
 					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
 					<input type="hidden" name="country" id="country"/>
-					<input type="hidden" name="lat" id="lat" />
-					<input type="hidden" name="lon" id="lon" />
+					<input type="hidden" name="lat" id="lat" value="0"/>
+					<input type="hidden" name="lon" id="lon" value="0"/>
 				</div>
 				{% endif %}
 			</div>
@@ -82,6 +82,7 @@
 			<input type="submit" class="img-btn save " value="{{ lang['save']}}" />
 		</form>
 		</div>
+		<div class="popup-area"></div>
 	</div>
 
 </div>
@@ -191,6 +192,14 @@
 				$('.user-menu-small').show();
 			}
 				count++;
+		}
+	});
+	
+	$('form').submit(function(){
+		var locality = $('#locality').val();
+		if(locality == undefined || locality == ''){
+			show_error({{lang['error_city_missing']|safe}});
+			return false;
 		}
 	});
 </script>

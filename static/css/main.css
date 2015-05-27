@@ -1,13 +1,28 @@
 
 @font-face {
-    font-family: 'Helvetica Neue'; /*a name to be used later*/
-    src: url('/static/fonts/HelveticaNeue.dfont'); /*URL to font*/
+	font-family: 'Helvetica Neue';
+	src: url('/static/fonts/HelveticaNeue-Roman.otf');
+	font-weight: normal;
+	font-style: normal;
 }
+@font-face {
+	font-family: 'Helvetica Neue';
+	src: url('/static/fonts/HelveticaNeue-Bold.otf');
+	font-weight: bold;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Helvetica Neue';
+	src: url('/static/fonts/HelveticaNeue-Italic.otf');
+	font-weight: normal;
+	font-style: italic;
+}
+
 
 html, body {
 	font-size: 10pt;
 	font-family: "Helvetica Neue";
-	font-weight: 300;
+	font-weight: normal;
 	color: #404041;
 	margin: 0;
 	padding: 0;
@@ -58,7 +73,7 @@ a.no-style {
 }
 
 .text-bold {
-	font-weight: 600; 
+	font-weight: bold; 
 	margin-left: 10px;
 	margin-right: 10px;
 }
@@ -67,7 +82,7 @@ a.no-style {
 	font-size: 12pt;
 	line-height: 11pt;
 	color: #989897;
-	font-weight: 600;
+	font-weight: bold;
 	padding: 10px 15px 10px 15px;
 	margin-left: 10px;
 	margin-right: 10px;
@@ -89,7 +104,7 @@ a.no-style {
 .text-red-bold {
 	color: #E36564;
 	font-size: 11pt;
-	font-weight: 600;
+	font-weight: bold;
 	margin-left: 10px;
 	margin-right: 10px;
 }
@@ -236,7 +251,7 @@ button.next-text {
 	text-align: right;
 	margin-right: 10px;
 	color: white;
-	font-weight: 600;
+	font-weight: bold;
 }
 
 button.next-text .icon{
@@ -759,7 +774,7 @@ form .save {
 .home .login .title {
 	color: #fff;
 	font-size: 12pt;
-	font-weight: 600;
+	font-weight: bold;
 	text-align: center;
 }
 
@@ -882,7 +897,7 @@ p.empty-list{
 .rest-item .left-purpose .purpose-text {
 	font-size: 13px;
 	line-height: 11px;
-	font-weight: 600;
+	font-weight: bold;
 	width: 60px;
 	margin-left: auto;
 	margin-right: auto;
@@ -1116,7 +1131,7 @@ p.empty-list{
 .filters .text-label {
 	font-size: 13pt;
 	color: #80807f;
-	font-weight: 600;
+	font-weight: bold;
 	margin-left: 10px;
 	margin-bottom: 5px;
 }
@@ -1223,7 +1238,7 @@ p.empty-list{
 
 .purpose-list.desktop .buttons-title {
 	color: #000;
-	font-weight: 600;
+	font-weight: bold;
 	text-align: center;
 	margin: 0;
 	font-size: 11pt;
@@ -1281,11 +1296,11 @@ p.empty-list{
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
-	font-weight: 600;
+	font-weight: bold;
 }
 
 .purpose-list.desktop .purpose-btn .purpose-text{
-	font-weight: 600;
+	font-weight: bold;
 }
 
 .purpose-list .purpose-btn.selected .purpose-text{
@@ -1380,7 +1395,7 @@ p.empty-list{
 	width: 100%;
 	text-align: center;
 	font-size: 7pt;
-	font-weight: 600;
+	font-weight: bold;
 }
 
 .letsgo  .rest-details .rest-info {
@@ -1392,7 +1407,7 @@ p.empty-list{
 
 .letsgo .rest-details .rest-title {
 	line-height: 1.2em;
-	font-weight: 600;
+	font-weight: bold;
 }
 
 .letsgo  .rest-details .rest-info .discount-info{
