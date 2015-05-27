@@ -165,22 +165,24 @@ class UserHandler(BaseRequestHandler):
                             {'user': user, 'lang' : LANG, 'is_new': is_new }
                 )
             else:
-                tuple, status, errcode = logic.user_get_num_ratings(user_id)
-                if status == "OK":
-                    num_ratings, num_places = tuple
-                    user.num_ratings = num_ratings
-                    user.num_places = num_places
-                else: 
-                    user.num_ratings = 0
-                num_coupons, status, errcode = logic.user_get_num_coupons(user_id)
-                if status == "OK":
-                    user.num_coupons = num_coupons
-                else: 
-                    user.num_coupons = 0
-                self.render(
-                            'profile_sum.html',
-                            {'user': user, 'lang' : LANG}
-                            )
+                self.redirect('/')
+#             else:
+#                 tuple, status, errcode = logic.user_get_num_ratings(user_id)
+#                 if status == "OK":
+#                     num_ratings, num_places = tuple
+#                     user.num_ratings = num_ratings
+#                     user.num_places = num_places
+#                 else: 
+#                     user.num_ratings = 0
+#                 num_coupons, status, errcode = logic.user_get_num_coupons(user_id)
+#                 if status == "OK":
+#                     user.num_coupons = num_coupons
+#                 else: 
+#                     user.num_coupons = 0
+#                 self.render(
+#                             'profile_sum.html',
+#                             {'user': user, 'lang' : LANG}
+#                             )
         else:
             self.redirect('/')
 
@@ -770,7 +772,7 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/fb/oauth_callback/?', LoginHandler),
     ('/google/oauth_callback/?', LoginHandler),
-    ('/profile', UserHandler),
+#     ('/profile', UserHandler),
     ('/profile/edit', UserHandler),
     ('/profile/2', UserRatingsHandler),
     ('/profile/3', UserRatingsOtherHandler),

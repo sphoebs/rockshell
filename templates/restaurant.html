@@ -4,7 +4,7 @@
 		<!-- <div class="bar-background"></div> -->
 		<div class="menu-button">
 			<button class="img-btn" id="menu-button"></button>
-			<div class="user-menu-small clickable desktop">
+			<div class="user-menu-small desktop">
 				<div class="user-picture"></div>
 				<div class="text-bold user-name">
 					{{user.first_name}}
@@ -18,7 +18,7 @@
 	</div>
 		
 	<div class="left-menu scrollable" id="left-menu" style="display: none;">
-		<div class="user-menu clickable">
+		<div class="user-menu">
 			<div class="user-picture"></div>
 			<h3 class="text-bold user-name"> {{user.first_name}}</h3>
 			<div class="clear-float"></div>
@@ -497,9 +497,6 @@
 			
 		}); */
 		
-		$('.user-menu, .user-menu-small, #profile').click(function(){
-			window.location = '/profile';
-		});
 		
 		
 	});
