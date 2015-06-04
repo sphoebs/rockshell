@@ -250,10 +250,10 @@ class UserHandler(BaseRequestHandler):
         if status != "OK":
             self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
-        if is_new == True or is_new == "true":
-            self.redirect('/profile/2')
-        else:
-            self.redirect('/profile')
+#         if is_new == True or is_new == "true":
+        self.redirect('/profile/2')
+#         else:
+#             self.redirect('/profile')
             
 
 

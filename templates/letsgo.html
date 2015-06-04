@@ -215,6 +215,24 @@ $(window).load(function() {
 	var position = undefined;
 	var places = [];
 	var pos = 0;
+	
+	if(user.settings && user.settings.purpose ){
+		var purpose = user.settings.purpose;
+		if(user.settings.purpose == "dinner with tourists"){
+			$('.purpose-btn.tourists').addClass("selected");
+		} else if(user.settings.purpose == "romantic dinner"){
+			$('.purpose-btn.partner').addClass("selected");
+		} else if(user.settings.purpose == "dinner with friends"){
+			$('.purpose-btn.friends').addClass("selected");
+		} else if(user.settings.purpose == "best price/quality ratio"){
+			$('.purpose-btn.price-quality').addClass("selected");
+		}
+	} else {
+		var purpose = "dinner with tourists";
+		$('.purpose-btn.tourists').addClass("selected");
+	}
+	
+	
 	var reclist = localStorage.reclist;
 	if (reclist != undefined ){
 		reclist = JSON.parse(reclist);
@@ -237,21 +255,7 @@ $(window).load(function() {
 		}
 	}
 	
-	if(user.settings && user.settings.purpose ){
-		var purpose = user.settings.purpose;
-		if(user.settings.purpose == "dinner with tourists"){
-			$('.purpose-btn.tourists').addClass("selected");
-		} else if(user.settings.purpose == "romantic dinner"){
-			$('.purpose-btn.partner').addClass("selected");
-		} else if(user.settings.purpose == "dinner with friends"){
-			$('.purpose-btn.friends').addClass("selected");
-		} else if(user.settings.purpose == "best price/quality ratio"){
-			$('.purpose-btn.price-quality').addClass("selected");
-		}
-	} else {
-		var purpose = "dinner with tourists";
-		$('.purpose-btn.tourists').addClass("selected");
-	}
+	
 
 	 function renderPlace(pos){
 		 if(pos+1 == places.length){

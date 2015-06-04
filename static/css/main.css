@@ -644,7 +644,7 @@ form .save {
 	width: 100%;
 	height: 100%;
 	background-color: rgba(220, 220, 220, 0.7);
-	z-index: 300;
+	z-index: 3000;
 }
 
 .popup-foreground {
@@ -658,7 +658,7 @@ form .save {
 	margin-left: auto;
 	margin-right: auto;
 	background-color: #fff;
-	z-index: 310;
+	z-index: 3100;
 	border: solid 1px #B73B3B;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;

@@ -229,7 +229,6 @@
 					type : 'DELETE',
 					url : '/api/discount/{{discount.key}}',
 					success : function() {
-						alert('discount deleted with success!')
 						window.location = '/restaurant?id={{discount.place}}'
 					},
 					error : function(resp) {
@@ -343,9 +342,10 @@
 					type : 'DELETE',
 					url : '/api/discount/'+key+'/coupon?code=' + code,
 					success : function() {
-						alert('coupon deleted with success!');
 						location.reload();
-						
+						$('#buy').click(function(){
+							create_coupon();
+						});
 					},
 					error : function(resp) {
 						if(window.console){
