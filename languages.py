@@ -294,6 +294,10 @@ en = {
                            'message': 'You are not authorized to perform this operation. Check that you are logged in and that you have the right permissions.',
                            'close': 'Close',
     },
+    'permission_error': {
+                         'title': 'Permission error',
+                         'message': 'This service need you to accept the permissions to work. Please, go back and accept the permissions to read your public information and your email address.',
+    },
     'admin_delete_error': {
                      'title': 'Error',
                      'message': 'An error happened during the delete of an administrator.',
@@ -377,6 +381,11 @@ en = {
     'settings_save_error': {
                      'title': 'Error',
                      'message': 'An error happened while saving your settings.',
+                     'close': 'Close',
+    },
+    'user_home_save_error': {
+                     'title': 'Error',
+                     'message': 'An error happened while saving your home city.',
                      'close': 'Close',
     },
 }
@@ -669,6 +678,10 @@ it = {
                            'message': 'Non sei autorizzato ad eseguire questa operazione.Controlla di esserti autenticato e di avere i permessi necessari.',
                            'close': 'Chiudi',
     },
+    'permission_error': {
+                         'title': 'Errore di autorizzazione',
+                         'message': 'Questo servizio ha bisogno che tu accetti i permessi richiesti per funzionare. Per favore, torna indietro e accetta i permessi per accedre ai tuoi dati pubblici e al tuo indirizzo email.',
+    },
     'admin_delete_error': {
                      'title': 'Errore',
                      'message': 'Si &egrave; verificato un errore durante la cancellazione di un amministratore.',
@@ -752,6 +765,11 @@ it = {
     'settings_save_error': {
                      'title': 'Errore',
                      'message': 'Si &egrave; verificato un errore durante il salvataggio delle tue impostazioni.',
+                     'close': 'Chiudi',
+    },
+    'user_home_save_error': {
+                     'title': 'Errore',
+                     'message': 'Si &egrave; verificato un errore durante il salvataggio della tua citt&agrave;.',
                      'close': 'Chiudi',
     },
     

@@ -115,12 +115,19 @@ class LoginHandler(BaseRequestHandler):
     def get(self):
 
         if '/fb/oauth_callback' in self.request.url:
+            if 'user_denied' in self.request.url:
+               self.render("permission_error.html", {'lang': LANG}) 
+               return
             access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'facebook')
             service = "facebook"
             logging.info("FB request token: " + type(access_token).__name__)
 
         elif '/google/oauth_callback' in self.request.url:
+#             logging.info("REQUEST: " + str(self.request))
+            if 'access_denied' in self.request.url:
+               self.render("permission_error.html", {'lang': LANG}) 
+               return
             access_token, errors = social_login.LoginManager.handle_oauth_callback(
                 self.request, 'google')
             service = "google"
@@ -192,30 +199,37 @@ class UserHandler(BaseRequestHandler):
             return
         # this method updates user information (from profile page)
         # request body contain the form values
-        data = self.request
+#         data = self.request.POST[0]
+        data = json.loads(self.request.body)
 
         user_id = logic.get_current_userid(self.request.cookies.get('user'))
         if user_id is None:
-            self.redirect('/')
+            self.response.set_status(403)
+            self.response.write('')
+#             self.redirect('/')
             return
 #         user, status = logic.user_get(user_id, None)
 #         if status != "OK":
 #             self.redirect("/error")
 
         user = PFuser()
-        if data.get('new') != '':
+        if data.get('new') is not None and data.get('new') != '':
             is_new = data.get('new')
-        if data.get('first_name') != '':
-            user.first_name = data.get('first_name')
-        if data.get('role') != '':
-            user.role = data.get('role')
-        if data.get('last_name') != '':
-            user.last_name = data.get('last_name')
-        user.full_name = data.get('first_name') + ' ' + data.get('last_name')
-        if data.get('age') != '':
-            user.age = data.get('age')
-        if data.get('gender') != '':
-            user.gender = data.get('gender')
+#         if data.get('first_name') is not None and data.get('first_name') != '':
+#             user.first_name = data.get('first_name')
+#         if data.get('role') is not None and data.get('role') != '':
+#             user.role = data.get('role')
+#         if data.get('last_name') != '':
+#             user.last_name = data.get('last_name')
+#         if data.get('first_name') != '' and data.get('last_name') != '':
+#             user.full_name = data.get('first_name') + ' ' + data.get('last_name')
+#         if data.get('age') != '':
+#             user.age = data.get('age')
+#         if data.get('gender') != '':
+#             user.gender = data.get('gender')
+            
+            
+        logging.info("DATA: " + str(data))
             
         home = Address()
         home.city = data.get('locality')
@@ -248,10 +262,14 @@ class UserHandler(BaseRequestHandler):
         
         user, status, errcode = logic.user_update(user, user_id, None)
         if status != "OK":
-            self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
+            self.response.set_status(errcode)
+            self.response.write(status)
+#             self.render("error.html", {'error_code': errcode, 'error_string': status, 'lang': LANG})
             return
 #         if is_new == True or is_new == "true":
-        self.redirect('/profile/2')
+#         self.redirect('/profile/2')
+        self.response.set_status(200)
+        self.response.write('')
 #         else:
 #             self.redirect('/profile')
             

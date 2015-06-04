@@ -198,6 +198,14 @@
 				console.log('place: ' + JSON.stringify(place.geometry.viewport));
 			}
 			if(place.geometry.viewport){
+				city_bounds = place.geometry.viewport;
+			
+				/* 
+				console.log("NE: " + place.geometry.viewport.getNordEast());
+				console.log("SW: " + place.geometry.viewport.getSouthWest());
+				
+				
+			
 				var bounds = place.geometry.viewport;
 				var lat = {};
 				var lon = {};
@@ -251,9 +259,8 @@
 				
 				var southWest = new google.maps.LatLng( lat_arr[0], lon_arr[0] );
 				var northEast = new google.maps.LatLng( lat_arr[1], lon_arr[1] );
-				/* var southWest = new google.maps.LatLng( bounds.Da.k, bounds.va.j );
-				var northEast = new google.maps.LatLng( bounds.Da.j, bounds.va.k ); */
-				city_bounds = new google.maps.LatLngBounds( southWest, northEast );
+				
+				city_bounds = new google.maps.LatLngBounds( southWest, northEast ); */
 				
 			}
 			

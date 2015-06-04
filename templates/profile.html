@@ -2,85 +2,100 @@
 
 <div class="full-background profile">
 
-		<div class="app-bar">
-			<!-- <div class="bar-background"></div> -->
-			<div class="menu-button">
-				<button class="img-btn" id="menu-button"></button>
-				<div class="user-menu-small desktop">
-					<div class="user-picture"></div>
-					<div class="text-bold user-name">
-						{{user.first_name}}
-					</div>
-				</div>
-				<div class="clear-float"></div>
-			</div>
-			<div class="logo"></div>
-			<div class="actions">
-				<div class="step" {{ 'style=display:none;' if not is_new else ""}}><p>{{ lang['step']}} 1/3</p></div>
-			</div>
-		</div>
-	
-		<div class="left-menu scrollable" id="left-menu" style="display: none;">
-			<div class="user-menu">
+	<div class="app-bar">
+		<!-- <div class="bar-background"></div> -->
+		<div class="menu-button">
+			<button class="img-btn" id="menu-button"></button>
+			<div class="user-menu-small desktop">
 				<div class="user-picture"></div>
-				<h3 class="text-bold user-name">{{user.first_name}}</h3>
-				<div class="clear-float"></div>
+				<div class="text-bold user-name">{{user.first_name}}</div>
 			</div>
-		
-			<ul class="menu-items">
-			</ul>
-	
+			<div class="clear-float"></div>
 		</div>
-		
-		<div class="main-container">
-		
+		<div class="logo"></div>
+		<div class="actions">
+			<div class="step" {{ 'style="display: none;" ' if not is_new else ""}}>
+				<p>{{ lang['step']}} 1/3</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="left-menu scrollable" id="left-menu" style="display: none;">
+		<div class="user-menu">
+			<div class="user-picture"></div>
+			<h3 class="text-bold user-name">{{user.first_name}}</h3>
+			<div class="clear-float"></div>
+		</div>
+
+		<ul class="menu-items">
+		</ul>
+
+	</div>
+
+	<div class="main-container">
+
 		<div class="content">
-		
-		{% if is_new %} 
-		<div class="text-center text-title">{{ lang['profile_intro']}} </div> 
-		{% else %}
-		<div class="center-text text-title">{{ lang['profile_edit_intro']}} </div> 
-		{% endif %}
-			
-		<div class="separator"></div>
-	
-		<form action="/profile/edit" method="post">
-			<input type="hidden" name="new" value="{{ 'true' if is_new else 'false' }}"/>
+
+			{% if is_new %}
+			<div class="text-center text-title">{{ lang['profile_intro']}}
+			</div>
+			{% else %}
+			<div class="text-center text-title">{{
+				lang['profile_edit_intro']}}</div>
+			{% endif %}
+
+			<div class="separator"></div>
+
+
+			<input type="hidden" name="new"
+				value="{{ 'true' if is_new else 'false' }}" />
 			<div>
-				<label class="form-label text-red-bold text-center ">{{ lang['home_city']}}</label>
-				{% if not user is none and not user.home is none %}
+				<div class="form-label text-red-bold text-center ">{{
+					lang['home_city']}}</div> 
+					
+				{% if not user is none and not user.home is
+				none %}
 				<div class="form-input">
-					<input type="text" name="auto-city"
-							id="city" value="{{user.home.city}}, {{user.home.province}} ({{user.home.country}})">
-					<input type="hidden" name="locality" id="locality" value="{{user.home.city}}"/> 
-					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" value="{{user.home.province}}"/> 
-					<input type="hidden" name="country" id="country" value="{{user.home.country}}"/>
-					<input type="hidden" name="lat" id="lat" value="{{user.home.location.lat if not user.home.location is none else 0}}" />
-					<input type="hidden" name="lon" id="lon" value="{{user.home.location.lon if not user.home.location is none else 0}}"/>
+					<input type="text" name="auto-city" id="city"
+						value="{{user.home.city}}, {{user.home.province}} ({{user.home.country}})">
+					<input type="hidden" name="locality" id="locality"
+						value="{{user.home.city}}" /> <input type="hidden"
+						name="administrative_area_level_2"
+						id="administrative_area_level_2" value="{{user.home.province}}" />
+					<input type="hidden" name="country" id="country"
+						value="{{user.home.country}}" /> <input type="hidden" name="lat"
+						id="lat"
+						value="{{user.home.location.lat if not user.home.location is none else 0}}" />
+					<input type="hidden" name="lon" id="lon"
+						value="{{user.home.location.lon if not user.home.location is none else 0}}" />
 				</div>
 				{% else %}
 				<div class="form-input">
-					<input type="text" name="auto-city"
-							id="city" >
-					<input type="hidden" name="locality" id="locality" /> 
-					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
-					<input type="hidden" name="country" id="country"/>
-					<input type="hidden" name="lat" id="lat" value="0"/>
-					<input type="hidden" name="lon" id="lon" value="0"/>
+					<input type="text" name="auto-city" id="city"> <input
+						type="hidden" name="locality" id="locality" /> <input
+						type="hidden" name="administrative_area_level_2"
+						id="administrative_area_level_2" /> <input type="hidden"
+						name="country" id="country" /> <input type="hidden" name="lat"
+						id="lat" value="0" /> <input type="hidden" name="lon" id="lon"
+						value="0" />
 				</div>
 				{% endif %}
 			</div>
-			
-			{% if user is none or user.home is none or user.home.location is none %}
-				<div class="profile1-map" style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center=0,0&zoom=13&size=800x400&maptype=roadmap)" >
-				</div>
+
+			{% if user is none or user.home is none or user.home.location is none
+			%}
+			<div class="profile1-map"
+				style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center=0,0&zoom=13&size=800x400&maptype=roadmap)">
+			</div>
 			{% else %}
-				<div class="profile1-map" style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{user.home.location.lat}},{{user.home.location.lon}}&zoom=13&size=800x400&maptype=roadmap)" >
-				</div>
-			{% endif %}		
-	
-			<input type="submit" class="img-btn save " value="{{ lang['save']}}" />
-		</form>
+			<div class="profile1-map"
+				style="background-image: url(https://maps.googleapis.com/maps/api/staticmap?center={{user.home.location.lat}},{{user.home.location.lon}}&zoom=13&size=800x400&maptype=roadmap)">
+			</div>
+			{% endif %} 
+			
+			<input type="button" class="img-btn save center"
+				value="{{ lang['save']}}" />
+
 		</div>
 		<div class="popup-area"></div>
 	</div>
@@ -94,55 +109,58 @@
 <script type="text/javascript">
 
 
-	$(window)
-			.load(
-					function() {
-						
-						var input = document.getElementById('city');
-						var options = {
-							types : [ '(cities)' ]
-						};
-						var autocomplete = new google.maps.places.Autocomplete(
-								input, options);
+$(window).load(function() {
+		
+	{% if user is none or user.home is none %}
+		$(".profile1-map").hide();
+		$('.save').hide();
+	{% endif %}
+	
+	var input = document.getElementById('city');
+	var options = {
+		types : [ '(cities)' ]
+	};
+ 	var autocomplete = new google.maps.places.Autocomplete(input, options);
 
-						var componentForm = {
-							locality : 'long_name',
-							administrative_area_level_2 : 'short_name',
-							country : 'short_name',
-						};
+	var componentForm = {
+		locality : 'long_name',
+		administrative_area_level_2 : 'short_name',
+		country : 'short_name',
+	};
 
-						google.maps.event.addListener(autocomplete,
-								'place_changed', function() {
-									fillInAddress();
-								});
+	google.maps.event.addListener(autocomplete,
+		'place_changed', function() {
+			fillInAddress();
+	});
 
-						function fillInAddress() {
-							// Get the place details from the autocomplete object.
-							var place = autocomplete.getPlace();
+	function fillInAddress() {
+		// Get the place details from the autocomplete object.
+		var place = autocomplete.getPlace();
 							
-							/* if(window.console){
-								console.log("PLACE: " + JSON.stringify(place))
-							} */
+		// Get each component of the address from the place details
+		// and fill the corresponding field on the form.
+		if(place != undefined && place.address_components != undefined){
+			for (var i = 0; i < place.address_components.length; i++) {
+				var addressType = place.address_components[i].types[0];
+				if (componentForm[addressType]) {
+					var val = place.address_components[i][componentForm[addressType]];
+					document.getElementById(addressType).value = val;
+				}
+			}
 							
-							// Get each component of the address from the place details
-							// and fill the corresponding field on the form.
-							for (var i = 0; i < place.address_components.length; i++) {
-								var addressType = place.address_components[i].types[0];
-								if (componentForm[addressType]) {
-									var val = place.address_components[i][componentForm[addressType]];
-									document.getElementById(addressType).value = val;
-								}
-							}
-							
-							if(place.geometry.location){
-								var loc = place.geometry.location;
-								$("#lat").val(loc.A);
-								$("#lon").val(loc.F);
-								$(".profile1-map").css('background-image', 'url(https://maps.googleapis.com/maps/api/staticmap?center='+ loc.A+ ',' +loc.F+ '&zoom=13&size=700x400&maptype=roadmap)')
-								
-							}
-						}
-					});
+			if(place.geometry.location){
+				var loc = place.geometry.location;
+				$("#lat").val(loc.A);
+				$("#lon").val(loc.F);
+				$(".profile1-map").css('background-image', 'url(https://maps.googleapis.com/maps/api/staticmap?center='+ loc.A+ ',' +loc.F+ '&zoom=13&size=700x400&maptype=roadmap)')
+				$(".profile1-map").show();
+				$('.save').show();
+			}
+		}
+	}
+					
+	
+	
 	
 	var userpic = "{{ user.picture|e }}";
 	if(userpic != undefined && userpic.length > 0){	
@@ -195,13 +213,46 @@
 		}
 	});
 	
-	$('form').submit(function(){
-		var locality = $('#locality').val();
-		if(locality == undefined || locality == ''){
+	$('.save').click(function(){
+		
+		var home = {
+				'new': $('#new').val(),
+				'locality': $('#locality').val(),
+				'administrative_area_level_2': $('#administrative_area_level_2').val(),
+				'country': $('#country').val(),
+				'lat': $('#lat').val(),
+				'lon': $('#lon').val(),
+		}
+		
+		if(home.locality == undefined || home.locality == ''){
 			show_error({{lang['error_city_missing']|safe}});
 			return false;
 		}
+		
+		$.ajax({
+			type : 'POST',
+			url : '/profile/edit',
+			data : JSON.stringify(home),
+			success: function(){
+				window.location = '/profile/2';
+			},
+			error: function(resp){
+				if (resp.status == 200) {
+					window.location = '/profile/2';
+				} else {
+					if(window.console){
+						console.log(resp);
+					}
+					if(resp.status == 403){
+						show_error({{lang['unauthorized_error']|safe}});
+					} else {
+						show_error({{lang['user_home_save_error']|safe}});
+					}
+				}
+			}
+		});
 	});
+});
 </script>
 
 {% endblock %}
