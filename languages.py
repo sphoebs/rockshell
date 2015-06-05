@@ -56,7 +56,8 @@ en = {
     'no_places_city': 'Sorry, we do not know any restaurant in your city.',
     'prev': 'Prev',
     'next': 'Next',
-    'continue': 'Continue', 
+    'continue': 'Continue',
+    'done_next_step': 'Done, go to next step', 
     'rating_purposes' : {
         'how_experience': 'How was your experience?',
         'tourists': 'For a dinner with visitors',
@@ -446,6 +447,7 @@ it = {
     'prev': 'Indietro',
     'next': 'Avanti',
     'continue': 'Continua', 
+    'done_next_step': 'Fatto, vai al prossimo passo',
     'rating_purposes' : {
         'how_experience': 'Come &egrave; stata la tua esperienza?',
         'tourists': 'Per una cena con degli ospiti da fuori citt&agrave;',

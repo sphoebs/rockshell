@@ -51,7 +51,7 @@
 				<button class="img-btn red-button next"><div class="icon"></div></button>
 				<div class="clear-float"></div>
 				<div class="separator"></div>
-				<button class="img-btn red-button continue center " style="margin-top: 10px;" onclick="window.location = '/profile/3'" >{{ lang['continue']}}</button>
+				<button class="img-btn red-button continue center " style="margin-top: 10px;" onclick="window.location = '/profile/3'" >{{ lang['done_next_step']}}</button>
 			</div>
 
 		</div>
@@ -137,7 +137,7 @@
 				//diable prev button
 				$('.navigation-buttons .prev').addClass('disabled');
 			}
-			if(start + pageSize > list.length){
+			if(start + pageSize >= list.length){
 				//disable next button
 				$('.navigation-buttons .next').addClass('disabled');
 			}
@@ -195,6 +195,9 @@
 			var btn = $(e.target);
 			var value = $(btn).attr('value');
 			
+			$(btn).parent().find('button').removeClass('selected');				
+			$(btn).addClass('selected');
+			
 			var not_known = false;
 			if (value == 0){
 				not_known = true;
@@ -211,13 +214,11 @@
 				url : '/api/rating',
 				data : JSON.stringify(rating),
 				success : function() {
-					$(btn).parent().find('button').removeClass('selected');				
-					$(btn).addClass('selected');
+					
 				},
 				error : function(resp) {
 					if (resp.status == 200) {
-						$(btn).parent().find('button').removeClass('selected');				
-						$(btn).addClass('selected');
+						
 					} else {
 						if(window.console){
 							console.log(resp);

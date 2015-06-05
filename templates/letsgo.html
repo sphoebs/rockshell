@@ -223,7 +223,7 @@ $(window).load(function() {
 	
 	
 	var geoOptions = {
-		timeout: 30 * 1000  //30 seconds
+		timeout: 2 * 60 * 1000  // 2 minutes
 	}
 		
 	function geoError(error){
@@ -524,6 +524,9 @@ $(window).load(function() {
 	} 
 
 	function showRecommendations(geopos) {
+		if(window.console){
+			console.log("show recommendations " + geopos);
+		}
 		position = geopos;
 		$('.loading-message').html('{{ lang['loading_settings']}}');
 		var settings = user.settings; 

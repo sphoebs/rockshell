@@ -339,7 +339,7 @@
 				//diable prev button
 				$('.navigation-buttons .prev').addClass('disabled');
 			}
-			if(start + pageSize > filtered_places.length){
+			if(start + pageSize >= filtered_places.length){
 				//disable next button
 				$('.navigation-buttons .next').addClass('disabled');
 			}
@@ -617,6 +617,9 @@
 			var btn = $(e.target);
 			var value = $(btn).attr('value');
 			
+			$(btn).parent().find('button').removeClass('selected');				
+			$(btn).addClass('selected');
+			
 			var not_known = false;
 			if (value == 0){
 				not_known = true;
@@ -633,8 +636,7 @@
 				url : '/api/rating',
 				data : JSON.stringify(rating),
 				success : function() {
-					$(btn).parent().find('button').removeClass('selected');				
-					$(btn).addClass('selected');
+					//nothing to do
 				},
 				error : function(resp) {
 					
