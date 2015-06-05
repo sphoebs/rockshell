@@ -1673,7 +1673,7 @@ class Place(PFmodel):
             else:
                 lat1 = max(lat1, MIN_LAT)
                 lat2 = min(lat2, MAX_LAT)
-                lon2 = MIN_LON
+                lon1 = MIN_LON
                 lon2 = MAX_LON
             lat1 = math.degrees(lat1)
             lat2 = math.degrees(lat2)

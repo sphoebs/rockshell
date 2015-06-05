@@ -75,6 +75,8 @@ en = {
       
     # LETSGO
     'letsgo_title': 'Recommended restaurants around you',
+    'letsgo_title_city': 'Recommended restaurants in',
+    'geoposition_error': 'We are not able to find your current position now, we set Trento as your city. Use the refresh button to retry your geolocalization.',
     'letsgo_subtitle': 'Here you find some restaurants close to your position, recommended to you. We analyzed your tastes, expressed through your ratings, and we think that you should like these places. ',
     'welcome': 'Welcome',
     'loading': 'Loading',
@@ -104,7 +106,8 @@ en = {
         'price_quality': 'Lunch break',
         'max_distance': 'Maximum distance in meters',
         'num_places': 'Number of places recommended',
-        'save_reload': 'Save and reload'
+        'select_different_city': 'Select a different city',
+        'save_reload': 'Save and reload',
     },
       
     'today_closed': 'Closed today',
@@ -461,6 +464,8 @@ it = {
       
     # LETSGO
     'letsgo_title': 'Ristoranti raccomandati vicino a te',
+    'letsgo_title_city': 'Ristoranti raccomandati a',
+    'geoposition_error': 'Non siamo in grado di stabilire la tua posizione al momento, abbiamo impostato Trento come tua citta`. Usa il bottone di refresh per riprovare la geolocalizzazione.',
     'letsgo_subtitle': 'Qui trovi alcuni dei ristoranti attorno a te, che ti raccomandiamo. Abbiamo analizzato i tuoi gusti, espressi tramite i tuoi voti, e pensiamo che questi posti ti potrebbero piacere. ',
     'welcome': 'Benvenuto',
     'loading': 'Caricamento',
@@ -490,6 +495,7 @@ it = {
         'price_quality': 'Pausa pranzo',
         'max_distance': 'Distanza massima in metri',
         'num_places': 'Numero di ristoranti raccomandati',
+        'select_different_city': 'Seleziona una citt&agrave; diversa',
         'save_reload': 'Salva e aggiorna'
     },
       

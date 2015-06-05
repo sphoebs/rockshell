@@ -199,6 +199,10 @@
 			$(this).parent().remove();
 		});
 		
+		$('#rest_picture').change(function(e){
+			$('.rest-image').css('background-image', 'url('+$('#rest_picture').val()+')');
+		});
+		
 		
 		$( "#datepicker" ).datepicker({ minDate: -1, dateFormat: 'dd-mm-yy',
 		    onClose: function () {

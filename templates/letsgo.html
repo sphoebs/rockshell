@@ -19,6 +19,7 @@
 			</div>
 			<div class="logo"></div>
 			<div class="actions">
+				<!-- <button class="img-btn" id="my-position"></button> -->
 				<button class="img-btn" id="refresh"></button>
 			</div>
 		</div>
@@ -52,7 +53,7 @@
 		
 	<div class="main-container letsgo">
 	
-		<div class="text-center text-title content">
+		<div class="text-center text-title content" id="letsgo-title">
 			{{lang['letsgo_title']}} 
 		</div>
 		
@@ -198,6 +199,7 @@ $(document).bind("mobileinit", function(){
 
 <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['corechart']}]}"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
 
 $(window).ready(function(){
@@ -213,8 +215,35 @@ $(window).load(function() {
 	var reclist_cachetime = 1000 * 60 * 30; // 30 minutes of cache of recommendations
 	var user = {{user|safe}};
 	var position = undefined;
+	var user_lat = localStorage.positionLat;
+	var user_lon = localStorage.positionLon;
+	var user_city = localStorage.positionCity;
 	var places = [];
 	var pos = 0;
+	
+	
+	var geoOptions = {
+		timeout: 30 * 1000  //30 seconds
+	}
+		
+	function geoError(error){
+		if(window.console){
+			console.log('Error occurred. Error code: ' + error.code);
+		}
+		
+		alert("{{lang['geoposition_error']}}");
+		// error.code can be:
+	    //   0: unknown error
+	    //   1: permission denied
+	    //   2: position unavailable (error response from location provider)
+	    //   3: timed out
+		    
+		    
+	    //Trento as default position
+	    $('#letsgo-title').html("{{lang['letsgo_title_city']}}" + " Trento, TN (IT)");
+		position = {coords: {latitude: 46.0804614, longitude: 11.1203557}};
+		showRecommendations(position);
+	}
 	
 	if(user.settings && user.settings.purpose ){
 		var purpose = user.settings.purpose;
@@ -235,6 +264,7 @@ $(window).load(function() {
 	
 	var reclist = localStorage.reclist;
 	if (reclist != undefined ){
+		//console.log("loading stored recommendations");
 		reclist = JSON.parse(reclist);
 		if (reclist.length > 0 && (localStorage.reclist_time + reclist_cachetime) > Date.now()){
 			places = reclist;
@@ -247,14 +277,22 @@ $(window).load(function() {
 		}
 	}  
 	if (reclist == undefined){
-		if (navigator.geolocation) {
-			$('.loading-message').html('{{ lang['getting_position']}}');
-	    	navigator.geolocation.getCurrentPosition(showRecommendations);
-		} else { 
-	    	alert('{{ lang['no_geolocation']}}');
+		if( user_lat == undefined || user_lon == undefined || user_lat !== user_lat || user_lon !== user_lon){
+			// user_lat and user_lon are not defined
+			if (navigator.geolocation) {
+				$('.loading-message').html('{{ lang['getting_position']}}');
+		    	navigator.geolocation.getCurrentPosition(showRecommendations, geoError, geoOptions);
+			} else { 
+	    		alert('{{ lang['no_geolocation']}}');
+			}
+		} else {
+			//console.log("loading recommendations for selected city: " + user_city);
+			$('#letsgo-title').html("{{lang['letsgo_title_city']}}" + " " + user_city);
+			position = {coords: {latitude: user_lat, longitude: user_lon}};
+			showRecommendations(position);
+			
 		}
 	}
-	
 	
 
 	 function renderPlace(pos){
@@ -590,7 +628,7 @@ $(window).load(function() {
 		} else {
 			if (navigator.geolocation) {
 				$('.loading-message').html('{{ lang['getting_position']}}');
-	    		navigator.geolocation.getCurrentPosition(showRecommendations);
+				navigator.geolocation.getCurrentPosition(showRecommendations, geoError, geoOptions);
 			} else { 
 	    		alert('{{ lang['no_geolocation']}}');
 			}
@@ -600,14 +638,32 @@ $(window).load(function() {
 	
 	
 	$('#refresh').click(function(){
+		localStorage.removeItem("localStorage.positionCity");
+		localStorage.removeItem("localStorage.positionLat");
+		localStorage.removeItem("localStorage.positionLon");
+		$('#letsgo-title').html("{{lang['letsgo_title']}}");
 		$('.loading').show();
 		if (navigator.geolocation) {
 			$('.loading-message').html('{{ lang['getting_position']}}');
-	    	navigator.geolocation.getCurrentPosition(showRecommendations);
+			navigator.geolocation.getCurrentPosition(showRecommendations, geoError, geoOptions);
 		} else { 
 	    	alert('{{ lang['no_geolocation']}}');
 		}
 	});
+	
+	/* $('#my-position').click(function(){
+		localStorage.removeItem("localStorage.positionCity");
+		localStorage.removeItem("localStorage.positionLat");
+		localStorage.removeItem("localStorage.positionLon");
+		$('#letsgo-title').html("{{lang['letsgo_title']}}");
+		$('.loading').show();
+		if (navigator.geolocation) {
+			$('.loading-message').html('{{ lang['getting_position']}}');
+			navigator.geolocation.getCurrentPosition(showRecommendations, geoError, geoOptions);
+		} else { 
+	    	alert('{{ lang['no_geolocation']}}');
+		}
+	}); */
 	
 	
 	$('.left-menu').hide();
@@ -717,6 +773,49 @@ $(window).load(function() {
 		    verticalHandleClass: 'handle-red'
 		}); */
 		
+		
+		// change city input
+		
+		var input = document.getElementById('city');
+		var options = {
+			types : [ '(cities)' ]
+		};
+ 		var autocomplete = new google.maps.places.Autocomplete(input, options);
+
+		google.maps.event.addListener(autocomplete,
+			'place_changed', function() {
+				fillInAddress();
+		});
+		
+		var componentForm = {
+				locality : 'long_name',
+				administrative_area_level_2 : 'short_name',
+				country : 'short_name',
+			};
+
+		function fillInAddress() {
+			// Get the place details from the autocomplete object.
+			var place = autocomplete.getPlace();
+							
+			// Get each component of the address from the place details
+			// and fill the corresponding field on the form.
+			if(place != undefined&& place.address_components != undefined){
+				for (var i = 0; i < place.address_components.length; i++) {
+					var addressType = place.address_components[i].types[0];
+					if (componentForm[addressType]) {
+						var val = place.address_components[i][componentForm[addressType]];
+						document.getElementById(addressType).value = val;
+					}
+				}
+				
+				if(place.geometry.location){
+					var loc = place.geometry.location;
+					$("#lat").val(loc.A);
+					$("#lon").val(loc.F);
+				}
+			}
+		}
+		
 		$('#close-popup').click(function(){
 			$('.popup-area').html('');
 		});
@@ -733,6 +832,15 @@ $(window).load(function() {
 			localStorage.removeItem("reclist");
 			localStorage.removeItem("reclist_time");
 			
+			var lat = $('#lat').val();
+			var lon = $('#lon').val();
+			var city = $('#locality').val() + ", " + $('#administrative_area_level_2').val() + " ("+ $('#country').val() + ")";
+			
+			if(lat != '' && lon != ''){
+				localStorage.positionLat = parseFloat(lat);
+				localStorage.positionLon = parseFloat(lon);
+				localStorage.positionCity = city;
+			}
 			var settings = {
 					purpose: $('#purpose').val(),
 					max_distance: $('#max_distance').val(),

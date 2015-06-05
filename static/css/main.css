@@ -473,6 +473,21 @@ button.center, input[type="submit"].center, input[type="button"].center {
 	background-size: contain;
 }
 
+.app-bar .actions #my-position {
+	width: 20px;
+	height: 20px;
+	float: left;
+	margin-right: 15px;
+	margin-top: 15px;
+	background-image: url(../images/icon_position.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
 .app-bar .actions .step {
 	height: 46px;
 	width: 52px;
@@ -694,6 +709,10 @@ form .save {
 	position: absolute;
 	top: 7px;
 	right: 7px;
+}
+
+.settings-popup {
+	z-index: 100;
 }
 
 /* POPUP END */

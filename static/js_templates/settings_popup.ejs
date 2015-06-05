@@ -48,6 +48,18 @@
 					value="<%= settings.num_places %>">
 				</div>
 			</div>
+			
+			<div class= form-line>
+				<div class="text-all-capital"><%= strings.select_different_city %> </div>
+				<div class="form-input">
+					<input type="text" id="city" name="city" value="">
+					<input type="hidden" name="locality" id="locality" /> 
+					<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
+					<input type="hidden" name="country" id="country" /> 
+					<input type="hidden" name="lat" id="lat" /> 
+					<input type="hidden" name="lon" id="lon" />
+				</div>
+			</div>
 			<button class="img-btn red-button save center" ><%= strings.save_reload %></button>
 		
 	</div>
