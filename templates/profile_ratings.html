@@ -112,12 +112,14 @@
 			var button = document.getElementById('menu-button');
 			
 			if (event.target != box && event.target != button && event.target.parentNode != box && event.target.parentNode != button){
-				$('.left-menu').hide();
-				// show user menu small if width larger than 600px
-				if(window_width > 600){
-					$('.user-menu-small').show();
-				}
+				if($('.left-menu').css('display') != 'none'){
+					$('.left-menu').hide();
+					// show user menu small if width larger than 600px
+					if(window_width > 600){
+						$('.user-menu-small').show();
+					}
 					count++;
+				}
 			}
 		});
 
@@ -213,7 +215,33 @@
 				type : 'POST',
 				url : '/api/rating',
 				data : JSON.stringify(rating),
-				success : function() {
+				success : function(rating) {
+					//store rating in local places list
+					//console.log('rating saved!: ' + JSON.stringify(rating));
+					for(var i=0; i< all_places.length; i++){
+						//console.log(all_places[i].key + " == " + rating.place + "?");					
+						if(all_places[i].key == rating.place ){
+							//console.log("True: rating added!");
+							if(all_places[i].ratings == undefined){
+								all_places[i].ratings = [];
+							}
+							all_places[i].ratings.push(rating);
+							break;
+						}
+					}
+					//console.log("Filtered places now");
+					for(var i=0; i< filtered_places.length; i++){
+						//console.log(all_places[i].key + " == " + rating.place + "?");						
+						if(filtered_places[i].key == rating.place ){
+							//console.log("True: rating added!");
+							if(filtered_places[i].ratings == undefined){
+								filtered_places[i].ratings = [];
+							}
+							filtered_places[i].ratings.push(rating);
+							break;
+						}
+					}
+					
 					
 				},
 				error : function(resp) {

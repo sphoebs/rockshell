@@ -383,12 +383,14 @@
 			var button = document.getElementById('menu-button');
 			
 			if (event.target != box && event.target != button && event.target.parentNode != box && event.target.parentNode != button){
-				$('.left-menu').hide();
-				// show user menu small if width larger than 600px
-				if(window_width > 600){
-					$('.user-menu-small').show();
-				}
+				if($('.left-menu').css('display') != 'none'){
+					$('.left-menu').hide();
+					// show user menu small if width larger than 600px
+					if(window_width > 600){
+						$('.user-menu-small').show();
+					}
 					count++;
+				}
 			}
 		});
 		$('#back').click(function(){

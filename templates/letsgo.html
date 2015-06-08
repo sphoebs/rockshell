@@ -223,7 +223,9 @@ $(window).load(function() {
 	
 	
 	var geoOptions = {
-		timeout: 2 * 60 * 1000  // 2 minutes
+		timeout: 2 * 60 * 1000,  // 2 minutes
+		enableHighAccuracy: false, 
+		maximumAge: 60000, //1 minute
 	}
 		
 	function geoError(error){
@@ -705,12 +707,15 @@ $(window).load(function() {
 		var button = document.getElementById('menu-button');
 		
 		if (event.target != box && event.target != button && event.target.parentNode != box && event.target.parentNode != button){
-			$('.left-menu').hide();
-			// show user menu small if width larger than 600px
-			if(window_width > 600){
-				$('.user-menu-small').show();
-			}
+			
+			if($('.left-menu').css('display') != 'none'){
+				$('.left-menu').hide();
+				// show user menu small if width larger than 600px
+				if(window_width > 600){
+					$('.user-menu-small').show();
+				}
 				count++;
+			}
 		}
 	});
 	
