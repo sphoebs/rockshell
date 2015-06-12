@@ -63,8 +63,9 @@
 				</div>
 			</div>
 			
+			<div class="no-places text-center text-red-bold">{{lang['no_places_selected']}}</div>
+			
 			<div class="create-places text-center">
-				<!-- <div class="no-places">{{lang['no_places_selected']}}</div> -->
 				<p>{{lang['create_place_button']}}</p>
 				<button class="img-btn red-button new-place" style="margin-left: 10px; margin-right: 10px;">{{lang['add_place']}}</button>
 			</div>
@@ -95,10 +96,12 @@
 			</ul>
 
 			<div class="navigation-buttons">
+				<div class="prev-next">
 				<button class="img-btn red-button prev"><div class="icon"></div></button>
 				<button class="img-btn red-button next"><div class="icon"></div></button>
 				<div class="clear-float"></div>
 				<div class="separator"></div>
+				</div>
 				<button class="img-btn continue red-button center" style="margin-top: 10px;"
 					{% if profile %} onclick="window.location = '/letsgo'" {% else %} onclick="window.history.back()"{% endif %} >{{ lang['done']}}</button>
 			</div>
@@ -116,14 +119,16 @@
 	src="http://maps.googleapis.com/maps/api/js?libraries=places"></script>
 <script type="text/javascript">
 
-/* $(window).ready(function() {
-	var window_height = $('.profile').height();
+$(window).ready(function() {
+	/* var window_height = $('.profile').height();
 	var logo_height = $('.profile-logo').height();
-	$('.scrollable').height(window_height - logo_height - 40);
+	$('.scrollable').height(window_height - logo_height - 40); */
+	$('.no-places').hide();
 	
-}); */
+}); 
 
 	$(window).load(function() {
+	
 		var pageSize = 5;
 		var all_places = [];
 		var filtered_places = [];
@@ -170,7 +175,7 @@
 		};
 	
 
-		google.maps.event.addListener(autocomplete,
+		var cityListener = google.maps.event.addListener(autocomplete,
 				'place_changed', function() {
 					fillInAddress();
 				});
@@ -265,6 +270,7 @@
 			}
 			
 			loadPlaces();
+			return;
 		}
 		
 		function loadPlaces(){
@@ -292,16 +298,18 @@
 				success : function(data) {
 					
 					if(data.length <1){
-						/* $('.no-places').show(); */
-						$('.navigation-buttons .prev').addClass('disabled');
-						$('.navigation-buttons .next').addClass('disabled');
-						$('.navigation-buttons').show();
+						$('.no-places').show();
+						$('.navigation-buttons .prev-next').hide();
+						$('.filters').hide();
+						$('.separator.end-filters').hide();
 						$('.create-places').show();
-						$('.rest-list').show();
+						$('.rest-list').html('');
 					} else {
-						/* $('.no-places').hide(); */
+						$('.no-places').hide();
+						$('.navigation-buttons .prev-next').show();
 						all_places = data;
 						filtered_places = data;
+						placesNames = [];
 						for(var i=0; i< all_places.length; i++){
 							var p = all_places[i];
 							placesNames.push(p.name);						
@@ -384,7 +392,7 @@
 			$('.create-places').show();
 			$('.rest-list').show();
 			
-			$('.rest-item').tooltip({
+			$('.rest-ratings').tooltip({
 		        tooltipClass:"my-tooltip"
 		    });
 			
@@ -395,6 +403,12 @@
 		function initFilters(){
 			if($('.filters').is(":visible")){
 				//filters are already active
+				$( "#name-input" ).autocomplete({
+      				source: placesNames
+    			});
+			
+				//show places in map
+				initializeMap();
 			} else {
 				//autocomplete for name search
 				$( "#name-input" ).autocomplete({
@@ -423,9 +437,18 @@
 			});
 			$('.new-place-form').html(html);
 			
+			$('.new-place-form .rating-btn').tooltip({
+		        tooltipClass:"my-tooltip"
+		    });
+			
 			
 			$('#close-popup').click(function(){
+				cityListener = google.maps.event.addListener(autocomplete,
+						'place_changed', function() {
+							fillInAddress();
+						});
 				$('.popup-area').html('');
+				
 				/* $('.scrollable').enscroll({
 				    showOnHover: false,
 				    verticalScrolling: true,
@@ -449,11 +472,9 @@
 			$('#rest-picture').change(function(){
 				$('.picture-image .rest-image').css('background-image', 'url('+this.value+')');
 			});
-			
-			var input2 = document.getElementById('rest-address');
 
 			var autocomplete2 = new google.maps.places.Autocomplete(
-					input2);
+					document.getElementById('rest-address-input'), {types: ['address']});
 
 			var componentForm2 = {
 				street_number: 'short_name',
@@ -463,28 +484,38 @@
 				country : 'short_name',
 			};
 			
+			
+			google.maps.event.removeListener(cityListener);
+			
 			google.maps.event.addListener(autocomplete2,
-					'place_changed', function() {
-						// Get the place details from the autocomplete object.
+					'place_changed', newPlaceAddress());
+			
+			function newPlaceAddress(){
+				console.log("HERE");
 				var place = autocomplete2.getPlace();
 				
 				// Get each component of the address from the place details
 				// and fill the corresponding field on the form.
+				if(place == undefined || place.address_components == undefined){
+					console.log("PLACE UNDEFINED");					
+					return;
+				}
 				for (var i = 0; i < place.address_components.length; i++) {
 					var addressType = place.address_components[i].types[0];
 					if (componentForm2[addressType]) {
 						var val = place.address_components[i][componentForm2[addressType]];
-						document.getElementById(addressType).value = val;
+						document.getElementById('new_'+addressType).value = val;
 					}
 				}
 				
 				// save latitude and longitude
 				if(place.geometry.location){
 					/* alert(JSON.stringify(place.geometry.location)); */
-					document.getElementById('lat').value = place.geometry.location.k;
-					document.getElementById('lon').value = place.geometry.location.D;
+					document.getElementById('new_lat').value = place.geometry.location.k;
+					document.getElementById('new_lon').value = place.geometry.location.D;
 				}
-			});
+				return;
+			};
 			
 			$('.rating').click(function(){
 				$(this).parent().find('button').removeClass('selected');				
@@ -495,17 +526,23 @@
 				var self = this;
 				var name = $('#rest-name').val();
 				
-				var street = $('#route').val() + " " + $(this).find('#street_number').val();
-				var city = $('#locality').val();
-				var province = $('#administrative_area_level_2').val();
-				var country = $('#country').val();
-				var latitude = $('#lat').val() != "" ? $('#lat').val() : undefined;
-				var longitude = $('#lon').val() != "" ? $('#lon').val() : undefined;
+				var street = $('#new_route').val() + " " + $('#new_street_number').val();
+				var city = $('#new_locality').val();
+				var province = $('#new_administrative_area_level_2').val();
+				var country = $('#new_country').val();
+				var latitude = $('#new_lat').val() != "" ? $('#new_lat').val() : undefined;
+				var longitude = $('#new_lon').val() != "" ? $('#new_lon').val() : undefined;
 				
 				var picture = $('#rest-picture').val();
 				
 				if(name == undefined || name == ''){
 					// name is missing!!
+					alert('Please, fill in the name of the restaurant!');
+					return 
+				}
+				console.log("Street: " + street)
+				if(street == undefined || street == '' || street.trim() == ''){
+					alert('Please, fill in the address of the restaurant!');
 					return 
 				}
 				
@@ -549,6 +586,11 @@
 						all_places.push(place);
 						filtered_places = all_places;
 						last_pos = 0;
+						$('.popup-area').html('');
+						cityListener = google.maps.event.addListener(autocomplete,
+								'place_changed', function() {
+									fillInAddress();
+								});
 						displayPlaces(last_pos);
 						
 					},

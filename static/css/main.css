@@ -687,6 +687,11 @@ form .save {
 	padding-bottom: 10px;
 }
 
+.new-rest-popup .popup-foreground{
+	width: 1000px;
+	z-index: 150;
+}
+
 /* .popup-foreground h3 {
 	margin-top: 10px;
 	margin-left: 10px;
@@ -909,7 +914,7 @@ p.empty-list{
 }
 
 .rest-item .rest-ratings.smaller .row .right-ratings{
-	left: 72px;
+	left: 71px;
 }
 
 .rest-item .left-purpose .purpose-icon{
@@ -2377,6 +2382,31 @@ ul.rest-edit-list, ul.rest-create-list {
 	
 	/* RESTAURANT END */
 	
+		/* NEW RESTAURANT POPUP */
+	
+	.new-rest-popup .popup-foreground .rest-details{
+		width: 45%;
+		float: left;
+		
+	
+	}
+	
+	.new-rest-popup .popup-foreground .rest-ratings{
+		width: 45%;
+		float: right;
+		margin-right: 10px;
+		border: solid 1px #B3B3B3;
+		border-bottom: 0;
+	
+	}
+	
+	.new-rest-popup .rest-image {
+		margin-left: 0 !important;
+		width: 280px !important;
+		height: 172px !important;
+	}
+	/* NEW RESTAURANT POPUP END */
+	
 }
 
 @media screen and (min-width: 800px) {
@@ -2478,6 +2508,14 @@ ul.rest-edit-list, ul.rest-create-list {
 	
 	/* RATINGS END*/
 	
+	/* NEW RESTAURANT POPUP */
+	.new-rest-popup .rest-image {
+		margin-left: 0 !important;
+		height: 184px !important;
+		width: 300px !important;
+	}
+	/* NEW RESTAURANT POPUP END */
+	
 }
 
 
@@ -2564,6 +2602,13 @@ ul.rest-edit-list, ul.rest-create-list {
 
 	/* RATINGS END */
 	
+	/* NEW RESTAURANT POPUP */
+	.new-rest-popup .rest-image {
+		margin-left: 0 !important;
+		height: 245px !important;
+		width: 400px !important;
+	}
+	/* NEW RESTAURANT POPUP END */
 	
 }
 

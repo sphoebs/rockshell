@@ -2857,7 +2857,7 @@ class Discount(PFmodel):
                     # the user already bought a coupon for this discount
                     bought = coupon
                     index = idx
-                    break
+                    #break
 #         logging.info('BOUGHT: ' + str(bought))
         if bought is not None:
             if bought.deleted == True:

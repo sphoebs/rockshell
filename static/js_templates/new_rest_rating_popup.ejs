@@ -13,14 +13,14 @@
 		</div>
 		<div class="address" >
 			<div class="text-all-capital"><%= strings.address_placeholder %></div>
-			<input class="my-input-text" type="text" name="auto-city" id="rest-address" >
-			<input type="hidden" name="street_number" id="street_number" />
-			<input type="hidden" name="route" id="route" />
-			<input type="hidden" name="locality" id="locality" /> 
-			<input type="hidden" name="administrative_area_level_2" id="administrative_area_level_2" /> 
-			<input type="hidden" name="country" id="country"/>
-			<input type="hidden" name="lat" id="lat"/>
-			<input type="hidden" name="lon" id="lon"/>
+			<input class="my-input-text" type="text" name="auto-address" id="rest-address-input" >
+			<input type="hidden" name="new_street_number" id="new_street_number" />
+			<input type="hidden" name="new_route" id="new_route" />
+			<input type="hidden" name="new_locality" id="new_locality" /> 
+			<input type="hidden" name="new_administrative_area_level_2" id="new_administrative_area_level_2" /> 
+			<input type="hidden" name="new_country" id="new_country"/>
+			<input type="hidden" name="new_lat" id="new_lat"/>
+			<input type="hidden" name="new_lon" id="new_lon"/>
 		</div>
 		<div class="picture-input"> 
 			<div class="text-all-capital"><%= strings.picture_placeholder %></div>
@@ -44,15 +44,22 @@
 					<div class="rating-buttons">
 						<button class="rating rating-btn noidea"
 							 purpose="dinner with tourists"
+							 data-toggle="tooltip" data-placement="bottom"
+							 title="<%= purpose.tips_notknow %>"
 							 value="0"></button>
 						<button class="rating rating-btn bad"
 							 purpose="dinner with tourists"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_notlike %>"
 							 value="1"></button>
 						<button class="rating rating-btn neutral"
 							 purpose="dinner with tourists"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_neutral %>"
 							 value="3"></button>
 						<button class="rating rating-btn happy"
 							 purpose="dinner with tourists"
+							 data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
 							value="5"></button>
 					</div>
 				</div>
@@ -71,15 +78,22 @@
 					<div class="rating-buttons">
 						<button class="rating rating-btn noidea"
 							 purpose="romantic dinner"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_notknow %>"
 							 value="0"></button>
 						<button class="rating rating-btn bad"
 							 purpose="romantic dinner"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_notlike %>"
 							 value="1"></button>
 						<button class="rating rating-btn neutral"
 							 purpose="romantic dinner"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_neutral %>"
 							 value="3"></button>
 						<button class="rating rating-btn happy"
 							 purpose="romantic dinner"
+							 data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
 							value="5"></button>
 					</div>
 				</div>
@@ -98,15 +112,22 @@
 					<div class="rating-buttons">
 						<button class="rating rating-btn noidea"
 							 purpose="dinner with friends"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_notknow %>"
 							 value="0"></button>
 						<button class="rating rating-btn bad"
 							 purpose="dinner with friends"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_notlike %>"
 							 value="1"></button>
 						<button class="rating rating-btn neutral"
 							 purpose="dinner with friends"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_neutral %>"
 							 value="3"></button>
 						<button class="rating rating-btn happy"
 							 purpose="dinner with friends"
+							 data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
 							value="5"></button>
 					</div>
 				</div>
@@ -125,15 +146,22 @@
 					<div class="rating-buttons">
 						<button class="rating rating-btn noidea"
 							 purpose="best price/quality ratio"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_notknow %>"
 							value="0"></button>
 						<button class="rating rating-btn bad"
 							 purpose="best price/quality ratio"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_notlike %>"
 							 value="1"></button>
 						<button class="rating rating-btn neutral"
 							 purpose="best price/quality ratio"
+							 data-toggle="tooltip" data-placement="bottom"
+						title="<%= purpose.tips_neutral %>"
 							 value="3"></button>
 						<button class="rating rating-btn happy"
 							 purpose="best price/quality ratio"
+							 data-toggle="tooltip" data-placement="bottom" title="<%= purpose.tips_like %>"
 							value="5"></button>
 					</div>
 				</div>
@@ -141,6 +169,7 @@
 			</div>
 		
 		</div>
+		<div class="clear-float"></div>
 	</div>
 			<div>
 				<button class="img-btn red-button save center"><%= strings.save %></button>

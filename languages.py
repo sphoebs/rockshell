@@ -36,7 +36,7 @@ en = {
     # PROFILE 1
     'step' : 'step',
 #     'profile_intro': 'Hey there!! To offer you a personalized experience we need to know some information about you.',
-    'profile_intro': 'Hey there!! To offer you a personalized experience we need to know where you come from.',
+    'profile_intro': 'Hey there!! To offer you a personalized experience with the best restaurant recommendations *for you*, we need to know where you come from.',
     'profile_edit_intro' : 'Edit your personal data.',
     'first_name': 'First name',
     'last_name': 'Last name',
@@ -139,7 +139,7 @@ en = {
     'ratings_text2': 'Have you been in a restaurant that you already voted? Update your rating! ',
     'city_select': 'Please, select a city you visited',
     'no_places_selected': 'We are sorry, we don\'t know places for the selected city.',
-    'create_place_button': 'If you are not able to find the place you are searching for, you can create it!',
+    'create_place_button': 'If you are not able to find the place you are looking for, you can create it!',
     'add_place': 'Add place',
     'search_name': 'Search by name',
     'map_search': 'Search in the map',
@@ -300,7 +300,7 @@ en = {
     },
     'permission_error': {
                          'title': 'Permission error',
-                         'message': 'This service need you to accept the permissions to work. Please, go back and accept the permissions to read your public information and your email address.',
+                         'message': 'This service needs you to accept the permissions to work. Please, go back and accept the permissions to read your public information and your email address.',
     },
     'admin_delete_error': {
                      'title': 'Error',
@@ -426,7 +426,7 @@ it = {
     # PROFILE 1
     'step' : 'passo',
 #     'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di alcune indormazioni su di te.',
-    'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata abbiamo bisogno di sapere da dove vieni.',
+    'profile_intro': 'Ciao!! Per offrirti un\'esperienza personalizzata con le migliori raccomandazioni di ristoranti *per te*, abbiamo bisogno di sapere da dove vieni.',
     'profile_edit_intro' : 'Modifica le tue informazioni personali.',
     'first_name': 'Nome',
     'last_name': 'Cognome',
@@ -678,7 +678,7 @@ it = {
     },
     'error_city_missing': {
                      'title': 'Citt&agrave; non selezionata',
-                     'message': 'Per favore, seleziona la tua citt&agrave; dalla lista di autocompletamento prma di salvare.',
+                     'message': 'Per favore, seleziona la tua citt&agrave; dalla lista di autocompletamento prima di salvare.',
                      'close': 'Chiudi',
     },
     'unauthorized_error': {

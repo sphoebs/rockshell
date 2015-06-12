@@ -214,7 +214,7 @@ $(window).load(function() {
 	
 	var reclist_cachetime = 1000 * 60 * 30; // 30 minutes of cache of recommendations
 	var user = {{user|safe}};
-	var position = undefined;
+	var position = localStorage.gpsPosition;
 	var user_lat = localStorage.positionLat;
 	var user_lon = localStorage.positionLon;
 	var user_city = localStorage.positionCity;
@@ -244,6 +244,9 @@ $(window).load(function() {
 	    //Trento as default position
 	    $('#letsgo-title').html("{{lang['letsgo_title_city']}}" + " Trento, TN (IT)");
 		position = {coords: {latitude: 46.0804614, longitude: 11.1203557}};
+		localStorage.positionLat = 46.0804614;
+		localStorage.positionLon = 11.1203557;
+		localStorage.positionCity = "Trento, TN (IT)";
 		showRecommendations(position);
 	}
 	
@@ -530,6 +533,7 @@ $(window).load(function() {
 			console.log("show recommendations " + geopos);
 		}
 		position = geopos;
+		localStorage.gpsPosition = geopos;
 		$('.loading-message').html('{{ lang['loading_settings']}}');
 		var settings = user.settings; 
 		if(settings == undefined){
@@ -646,6 +650,7 @@ $(window).load(function() {
 		localStorage.removeItem("localStorage.positionCity");
 		localStorage.removeItem("localStorage.positionLat");
 		localStorage.removeItem("localStorage.positionLon");
+		localStorage.removeItem("localStorage.gpsPosition");
 		$('#letsgo-title').html("{{lang['letsgo_title']}}");
 		$('.loading').show();
 		if (navigator.geolocation) {
@@ -769,6 +774,10 @@ $(window).load(function() {
 		var compiled = _.template(template);
 		var html = compiled({settings: settings, strings: {{lang['search_settings_popup']|safe}} });
 		$('.popup-area').html(html);
+		
+		if(position == undefined && user_city != undefined && user_city.length > 0){
+			$('#city').val(user_city);
+		}
 		
 		$('.popup-area').show();
 		
