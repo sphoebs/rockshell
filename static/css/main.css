@@ -687,10 +687,18 @@ form .save {
 	padding-bottom: 10px;
 }
 
-.new-rest-popup .popup-foreground{
-	width: 1000px;
-	z-index: 150;
+.new-place-form .popup-background{
+	z-index: 400 !important;
 }
+
+.new-place-form .popup-foreground{
+	width: 1000px;
+	z-index: 500 !important;
+}
+
+/* .pac-container{
+	z-index: 5000 !important;
+} */
 
 /* .popup-foreground h3 {
 	margin-top: 10px;
@@ -1192,7 +1200,7 @@ p.empty-list{
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-#pac-input {
+#map-input {
 	background-color: #fff;
 	padding: 0 11px 0 13px;
 	width: 60%;
