@@ -121,11 +121,12 @@ en = {
     'prediction': 'Our guess of your interest',
     'next_text': 'No, thanks. Next',
     
-    'reclist_end': 'You reached the end of your recommendation list.',
-    'your_settings': 'You are searching {num} restaurants within {dist} meters from{loc}',
-    'current_position': ' your current position.',
-    'city_center': ' city center.',
-    'change_settings': 'You can get more recommendations by changing your settings. You can open the menu on the left and use the "Recommendation settings" menu item to access and change your settings. In alternative, use the following button.',
+    'reclist_end': 'You reached the end of your {num} recommendations.',
+#     'your_settings': 'You are searching {num} restaurants within {dist} meters from{loc}',
+#     'current_position': ' your current position.',
+#     'city_center': ' city center.',
+#     'change_settings': 'You can get more recommendations by changing your settings. You can open the menu on the left and use the "Recommendation settings" menu item to access and change your settings. In alternative, use the following button.',
+    'change_settings': 'If you want to have more recommendations, please configure your recommendation settings accordingly.',
     'goto_settings': 'Access recommendation settings',
     
       
@@ -518,11 +519,12 @@ it = {
     'prediction': 'La nosta previsione del tuo gradimento',
     'next_text': 'No, grazie. Il prossimo',
     
-    'reclist_end': 'Hai raggiunto la fine della tua lista di raccomandazioni.',
-    'your_settings': 'Stai cercando {num} ristoranti a meno di {dist} metri da{loc}',
-    'current_position': 'lla tua posizione attuale.',
-    'city_center': u', centro città.',
-    'change_settings': u'Puoi ottenere più raccomandazioni cambiando le tue impostazioni. Apri il menu a sinistra e usa la voce "Impostazioni" per accedere e modificare le tue impostazioni. In alternativa, usa il bottone qui sotto.',
+    'reclist_end': 'Hai raggiunto la fine delle tue {num} raccomandazioni.',
+#     'your_settings': 'Stai cercando {num} ristoranti a meno di {dist} metri da{loc}',
+#     'current_position': 'lla tua posizione attuale.',
+#     'city_center': u', centro città.',
+#     'change_settings': u'Puoi ottenere più raccomandazioni cambiando le tue impostazioni. Apri il menu a sinistra e usa la voce "Impostazioni" per accedere e modificare le tue impostazioni. In alternativa, usa il bottone qui sotto.',
+    'change_settings': u'Se vuoi ricevere più raccomandazioni, per favore configura le tue impostazioni in modo appropriato.',
     'goto_settings': 'Accedi alle impostazioni',
       
     # RATINGS

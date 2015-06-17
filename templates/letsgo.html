@@ -121,12 +121,12 @@
 			</div>
 			
 			<div class="list-end" style="display: none;">
-				<div class="text-center text-red-bold text-margin-full">{{lang['reclist_end']}}</div>
-				
-				<div class="text-center current-settings text-margin-full" ></div>
+				<div class="text-center text-red-bold text-margin-full title"></div>
+				<br/>
 				<div class="text-center text-margin-full">{{lang['change_settings']}}</div>
+				<br/>
 				<button class="img-btn red-button goto-settings center">{{lang['goto_settings']}}</button>
-			
+				<br/>
 			</div>
 			
 			
@@ -329,25 +329,17 @@ $(window).load(function() {
 		 if(pos == places.length){
 			 var settings = user.settings; 
 			if(settings == undefined){
-				settings = { max_distance: 1000, num_places: 5};
+				settings = { num_places: 5};
 			} else {
-				if (settings.max_distance == undefined){
-					settings.max_distance = 1000;
-				}
 				if(settings.num_places == undefined){
 					settings.num_places = 5
 				}
 			}
 			 
-			 var settingText = "{{lang['your_settings']}}";
-			 settingText = settingText.replace('{num}', settings.num_places);
-			 settingText = settingText.replace('{dist}', settings.max_distance);
-			 if(user_city == undefined){
-				 settingText = settingText.replace('{loc}', "{{lang['current_position']}}");
-			 } else {
-				 settingText = settingText.replace('{loc}', " " + user_city + "{{lang['city_center']}}");
-			 }
-			 $('.current-settings').html(settingText);
+			 var title = "{{lang['reclist_end']}}";
+			 title = title.replace('{num}', settings.num_places);
+			 
+			 $('.list-end .title').html(title);
 			 $('.list-end').show();
 			 $('.rest-area').hide();
 			 
@@ -694,6 +686,7 @@ $(window).load(function() {
 	
 	
 	$('#refresh').click(function(){
+		pos = 0;
 		localStorage.removeItem("localStorage.positionCity");
 		localStorage.removeItem("localStorage.positionLat");
 		localStorage.removeItem("localStorage.positionLon");
