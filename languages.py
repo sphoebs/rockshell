@@ -522,7 +522,7 @@ it = {
     'your_settings': 'Stai cercando {num} ristoranti a meno di {dist} metri da{loc}',
     'current_position': 'lla tua posizione attuale.',
     'city_center': u', centro città.',
-    'change_settings': u'Puoi ottenere più raccomandazioni cambiando le tue impostazioni. Apri il menu a sinitra e usa la voce "Impostazioni" per accedere e modificare le tue impostazioni. In alternativa, usa il seguente bottone.',
+    'change_settings': u'Puoi ottenere più raccomandazioni cambiando le tue impostazioni. Apri il menu a sinistra e usa la voce "Impostazioni" per accedere e modificare le tue impostazioni. In alternativa, usa il bottone qui sotto.',
     'goto_settings': 'Accedi alle impostazioni',
       
     # RATINGS
@@ -574,7 +574,7 @@ it = {
     'open': 'dalle',
     'close': 'alle',
     'add-day': 'Aggiungi giorno',
-    'picture_help': 'L\'immagine deve avere dimensioni 700*429 (larghezza/altezza). Se le dimensioni sono diverse, l\'immagine viene ridimensionata e tagliata per corrispondere a queste dimensioni.',
+    'picture_help': 'L\'immagine deve avere dimensioni 700*429 (larghezza/altezza). Se le dimensioni sono diverse, l\'immagine viene ridimensionata e tagliata per corrispondere a queste dimensioni. Controlla l\'anteprima qui sotto prima di salvare.',
     
     'read_more': u'Leggi di più',
     'read_less': 'Leggi di meno',

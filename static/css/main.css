@@ -1498,6 +1498,12 @@ p.empty-list{
 	padding-top: 55px;
 } */
 
+.list-end {
+	background-color: #fff;
+	padding-top: 10px;
+	padding-bottom: 20px;
+}
+
 
 /* SETTINGS */
 .settings-popup .form-line {
@@ -2258,6 +2264,7 @@ ul.rest-edit-list, ul.rest-create-list {
 		width: 320px;
 		margin-left: auto;
 		margin-right: auto;
+		margin-top: 10px;
 		-webkit-box-shadow: 0 0 10px #777;
 		-moz-box-shadow: 0 0 10px #777;
 		box-shadow: 0 0 10px #777;
@@ -2415,7 +2422,6 @@ ul.rest-edit-list, ul.rest-create-list {
 	}
 	
 	.new-rest-popup .rest-image {
-		margin-left: 0 !important;
 		width: 280px !important;
 		height: 172px !important;
 	}
@@ -2524,7 +2530,6 @@ ul.rest-edit-list, ul.rest-create-list {
 	
 	/* NEW RESTAURANT POPUP */
 	.new-rest-popup .rest-image {
-		margin-left: 0 !important;
 		height: 184px !important;
 		width: 300px !important;
 	}
@@ -2618,7 +2623,6 @@ ul.rest-edit-list, ul.rest-create-list {
 	
 	/* NEW RESTAURANT POPUP */
 	.new-rest-popup .rest-image {
-		margin-left: 0 !important;
 		height: 245px !important;
 		width: 400px !important;
 	}
