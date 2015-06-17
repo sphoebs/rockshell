@@ -1220,6 +1220,12 @@ p.empty-list{
 	font-size: 12pt;
 }
 
+.new-rest-popup .rest-item .rest-details .rest-image {
+	width: 250px;
+	height: 153px;
+}
+
+
 /* RATINGS - PROFILE 3 END */
 
 
@@ -2144,8 +2150,8 @@ ul.rest-edit-list, ul.rest-create-list {
 	}
 	
 	.new-rest-popup .rest-item .rest-details .rest-image {
-		height: 196px;
-		width: 320px;
+		height: 184px;
+		width: 300px;
 	}
 	
 }
@@ -2179,8 +2185,8 @@ ul.rest-edit-list, ul.rest-create-list {
 	}
 	
 	.new-rest-popup .rest-item .rest-details .rest-image {
-		height: 196px;
-		width: 320px;
+		height: 202px;
+		width: 330px;
 	}
 	
 }
@@ -2214,8 +2220,8 @@ ul.rest-edit-list, ul.rest-create-list {
 	}	
 	
 	.new-rest-popup .rest-item .rest-details .rest-image {
-		width: 360px; 
-		height: 221px;
+		width: 380px; 
+		height: 233px;
 	}
 	
 }

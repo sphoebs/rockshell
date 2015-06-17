@@ -91,34 +91,45 @@
 		<div class="no-places text-red-bold text-center"></div>
 		
 		<div class="shadow">
-			<div class="letsgo-picture-container content desktop">
-				<div class="letsgo-picture clickable"></div>
-			</div>
-		
-			<div class="mobile">
-				<div class="letsgo-picture clickable"></div>
-			</div>
-			
-			<div class="rest-details clickable content">
-				<div class="prediction">
-					<div class="chart" id="chart"></div>
-					<div class="chart-text"></div>
-					<div class="label text-center">{{lang['prediction']}}</div>
+			<div class="rest-area">
+				<div class="letsgo-picture-container content desktop">
+					<div class="letsgo-picture clickable"></div>
 				</div>
+		
+				<div class="mobile">
+					<div class="letsgo-picture clickable"></div>
+				</div>
+			
+				<div class="rest-details clickable content">
+					<div class="prediction">
+						<div class="chart" id="chart"></div>
+						<div class="chart-text"></div>
+						<div class="label text-center">{{lang['prediction']}}</div>
+					</div>
 				
-				<div class="rest-info">
-					<div class="rest-title text-bold text-big"></div>
-					<div class="rest-address text-margin"></div>
-					<div class="rest-distance text-margin"></div>
+					<div class="rest-info">
+						<div class="rest-title text-bold text-big"></div>
+						<div class="rest-address text-margin"></div>
+						<div class="rest-distance text-margin"></div>
 				
-					<div class="discount-info">
-						<div class="title text-margin"></div>
-						<div class="coupons text-bold text-margin"></div>
+						<div class="discount-info">
+							<div class="title text-margin"></div>
+							<div class="coupons text-bold text-margin"></div>
+						</div>
 					</div>
 				</div>
+			</div>
 			
+			<div class="list-end" style="display: none;">
+				<div class="text-center text-red-bold text-margin-full">{{lang['reclist_end']}}</div>
+				
+				<div class="text-center current-settings text-margin-full" ></div>
+				<div class="text-center text-margin-full">{{lang['change_settings']}}</div>
+				<button class="img-btn red-button goto-settings center">{{lang['goto_settings']}}</button>
 			
 			</div>
+			
+			
 		
 			<div class="bottom-bar content">
 				<button class="img-btn next-text">{{lang['next_text']}} <div class="icon"></div></button>
@@ -214,7 +225,10 @@ $(window).load(function() {
 	
 	var reclist_cachetime = 1000 * 60 * 30; // 30 minutes of cache of recommendations
 	var user = {{user|safe}};
-	var position = localStorage.gpsPosition;
+	var position = undefined;
+	if(localStorage.gpsPosition){
+		position = JSON.parse(localStorage.gpsPosition);
+	}
 	var user_lat = localStorage.positionLat;
 	var user_lon = localStorage.positionLon;
 	var user_city = localStorage.positionCity;
@@ -301,7 +315,7 @@ $(window).load(function() {
 	
 
 	 function renderPlace(pos){
-		 if(pos+1 == places.length){
+		 if(pos == places.length){ //pos+1 == places.length
 			 $('button.next-text').hide();
 		 } else {
 			 $('button.next-text').show();
@@ -312,31 +326,62 @@ $(window).load(function() {
 			 $('button.prev').hide();
 		 }
 		 
-		var p = places[pos];
-		$('.rest-title').html(p.name);
-		$('.rest-address').html(p.address.street + ', ' + p.address.city);
-		
-		if(p.distance){
-			
-			var meters = Math.round(p.distance);
-			var text = '{{ lang['distance']}}' + ': ';
-			if(meters < 1000){
-				text += meters + ' m';
+		 if(pos == places.length){
+			 var settings = user.settings; 
+			if(settings == undefined){
+				settings = { max_distance: 1000, num_places: 5};
 			} else {
-				km = meters / 1000;
-				text += km.toFixed(2) + ' km';
+				if (settings.max_distance == undefined){
+					settings.max_distance = 1000;
+				}
+				if(settings.num_places == undefined){
+					settings.num_places = 5
+				}
 			}
-			$('.rest-distance').html(text);
-			$('.rest-distance').show();
-		} else {
-			$('.rest-distance').hide();
-		}
+			 
+			 var settingText = "{{lang['your_settings']}}";
+			 settingText = settingText.replace('{num}', settings.num_places);
+			 settingText = settingText.replace('{dist}', settings.max_distance);
+			 if(user_city == undefined){
+				 settingText = settingText.replace('{loc}', "{{lang['current_position']}}");
+			 } else {
+				 settingText = settingText.replace('{loc}', " " + user_city + "{{lang['city_center']}}");
+			 }
+			 $('.current-settings').html(settingText);
+			 $('.list-end').show();
+			 $('.rest-area').hide();
+			 
+			 
+		 } else {
+			 
+			$('.list-end').hide();
+			$('.rest-area').show();
+		 
+			var p = places[pos];
+			$('.rest-title').html(p.name);
+			$('.rest-address').html(p.address.street + ', ' + p.address.city);
 		
-		var picture = p.picture;
-		if(picture == undefined || picture == '' || picture == 'null'){
-			picture = '/static/images/empty_small.png';
-		}
-		$('.letsgo-picture').css('background-image', 'url('+picture+')');
+			if(p.distance){
+			
+				var meters = Math.round(p.distance);
+				var text = '{{ lang['distance']}}' + ': ';
+				if(meters < 1000){
+					text += meters + ' m';
+				} else {
+					km = meters / 1000;
+					text += km.toFixed(2) + ' km';
+				}
+					$('.rest-distance').html(text);
+					$('.rest-distance').show();
+			} else {
+				$('.rest-distance').hide();
+			}
+		
+			var picture = p.picture;
+			if(picture == undefined || picture == '' || picture == 'null'){
+				picture = '/static/images/empty_small.png';
+			}
+			$('.letsgo-picture').css('background-image', 'url('+picture+')');
 		
 		
 		/* var open_str = undefined;
@@ -470,6 +515,7 @@ $(window).load(function() {
 			
 		}
 		$('.rest-open').html(open_str);*/
+		
 		if(p.predicted != undefined){
 			value = Math.round(p.predicted * 100 / 5)
 			var data = google.visualization.arrayToDataTable([
@@ -494,6 +540,7 @@ $(window).load(function() {
 		    $('.chart-text').html(value+"%");
 			
 			/* $('.prediction .chart').html(value); */
+			
 		}
 		
 		if(p.discounts && p.discounts.length >= 1){
@@ -505,7 +552,7 @@ $(window).load(function() {
 			
 			var end = discount['end_time'];
 			var diff = Math.floor((new Date(moment(end)) - new Date())/1000);
-			console.log($('.countdown').attr('class'))
+			//console.log($('.countdown').attr('class'))
 			$('.countdown').countdown({
 				until: '+'+diff+'s',
 				format: 'dHMS',
@@ -525,15 +572,15 @@ $(window).load(function() {
 			$('.discount-info').hide();
 		}
 			
-		
+		}
 	} 
 
 	function showRecommendations(geopos) {
-		if(window.console){
+		/* if(window.console){
 			console.log("show recommendations " + geopos);
-		}
+		} */
 		position = geopos;
-		localStorage.gpsPosition = geopos;
+		localStorage.gpsPosition = JSON.stringify(geopos);
 		$('.loading-message').html('{{ lang['loading_settings']}}');
 		var settings = user.settings; 
 		if(settings == undefined){
@@ -546,7 +593,6 @@ $(window).load(function() {
 				settings.num_places = 5
 			}
 		}
-		
 		
 		url = '/recommender/?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude + 
 				'&max_dist='+ settings.max_distance+'&purpose=' + purpose + '&n=' + settings.num_places;
@@ -594,7 +640,7 @@ $(window).load(function() {
 	$('.user-name').append(' '+user.first_name);
 	
 	function onNext(event){
-		if(pos < places.length-1){
+		if(pos < places.length){
 			pos += 1;
 			renderPlace(pos);
 		} else {
@@ -632,6 +678,7 @@ $(window).load(function() {
 		}
 		$('.loading').show();
 		pos = 0;
+		
 		if (position != undefined){
 			showRecommendations(position);
 		} else {
@@ -757,7 +804,7 @@ $(window).load(function() {
 		alert('{{ lang['coming_soon']}}');
 	}); */
 	
-	$('#settings').click(function(){
+	$('#settings, .goto-settings').click(function(){
 		
 		// var settings ={{(user.settings|e) if user.settings is not none else 'undefined'}}; 
 		var user = {{user|safe}};
@@ -775,9 +822,7 @@ $(window).load(function() {
 		var html = compiled({settings: settings, strings: {{lang['search_settings_popup']|safe}} });
 		$('.popup-area').html(html);
 		
-		if(position == undefined && user_city != undefined && user_city.length > 0){
-			$('#city').val(user_city);
-		}
+		
 		
 		$('.popup-area').show();
 		
@@ -799,6 +844,8 @@ $(window).load(function() {
 		};
  		var autocomplete = new google.maps.places.Autocomplete(input, options);
 
+ 		
+ 		
 		google.maps.event.addListener(autocomplete,
 			'place_changed', function() {
 				fillInAddress();
@@ -831,6 +878,10 @@ $(window).load(function() {
 					$("#lon").val(loc.F);
 				}
 			}
+		}
+		
+		if( user_city != undefined && user_city.length > 0){
+			$('#city').val(user_city);
 		}
 		
 		$('#close-popup').click(function(){
