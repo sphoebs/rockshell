@@ -571,8 +571,19 @@ $(window).load(function() {
 		/* if(window.console){
 			console.log("show recommendations " + geopos);
 		} */
-		position = geopos;
-		localStorage.gpsPosition = JSON.stringify(geopos);
+		position = {coords: { latitude: geopos.coords.latitude, longitude: geopos.coords.longitude}};
+		/* console.log(position );
+		console.log(JSON.stringify(position )); */
+		if(position == undefined || position.coords == undefined || position.coords.latitude == undefined){
+			if (navigator.geolocation) {
+				$('.loading-message').html('{{ lang['getting_position']}}');
+				navigator.geolocation.getCurrentPosition(showRecommendations, geoError, geoOptions);
+			} else { 
+	    		alert('{{ lang['no_geolocation']}}');
+			}
+		}
+		
+		localStorage.gpsPosition = JSON.stringify(position);
 		$('.loading-message').html('{{ lang['loading_settings']}}');
 		var settings = user.settings; 
 		if(settings == undefined){
@@ -687,10 +698,12 @@ $(window).load(function() {
 	
 	$('#refresh').click(function(){
 		pos = 0;
-		localStorage.removeItem("localStorage.positionCity");
-		localStorage.removeItem("localStorage.positionLat");
-		localStorage.removeItem("localStorage.positionLon");
-		localStorage.removeItem("localStorage.gpsPosition");
+		places = [];
+		position = undefined;
+		localStorage.removeItem("positionCity");
+		localStorage.removeItem("positionLat");
+		localStorage.removeItem("positionLon");
+		localStorage.removeItem("gpsPosition");
 		$('#letsgo-title').html("{{lang['letsgo_title']}}");
 		$('.loading').show();
 		if (navigator.geolocation) {
