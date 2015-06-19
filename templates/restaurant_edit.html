@@ -45,6 +45,10 @@
 			<div class="text-center text-title">{{ lang['rest_edit'] if not place.name is none else lang['rest_new'] }}</div>
 
 			<div class="separator"></div>
+			{% if user.role == 'admin' %}
+				<input type="button" class="img-btn delete center"
+					value="Delete" />
+			{% endif %}
 			
 			<div class="edit-form">
 				<div class="row">
@@ -159,6 +163,9 @@
 
 				<input type="button" class="img-btn save center"
 					value="{{ lang['save']}}" />
+				{% if user.role == 'admin' and not place.key is none %}
+					<input type="button" class="img-btn delete center" value="Delete" />
+				{% endif %}
 			</div>
 
 		</div>
@@ -589,6 +596,27 @@
 		
 		$('.save').click(function(){
 			savePlace();
+		});
+		
+		$('.delete').click(function(){
+			var key = '{{place.key if not place.key is none}}';
+			if (key == undefined || key.length < 1 ){
+				return;
+			}
+				
+			$.ajax({
+				type : 'DELETE',
+				url : '/api/place/'+key,
+				success : function() {
+					alert("The restaurant has been successfully deleted!");
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					alert("Error while deleting restaurant!");
+				}
+			});
 		});
 		
 		

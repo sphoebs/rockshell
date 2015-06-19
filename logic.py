@@ -7,7 +7,8 @@ Created on Sep 15, 2014
 import fix_path
 import json
 
-from models import PFuser, Place, Rating, Discount, get_user_num_ratings, get_user_num_coupons
+from models import PFuser, Place, Rating, Discount, get_user_num_ratings, get_user_num_coupons,\
+    ClusterRating
 import logging
 
 from google.appengine.api import urlfetch, memcache, taskqueue
@@ -428,7 +429,14 @@ def place_owner_list(user_id):
 
 def place_delete(place_id, place_key_str):
     try:
-        res = Place.delete(Place.make_key(place_id, place_key_str))
+        pkey = Place.make_key(place_id, place_key_str)
+        cluster_ratings = ClusterRating.get_list({'place': pkey.urlsafe()})
+        for cr in cluster_ratings:
+            ClusterRating.delete(cr.key)
+        user_ratings = Rating.get_list({'place': pkey.urlsafe()})
+        for r in user_ratings:
+            Rating.delete(r.key)
+        res = Place.delete(pkey)
     except TypeError, e:
         return None, str(e), 400
     return res, "OK", 200
@@ -498,17 +506,17 @@ def rating_create(rating, user_id, user_key_str):
         # his/her recommendations and the updated can wait more, ~ 1 hour or
         # more
 
-        num_ratings = rating_count(user_id=rating.user.id())
-        time = 20
-        if num_ratings < 20:
-            time = 5
-        elif num_ratings > 40:
-            time = 5 * 60
-
-        q = taskqueue.Queue('update-clusters-queue')
-        task = taskqueue.Task(
-            url='/recommender/update_clusters', method='GET', countdown=time)
-        q.add(task)
+#         num_ratings = rating_count(user_id=rating.user.id())
+#         time = 20
+#         if num_ratings < 20:
+#             time = 5
+#         elif num_ratings > 40:
+#             time = 5 * 60
+#
+#         q = taskqueue.Queue('update-clusters-queue')
+#         task = taskqueue.Task(
+#             url='/recommender/update_clusters', method='GET', countdown=time)
+#         q.add(task)
 
     return res, "OK", 200
 

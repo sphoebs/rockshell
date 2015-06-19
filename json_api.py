@@ -385,7 +385,18 @@ class PlaceHandler(webapp2.RequestHandler):
         if 'owner' in self.request.url:
             self.response.set_status(405) 
             return
-        #TODO: restrict to only admin or owner
+        
+        auth = self.request.headers.get("Authorization")
+        if auth is None or len(auth) < 1:
+            auth = self.request.cookies.get("user")
+        user_id = logic.get_current_userid(auth)
+        
+        user = PFuser.get_by_key(PFuser.make_key(user_id, None))
+        if user is None or user.role != 'admin':
+            self.response.set_status(403)
+            self.response.write("You must login first!")
+            return
+        
         res, status, errcode = logic.place_delete(None, pid)
         if status == "OK":
             if res == True:

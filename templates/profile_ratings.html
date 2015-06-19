@@ -41,6 +41,7 @@
 			</div>
 			
 			<div class="separator top"></div>
+			<div class="mobile"></div>
 
 			<ul class="rest-list">
 				<p class="empty-list">{{ lang['no_places_city']}}</p>
@@ -69,6 +70,11 @@
 	$(window).load(function() {
 		
 		var pageSize= 5;
+		
+		var mobile = true;
+		if($('.mobile').css('display')=='none'){
+			mobile = false;
+		}
 		
 		var userpic = "{{ user.picture|e }}";
 		if(userpic != undefined && userpic.length > 0){	
@@ -177,6 +183,12 @@
 			}
 			$('.rating').click(saveRating);
 			
+			if(!mobile){
+				$('.rest-ratings').tooltip({
+		        	tooltipClass:"my-tooltip"
+		    	});
+			}
+			
 		}
 
 		function getCookie(cname) {
@@ -197,7 +209,11 @@
 			var btn = $(e.target);
 			var value = $(btn).attr('value');
 			
-			$(btn).parent().find('button').removeClass('selected');				
+			if($(btn).hasClass('selected')){
+				return;
+			}
+			$(btn).parent().find('button').removeClass('selected');
+			
 			$(btn).addClass('selected');
 			
 			var not_known = false;
@@ -224,8 +240,21 @@
 							//console.log("True: rating added!");
 							if(list[i].ratings == undefined){
 								list[i].ratings = [];
+								list[i].ratings.push(rating);
+							} else {
+								var found = false;
+								for(var j=0; j< list[i].ratings.length; j++){
+									var r = list[i].ratings[j];
+									if(r.purpose == rating.purpose){
+										list[i].ratings[j].value = rating.value;
+										found = true;
+										break;
+									}
+								}
+								if(!found){
+									list[i].ratings.push(rating);
+								}
 							}
-							list[i].ratings.push(rating);
 							break;
 						}
 					}
@@ -233,6 +262,30 @@
 				},
 				error : function(resp) {
 					if (resp.status == 200) {
+						for(var i=0; i< list.length; i++){
+							//console.log(list[i].key + " == " + rating.place + "?");					
+							if(list[i].key == rating.place ){
+								//console.log("True: rating added!");
+								if(list[i].ratings == undefined){
+									list[i].ratings = [];
+									list[i].ratings.push(rating);
+								} else {
+									var found = false;
+									for(var j=0; j< list[i].ratings.length; j++){
+										var r = list[i].ratings[j];
+										if(r.purpose == rating.purpose){
+											list[i].ratings[j].value = rating.value;
+											found = true;
+											break;
+										}
+									}
+									if(!found){
+										list[i].ratings.push(rating);
+									}
+								}
+								break;
+							}
+						}
 						
 					} else {
 						if(window.console){

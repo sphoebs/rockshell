@@ -228,7 +228,7 @@ class PFmodel(ndb.Model):
             raise TypeError(
                 "key must be ndb.Key, instead it is " + str(type(key)))
 
-        delete_allowed = ['Place', 'ClusterRating']
+        delete_allowed = ['Place', 'ClusterRating', 'Rating']
         kind = key.kind()
         if kind in delete_allowed:
             key.delete()
@@ -3279,7 +3279,7 @@ class ClusterRating(PFmodel):
         Available filters:
         - 'cluster_id': the cluster id 
             setting only 'cluster_id', the function retrieves all the ratings of this cluster (i.e. the coordinated of its centroid)
-        - 'place': the place key is string format (urlsafe)
+        - 'place': the place key in string format (urlsafe)
             setting only 'place', the function retrieves all the ratings of this place
         - 'purpose': the purpose
         - 'places' : list of place strings (urlsafe) we are interested in

@@ -269,6 +269,7 @@
 			</div>
 
 			<div class="separator end-filters"></div>
+			<div class="mobile"></div>
 			
 			<ul class="rest-list">
 				
@@ -321,6 +322,11 @@ $(window).ready(function() {
 		var markers = [];
 		
 		var city_bounds = undefined;
+		
+		var mobile = true;
+		if($('.mobile').css('display')=='none'){
+			mobile = false;
+		}
 		
 		function getCookie(cname) {
 			var name = cname + "=";
@@ -509,9 +515,11 @@ $(window).ready(function() {
 			$('.create-places').show();
 			$('.rest-list').show();
 			
-			$('.rest-ratings').tooltip({
-		        tooltipClass:"my-tooltip"
-		    });
+			if(!mobile){
+				$('.rest-ratings').tooltip({
+		        	tooltipClass:"my-tooltip"
+		    	});
+			}
 			
 			initFilters();
 			
@@ -595,10 +603,11 @@ $(window).ready(function() {
 				};
 			}
 			
-			$('.new-place-form .rating-btn').tooltip({
-		        tooltipClass:"my-tooltip"
-		    });
-			
+			if(!mobile){
+				$('.new-place-form .rating-btn').tooltip({
+		        	tooltipClass:"my-tooltip"
+		    	});
+			}
 			
 			$('#close-popup').click(function(){
 				$('.new-place-form').hide();
@@ -770,6 +779,10 @@ $(window).ready(function() {
 			var btn = $(e.target);
 			var value = $(btn).attr('value');
 			
+			if($(btn).hasClass('selected')){
+				return;
+			}
+			
 			$(btn).parent().find('button').removeClass('selected');				
 			$(btn).addClass('selected');
 			
@@ -797,20 +810,49 @@ $(window).ready(function() {
 							//console.log("True: rating added!");
 							if(all_places[i].ratings == undefined){
 								all_places[i].ratings = [];
+								all_places[i].ratings.push(rating);
+							} else {
+								var found = false;
+								for(var j=0; j< all_places[i].ratings.length; j++){
+									var r = all_places[i].ratings[j];
+									//console.log("checking if rating can be modified: " + r.purpose +" == "+rating.purpose)
+									if(r.purpose == rating.purpose){
+										all_places[i].ratings[j].value = rating.value;
+										//console.log('updated!: '+ all_places[i].ratings[j].value);
+										found = true;
+										break;
+									}
+								}
+								if(!found){
+									all_places[i].ratings.push(rating);
+								}
 							}
-							all_places[i].ratings.push(rating);
 							break;
 						}
 					}
 					//console.log("Filtered places now");
 					for(var i=0; i< filtered_places.length; i++){
-						//console.log(all_places[i].key + " == " + rating.place + "?");						
+						console.log(filtered_places[i].key + " == " + rating.place + "?");					
 						if(filtered_places[i].key == rating.place ){
 							//console.log("True: rating added!");
 							if(filtered_places[i].ratings == undefined){
 								filtered_places[i].ratings = [];
+								filtered_places[i].ratings.push(rating);
+							} else {
+								var found = false;
+								for(var j=0; j< filtered_places[i].ratings.length; j++){
+									var r = filtered_places[i].ratings[j];
+									//console.log("checking if rating can be modified: " + r.purpose +" == "+rating.purpose)
+									if(r.purpose == rating.purpose){
+										filtered_places[i].ratings[j].value = rating.value;
+										found = true;
+										break;
+									}
+								}
+								if(!found){
+									filtered_places[i].ratings.push(rating);
+								}
 							}
-							filtered_places[i].ratings.push(rating);
 							break;
 						}
 					}
@@ -821,6 +863,59 @@ $(window).ready(function() {
 					
 					if(window.console){
 						console.log(resp);
+					}
+					if(resp.status == 200){
+						for(var i=0; i< all_places.length; i++){
+							//console.log(all_places[i].key + " == " + rating.place + "?");					
+							if(all_places[i].key == rating.place ){
+								//console.log("True: rating added!");
+								if(all_places[i].ratings == undefined){
+									all_places[i].ratings = [];
+									all_places[i].ratings.push(rating);
+								} else {
+									var found = false;
+									for(var j=0; j< all_places[i].ratings.length; j++){
+										var r = all_places[i].ratings[j];
+										//console.log("checking if rating can be modified: " + r.purpose +" == "+rating.purpose)
+										if(r.purpose == rating.purpose){
+											all_places[i].ratings[j].value = rating.value;
+											found = true;
+											break;
+										}
+									}
+									if(!found){
+										all_places[i].ratings.push(rating);
+									}
+								}
+								break;
+							}
+						}
+						//console.log("Filtered places now");
+						for(var i=0; i< filtered_places.length; i++){
+							//console.log(filtered_places[i].key + " == " + rating.place + "?");					
+							if(filtered_places[i].key == rating.place ){
+								//console.log("True: rating added!");
+								if(filtered_places[i].ratings == undefined){
+									filtered_places[i].ratings = [];
+									filtered_places[i].ratings.push(rating);
+								} else {
+									var found = false;
+									for(var j=0; j< filtered_places[i].ratings.length; j++){
+										var r = filtered_places[i].ratings[j];
+										console.log("checking if rating can be modified: " + r.purpose +" == "+rating.purpose)
+										if(r.purpose == rating.purpose){
+											filtered_places[i].ratings[j].value = rating.value;
+											found = true;
+											break;
+										}
+									}
+									if(!found){
+										filtered_places[i].ratings.push(rating);
+									}
+								}
+								break;
+							}
+						}
 					}
 					if(resp.status == 403){
 						show_error({{lang['unauthorized_error']|safe}});
