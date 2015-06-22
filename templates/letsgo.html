@@ -909,6 +909,14 @@ $(window).load(function() {
 			var lat = $('#lat').val();
 			var lon = $('#lon').val();
 			var city = $('#locality').val() + ", " + $('#administrative_area_level_2').val() + " ("+ $('#country').val() + ")";
+			var userCity = $('.settings-popup  #city').val();
+			
+			if(userCity != undefined && userCity.length > 0 && (lat == '' || lon == '')){
+				if(localStorage.positionCity == undefined || !userCity == localStorage.positionCity){
+					alert("{{lang['search_settings_popup']['city_error']}}");
+					return false;
+				}
+			}
 			
 			if(lat != '' && lon != ''){
 				localStorage.positionLat = parseFloat(lat);

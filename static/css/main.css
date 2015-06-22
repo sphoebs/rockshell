@@ -669,12 +669,16 @@ form .save {
 
 .popup-foreground {
 	position: fixed;
-	top: 15px;
-	bottom: 15px;
+	top: 0;
 	left: 0;
 	right: 0;
+	/* bottom: 0; */
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 	width: 500px;
 	max-width: 90%;
+	max-height: 90%;
 	margin-left: auto;
 	margin-right: auto;
 	background-color: #fff;
@@ -685,15 +689,21 @@ form .save {
 	border-radius: 5px;
 	padding-top: 25px;
 	padding-bottom: 10px;
+	margin-bottom: 15px;
+	margin-top: 15px;
+	
 }
 
-.new-place-form .popup-background{
+.new-place-form .popup-background, .popup-background.settings-popup{
 	z-index: 400 !important;
+}
+
+.new-place-form .popup-foreground, .settings-popup .popup-foreground{
+	z-index: 500 !important;
 }
 
 .new-place-form .popup-foreground{
 	width: 1000px;
-	z-index: 500 !important;
 }
 
 /* .pac-container{

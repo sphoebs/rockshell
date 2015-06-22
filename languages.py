@@ -109,6 +109,7 @@ en = {
         'num_places': 'Number of places recommended',
         'select_different_city': 'Select a different city',
         'save_reload': 'Save and reload',
+        'city_error': 'Please, select the city from the autocomplete list or remove the city you indicated.',
     },
       
     'today_closed': 'Closed today',
@@ -506,7 +507,8 @@ it = {
         'max_distance': 'Distanza massima in metri',
         'num_places': 'Numero di ristoranti raccomandati',
         'select_different_city': 'Seleziona una citt&agrave; diversa',
-        'save_reload': 'Salva e aggiorna'
+        'save_reload': 'Salva e aggiorna',
+        'city_error': u'Per favore, seleziona la città dalla lista di autocompletamento oppure rimuovi la città che hai indicato.',
     },
       
     'today_closed': 'Oggi chiuso',
