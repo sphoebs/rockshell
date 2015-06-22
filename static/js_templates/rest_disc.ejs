@@ -11,7 +11,17 @@
 <div class="actions">
 	<% if(!owner){ %>
 		<% if(discount.coupons != undefined && discount.coupons.length > 0){ %>
-			<button class="img-btn red-button disc-btn see" discount-id="<%= discount.key %>"><%= strings.see_coupon %></button>
+			<% if(discount.coupons[0].deleted){ %>
+				<button class="img-btn red-button disc-btn buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
+			<% } else { %>
+				<% if(discount.coupons[0].used){ %>
+					<button class="img-btn red-button disc-btn see disabled" discount-id="<%= discount.key %>"><%= strings.see_used_coupon %></button>
+				<% } else { %>
+					<button class="img-btn red-button disc-btn see" discount-id="<%= discount.key %>"><%= strings.see_coupon %></button>
+				<% } %>
+				
+			<% } %>
+		
 		<% } else if(available){ %>
 			<button class="img-btn red-button disc-btn buy" discount-id="<%= discount.key %>"><%= strings.buy %></button>
 		<% } %>

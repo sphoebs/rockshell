@@ -226,6 +226,7 @@ en = {
                          'not_used': 'Available',
                          'coupon': 'coupon',
                          'see_coupon': 'See my coupon',
+                         'see_used_coupon': 'You used your coupon',
                          'goto_restaurant': 'Go to restaurant',
                          'use': 'Use',
                          'you_have_coupon_code': 'You have a coupon with code',
@@ -624,10 +625,12 @@ it = {
                          'not_used': 'Disponibile',
                          'coupon': 'coupon',
                          'see_coupon': 'Accedi al mio coupon',
+                         'see_used_coupon': 'Hai usato il tuo coupon',
                          'goto_restaurant': 'Vai al ristorante',
                          'use': 'Usa',
                          'you_have_coupon_code': 'Hai un coupon con codice',
                          'delete': 'Cancella',
+                         
     },
     'disc_publish_popup': {
                         'title': 'Conferma pubblicazione',
