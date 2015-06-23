@@ -42,16 +42,19 @@
 			
 			<div class="separator top"></div>
 			<div class="mobile"></div>
+			<p class="empty-list text-center text-red-bold" style="display: none;">{{ lang['no_places_city']}}</p>
 
 			<ul class="rest-list">
-				<p class="empty-list">{{ lang['no_places_city']}}</p>
+				
 			</ul>
 
 			<div class="navigation-buttons">
-				<button class="img-btn red-button prev"><div class="icon"></div></button>
-				<button class="img-btn red-button next"><div class="icon"></div></button>
-				<div class="clear-float"></div>
-				<div class="separator"></div>
+				<div class="prev-next">
+					<button class="img-btn red-button prev"><div class="icon"></div></button>
+					<button class="img-btn red-button next"><div class="icon"></div></button>
+					<div class="clear-float"></div>
+					<div class="separator"></div>
+				</div>
 				<button class="img-btn red-button continue center " style="margin-top: 10px;" onclick="window.location = '/profile/3'" >{{ lang['done_next_step']}}</button>
 			</div>
 
@@ -136,7 +139,15 @@
 		var last_pos = 0;
 		
 		function displayPlaces(start){
+			if(list.length < 1){
+				$('.empty-list').show();
+				$('.rest-list').html('');
+				$('.prev-next').hide();
+				return;
+			}
 			$('.rest-list').html('');
+			$('.empty-list').hide();
+			$('.prev-next').show();
 			
 			//enable prev and next buttons
 			$('.navigation-buttons .prev').removeClass('disabled');

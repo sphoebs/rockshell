@@ -226,7 +226,7 @@ $(window).load(function() {
 	var reclist_cachetime = 1000 * 60 * 30; // 30 minutes of cache of recommendations
 	var user = {{user|safe}};
 	var position = undefined;
-	if(localStorage.gpsPosition){
+	if(localStorage.gpsPosition && localStorage.gpsPosition != undefined && localStorage.gpsPosition != ''){
 		position = JSON.parse(localStorage.gpsPosition);
 	}
 	var user_lat = localStorage.positionLat;
@@ -294,7 +294,8 @@ $(window).load(function() {
 			localStorage.removeItem("reclist_time");
 			reclist = undefined;
 		}
-	}  
+	}
+	
 	if (reclist == undefined){
 		if( user_lat == undefined || user_lon == undefined || user_lat !== user_lat || user_lon !== user_lon){
 			// user_lat and user_lon are not defined

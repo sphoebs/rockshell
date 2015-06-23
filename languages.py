@@ -509,7 +509,7 @@ it = {
         'num_places': 'Numero di ristoranti raccomandati',
         'select_different_city': 'Seleziona una citt&agrave; diversa',
         'save_reload': 'Salva e aggiorna',
-        'city_error': u'Per favore, seleziona la città dalla lista di autocompletamento oppure rimuovi la città che hai indicato.',
+        'city_error': 'Per favore, seleziona la citt&agrave; dalla lista di autocompletamento oppure rimuovi la citt&agrave; che hai indicato.',
     },
       
     'today_closed': 'Oggi chiuso',
