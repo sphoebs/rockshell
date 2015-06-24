@@ -793,7 +793,7 @@ app = webapp2.WSGIApplication([
 #     ('/profile', UserHandler),
     ('/profile/edit', UserHandler),
     ('/profile/2', UserRatingsHandler),
-    ('/profile/3', UserRatingsOtherHandler),
+#     ('/profile/3', UserRatingsOtherHandler),
     ('/letsgo', LetsgoHandler),
     ('/settings', SettingsHandler),
     ('/ratings', RatingsPageHandler),

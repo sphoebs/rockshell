@@ -16,7 +16,7 @@
 			</div>
 			<div class="logo"></div>
 			<div class="actions">
-				<div class="step"><p>{{ lang['step']}} 2/3</p></div>
+				<div class="step"><p>{{ lang['step']}} 2/2</p></div>
 			</div>
 		</div>
 	
@@ -55,7 +55,8 @@
 					<div class="clear-float"></div>
 					<div class="separator"></div>
 				</div>
-				<button class="img-btn red-button continue center " style="margin-top: 10px;" onclick="window.location = '/profile/3'" >{{ lang['done_next_step']}}</button>
+				<!-- <button class="img-btn red-button continue center " style="margin-top: 10px;" onclick="window.location = '/profile/3'" >{{ lang['done_next_step']}}</button> -->
+				<button class="img-btn red-button continue center " style="margin-top: 10px;" onclick="window.location = '/letsgo'" >{{ lang['done_letsgo']}}</button>
 			</div>
 
 		</div>
@@ -161,9 +162,11 @@
 				$('.navigation-buttons .next').addClass('disabled');
 			}
 			
-			$('html, body').animate({
-	            scrollTop: $('.separator.top').offset().top + 'px'
-	        }, 'fast');
+			if(start > 0){
+				$('html, body').animate({
+	            	scrollTop: $('.separator.top').offset().top + 'px'
+	        	}, 'fast');
+			}
 			
 			for(var i=0; start+i<list.length && i<pageSize; i++){
 				var rest = list[start+i];

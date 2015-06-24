@@ -58,6 +58,7 @@ en = {
     'next': 'Next',
     'continue': 'Continue',
     'done_next_step': 'Done, go to next step', 
+    'done_letsgo': 'Done, go to recommendations', 
     'rating_purposes' : {
         'how_experience': 'How was your experience?',
         'tourists': 'For a dinner with visitors',
@@ -458,6 +459,7 @@ it = {
     'next': 'Avanti',
     'continue': 'Continua', 
     'done_next_step': 'Fatto, vai al prossimo passo',
+    'done_letsgo': 'Fatto, vai alle raccomandazioni',
     'rating_purposes' : {
         'how_experience': 'Come &egrave; stata la tua esperienza?',
         'tourists': 'Per una cena con degli ospiti da fuori citt&agrave;',
