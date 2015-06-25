@@ -261,6 +261,9 @@ $(window).load(function() {
 		localStorage.positionLat = 46.0804614;
 		localStorage.positionLon = 11.1203557;
 		localStorage.positionCity = "Trento, TN (IT)";
+		user_lat = localStorage.positionLat;
+		user_lon = localStorage.positionLon;
+		user_city = localStorage.positionCity;
 		showRecommendations(position);
 	}
 	
@@ -510,7 +513,10 @@ $(window).load(function() {
 		$('.rest-open').html(open_str);*/
 		
 		if(p.predicted != undefined){
-			value = Math.round(p.predicted * 100 / 5)
+			value = Math.round(p.predicted * 100 / 5);
+			if(value > 95){
+				value = 95;
+			}
 			var data = google.visualization.arrayToDataTable([
 				['prediction', 'value'],
 				['', value],

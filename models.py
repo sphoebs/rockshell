@@ -2164,219 +2164,6 @@ class Rating(PFmodel):
 
 
 
-class Coupon(PFmodel):
-    """
-    Represents the coupon given to a user that decided to take advantage of a Discount offered in a place.
-    """
-    user = ndb.KeyProperty(kind=PFuser)
-    code = ndb.StringProperty()
-    buy_time = ndb.DateTimeProperty(auto_now_add=True)
-    used = ndb.BooleanProperty(default=False)
-    usage_time = ndb.DateTimeProperty()
-    deleted = ndb.BooleanProperty(default=False)
-    delete_time = ndb.DateTimeProperty()
-
-    @staticmethod
-    def to_json(obj, allowed, hidden):
-        """ 
-        It transforms the Coupon in a dict, that can be easily converted to a json.
-
-        Parameters:
-        - obj: the instance of Coupon to convert.
-        - allowed: list of strings indicating which properties are needed.
-        - hidden: list of strings indicating which properties are not needed.
-
-        Return value: dict representation of the object.
-
-        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
-        'key' is converted to urlsafe.
-        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
-        """
-        res = PFmodel.to_json(obj, Coupon, allowed, hidden)
-        if res is not None and 'user' in res:
-            res['user'] = res['user'].urlsafe()
-        if 'buy_time' in res.keys():
-            res['buy_time'] = res[
-                'buy_time'].strftime('%Y-%m-%d %H:%M')
-        if 'usage_time' in res.keys():
-            res['usage_time'] = res[
-                'usage_time'].strftime('%Y-%m-%d %H:%M')
-        if 'delete_time' in res.keys():
-            res['delete_time'] = res[
-                'delete_time'].strftime('%Y-%m-%d %H:%M')
-        return res
-
-    @staticmethod
-    def from_json(json_dict):
-        """
-        It converts a dict coming from a json string into a Coupon.
-
-        Parameters:
-        - json_dict: the dict containing the information received from a json string.
-
-        Return value: Coupon or None if the input dict contains wrong data.
-        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
-        """
-        if not isinstance(json_dict, dict):
-            raise TypeError(
-                "json_dict must be dict, instead it is " + str(type(json_dict)))
-
-        if 'user' in json_dict:
-            json_dict['user'] = PFuser.make_key(None, json_dict['user'])
-
-        if 'buy_time' in json_dict.keys():
-            try:
-                json_dict['buy_time'] = datetime.strptime(
-                    json_dict['buy_time'], '%Y-%m-%d %H:%M')
-            except ValueError:
-                del json_dict['buy_time']
-        if 'usage_time' in json_dict.keys():
-            try:
-                json_dict['usage_time'] = datetime.strptime(
-                    json_dict['usage_time'], '%Y-%m-%d %H:%M')
-            except ValueError:
-                del json_dict['usage_time']
-        if 'delete_time' in json_dict.keys():
-            try:
-                json_dict['delete_time'] = datetime.strptime(
-                    json_dict['delete_time'], '%Y-%m-%d %H:%M')
-            except ValueError:
-                del json_dict['delete_time']
-
-        res = Coupon()
-
-        try:
-            # populate raises exceptions if the keys and values in json_dict
-            # are not valid for this object.
-            res.populate(**json_dict)
-        except Exception as e:
-            logging.info("Error while creating Coupon from json: " + str(e))
-            return None
-
-        return res
-
-    @staticmethod
-    def make_key(obj_id, url_encoded):
-        """
-        It creates a Key object for this class, with id obj_id.
-
-        Parameters:
-        - obj_id: the object id. It can be a string or a long.
-        - url_encoded: the object key as url-encoded string.
-
-        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
-
-        Return value: ndb.Key.
-        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
-        """
-        return PFmodel.make_key(obj_id, url_encoded, 'Coupon')
-
-    @staticmethod
-    def is_valid(obj):
-        """
-        It validates the object data.
-
-        Parameters:
-        - obj: the object to be validated
-
-        Return value: (boolean, list of strings representing invalid properties).
-        A result of <False, []> means that the object type is wrong, so all properties are wrong.
-        """
-        wrong_list = []
-        if not isinstance(obj, Coupon):
-            return False, wrong_list
-
-        if obj.user is None:
-            wrong_list.append('user')
-        else:
-            user = PFuser.get_by_key(obj.user)
-            if user is None:
-                wrong_list.append('user')
-
-        if obj.buy_time is None:
-            wrong_list.append('buy_time')
-        else:
-            if obj.usage_time is not None and obj.usage_time < obj.buy_time:
-                wrong_list.append('buy_time')
-                wrong_list.append('usage_time')
-            if obj.delete_time is not None and obj.delete_time < obj.buy_time:
-                wrong_list.append('buy_time')
-                wrong_list.append('delete_time')
-
-        if obj.used and obj.usage_time is None:
-            wrong_list.append('usage_time')
-            wrong_list.append('used')
-
-        if obj.used and obj.deleted:
-            wrong_list.append('deleted')
-
-        if obj.deleted and obj.delete_time is None:
-            wrong_list.append('delete_time')
-            wrong_list.append('deleted')
-
-        if len(wrong_list) > 0:
-            return False, wrong_list
-        else:
-            return True, None
-
-# Coupon is never used outside of other models, never created alone.
-#     @staticmethod
-#     def store(obj, key):
-#         """
-#         It creates or updates the Coupon, according to presence and validity of the key.
-# 
-#         Parameters:
-#         - obj: the coupon to store
-#         - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
-# 
-#         For updates, only allowed attributes are updated, while the others are ignored.
-# 
-#         Return value: Coupon
-#         Exceptions: TypeError if the input parameters are of the wrong type;
-#                     ValueError if the input obj has wrong values;
-#                     InvalidKeyException if the key does not correspond to a valid Coupon;
-#         """
-#         valid, wrong_list = Coupon.is_valid(obj)
-#         if not valid:
-#             logging.error("Invalid input data: " + str(wrong_list))
-#             if len(wrong_list)<1:
-#                 raise TypeError('obj must be Coupon, instead it is ' + str(type(obj)))
-#             else :
-#                 raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
-# 
-#         if key is not None:
-#             if not(isinstance(key, ndb.Key) and key.kind().find('Coupon') > -1):
-#                 raise TypeError('key must be a valid key for a Coupon, it is ' + str(key))
-#             # key is valid --> update
-#             db_obj = key.get()
-#             if db_obj is None:
-#                 logging.info("Updating coupon - NOT FOUND " + str(key))
-#                 raise InvalidKeyException('key does not correspond to any Coupon')
-# 
-#             objdict = obj.to_dict()
-# 
-#             NOT_ALLOWED = ['id', 'key']
-# 
-#             for key, value in objdict.iteritems():
-#                 if key in NOT_ALLOWED:
-#                     continue
-#                 if hasattr(db_obj, key):
-#                     try:
-#                         setattr(db_obj, key, value)
-#                     except:
-#                         continue
-# 
-#                 else:
-#                     continue
-# 
-#             db_obj.put()
-#             return db_obj
-# 
-#         else:
-#             # key is not valid --> create
-#             obj.put()
-#             return obj
-
 
 class Discount(PFmodel):
 
@@ -2388,7 +2175,7 @@ class Discount(PFmodel):
     place_name = ndb.StringProperty(indexed = False)
     num_coupons = ndb.IntegerProperty(indexed=False)
     available_coupons = ndb.IntegerProperty()
-    coupons = ndb.StructuredProperty(Coupon, repeated=True)
+#     coupons = ndb.StructuredProperty(Coupon, repeated=True)
     created_by = ndb.KeyProperty(kind=PFuser)
     creation_time = ndb.DateTimeProperty(auto_now_add=True)
     published = ndb.BooleanProperty(default=False)
@@ -2412,7 +2199,8 @@ class Discount(PFmodel):
         Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
         """
         res = PFmodel.to_json(obj, Discount, allowed, hidden)
-        if 'coupons' in res:
+        if hasattr(obj, 'coupons') and obj.coupons:
+            logging.info('coupons to json!!')
             tmp_coupons = []
             for coupon in obj.coupons:
                 coupon = Coupon.to_json(coupon, None, None)
@@ -2550,13 +2338,6 @@ class Discount(PFmodel):
         if obj.num_coupons > 0 and obj.available_coupons > obj.num_coupons:
             wrong_list.append('available_coupons')
 
-        if obj.coupons is not None and len(obj.coupons) > 0:
-            for coupon in obj.coupons:
-                valid, wrong_coupon = Coupon.is_valid(coupon)
-                if not valid:
-                    for p in wrong_coupon:
-                        wrong_list.append('coupon.' + p)
-
         if len(wrong_list) > 0:
             return False, wrong_list
         else:
@@ -2606,7 +2387,7 @@ class Discount(PFmodel):
             if db_obj is None:
                 logging.info("Updating discount - NOT FOUND " + str(key))
                 raise InvalidKeyException('key does not correspond to any Discount')
-
+            obj.place_name = place.name
             objdict = obj.to_dict()
 
             NOT_ALLOWED = ['id', 'key', 'coupons', 'created_by', 'available_coupons',
@@ -2665,15 +2446,18 @@ class Discount(PFmodel):
             if not ( isinstance(key, ndb.Key) and key.kind().find('Discount') > -1):
                 raise TypeError('key must be a valid key for a Discount, it is ' + str(key))
             discount = key.get()
-            
+            discount.coupons = None
             if requester_id is None:
                 if discount.published == False:
                     # the user cannot see it since it is not public!
                     raise UnauthorizedException('The discount is not public, access is garanted only to the owner of the place to which it refers to. Login is needed.')
                 #hide coupons
-                discount.coupons = None
             else:
                 if requester_id == 'API':
+                    coupons = Coupon.get_list({'discount': discount.key.urlsafe()}, requester_id)
+                    # this is a normal user, he cannot see the coupons of other users
+                    coupons = [coupon for coupon in coupons if coupon.deleted == False]
+                    discount.coupons = coupons
                     return discount
                 
                 user_key = PFuser.make_key(requester_id, None)
@@ -2683,8 +2467,9 @@ class Discount(PFmodel):
                 if place.owner != user_key and discount.published == False:
                     raise UnauthorizedException("Only the owner of the place can access a Discount that is not public!")
                 if place.owner != user_key:
+                    coupons = Coupon.get_list({'discount': discount.key.urlsafe()}, requester_id)
                     # this is a normal user, he cannot see the coupons of other users
-                    coupons = [coupon for coupon in discount.coupons if coupon.user == user_key and coupon.deleted == False]
+                    coupons = [coupon for coupon in coupons if coupon.user == user_key and coupon.deleted == False]
                     discount.coupons = coupons
             return discount 
             
@@ -2739,9 +2524,6 @@ class Discount(PFmodel):
         if 'place' in filters and filters['place'] is not None:
             q = q.filter(
                 Discount.place == Place.make_key(None, filters['place']))
-        if 'coupon_user' in filters and filters['coupon_user'] is not None:
-            q = q.filter(
-                Discount.coupons.user == PFuser.make_key(None, filters['coupon_user']))
         if 'published' in filters and filters['published'] is not None:
             q = q.filter(Discount.published == filters['published'])
         if 'passed' in filters and filters['passed'] is not None:
@@ -2751,9 +2533,19 @@ class Discount(PFmodel):
                 q = q.filter(Discount.end_time > datetime.now())
         res = list(q)
         
+        if 'coupon_user' in filters and filters['coupon_user'] is not None:
+            logging.info('Loaded discounts: ' + str(len(res)))
+            for discount in res:
+                coupons = Coupon.get_list({'discount': discount.key.urlsafe()}, requester_id)
+                logging.info('Loaded coupons for discount: ' + str(len(coupons)))
+                coupons = [coupon for coupon in coupons if coupon.user.urlsafe() == filters['coupon_user']]
+                logging.info('Coupons after filter: ' + str(len(coupons)))
+                if len(coupons) < 1:
+                    del discount
+            
+        
         for discount in res:
             if requester_id is None:
-            
                 if discount.published == False:
                     del discount
             else:
@@ -2764,10 +2556,11 @@ class Discount(PFmodel):
                 if place.owner != user_key and discount.published == False:
                     del discount
                 if place.owner != user_key:
+                    coupons = Coupon.get_list({'discount': discount.key.urlsafe()}, requester_id)
                     # this is a normal user, he cannot see the coupons of other users
-                    coupons = [coupon for coupon in discount.coupons if coupon.user == user_key and coupon.deleted == False]
+                    coupons = [coupon for coupon in coupons if coupon.user == user_key and coupon.deleted == False]
                     discount.coupons = coupons
-
+        logging.info('Returning discounts: ' + str(len(res)))
         return res
 
     @staticmethod
@@ -2856,32 +2649,31 @@ class Discount(PFmodel):
                 if coupon.user == user.key:
                     # the user already bought a coupon for this discount
                     bought = coupon
-                    index = idx
                     #break
 #         logging.info('BOUGHT: ' + str(bought))
         if bought is not None:
             if bought.deleted == True:
                 bought.deleted = False
                 bought.delete_time = None
+                bought.put()
                 discount.available_coupons = discount.available_coupons - 1
-                discount.coupons[index] = bought
                 discount.put()
                 return bought
             else:
                 raise CouponAlreadyBoughtException('The user already bought a coupon for this discount')
 
         coupon = Coupon(
-            user=user_key, buy_time=datetime.now(), code=code_generator(codes))
+            user=user_key, discount=discount.key, buy_time=datetime.now(), code=code_generator(codes))
 
+        coupon.put()
         discount.available_coupons = discount.available_coupons - 1
-        discount.coupons.append(coupon)
+        discount.put()
 
 #         if (self.num_coupons - self.available_coupons) == len(self.coupons):
 #             self.put()
 #         else:
 # available coupons and list of coupons do not agree.
 #             return None
-        discount.put()
         return coupon
     
     @staticmethod
@@ -2966,12 +2758,10 @@ class Discount(PFmodel):
             raise InvalidKeyException('The discount does not refer to a valid Place!')
 
         coupon = None
-        index = 0
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for idx, c in enumerate(discount.coupons):
+            for c in discount.coupons:
                 if c.code == code:
                     coupon = c
-                    index = idx
                     break
         if coupon is None:
             raise ValueError('code is not valid, it does not refer to a coupon for this discount!')
@@ -2984,7 +2774,7 @@ class Discount(PFmodel):
 
         coupon.used = True
         coupon.usage_time = datetime.now()
-        discount.coupons[index] = coupon        
+        coupon.put()        
         discount.put()
         return coupon
 
@@ -3015,12 +2805,10 @@ class Discount(PFmodel):
             raise TypeError('code must be a str or a unicode, instead it is ' + str(type(code)))
         user_key = PFuser.make_key(requester_id, None)
         coupon = None
-        index = 0
         if discount.coupons is not None and len(discount.coupons) > 0:
-            for idx, c in enumerate(discount.coupons):
+            for c in discount.coupons:
                 if c.code == code:
                     coupon = c
-                    index = idx
                     break
         if coupon is None:
             raise ValueError('code is not valid, is does not refer to a coupon for this discount.')
@@ -3029,7 +2817,7 @@ class Discount(PFmodel):
         coupon.deleted = True
         coupon.delete_time = datetime.now()
         discount.available_coupons = discount.available_coupons + 1
-        discount.coupons[index] = coupon
+        coupon.put()
         discount.put()
 
         return coupon
@@ -3055,7 +2843,6 @@ class Discount(PFmodel):
             raise UnauthorizedException('The user must login before deleting a discount.')
         
         discount = Discount.get_by_key(key, requester_id)
-        
         place = Place.get_by_key(discount.place)
         user_key = PFuser.make_key(requester_id, None)
         # if place is none we let anyone delete it, if it is possible.
@@ -3068,9 +2855,318 @@ class Discount(PFmodel):
 
         if discount.published == True:
             return False
+        for coupon in discount.coupons:
+            Coupon.delete(coupon.key) 
         key.delete()
         return True
     
+    
+class Coupon(PFmodel):
+    """
+    Represents the coupon given to a user that decided to take advantage of a Discount offered in a place.
+    """
+    user = ndb.KeyProperty(kind=PFuser)
+    discount = ndb.KeyProperty(kind=Discount)
+    code = ndb.StringProperty()
+    buy_time = ndb.DateTimeProperty(auto_now_add=True)
+    used = ndb.BooleanProperty(default=False)
+    usage_time = ndb.DateTimeProperty()
+    deleted = ndb.BooleanProperty(default=False)
+    delete_time = ndb.DateTimeProperty()
+    
+
+    @staticmethod
+    def to_json(obj, allowed, hidden):
+        """ 
+        It transforms the Coupon in a dict, that can be easily converted to a json.
+
+        Parameters:
+        - obj: the instance of Coupon to convert.
+        - allowed: list of strings indicating which properties are needed.
+        - hidden: list of strings indicating which properties are not needed.
+
+        Return value: dict representation of the object.
+
+        If a property appears in both allowed and hidden, hidden wins and the property is not returned.
+        'key' is converted to urlsafe.
+        Exceptions: TypeError if parameters are of the wrong type (from PFmodel.to_json())
+        """
+        res = PFmodel.to_json(obj, Coupon, allowed, hidden)
+        if res is not None and 'user' in res:
+            res['user'] = res['user'].urlsafe()
+        if 'discount' in res.keys():
+            res['discount'] = res['discount'].urlsafe()
+        if 'buy_time' in res.keys():
+            res['buy_time'] = res[
+                'buy_time'].strftime('%Y-%m-%d %H:%M')
+        if 'usage_time' in res.keys():
+            res['usage_time'] = res[
+                'usage_time'].strftime('%Y-%m-%d %H:%M')
+        if 'delete_time' in res.keys():
+            res['delete_time'] = res[
+                'delete_time'].strftime('%Y-%m-%d %H:%M')
+        return res
+
+    @staticmethod
+    def from_json(json_dict):
+        """
+        It converts a dict coming from a json string into a Coupon.
+
+        Parameters:
+        - json_dict: the dict containing the information received from a json string.
+
+        Return value: Coupon or None if the input dict contains wrong data.
+        Exceptions: TypeError if parameter is of the wrong type, Exceptions raised from res.populate()
+        """
+        if not isinstance(json_dict, dict):
+            raise TypeError(
+                "json_dict must be dict, instead it is " + str(type(json_dict)))
+
+        if 'user' in json_dict:
+            json_dict['user'] = PFuser.make_key(None, json_dict['user'])
+        if 'discount' in json_dict:
+            json_dict['discount'] = Discount.make_key(None, json_dict['discount'])
+
+        if 'buy_time' in json_dict.keys():
+            try:
+                json_dict['buy_time'] = datetime.strptime(
+                    json_dict['buy_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['buy_time']
+        if 'usage_time' in json_dict.keys():
+            try:
+                json_dict['usage_time'] = datetime.strptime(
+                    json_dict['usage_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['usage_time']
+        if 'delete_time' in json_dict.keys():
+            try:
+                json_dict['delete_time'] = datetime.strptime(
+                    json_dict['delete_time'], '%Y-%m-%d %H:%M')
+            except ValueError:
+                del json_dict['delete_time']
+
+        res = Coupon()
+
+        try:
+            # populate raises exceptions if the keys and values in json_dict
+            # are not valid for this object.
+            res.populate(**json_dict)
+        except Exception as e:
+            logging.info("Error while creating Coupon from json: " + str(e))
+            return None
+
+        return res
+
+    @staticmethod
+    def make_key(obj_id, url_encoded):
+        """
+        It creates a Key object for this class, with id obj_id.
+
+        Parameters:
+        - obj_id: the object id. It can be a string or a long.
+        - url_encoded: the object key as url-encoded string.
+
+        If obj_id is set, the key is generated fom the id, otherwise url_encoded is used to get the key.
+
+        Return value: ndb.Key.
+        Exceptions: TypeError if input parameters are of the wrong type (from PFmodel.make_key)
+        """
+        return PFmodel.make_key(obj_id, url_encoded, 'Coupon')
+
+    @staticmethod
+    def is_valid(obj):
+        """
+        It validates the object data.
+
+        Parameters:
+        - obj: the object to be validated
+
+        Return value: (boolean, list of strings representing invalid properties).
+        A result of <False, []> means that the object type is wrong, so all properties are wrong.
+        """
+        wrong_list = []
+        if not isinstance(obj, Coupon):
+            return False, wrong_list
+
+        if obj.user is None:
+            wrong_list.append('user')
+        else:
+            user = PFuser.get_by_key(obj.user)
+            if user is None:
+                wrong_list.append('user')
+
+        if obj.buy_time is None:
+            wrong_list.append('buy_time')
+        else:
+            if obj.usage_time is not None and obj.usage_time < obj.buy_time:
+                wrong_list.append('buy_time')
+                wrong_list.append('usage_time')
+            if obj.delete_time is not None and obj.delete_time < obj.buy_time:
+                wrong_list.append('buy_time')
+                wrong_list.append('delete_time')
+
+        if obj.used and obj.usage_time is None:
+            wrong_list.append('usage_time')
+            wrong_list.append('used')
+
+        if obj.used and obj.deleted:
+            wrong_list.append('deleted')
+
+        if obj.deleted and obj.delete_time is None:
+            wrong_list.append('delete_time')
+            wrong_list.append('deleted')
+
+        if len(wrong_list) > 0:
+            return False, wrong_list
+        else:
+            return True, None
+
+    @staticmethod
+    def store(obj, key):
+        """
+        It creates or updates the Coupon, according to presence and validity of the key.
+
+        Parameters:
+        - obj: the coupon to store
+        - key: if it is not set, this function creates a new object; if it is set, this function updates the object.
+        
+
+        For updates, only allowed attributes are updated, while the others are ignored.
+
+        Return value: Discount
+        Exceptions: TypeError if the input parameters are of the wrong type;
+                    ValueError if the input obj has wrong values;
+                    InvalidKeyException if the key does not correspond to a valid Discount, 
+                        or if the place key in the coupon does not refer to a valid Place;
+                    UnauthorizedException if the requester is not the owner of the place
+        """
+        valid, wrong_list = Coupon.is_valid(obj)
+        if not valid:
+            logging.error("Invalid input data: " + str(wrong_list))
+            if len(wrong_list)<1:
+                raise TypeError('obj must be Coupon, instead it is ' + str(type(obj)))
+            else :
+                raise ValueError('Wrong values for the following attributes: ' + str(wrong_list))
+
+        # discount should exist
+        discount = Discount.get_by_key(obj.discount)
+        if discount is None:
+            raise InvalidKeyException("The disocunt for the Coupon does not exist!")
+        
+        #user_key = PFuser.make_key(requester_id, None)
+
+        if key is not None:
+            if not(isinstance(key, ndb.Key) and key.kind().find('Coupon') > -1):
+                raise TypeError('key must be a valid key for a Coupon, it is ' + str(key))
+            # key is valid --> update
+            db_obj = key.get()
+            if db_obj is None:
+                logging.info("Updating coupon - NOT FOUND " + str(key))
+                raise InvalidKeyException('key does not correspond to any Coupon')
+           
+            objdict = obj.to_dict()
+
+            NOT_ALLOWED = ['id', 'key', 'user', 'discount']
+
+            for key, value in objdict.iteritems():
+                if key in NOT_ALLOWED:
+                    continue
+                if hasattr(db_obj, key):
+                    try:
+                        setattr(db_obj, key, value)
+                    except:
+                        continue
+
+                else:
+                    continue
+
+            db_obj.put()
+            return db_obj
+
+        else:
+            # key is not valid --> create
+
+            obj.put()
+            return obj
+
+    @staticmethod
+    def get_by_key(key, requester_id):
+        """
+        It retrieves the Coupon by key.
+
+        Parameters:
+        - key: the ndb key identifying the object to retrieve.
+        - requester_id: id of the user which is making the request. 
+        Only the place owner and the coupon owner can access the coupon.
+
+        Return value: Coupon.
+        Exceptions: TypeError if the input parameter is of the wrong type
+                    UnauthorizedException
+        """
+        
+        if key is not None:
+            if not ( isinstance(key, ndb.Key) and key.kind().find('Coupon') > -1):
+                raise TypeError('key must be a valid key for a Coupon, it is ' + str(key))
+            coupon = key.get()
+            
+            if requester_id is None:
+                raise UnauthorizedException('The coupons are not public.')
+            else:
+                if requester_id == 'API':
+                    return coupon
+                
+                user_key = PFuser.make_key(requester_id, None)
+                discount = Discount.get_by_key(coupon.discount)
+                if discount is None:
+                    raise InvalidKeyException("The discount for the Coupon does not exist!")
+                if discount.place.owner != user_key and coupon.user != user_key:
+                    raise UnauthorizedException("Only the owner of the place or the owner of the coupon can access it.")
+                
+            return coupon 
+            
+        else:
+            return None
+
+    @staticmethod
+    def get_list(filters, requester_id):
+        """
+        It retrieves a list of Coupons satisfying the characteristics described in filter.
+
+        Parameters:
+        - filters: a dict containing the characteristics the objects in the resulting list should have.
+        - requester_id: id of the user which is making the request. 
+        Only the place owner can access the past discounts and the ones that have not been published yet.
+
+        Available filters:
+        - 'discount': urlsafe key for the discount
+        
+
+        Return value: list of Coupon objects.
+        Exceptions: TypeError if the input parameter is of the wrong type;
+            exceptions are raised also from make_key methods
+        """
+        
+        if requester_id is None:
+            return None
+        if not isinstance(filters, dict):
+            raise TypeError('filters must be a dict, instead it is ' + str(type(filters)))
+
+        logging.info("Loading coupons with filters: " + str(filters))
+
+        q = Coupon.query()
+        if 'discount' in filters and filters['discount'] is not None:
+            q = q.filter(
+                Coupon.discount == Discount.make_key(None, filters['discount']))
+        
+        res = list(q)
+        
+        for coupon in res:
+            if requester_id != 'API':
+                user_key = PFuser.make_key(requester_id, None)
+                if coupon.user != user_key:
+                    del coupon
+        return res
     
     
     

@@ -423,6 +423,9 @@
 						});
 						
 						$('.buy').click(function(){
+							if($('.buy').hasClass('disabled')){
+								return;
+							}
 							var key = $(this).attr('discount-id');
 							create_coupon(key);
 						});
