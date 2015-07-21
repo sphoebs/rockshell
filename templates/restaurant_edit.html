@@ -45,7 +45,7 @@
 			<div class="text-center text-title">{{ lang['rest_edit'] if not place.name is none else lang['rest_new'] }}</div>
 
 			<div class="separator"></div>
-			{% if user.role == 'admin' %}
+			{% if user.role == 'admin' and not place.key is none %}
 				<input type="button" class="img-btn delete center"
 					value="Delete" />
 			{% endif %}
@@ -360,9 +360,9 @@
 			
 				// save latitude and longitude
 				if(place.geometry.location){
-					/* alert(JSON.stringify(place.geometry.location)); */
-					document.getElementById('lat').value = place.geometry.location.k;
-					document.getElementById('lon').value = place.geometry.location.D;
+					//console.log(JSON.stringify(place.geometry.location));
+					document.getElementById('lat').value = place.geometry.location.A;
+					document.getElementById('lon').value = place.geometry.location.F;
 				}
 			});
 		
@@ -391,6 +391,10 @@
 				var description_en = $('#rest_description_en').val();
 				var description_it = $('#rest_description_it').val();
 				var picture = $('#rest_picture').val();
+				
+				if(picture == undefined || picture == ''){
+					picture = 'http://secure-gizmo-698.appspot.com/static/images/empty_small.png';
+				}
 				
 				var other_pictures = [];
 				$('#other-pictures').find('img').each(function(){

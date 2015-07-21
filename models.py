@@ -2471,6 +2471,10 @@ class Discount(PFmodel):
                     # this is a normal user, he cannot see the coupons of other users
                     coupons = [coupon for coupon in coupons if coupon.user == user_key and coupon.deleted == False]
                     discount.coupons = coupons
+                else:
+                    #place owner can see all coupons!!
+                    coupons = Coupon.get_list({'discount': discount.key.urlsafe()}, 'API')
+                    discount.coupons = coupons
             return discount 
             
         else:

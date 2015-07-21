@@ -300,6 +300,10 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
             rating_filters['places'] = place_ids
         rating_filters['purpose'] = purpose
         ratings = load_data(rating_filters)
+        if ratings is None:
+            logging.info("ratings for places: None")
+        else:
+            logging.info("ratings for places: " + str(len(ratings)))
         items = {}
         if ratings is not None:
             for other in ratings:
@@ -312,6 +316,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
  
         avg_scores = [(sum(items[item]) / len(items[item]), item)
                       for item in items]
+        logging.info("avg_scores: " + str(len(avg_scores)))
         filters = {'purpose': purpose, 'user': user_id}
         if places is not None:
             filters['places'] = place_ids
@@ -321,25 +326,30 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
         if scores is None:
             scores = []
         for value, key in avg_scores:
+            toadd = True
             for ur in user_ratings:
                 if value < 3.0:
                     #skip this place, too low rating
+                    toadd = False
                     continue
                 if key == ur.place.urlsafe() and ur.value < 3.0:
                     #skip this place, user doesn't like it
+                    toadd = False
                     continue
                 
-                in_list = False
                 for svalue, skey in scores:
                     if key == skey:
-                        in_list = True
+                        #already in list because of cluster
+                        toadd = False
                         break
-                if not in_list:
-                    scores.append((value, key))
-                    logging.info("Appending place with value " + str(value))
-                if len(scores) >= n:
-                    # we have enough recommended places
-                    break
+                    
+            if toadd:
+                scores.append((value, key))
+                logging.info("Appending place with value " + str(value))
+            if len(scores) >= n:
+                # we have enough recommended places
+                break
+                
                 
         scores = sorted(scores, key=lambda x: x[0], reverse = True)
         if len(scores) > n:
@@ -387,7 +397,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
 #                 found = True
 #         if not found:
 #             places_scores.append((0, p))
-    
+    logging.info('places_scores: ' + str(len(places_scores)))
     places_scores = sorted(places_scores, key=lambda x: x[0], reverse = True)
     logging.warning("Moving mapping from place ids to full place data: " + str(datetime.now() - start))
     if len(places_scores) > n:
@@ -412,7 +422,7 @@ def recommend(user_id, filters, purpose='dinner with tourists', n=5):
                 pass
         place['predicted'] = score
         items.append(place)
-    logging.warning("Time for loading discounts [no discounts to load]: " + str(datetime.now() - start))
+    logging.warning("Time for loading discounts: " + str(datetime.now() - start))
 #     logging.info("Recommended items: " + str(items))
     logging.info("recommender.recommend END ")#- items: " + str(items))
     return items
