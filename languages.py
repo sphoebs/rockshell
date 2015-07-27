@@ -123,7 +123,7 @@ en = {
     'prediction': 'Our guess of your interest',
     'next_text': 'No, thanks. Next',
     
-    'reclist_end': 'You reached the end of your {num} recommendations.',
+    'reclist_end': 'You reached the end of your recommendations.',
 #     'your_settings': 'You are searching {num} restaurants within {dist} meters from{loc}',
 #     'current_position': ' your current position.',
 #     'city_center': ' city center.',
@@ -155,6 +155,9 @@ en = {
     'map_search': 'Search in the map',
     'done': 'I\'m done',
     'city_mandatory': 'The city must be set!!',
+    'new_place_saved': 'The new restaurant has been correctly saved and added to the list.',
+    'missing_name': 'Please, fill in the name of the restaurant!',
+    'missing_address': 'Please, fill in the address of the restaurant!',
     
     # RESTAURANT PAGE + EDIT
     'rest_opening_hours': 'Opening hours',
@@ -525,7 +528,7 @@ it = {
     'prediction': 'La nosta previsione del tuo gradimento',
     'next_text': 'No, grazie. Il prossimo',
     
-    'reclist_end': 'Hai raggiunto la fine delle tue {num} raccomandazioni.',
+    'reclist_end': 'Hai raggiunto la fine delle tue raccomandazioni.',
 #     'your_settings': 'Stai cercando {num} ristoranti a meno di {dist} metri da{loc}',
 #     'current_position': 'lla tua posizione attuale.',
 #     'city_center': u', centro città.',
@@ -556,6 +559,9 @@ it = {
     'map_search': 'Cerca nella mappa',
     'done': 'Ho finito',
     'city_mandatory': u'La città deve essere selezionata!!',
+    'new_place_saved': 'Il nuovo ristorante e` stato salvato correttamente ed e` stato aggiunto alla lista.',
+    'missing_name': 'Per favore, inserisci il nome del ristorante!',
+    'missing_address': 'PEr favore, inserisci l\'indirizzo del ristorante!',
     
     # RESTAURANT PAGE + EDIT
     'rest_opening_hours': 'Orario d\'apertura',
