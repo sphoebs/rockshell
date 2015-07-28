@@ -79,16 +79,16 @@
 						<div class="separator"></div>
 						
 						<div class="suggestion-form">
-							<div class="line email">
-								<!-- <div class="text-all-capital">{{lang['suggest_rest_popup']['email']}}</div> -->
-								<input class="my-input-text" type="hidden" id="email"/>
-								<!-- <div class="" style="margin-top: 3px;">{{lang['suggest_rest_popup']['email_helper']}}</div> -->
+							<div class="email">
+								<div class="text-all-capital">{{lang['suggest_rest_popup']['email']}}</div>
+								<input class="my-input-text" type="text" id="email"/>
+								<div class="" style="margin-top: 3px;">{{lang['suggest_rest_popup']['email_helper']}}</div>
 							</div>
-							<div class="line name">
+							<div class="name">
 								<div class="text-all-capital">{{lang['suggest_rest_popup']['rest_name']}}</div>
 								<input class="my-input-text" type="text" id="name"/>
 							</div>
-							<div class="line details">
+							<div class="details">
 								<div class="text-all-capital">{{lang['suggest_rest_popup']['details']}}</div>
 								<textarea class="my-input-text" id="details"></textarea>
 							</div>
@@ -405,9 +405,193 @@ $(window).ready(function() {
 		
 		function addPlace(){
 			
+			/* //load underscore template
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("GET","/static/js_templates/new_rest_rating_popup.ejs",false);
+			xmlhttp.send(null);
+			var template = xmlhttp.responseText;
+			var compiled = _.template(template);
+			var html = compiled({ 
+				strings: {{lang['new_rest_rating_popup']|safe}}, 
+				purpose: {{lang['rating_purposes']|safe}} 
+			}); */
+			
+			
+			/* if(newplaceListener == undefined){
+				var autocomplete2 = new google.maps.places.Autocomplete(
+					document.getElementById('rest-address-input'), {types: ['address']});
+				var componentForm2 = {
+					street_number: 'short_name',
+					route: 'long_name',
+					locality : 'long_name',
+					administrative_area_level_2 : 'short_name',
+					country : 'short_name',
+				};
+			
+				newplaceListener = google.maps.event.addListener(autocomplete2,
+					'place_changed', function(){ newPlaceAddress(); });
+				console.log(newplaceListener);
+			
+				function newPlaceAddress(){
+					var place = autocomplete2.getPlace();
+				
+					// Get each component of the address from the place details
+					// and fill the corresponding field on the form.
+					if(place == undefined || place.address_components == undefined){
+						return;
+					}
+					for (var i = 0; i < place.address_components.length; i++) {
+						var addressType = place.address_components[i].types[0];
+						if (componentForm2[addressType]) {
+							var val = place.address_components[i][componentForm2[addressType]];
+							document.getElementById('new_'+addressType).value = val;
+						}
+					}
+				
+					// save latitude and longitude
+					if(place.geometry.location){
+						console.log(JSON.stringify(place.geometry.location));
+						document.getElementById('new_lat').value = place.geometry.location.A;
+						document.getElementById('new_lon').value = place.geometry.location.F;
+					}
+					return;
+				};
+			} */
+			/* $('.suggest-place-form').show();
+			
+			
+			$('#close-popup').click(function(){
+				$('.suggest-place-form').hide();
+				
+				 $('.scrollable').enscroll({
+				    showOnHover: false,
+				    verticalScrolling: true,
+					horizontalScrolling: false,
+					zIndex: 100,
+				    verticalTrackClass: 'track-red',
+				    verticalHandleClass: 'handle-red'
+				}); 
+			}); */
+			
+			/* $('.popup-scrollable').enscroll({
+			    showOnHover: false,
+			    verticalScrolling: true,
+				horizontalScrolling: false,
+				zIndex: 320,
+			    verticalTrackClass: 'track-red',
+			    verticalHandleClass: 'handle-red'
+			}); */
+			
+			
+			/* $('#rest-picture').change(function(){
+				$('.picture-image .rest-image').css('background-image', 'url('+this.value+')');
+			}); */
+
+			
+			
+			/* $('.newrating').click(function(){
+				$(this).parent().find('button').removeClass('selected');				
+				$(this).addClass('selected');
+			}); 
+			
+			$('.save-new-place').click(function(){
+			var self = this;
+			var name = $('#rest-name').val();
+			
+			var street = $('#new_route').val() + " " + $('#new_street_number').val();
+			var city = $('#new_locality').val();
+			var province = $('#new_administrative_area_level_2').val();
+			var country = $('#new_country').val();
+			var latitude = $('#new_lat').val() != "" ? $('#new_lat').val() : undefined;
+			var longitude = $('#new_lon').val() != "" ? $('#new_lon').val() : undefined;
+			
+			var picture = $('#rest-picture').val();
+			
+			if(name == undefined || name == ''){
+				// name is missing!!
+				alert('{{lang['missing_name']}}');
+				return 
+			}
+			//console.log("Street: " + street)
+			if(street == undefined || street == '' || street.trim() == ''){
+				alert('{{lang['missing_address']}}');
+				return 
+			}
+			
+			var place = {
+				'name': name,
+				'address' : {
+					'street' : street,
+					'city' : city,
+					'province' : province,
+					'country': country,
+					'lat' : latitude,
+					'lon': longitude
+				},
+				'picture' : picture,
+				'service' : ['restaurant']
+			};
+			$.ajax({
+				type : 'POST',
+				url : '/api/place',
+				data : JSON.stringify(place),
+				success : function(place) {
+					place.ratings = [];
+					$('.newrating.selected').each(function(){
+						
+					
+						var btn = $(this);
+						var value = $(btn).attr('value');
+						var not_known = false;
+						
+						if (value == 0){
+							not_known = true;
+						}
+						var rating = {
+							'place_id' : place.key,
+							'purpose' : $(btn).attr('purpose'),
+							'value' : value,
+							'not_known' : not_known,
+						};
+						place.ratings.push(rating);
+						
+						saveNewPlaceRating(rating);
+					});
+					all_places.push(place);
+					filtered_places = all_places;
+					last_pos = 0;
+					
+					$('.new-place-form').html('');
+					displayPlaces(last_pos);
+					alert("{{lang['new_place_saved']}}")
+					
+				},
+				error : function(resp) {
+					if (resp.status == 200) {
+						$(self).find('.rating.selected').each(saveRating(place.key))
+						wait_save_place--;
+					} else {
+						if(window.console){
+							console.log(resp);
+						}
+						if(resp.status == 403){
+							show_error({{lang['unauthorized_error']|safe}});
+						} else {
+							show_error({{lang['place_save_error']|safe}});
+						}
+					}
+				},
+				headers : {
+					Authorization : auth
+				}
+			});
+		});*/
+			
+			
 			$('#email').val('{{user.email}}');
 			
 			$('.suggest-place-form').show();
+			
 			
 			$('#close-popup').click(function(){
 				$('.suggest-place-form').hide();
@@ -421,17 +605,17 @@ $(window).ready(function() {
 				var city = $('#city').val();
 				
 				var message = 'User ' + email + ' suggests a new restaurant to be added, while searching in city \"'+city+'\": ' + rest_name + "\n\n Details:\n" + details;
-				message = {message: message};
+				
 				$.ajax({
 					type : 'POST',
 					url : '/suggest',
-					data : JSON.stringify(message),
+					data : JSON.stringify({message: message}),
 					success : function() {
 						$('.suggest-place-form').hide();
 						$('#email').val('');
 						$('#name').val('');
 						$('#details').val('');
-						alert('{{lang['suggest_rest_popup']['suggestion_sent']}}');
+						alert('{{lang[suggest_rest_popup][suggestion_sent]}}');
 					},
 					error : function(resp) {
 						if (resp.status == 200) {
@@ -439,12 +623,11 @@ $(window).ready(function() {
 							$('#email').val('');
 							$('#name').val('');
 							$('#details').val('');
-							alert('{{lang['suggest_rest_popup']['suggestion_sent']}}');
+							alert('{{lang[suggest_rest_popup][suggestion_sent]}}');
 						} else {
 							if(window.console){
 								console.log(resp);
 							}
-							$('.suggest-place-form').hide();
 							if(resp.status == 403){
 								show_error({{lang['unauthorized_error']|safe}});
 							} else {
@@ -459,6 +642,31 @@ $(window).ready(function() {
 			});
 		}
 		
+		/* 
+		function saveNewPlaceRating(rating) {
+			
+			$.ajax({
+				type : 'POST',
+				url : '/api/rating',
+				data : JSON.stringify(rating),
+				success : function() {
+				},
+				error : function(resp) {
+					if(window.console){
+						console.log(resp);
+					}
+					if(resp.status == 403){
+						show_error({{lang['unauthorized_error']|safe}});
+					} else {
+						show_error({{lang['rating_save_error']|safe}});
+					}
+				},
+				headers : {
+					Authorization : auth
+				}
+			});
+			
+		}; */
 		
 		function saveRating(e) {
 			

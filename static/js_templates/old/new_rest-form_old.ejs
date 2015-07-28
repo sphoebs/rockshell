@@ -1,0 +1,181 @@
+<div class="new-place-form" style="display: none;">
+			
+				<div class="popup-background new-rest-popup">
+					<div class="popup-foreground popup-scrollable">
+						<button class="img-btn close" id="close-popup"></button>
+						<div class="text-center text-title">{{lang['new_rest_rating_popup']['title']}}</div>
+		
+						<div class="separator"></div>
+		
+						<div class="rest-item">
+							<div class="rest-details">
+								<div class="name">
+									<div class="text-all-capital">{{lang['new_rest_rating_popup']['name_placeholder']}}</div>
+									<input class="my-input-text" type="text" id="rest-name"/>
+								</div>
+								<div class="address" >
+									<div class="text-all-capital">{{lang['new_rest_rating_popup']['address_placeholder']}}</div>
+									<input class="my-input-text" type="text" name="rest-address-input" id="rest-address-input">
+									<input type="hidden" name="new_street_number" id="new_street_number" />
+									<input type="hidden" name="new_route" id="new_route" />
+									<input type="hidden" name="new_locality" id="new_locality" /> 
+									<input type="hidden" name="new_administrative_area_level_2" id="new_administrative_area_level_2" /> 
+									<input type="hidden" name="new_country" id="new_country"/>
+									<input type="hidden" name="new_lat" id="new_lat"/>
+									<input type="hidden" name="new_lon" id="new_lon"/>
+								</div>
+								<div class="picture-input"> 
+									<div class="text-all-capital">{{lang['new_rest_rating_popup']['picture_placeholder']}}</div> 
+									<input class="my-input-text" type="text" id="rest-picture">
+									<div class="" style="margin-top: 3px;">{{lang['picture_help']}}</div>
+								</div>
+								
+								<div class="rest-image" style="background-image: url(/static/images/empty_small.png)"></div>
+								
+							</div>
+							
+							<div class="rest-ratings smaller">
+								<div class="row">
+									<div class="left-purpose tourists">
+										<div class="purpose-icon"></div>
+										<div class="purpose-text">{{lang['new_rest_rating_popup']['tourists_short']}}</div>
+									</div>
+									<div class="right-ratings">
+										<div class="title tourists">
+											{{lang['new_rest_rating_popup']['how_experience']}}
+										</div>
+										<div class="rating-buttons">
+											<button class="newrating rating-btn noidea"
+							 					purpose="dinner with tourists"
+							 					data-toggle="tooltip" data-placement="bottom"
+							 					title="{{lang['rating_purposes']['tips_notknow']}}"
+							 					value="0"></button>
+											<button class="newrating rating-btn bad"
+							 					purpose="dinner with tourists"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_notlike']}}"
+							 					value="1"></button>
+											<button class="newrating rating-btn neutral"
+							 					purpose="dinner with tourists"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_neutral']}}"
+							 					value="3"></button>
+											<button class="newrating rating-btn happy"
+							 					purpose="dinner with tourists"
+							 					data-toggle="tooltip" data-placement="bottom" title="{{lang['rating_purposes']['tips_like']}}"
+												value="5"></button>
+										</div>
+									</div>
+								</div>
+			
+								<div class="row">
+									<div class="left-purpose partner">
+										<div class="purpose-icon"></div>
+										<div class="purpose-text">{{lang['new_rest_rating_popup']['partner_short']}}</div>
+									</div>
+									<div class="right-ratings">
+										<div class="title partner">
+											{{lang['new_rest_rating_popup']['how_experience']}}
+										</div>
+										<div class="rating-buttons">
+											<button class="newrating rating-btn noidea"
+							 					purpose="romantic dinner"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_notknow']}}"
+							 					value="0"></button>
+											<button class="newrating rating-btn bad"
+							 					purpose="romantic dinner"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_notlike']}}"
+							 					value="1"></button>
+											<button class="newrating rating-btn neutral"
+							 					purpose="romantic dinner"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_neutral']}}"
+							 					value="3"></button>
+											<button class="newrating rating-btn happy"
+							 					purpose="romantic dinner"
+							 					data-toggle="tooltip" data-placement="bottom" title="{{lang['rating_purposes']['tips_like']}}"
+												value="5"></button>
+										</div>
+									</div>
+								</div>
+			
+								<div class="row">
+									<div class="left-purpose friends">
+										<div class="purpose-icon"></div>
+										<div class="purpose-text">{{lang['new_rest_rating_popup']['friends_short']}}</div>
+									</div>
+									<div class="right-ratings">
+										<div class="title friends">
+											{{lang['new_rest_rating_popup']['how_experience']}}
+										</div>
+										<div class="rating-buttons">
+											<button class="newrating rating-btn noidea"
+							 					purpose="dinner with friends"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_notknow']}}"
+							 					value="0"></button>
+											<button class="newrating rating-btn bad"
+							 					purpose="dinner with friends"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_notlike']}}"
+							 					value="1"></button>
+											<button class="newrating rating-btn neutral"
+							 					purpose="dinner with friends"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_neutral']}}"
+							 					value="3"></button>
+											<button class="newrating rating-btn happy"
+							 					purpose="dinner with friends"
+							 					data-toggle="tooltip" data-placement="bottom" title="{{lang['rating_purposes']['tips_like']}}"
+												value="5"></button>
+										</div>
+									</div>			
+								</div>
+			
+								<div class="row">
+									<div class="left-purpose price-quality">
+										<div class="purpose-icon"></div>
+										<div class="purpose-text">{{lang['new_rest_rating_popup']['price_quality_short']}}</div>
+									</div>
+									<div class="right-ratings">
+										<div class="title price-quality">
+											{{lang['new_rest_rating_popup']['how_experience']}}
+										</div>
+										<div class="rating-buttons">
+											<button class="newrating rating-btn noidea"
+							 					purpose="best price/quality ratio"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_notknow']}}"
+												value="0"></button>
+											<button class="newrating rating-btn bad"
+							 					purpose="best price/quality ratio"
+							 					data-toggle="tooltip" data-placement="bottom"
+												title="{{lang['rating_purposes']['tips_notlike']}}"
+							 					value="1"></button>
+											<button class="newrating rating-btn neutral"
+							 					purpose="best price/quality ratio"
+							 					data-toggle="tooltip" data-placement="bottom"
+							 					title="{{lang['rating_purposes']['tips_neutral']}}"
+							 					value="3"></button>
+											<button class="newrating rating-btn happy"
+							 					purpose="best price/quality ratio"
+							 					data-toggle="tooltip" data-placement="bottom" title="{{lang['rating_purposes']['tips_like']}}"
+												value="5"></button>
+										</div>
+									</div>
+								</div>
+		
+							</div>
+							<div class="clear-float"></div>
+						</div>
+						<div>
+							<button class="img-btn red-button save-new-place center">{{lang['new_rest_rating_popup']['save']}}</button>
+						</div>
+					</div>
+		
+				</div>
+			
+			
+			</div>

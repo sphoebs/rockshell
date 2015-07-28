@@ -1218,6 +1218,14 @@ p.empty-list{
 	margin-left: 15px;
 }
 
+.suggest-place-form .suggestion-form {
+	margin: 10px;
+}
+
+.suggest-place-form .suggestion-form .line {
+	margin: 10px 0px;
+}
+
 .new-rest-popup .rest-details div {
 	margin-left: 10px;
 	margin-right: 10px;

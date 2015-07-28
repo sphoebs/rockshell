@@ -28,6 +28,8 @@ import json
 import languages
 from datetime import datetime, time as dtime
 
+from google.appengine.api import mail
+
 from models import PFuser, Place, Settings, Discount, Address
 from google.appengine.api.datastore_types import GeoPt
 
@@ -777,6 +779,25 @@ class AdminsHandler(BaseRequestHandler):
         
         self.render('admins_management.html', { 'admins': admins, 'user': user, 'lang' : LANG })
          
+         
+class SuggestHandler(BaseRequestHandler):
+    
+    def post(self):
+        user_id = logic.get_current_userid(self.request.cookies.get('user'))
+        if user_id is None:
+            self.redirect('/')
+            return
+        
+        post_data = json.loads(self.request.body)
+        mail.send_mail(sender='suggestion@secure-gizmo-698.appspotmail.com ',
+              to='xinecs87@gmail.com',
+              subject="[Planfree] Suggestion",
+              body= post_data['message'])
+        
+        self.response.set_status(200)
+        self.response.write('{}')
+        
+        
 
 class MainHandler(BaseRequestHandler):
 
@@ -797,6 +818,7 @@ app = webapp2.WSGIApplication([
     ('/letsgo', LetsgoHandler),
     ('/settings', SettingsHandler),
     ('/ratings', RatingsPageHandler),
+    ('/suggest', SuggestHandler),
     ('/restaurant', RestaurantPageHandler),
     ('/restaurant/edit', RestaurantEditHandler),
     ('/restaurant/new', RestaurantNewHandler),
