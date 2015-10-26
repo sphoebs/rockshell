@@ -209,8 +209,8 @@ ul {
 button.prev {
 	float: left;
 	margin-left: 10px;
-	width: 40px;
-	height: 40px;
+	width: 30px;
+	height: 30px;
 	padding: 5px;
 }
 
@@ -274,6 +274,27 @@ button.next-text .icon{
 	background-size: contain;
 }
 
+button.prev-text {
+	float: left;
+	margin-left: 10px;
+	width: 40px;
+	height: 40px;
+	padding: 5px;
+}
+
+button.prev-text .icon{
+	width: 20px;
+	height: 20px;
+	top: 10px;
+	background-image: url(../images/arrows/prev_arrow.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+}
+
 button.center, input[type="submit"].center, input[type="button"].center {
 	margin-left: auto;
 	margin-right: auto;
@@ -287,6 +308,36 @@ button.center, input[type="submit"].center, input[type="button"].center {
 }
 
 /* NAVIGATION BUTTONS END */
+
+.back-button-div{
+	top: 50px;
+	width: 100%;
+	margin: 0 auto;
+	
+}
+
+button.back {
+	margin-left: 10px;
+	width: 80px;
+	height: 20px;
+	padding: 5px;
+	font-size: smaller;
+}
+
+button.back .btn-icon{
+	width: 12px;
+	height: 12px;
+	margin-top: -1px;
+	background-image: url(../images/arrows/prev_arrow.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	-webkit-background-size: contain;
+	-moz-background-size: contain;
+	-o-background-size: contain;
+	background-size: contain;
+	float:left;
+}
+
 
 /* BUTTONS END */
 
@@ -1017,8 +1068,8 @@ p.empty-list{
 }
 
 .rest-item .rating-buttons {
-	margin: 7px auto 0px auto;
-	width: 170px;
+	margin: 10px auto 0px auto;
+	width: 180px;
 }
 
 .rest-item button.rating-btn {
@@ -2534,8 +2585,8 @@ ul.rest-edit-list, ul.rest-create-list {
 	}
 	
 	.rest-item .rating-buttons {
-		margin: 3px auto 0px auto;
-		width: 145px;
+		margin: 6px auto 0px auto;
+		width: 155px;
 	}
 
 	.rest-item button.rating-btn {
@@ -2628,8 +2679,8 @@ ul.rest-edit-list, ul.rest-create-list {
 	}
 	
 	.rest-item .rating-buttons {
-		margin: 7px auto 0px auto;
-		width: 170px;
+		margin: 10px auto 0px auto;
+		width: 180px;
 	}
 
 	.rest-item button.rating-btn {

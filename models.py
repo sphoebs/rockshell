@@ -1858,7 +1858,7 @@ class Place(PFmodel):
 
 
 class Rating(PFmodel):
-    _valid_ratings = [1.0, 3.0, 5.0]
+    _valid_ratings = [1.0, 2.0, 3.0, 4.0, 5.0]
     _valid_purpose = ["dinner with tourists", "romantic dinner", "dinner with friends", "best price/quality ratio"]
     
     user = ndb.KeyProperty(kind=PFuser)

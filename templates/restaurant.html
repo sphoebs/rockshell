@@ -55,11 +55,15 @@
 	</div>
 	
 	<div class="main-container">
+	
 		<div class="text-title text-center rest-title">{{place.name}}</div>
 		<div class="text-center text-title rest-title-address">{{place.address.street}}, {{place.address.city}}</div>
 		
 		<div class="separator"></div>
-			
+		
+		<div class="back-button-div content">
+			<button class="img-btn red-button back"><div class="btn-icon"></div>{{lang['back']}}</button>
+		</div>
 		<div class="discount-area content">
 			<div class="text-center"> {{lang['loading']}}... </div>
 		</div>
@@ -451,7 +455,9 @@
 		
 		loadDiscounts();
 		
-		
+		$('button.back').click(function(){
+			window.history.back();
+		});
 		
 		$('.menu-items #edit').click(function(){
 			window.location = '/restaurant/edit?id={{place.key|e}}';

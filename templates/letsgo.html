@@ -133,7 +133,7 @@
 		
 			<div class="bottom-bar content">
 				<button class="img-btn next-text">{{lang['next_text']}} <div class="icon"></div></button>
-				<button class="img-btn prev"><div class="icon"></div></button>
+				<button class="img-btn prev-text"><div class="icon"></div></button>
 			</div>
 		</div>
 			
@@ -325,9 +325,9 @@ $(window).load(function() {
 			 $('button.next-text').show();
 		 }
 		 if(pos > 0){
-			 $('button.prev').show();
+			 $('button.prev-text').show();
 		 } else {
-			 $('button.prev').hide();
+			 $('button.prev-text').hide();
 		 }
 		 
 		 if(pos == places.length){
@@ -671,7 +671,7 @@ $(window).load(function() {
 	
 	
 	$('.next-text').click(onNext);
-	$('.prev').click(onPrev);
+	$('.prev-text').click(onPrev);
 	
 	$( ".main-container.letsgo" ).on( "swipeleft", onNext);
 	$( ".main-container.letsgo" ).on( "swiperight", onPrev);

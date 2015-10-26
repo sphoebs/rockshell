@@ -195,7 +195,17 @@
 				}
 				
 			}
-			$('.rating').click(saveRating);
+			$('.rating-buttons').raty({
+				number : 5,
+				starOff : '/static/images/ratings/star_off.png',
+				starOn  : '/static/images/ratings/star_on.png',
+				half : false,
+				hints: {{lang['rating_hints']|safe}},
+				click: function(score, evt) {
+				    saveRating(evt, score);
+				  }
+			});
+			/* $('.rating').click(saveRating); */
 			
 			if(!mobile){
 				$('.rest-ratings').tooltip({
@@ -218,26 +228,15 @@
 			return "";
 		};
 
-		function saveRating(e) {
+function saveRating(e, score) {
 			
 			var btn = $(e.target);
-			var value = $(btn).attr('value');
-			
-			if($(btn).hasClass('selected')){
-				return;
-			}
-			$(btn).parent().find('button').removeClass('selected');
-			
-			$(btn).addClass('selected');
-			
 			var not_known = false;
-			if (value == 0){
-				not_known = true;
-			}
+			
 			var rating = {
-				'place_id' : $(btn).attr('place_id'),
-				'purpose' : $(btn).attr('purpose'),
-				'value' : value,
+				'place_id' : $(btn).parent().attr('place_id'),
+				'purpose' : $(btn).parent().attr('purpose'),
+				'value' : score,
 				'not_known' : not_known,
 			};
 			

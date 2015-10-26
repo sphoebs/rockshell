@@ -150,6 +150,7 @@ en = {
         'email': 'Email address',
         'email_helper': 'Your email address is used to contact you and to thank you for your contribution.',
         'rest_name': 'Restaurant name',
+        'missing_name': 'Please, insert at least the name of the restaurant you are suggesting.',
         'details': 'Other details',
         'send_suggestion': 'Send suggestion',
         'suggestion_sent': 'Suggestion sent successfully, thank you.',                    
@@ -169,6 +170,7 @@ en = {
     'new_place_saved': 'The new restaurant has been correctly saved and added to the list.',
     'missing_name': 'Please, fill in the name of the restaurant!',
     'missing_address': 'Please, fill in the address of the restaurant!',
+    'rating_hints': ['very bad', 'bad', 'neutral', 'good', 'very good'],
     
     # RESTAURANT PAGE + EDIT
     'rest_opening_hours': 'Opening hours',
@@ -571,6 +573,7 @@ it = {
         'email': 'Indirizzo email',
         'email_helper': 'Il tuo indirizzo email serve per poterti contattare e ringraziare per il tuo contributo.',
         'rest_name': 'Nome del ristorante',
+        'missing_name': 'Per favore, inserisci almeno il nome del ristorante che stai suggerendo.',
         'details': 'Altri dettagli',
         'send_suggestion': 'Manda suggerimento',
         'suggestion_sent': 'Suggerimento mandato con successo, grazie.',                    
@@ -589,7 +592,8 @@ it = {
     'city_mandatory': u'La città deve essere selezionata!!',
     'new_place_saved': 'Il nuovo ristorante e` stato salvato correttamente ed e` stato aggiunto alla lista.',
     'missing_name': 'Per favore, inserisci il nome del ristorante!',
-    'missing_address': 'PEr favore, inserisci l\'indirizzo del ristorante!',
+    'missing_address': 'Per favore, inserisci l\'indirizzo del ristorante!',
+    'rating_hints': ['molto cattivo', 'cattivo', 'neutrale', 'buono', 'molto buono'],
     
     # RESTAURANT PAGE + EDIT
     'rest_opening_hours': 'Orario d\'apertura',
