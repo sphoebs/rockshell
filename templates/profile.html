@@ -146,12 +146,30 @@ $(window).load(function() {
 					document.getElementById(addressType).value = val;
 				}
 			}
-							
-			if(place.geometry.location){
+						
+			if(place.geometry.location && place.geometry.location != {}){
 				var loc = place.geometry.location;
-				$("#lat").val(loc.A);
-				$("#lon").val(loc.F);
-				$(".profile1-map").css('background-image', 'url(https://maps.googleapis.com/maps/api/staticmap?center='+ loc.A+ ',' +loc.F+ '&zoom=13&size=700x400&maptype=roadmap)')
+				var lat = place.geometry.location.lat();
+				var lon = place.geometry.location.lng();
+				if(window.console){
+					console.log("location -- LAT: " + lat + ", LON: " + lon);
+				}
+				$("#lat").val(lat);
+				$("#lon").val(lon);
+				$(".profile1-map").css('background-image', 'url(https://maps.googleapis.com/maps/api/staticmap?center='+ lat+ ',' +lon+ '&zoom=13&size=700x400&maptype=roadmap)')
+				$(".profile1-map").show();
+				$('.save').show();
+			} else if(place.geometry.viewport){
+				var view = place.geometry.viewport;
+				/* console.log(JSON.stringify(view)); */
+				var lat = (view.O.O + view.O.j)/2;
+				var lon = (view.j.j + view.j.O)/2;
+				if(window.console){
+					console.log("viewport -- LAT: " + lat + ", LON: " + lon);
+				}
+				$("#lat").val(lat);
+				$("#lon").val(lon);
+				$(".profile1-map").css('background-image', 'url(https://maps.googleapis.com/maps/api/staticmap?center='+ lat+ ',' +lon+ '&zoom=13&size=700x400&maptype=roadmap)')
 				$(".profile1-map").show();
 				$('.save').show();
 			}
